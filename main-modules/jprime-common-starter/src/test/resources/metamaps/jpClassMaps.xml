@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<jpClassMaps>
+    <jpClassMap code="cl" storage="default" map="cl">
+        <jpAttrMaps>
+            <jpAttrMap code="c_client" map="c_client"/>
+            <jpAttrMap code="short_name" map="short_name"/>
+            <jpAttrMap code="long_name" map="long_name"/>
+            <jpAttrMap code="d_reg" map="d_reg"/>
+        </jpAttrMaps>
+    </jpClassMap>
+</jpClassMaps>
+
+
+

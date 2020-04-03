@@ -1,0 +1,291 @@
+openapi: 3.0.0
+
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0
+
+info:
+  description: This is a JPrime REST API
+  version: "1.0.0"
+  title: JPrime REST API
+  contact:
+    email:  info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+security:
+- password:
+  - read
+
+tags:
+- name: list
+  description: get object list
+- name: object
+  description: get object
+
+paths:
+  '/access/v1/jpPackages':
+    get:
+      tags:
+      - list
+      summary: Получение списка описаний настроек доступа
+      description:
+        Описание имеющихся настроек доступа
+      responses:
+        '200':
+          description: Список всех настроек доступа
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/securityPackageList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/access/v1/jpPackages/{code}':
+    get:
+      tags:
+      - object
+      summary: Получение описание настроек доступа по коду
+      description:
+        Описание имеющихся настроек доступа по коду
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код настроек доступа
+      responses:
+        '200':
+          description: Настройки, соответствующие коду
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/securityPackage'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+
+  '/access/v1/jpClasses':
+    get:
+      tags:
+      - list
+      summary: get list of access settings
+      description:
+        you can get list of access settings
+      responses:
+        '200':
+          description: get list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpClassAccessList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/access/v1/jpClasses/{classCode}':
+    get:
+      tags:
+      - object
+      summary: Получение прав доступа текущего пользователя к объектам класса
+      description: Получение прав доступа текущего пользователя к объектам класса
+      parameters:
+      - in: path
+        name: classCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код метаописания класса
+      responses:
+        '200':
+          description: get access settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpClassAccess'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
+  '/access/v1/jpObjects/{pluralClassCode}/{objectId}':
+    get:
+      tags:
+      - object
+      summary: Получение прав доступа текущего пользователя к указанному объекту
+      description: Получение прав доступа текущего пользователя к указанному объекту
+      parameters:
+      - in: path
+        name: pluralClassCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественный код метаописания объекта
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Идентификатор объекта
+      responses:
+        '200':
+          description: get access settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpObjectAccess'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
+
+components:
+  securitySchemes:
+    password:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: 'http://localhost:8760/qauth2server/auth/token'
+          scopes:
+            read: allows reading resources
+
+  schemas:
+    jpClassAccessList:
+      type: array
+      items:
+       $ref: '#/components/schemas/jpClassAccess'
+
+    jpClassAccess:
+      type: object
+      properties:
+        classCode:
+          type: string
+          description: Кодовое имя класса
+          format: string
+        read:
+          type: boolean
+          description: Признак доступа на чтение
+          format: boolean
+        create:
+          type: boolean
+          description: Признак доступа на создание
+          format: boolean
+        update:
+          type: boolean
+          description: Признак доступа на обновление
+          format: boolean
+        delete:
+          type: boolean
+          description: Признак доступа на удаление
+          format: boolean
+
+    jpObjectAccess:
+      type: object
+      properties:
+        objectClassCode:
+          type: string
+          description: Кодовое имя класса объекта
+          format: string
+        objectId:
+          type: string
+          description: Идентификатор объекта
+          format: string
+        read:
+          type: boolean
+          description: Признак доступа на чтение
+          format: boolean
+        create:
+          type: boolean
+          description: Признак доступа на создание
+          format: boolean
+        update:
+          type: boolean
+          description: Признак доступа на обновление
+          format: boolean
+        delete:
+          type: boolean
+          description: Признак доступа на удаление
+          format: boolean
+
+    securityPackageList:
+      type: array
+      items:
+       $ref: '#/components/schemas/securityPackage'
+
+    securityPackage:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Код пакета
+          format: string
+        name:
+          type: string
+          description: Название пакета
+          format: string
+        description:
+          type: string
+          description: Описание пакета
+          format: string
+        qName:
+          type: string
+          description: qName пакета
+          format: string
+        accesses:
+          type: array
+          description: Настройки ролей доступа
+          items:
+            $ref: '#/components/schemas/accessPackage'
+
+    accessPackage:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Тип доступа (prohibition - запрет / permit - разрешение)
+          format: string
+        role:
+          type: string
+          description: Роли доступа
+          format: string
+        read:
+          type: boolean
+          description: Признак доступа на чтение
+          format: boolean
+        create:
+          type: boolean
+          description: Признак доступа на создание
+          format: boolean
+        update:
+          type: boolean
+          description: Признак доступа на обновление
+          format: boolean
+        delete:
+          type: boolean
+          description: Признак доступа на удаление
+          format: boolean

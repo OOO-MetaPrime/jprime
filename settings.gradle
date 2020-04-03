@@ -1,0 +1,27 @@
+rootProject.name = 'JPrime'
+
+def moduleDirs = ['main-modules', 'services', 'project-modules', 'ui-modules']
+def projectDirs = [:]
+
+rootDir.eachDirMatch({ moduleDirs.contains(new File(it).name) }) { dir ->
+  dir.eachFileRecurse { f ->
+    if ( f.name == "build.gradle" ) {
+      String moduleName = f.parentFile.name
+      include moduleName
+
+      println "include [${moduleName}] module"
+
+      projectDirs[moduleName] = f.parentFile
+    }
+  }
+}
+
+rootProject.children.each {project ->
+  File dir = projectDirs[project.name]
+  if (dir != null) {
+    project.projectDir = dir
+
+    println "change projectDir [$project.name] to [${dir.absolutePath - rootDir.absolutePath}]"
+    assert dir.isDirectory()
+  }
+}

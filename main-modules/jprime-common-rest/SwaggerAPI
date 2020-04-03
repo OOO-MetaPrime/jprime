@@ -1,0 +1,952 @@
+openapi: 3.0.0
+
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0
+
+info:
+  description: This is a JPrime REST API
+  version: "1.0.0"
+  title: JPrime REST API
+  contact:
+    email:  info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+security:
+- password:
+  - read
+
+tags:
+- name: list
+  description: get object list
+- name: create
+  description: create object
+- name: update
+  description: update object
+- name: delete
+  description: delete object
+- name: object
+  description: get object
+- name: util
+  description: run utils
+
+paths:
+  '/api/v1/{pluralCode}/{objectId}':
+    get:
+      tags:
+      - object
+      summary: get object of metaClass
+      operationId: getObject
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object ID
+      responses:
+        '200':
+          description: get obj
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectInfo'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: An object with the specified ID was not found.
+        '5XX':
+
+          description: Unexpected error.
+    delete:
+      tags:
+      - delete
+      summary: delete object of metaClass
+      operationId: deleteObject
+      description:
+        delete object
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object ID
+      responses:
+        '202':
+          description: delete obj
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: An object with the specified ID was not found.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{pluralCode}/search':
+    post:
+      tags:
+      - list
+      summary: searches object of metaClass
+      operationId: searchObject
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+        description: object to add
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{pluralCode}/{objectId}/{attrCode}/{attrValue}':
+    post:
+      tags:
+      - list
+      summary: get objects linked to objectId by attrCode
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's id
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr code
+      - in: path
+        name: attrValue
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr value
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+    get:
+      tags:
+      - list
+      summary: get objects linked to objectId by attrCode
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's id
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr code
+      - in: path
+        name: attrValue
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr value
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{pluralCode}/{objectId}/{attrCode}':
+    post:
+      tags:
+      - list
+      summary: get objects linked to objectId by attrCode
+      operationId: linkedObject
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's id
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+    get:
+      tags:
+      - list
+      summary: get objects linked to objectId by attrCode
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's id
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: link attr code
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{pluralCode}':
+    get:
+      tags:
+      - list
+      summary: searches object of metaClass
+      operationId: allObjects
+      description:
+        you can search for available objects in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      - in: query
+        name: offset
+        required: false
+        description: number of records to skip for pagination
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      - in: query
+        name: limit
+        required: false
+        description: maximum number of records to return
+        schema:
+          type: integer
+          format: int32
+          minimum: 0
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+    put:
+      tags:
+      - update
+      summary: update an object of metaClass
+      operationId: updateObject
+      description: update an object in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: '#/components/schemas/objectData'
+              example:
+              - id: 12
+                classCode: 'testClass'
+                data:
+                  attr1: value1
+                  attr2: value2
+                linkedData:
+                  attr3:
+                    create:
+                    - classCode: 'testClass2'
+                      data:
+                        attr3: value3
+                        attr4: value4
+
+        description: object to update
+      responses:
+        '200':
+          description: item updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectInfo'
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+
+    post:
+      tags:
+      - create
+      summary: adds an object of metaClass
+      operationId: addObject
+      description: Adds an object in the system
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The object's metaClass multiple code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              items:
+                $ref: '#/components/schemas/objectData'
+              example:
+              - classCode: 'testClass'
+                data:
+                  attr1: value1
+                  attr2: value2
+                linkedData:
+                  attr3:
+                    create:
+                    - classCode: 'testClass2'
+                      data:
+                        attr3: value3
+                        attr4: value4
+
+        description: object to add
+      responses:
+        '201':
+          description: item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectInfo'
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+
+  '/utils/v1/{utilCode}/mode/{modeCode}':
+    post:
+      tags:
+      - util
+      summary: exec mode of util
+      description:
+        you can execute step of choosing util
+      parameters:
+      - in: path
+        name: utilCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The util's code
+      - in: path
+        name: modeCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The util step's code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: string
+              format: json
+              example:
+                request: hello
+              description: request json
+        description: object to add
+      responses:
+        '200':
+          description: execute
+          content:
+            application/json:
+              schema:
+                type: string
+                format: json
+                description: response json
+                example:
+                  response: Thanks for hello
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+components:
+  securitySchemes:
+    password:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: 'http://localhost:8760/qauth2server/auth/token'
+          scopes:
+            read: allows reading resources
+
+  schemas:
+    searchQuery:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: integer
+          example: 10
+        limit:
+          type: integer
+          format: integer
+          example: 50
+        totalCount:
+          type: boolean
+          format: boolean
+          example: true
+        attrs:
+          type: array
+          items:
+            type: string
+          example:
+              ["attr1", "attr2","attr3" ,"attr4"]
+        filter:
+          type: object
+          items:
+            $ref: '#/components/schemas/expression'
+          example:
+              {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/order'
+          example:
+          - asc: "attr1"
+          - desc: "attr2"
+
+    expression:
+      type: object
+      description: Настройка условий. Указывается одно из значений
+      properties:
+        cond:
+          type: object
+          description: Простое условие
+          items:
+            $ref: '#/components/schemas/cond'
+        or:
+          type: array
+          description: Объединение условий по ИЛИ
+          items:
+            $ref: '#/components/schemas/expression'
+        and:
+          type: array
+          description: Объединение условий по И
+          items:
+            $ref: '#/components/schemas/expression'
+
+    cond:
+      type: object
+      description: Настройка условия. Указывается одна из комбинаций (feature) или (feature/checkFromDay/checkToDay) или (feature/checkDay) или (attr + условие ниже)
+      properties:
+        feature:
+          type: string
+          format: string
+          description: Кодовое имя динамического свойства (jpFeature)
+        checkFromDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Дата, c которой определяется динамическое свойство
+        checkToDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Дата, по которую определяется динамическое свойство
+        checkDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Дата, на которую определяется динамическое свойство
+        attr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута, на который накладывается условие ниже
+        isNull:
+          type: boolean
+          description: Значение не указано
+        isNotNull:
+          type: boolean
+          description: Значение указано
+        eq:
+          type: string
+          description: Значение равно указанному
+        neq:
+          type: string
+          description: Значение не равно указанному
+        gt:
+          type: string
+          description: Значение больше указанного
+        gte:
+          type: string
+          description: Значение больше или равно указанному
+        lt:
+          type: string
+          description: Значение меньше указанному
+        lte:
+          type: string
+          description: Значение меньше или равно указанному
+        eqYear:
+          type: number
+          description: Значение равно указанному году
+        neqYear:
+          type: number
+          description: Значение не равно указанному году
+        gtYear:
+          type: number
+          description: Значение больше указанного года
+        gteYear:
+          type: number
+          description: Значение больше или равно указанному года
+        ltYear:
+          type: number
+          description: Значение меньше указанного года
+        lteYear:
+          type: number
+          description: Значение меньше или равно указанного года
+        eqMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение равно указанному месяцу
+        neqMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение не равно указанному месяцу
+        gtMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение больше указанного месяца
+        gteMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение больше или равно указанному месяца
+        ltMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение меньше указанного месяца
+        lteMonth:
+          format: yyyy-MM
+          type: string
+          description: Значение меньше или равно указанного месяца
+        eqDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение равно указанному дню
+        neqDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение не равно указанному дню
+        gtDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение больше указанного дня
+        gteDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение больше или равно указанному дню
+        ltDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение меньше указанного дня
+        lteDay:
+          format: yyyy-MM-dd
+          type: string
+          description: Значение меньше или равно указанного дню
+        between:
+          type: object
+          description: Значение находится в указанном диапазоне
+          items:
+            $ref: '#/components/schemas/betweenCond'
+        exists:
+          type: object
+          description: Ссылочный атрибут содержит объекты по указанному условию
+          items:
+            $ref: '#/components/schemas/expression'
+        notExists:
+          type: object
+          description: Ссылочный атрибут не содержит объекты по указанному условию
+          items:
+            $ref: '#/components/schemas/expression'
+        like:
+          type: string
+          description: Значение содержит указанное
+        fuzzyLike:
+          type: string
+          description: Нечеткий поиск
+        fuzzyOrderLike:
+          type: string
+          description: Нечеткий поиск с учетом порядка слов
+        startsWith:
+          type: string
+          description: Начинается с указанного
+        in:
+          type: array
+          description: Значение находится в указанном списке
+          items:
+            type: string
+
+    betweenCond:
+      type: object
+      description: Определяет диапазон значений
+      properties:
+        from:
+          type: string
+          format: string
+          description: Значение С (включая)
+        to:
+          type: string
+          format: string
+          description: Значение ПО (включая)
+
+    order:
+      type: object
+      description: Определяет сортировку по значению указанного атрибута. Указывается одно из значений
+      properties:
+        asc:
+          type: string
+          format: string
+          description: Сортировка по возрастанию значений
+        desc:
+          type: string
+          format: string
+          description: Сортировка по убыванию значений
+
+    objectList:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 0
+        limit:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 50
+        objectsCount:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 2
+        totalCount:
+          type: integer
+          format: int32
+          minimum: 0
+          example: 2
+        classCode:
+          type: string
+          format: string
+          example: personalCard
+        pluralCode:
+          type: string
+          format: string
+          example: personalCards
+        objects:
+          type: array
+          items:
+            $ref: '#/components/schemas/objectInfo'
+          example:
+          - id: id1
+            classCode : personCard
+            title: Иванов Иван Иванович 1984.01.12
+            ts: '2016-08-29T09:12:33.001Z'
+            data:
+              sex: M
+              address: Спб
+              citezenships: 1
+            links:
+            - rel: self
+              href: 'http://192.168.1.1:8008/api/v1/personCards/id1'
+              path: 'api/v1/personCards/id1'
+          - id: id2
+            classCode : personCard
+            title: Петров Петр Петрович 1950.12.29
+            ts: '2016-08-29T09:12:23.011Z'
+            data:
+              sex: M
+              address: Мск
+            links:
+            - rel: self
+              href: 'http://192.168.1.1:8008/api/v1/personCards/id2'
+              path: 'api/v1/personCards/id2'
+            - rel: citezenships
+              href: 'http://192.168.1.1:8008/api/v1/citezenships/1'
+              path: 'api/v1/citezenships/1'
+
+    linkInfo:
+      type: object
+      required:
+      - rel
+      - href
+      - path
+      properties:
+        rel:
+          type: string
+          format: string
+          example: self
+        href:
+          type: string
+          format: string
+          example: 'http://192.168.1.87:8095/api/v1/personalCards/9990030490'
+        path:
+          type: string
+          format: string
+          example: 'api/v1/personalCards/9990030490'
+        hreflang:
+          type: string
+          format: string
+        type:
+          type: string
+          format: string
+        media:
+          type: string
+          format: string
+        title:
+          type: string
+          format: string
+        refClassCode:
+          type: string
+          format: string
+          description: кодовое имя класса, на который ссылается атрибут
+        refClassPluralCode:
+          type: string
+          format: string
+          description: множественное кодовое имя класса, на который ссылается атрибут
+
+    objectInfo:
+      type: object
+      properties:
+        id:
+          type: string
+          format: string
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        classCode:
+          type: string
+          format: string
+          example: personalCard
+        title:
+          type: string
+          example: Иванов Иван Иванович 1984.01.12
+        ts:
+          type: string
+          format: int32
+          example: '2016-08-29T09:12:33.001Z'
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          example:
+            sex: M
+            address: Мск
+            citezenships: 1
+        linkedData:
+          additionalProperties:
+            $ref: '#/components/schemas/objectInfo'
+          example:
+            sex: {"id":"1", "name":"M"}
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/linkInfo'
+          example:
+          - rel: self
+            href : 'http://192.168.1.87:8095/api/v1/personalCards/9990030490'
+
+    objectData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: string
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        classCode:
+          type: string
+          format: string
+          example: personalCard
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          example:
+            sex: M
+            address: Мск
+            citezenships: 1
+        linkedData:
+          additionalProperties:
+            $ref: '#/components/schemas/objectLinkedData'
+          example:
+            sex: {update:[], create:[], delete:[]}
+            address: {}
+            citezenships: {}
+
+    objectLinkedData:
+      type: object
+      properties:
+        create:
+          type: array
+          items:
+            $ref: '#/components/schemas/objectData'
+        update:
+          type: array
+          items:
+            $ref: '#/components/schemas/objectData'
+        delete:
+          type: array
+          items:
+            $ref: '#/components/schemas/objectData'

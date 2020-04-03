@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<jpSecurity>
+  <jpPackages>
+    <jpPackage code="main">
+      <jpPermitAccess>
+        <jpAccess read="true" create="true" update="true" delete="true" role="ADMIN"/>
+        <jpAccess read="true" create="false" update="false" delete="false" role="AUTH_ACCESS"/>
+      </jpPermitAccess>
+      <jpProhibitionAccess>
+        <jpAccess  read="false" create="true" update="true" delete="true" role="USER"/>
+      </jpProhibitionAccess>
+    </jpPackage>
+  </jpPackages>
+</jpSecurity>

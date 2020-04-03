@@ -1,0 +1,261 @@
+openapi: 3.0.0
+
+servers:
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0
+
+info:
+  description: This is a JPrime REST API
+  version: "1.0.0"
+  title: JPrime REST API
+  contact:
+    email:  info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+security:
+- password:
+  - read
+
+tags:
+- name: list
+  description: get object list
+- name: create
+  description: create object
+- name: update
+  description: update object
+- name: delete
+  description: delete object
+- name: object
+  description: get object
+- name: util
+  description: run utils
+- name: file
+  description: work with file
+
+paths:
+  '/meta/v1/attrTypes':
+    get:
+      tags:
+      - list
+      summary: get list of attr types
+      operationId: getAttrTypes
+      description:
+        you can get list of attr types
+      responses:
+        '200':
+          description: get list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/attrTypeList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/meta/v1/jpClasses':
+    get:
+      tags:
+      - list
+      summary: get list of metaClasses
+      operationId: getMetaClasses
+      description:
+        you can get list of metaClasses
+      responses:
+        '200':
+          description: get list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/metaClassList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/meta/v1/jpClasses/{classCode}':
+    get:
+      tags:
+      - object
+      summary: get metaClass
+      operationId: getMetaClass
+      description:
+        you can get metaClass
+      parameters:
+      - in: path
+        name: classCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The metaClass's code
+      responses:
+        '200':
+          description: get metaClass
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/metaClass'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
+components:
+  securitySchemes:
+    password:
+      type: oauth2
+      flows:
+        password:
+          tokenUrl: 'http://localhost:8760/qauth2server/auth/token'
+          scopes:
+            read: allows reading resources
+
+  schemas:
+    attrTypeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/attrType'
+
+    attrType:
+      type: object
+      properties:
+        code:
+          type: string
+          format: string
+          example: float
+        title:
+          type: string
+          format: string
+          example: Вещественный
+
+    metaClassList:
+      type: object
+      properties:
+        totalCount:
+          type: number
+          format: number
+          example: 3
+        classes:
+          type: array
+          items:
+            $ref: '#/components/schemas/metaClass'
+
+    metaClass:
+      type: object
+      required:
+      - code
+      - pluralCode
+      - qName
+      properties:
+        code:
+          type: string
+          format: string
+          example: spbCompany
+        pluralCode:
+          type: string
+          format: string
+          example: spbCompanies
+        qName:
+          type: string
+          format: string
+          example: 'spb.spbCompany'
+        name:
+          type: string
+          format: string
+          description: Название класса
+          example: "Предприятия  "
+        shortName:
+          type: string
+          format: string
+          description: Короткое название класса
+          example: "ПРЕД"
+        description:
+          type: string
+          format: string
+          description: Описание класса
+          example: "Предприятия. Ключевая информация предприятия, контрагента – содержит основные реквизиты предприятия\n    "
+        jpPackage:
+          type: string
+          format: string
+          example: 'adminAccess'
+        guid:
+          type: string
+          format: string
+          example: "92566524-c57b-4656-be9b-4357bc56ea08"
+        immutable:
+          type: boolean
+          format: boolean
+          example: true
+        attrs:
+          type: array
+          items:
+            $ref: '#/components/schemas/metaAttr'
+
+    metaAttr:
+      type: object
+      required:
+      - code
+      - type
+      - qName
+      properties:
+        code:
+          type: string
+          format: string
+          example: name
+        type:
+          type: string
+          format: string
+          example: string
+        guid:
+          type: string
+          format: string
+          example: '3e4cc29e-9ab4-4cce-86ff-9d4f9a42d923'
+        identifier:
+          type: boolean
+          format: boolean
+          example: true
+        mandatory:
+          type: boolean
+          format: boolean
+          example: true
+        qName:
+          type: string
+          format: string
+          example: 'jpClass.className1.PersonalCard.name'
+        name:
+          type: string
+          format: string
+          description: Название атрибута
+          example: 'Имя гражданина'
+        shortName:
+          type: string
+          format: string
+          description: Короткое название атрибута
+          example: 'Имя'
+        description:
+          type: string
+          format: string
+          description: Название класса
+          example: 'Имя гражданина'
+        length:
+          type: number
+          format: number
+          example: 10
+        refJpClass:
+          type: string
+          format: string
+          example: string
+        refJpAttr:
+          type: string
+          format: string
+          example: string
