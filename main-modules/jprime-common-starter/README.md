@@ -34,7 +34,7 @@
 | timestamp | LocalDateTime | Полная дата (c учетом часового пояса) |
 | time | LocalTime | Время |
 | uuid | UUID | Глобальный идентификатор |  
-| virtualReference | - | Глобальный идентификатор |
+| virtualReference | - | Виртуальная ссылка |
 
 ### Виртуальная ссылка
 
