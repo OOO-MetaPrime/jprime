@@ -2,7 +2,7 @@ apply plugin: 'idea'
 
 buildscript {
   ext {
-    springBootVersion = '2.1.12.RELEASE'
+    springBootVersion = '2.2.6.RELEASE'
   }
   repositories {
     mavenCentral()
@@ -16,7 +16,7 @@ buildscript {
 }
 
 ext {
-  springCloudVersion = 'Greenwich.SR5'
+  springCloudVersion = 'Hoxton.SR3'
 }
 
 subprojects {
@@ -45,5 +45,5 @@ subprojects {
 }
 
 wrapper {
-  gradleVersion = "5.6.2"
+  gradleVersion = "6.3"
 }

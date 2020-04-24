@@ -128,7 +128,7 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    */
   @Override
   public JPClass getJPClassByCode(String code) {
-    return codeJpClassMap.get(code);
+    return code == null ? null : codeJpClassMap.get(code);
   }
 
   /**
@@ -139,7 +139,7 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    */
   @Override
   public JPClass getJPClassByPluralCode(String pluralCode) {
-    return pluralCodeJpClassMap.get(pluralCode);
+    return pluralCode == null ? null : pluralCodeJpClassMap.get(pluralCode);
   }
 
   @EventListener

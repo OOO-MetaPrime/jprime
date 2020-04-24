@@ -4,10 +4,7 @@ import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPObjectRepository;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.beans.*;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPDelete;
-import mp.jprime.dataaccess.params.JPSelect;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.*;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -154,6 +151,16 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
   @Override
   public JPId create(JPCreate query) {
     return getRepository(query.getJpClass()).create(query);
+  }
+
+  @Override
+  public Mono<JPData> getAsyncAggregate(JPAggregate query) {
+    return getRepository(query.getJpClass()).getAsyncAggregate(query);
+  }
+
+  @Override
+  public JPData getAggregate(JPAggregate query) {
+    return getRepository(query.getJpClass()).getAggregate(query);
   }
 
   @Override

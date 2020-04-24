@@ -3,12 +3,13 @@ package mp.jprime.dataaccess.beans;
 import mp.jprime.meta.JPAttr;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
  * Данные объекта
  */
-public class JPData {
+public final class JPData {
   private final Map<String, Object> data;
 
   /**
@@ -44,9 +45,28 @@ public class JPData {
    * @return Данные
    */
   public Map<String, Object> toMap() {
-    return data;
+    return new HashMap<>(data);
   }
 
+
+  /**
+   * Построитель JPData
+   *
+   * @return JPData
+   */
+  public static JPData empty() {
+    return new JPData(null);
+  }
+
+  /**
+   * Построитель JPData
+   *
+   * @param data Данные
+   * @return JPData
+   */
+  public static JPData of(Map<String, Object> data) {
+    return new JPData(data);
+  }
 
   /**
    * Построитель JPData

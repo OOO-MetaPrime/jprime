@@ -3,6 +3,8 @@ package mp.jprime.meta.events;
 import mp.jprime.events.systemevents.JPSystemEvent;
 import mp.jprime.events.systemevents.JPEventInfo;
 
+import java.time.LocalDateTime;
+
 /**
  * Событие изменения метаописания
  */
@@ -21,6 +23,16 @@ public class JPMetaChangeEvent extends JPSystemEvent<JPMetaChangeEvent.Info> {
    */
   public JPMetaChangeEvent() {
     this(new Info(Boolean.TRUE));
+  }
+
+  /**
+   * Изменения метаописания
+   *
+   * @param date Дата события
+   * @param info Данные события
+   */
+  public JPMetaChangeEvent(LocalDateTime date, Info info) {
+    super(date, info);
   }
 
   /**

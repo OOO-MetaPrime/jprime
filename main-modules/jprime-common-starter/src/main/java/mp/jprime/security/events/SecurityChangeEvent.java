@@ -3,6 +3,8 @@ package mp.jprime.security.events;
 import mp.jprime.events.systemevents.JPEventInfo;
 import mp.jprime.events.systemevents.JPSystemEvent;
 
+import java.time.LocalDateTime;
+
 /**
  * Событие изменения настроек доступа
  */
@@ -22,6 +24,17 @@ public class SecurityChangeEvent extends JPSystemEvent<SecurityChangeEvent.Info>
   public SecurityChangeEvent() {
     this(new Info(Boolean.TRUE));
   }
+
+  /**
+   * Изменения настроек доступа
+   *
+   * @param date Дата события
+   * @param info Данные свойства
+   */
+  public SecurityChangeEvent(LocalDateTime date, Info info) {
+    super(date, info);
+  }
+
 
   /**
    * Изменения настроек доступа

@@ -1,11 +1,8 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.meta.JPAttr;
-import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPImmutableClass;
+import mp.jprime.meta.*;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Неизменяемый метакласс

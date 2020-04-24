@@ -109,7 +109,7 @@ public interface JPAttr {
    *
    * @return Путь виртуальной ссылки
    */
-  String getVirtualReference();
+  JPVirtualPath getVirtualReference();
 
   /**
    * Тип виртуальной ссылки
@@ -117,4 +117,13 @@ public interface JPAttr {
    * @return Тип виртуальной ссылки
    */
   JPType getVirtualType();
+
+  /**
+   * Тип значения атрибута
+   *
+   * @return Тип значения атрибута
+   */
+  default JPType getValueType() {
+    return getType() == JPType.VIRTUALREFERENCE && getVirtualType() != null ? getVirtualType() : getType();
+  }
 }

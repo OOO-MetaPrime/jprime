@@ -22,7 +22,6 @@ public class JPSelect extends JPBaseCRUD {
   private final Map<String, Collection<String>> select;
   private final Collection<Order> orderBy;
   private final Filter where;
-  private final AuthInfo auth;
   private final Integer timeout;
 
   /**
@@ -43,7 +42,7 @@ public class JPSelect extends JPBaseCRUD {
   private JPSelect(String jpClass, Integer offset, Integer limit, boolean totalCount, boolean useDefaultJpAttrs,
                    Map<String, Collection<String>> select, Filter where, List<Order> orderBy, AuthInfo auth,
                    Integer timeout, Source source) {
-    super(source);
+    super(source, auth);
     this.offset = offset;
     this.limit = limit;
     this.totalCount = totalCount;
@@ -53,8 +52,6 @@ public class JPSelect extends JPBaseCRUD {
     this.select = Collections.unmodifiableMap(select == null ? Collections.emptyMap() : select);
     this.where = where;
     this.orderBy = Collections.unmodifiableList(orderBy == null ? Collections.emptyList() : orderBy);
-
-    this.auth = auth;
 
     this.timeout = timeout;
   }
@@ -139,15 +136,6 @@ public class JPSelect extends JPBaseCRUD {
    */
   public boolean isUseDefaultJpAttrs() {
     return useDefaultJpAttrs;
-  }
-
-  /**
-   * Данные аутентификации
-   *
-   * @return Данные аутентификации
-   */
-  public AuthInfo getAuth() {
-    return auth;
   }
 
   /**
@@ -366,6 +354,15 @@ public class JPSelect extends JPBaseCRUD {
         attrsCodeList.forEach(this::attr);
       }
       return this;
+    }
+
+    /**
+     * Признак неуказанной сортировки
+     *
+     * @return Да/Нет
+     */
+    public boolean isOrderByEmpty() {
+      return orderBy.isEmpty();
     }
 
     /**

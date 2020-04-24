@@ -5,31 +5,36 @@ import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
 
 /**
- * Валидатор данных
+ * Базовая реализация хендлера
  */
-public interface JPObjectValidator {
-  enum Type {
-    CREATE, UPDATE, DELETE
-  }
-
+public abstract class JPClassValidatorBase implements JPClassValidator {
   /**
    * Перед созданием
    *
    * @param query JPCreate
    */
-  void beforeCreate(JPCreate query);
+  @Override
+  public void beforeCreate(JPCreate query) {
+
+  }
 
   /**
    * Перед обновлением
    *
    * @param query JPUpdate
    */
-  void beforeUpdate(JPUpdate query);
+  @Override
+  public void beforeUpdate(JPUpdate query) {
+
+  }
 
   /**
    * Перед удалением
    *
    * @param query JPDelete
    */
-  void beforeDelete(JPDelete query);
+  @Override
+  public void beforeDelete(JPDelete query) {
+
+  }
 }

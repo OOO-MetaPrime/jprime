@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
 
-public class JPMutableData {
+public final class JPMutableData {
   private final Map<String, Object> dataMap;
 
   /**
@@ -15,9 +15,10 @@ public class JPMutableData {
    *
    * @param dataMap Данные объекта
    */
-  public JPMutableData(Map<String, Object> dataMap) {
-    this.dataMap = new HashMap<>(dataMap);
+  private JPMutableData(Map<String, Object> dataMap) {
+    this.dataMap = dataMap != null ? new HashMap<>(dataMap) : new HashMap<>();
   }
+
 
   /**
    * Возвращает данные
@@ -127,11 +128,106 @@ public class JPMutableData {
   }
 
   /**
+   * Сохраняет данные
+   *
+   * @param data Даныне
+   */
+  public void putIfAbsent(Map<String, Object> data) {
+    if (data == null) {
+      return;
+    }
+    data.forEach(this::putIfAbsent);
+  }
+
+  /**
+   * Сохраняет данные
+   *
+   * @param data Даныне
+   */
+  public void putIfAbsent(JPMutableData data) {
+    if (data == null) {
+      return;
+    }
+    data.forEach(this::putIfAbsent);
+  }
+
+
+  /**
    * Возвращает entrySet
    *
    * @return entrySet
    */
   public Set<Map.Entry<String, Object>> entrySet() {
     return dataMap.entrySet();
+  }
+
+  /**
+   * Построитель JPMutableData
+   *
+   * @return JPMutableData
+   */
+  public static JPMutableData empty() {
+    return new JPMutableData(null);
+  }
+
+  /**
+   * Построитель JPMutableData
+   *
+   * @param data Данные
+   * @return JPMutableData
+   */
+  public static JPMutableData of(Map<String, Object> data) {
+    return new JPMutableData(data);
+  }
+
+  /**
+   * Возвращает данные
+   *
+   * @return Данные
+   */
+  public Map<String, Object> toMap() {
+    return new HashMap<>(dataMap);
+  }
+
+
+  /**
+   * Построитель JPMutableData
+   *
+   * @return Builder
+   */
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  /**
+   * Построитель JPMutableData
+   */
+  public static final class Builder {
+    private Map<String, Object> data;
+
+    private Builder() {
+
+    }
+
+    /**
+     * Создаем JPData
+     *
+     * @return JPData
+     */
+    public JPMutableData build() {
+      return new JPMutableData(data);
+    }
+
+
+    /**
+     * Данные объекта
+     *
+     * @param data Данные объекта
+     * @return Builder
+     */
+    public Builder data(Map<String, Object> data) {
+      this.data = data;
+      return this;
+    }
   }
 }

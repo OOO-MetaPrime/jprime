@@ -15,19 +15,19 @@ import java.util.*;
  * Логика вызова валидаторов
  */
 @Service
-public final class JPClassValidatorServiceImpl implements JPClassValidatorService, JPClassesLinkFilter<JPObjectValidator> {
-  private Map<String, Collection<JPObjectValidator>> jpClassValidators = new HashMap<>();
+public final class JPClassValidatorBaseService implements JPClassValidatorService, JPClassesLinkFilter<JPClassValidator> {
+  private Map<String, Collection<JPClassValidator>> jpClassValidators = new HashMap<>();
 
   /**
    * Считываем аннотации
    */
   @Autowired(required = false)
-  private void setHanlders(Collection<JPObjectValidator> validators) {
+  private void setHanlders(Collection<JPClassValidator> validators) {
     if (validators == null) {
       return;
     }
-    Map<String, Collection<JPObjectValidator>> jpClassValidators = new HashMap<>();
-    for (JPObjectValidator validator : validators) {
+    Map<String, Collection<JPClassValidator>> jpClassValidators = new HashMap<>();
+    for (JPClassValidator validator : validators) {
       try {
         JPClassesLink anno = validator.getClass().getAnnotation(JPClassesLink.class);
         if (anno == null) {
@@ -57,7 +57,7 @@ public final class JPClassValidatorServiceImpl implements JPClassValidatorServic
    * @param jpClassCode Кодовое имя класс
    * @return Список валидаторов
    */
-  private Collection<JPObjectValidator> getValidators(String jpClassCode) {
+  private Collection<JPClassValidator> getValidators(String jpClassCode) {
     return jpClassValidators.get(jpClassCode);
   }
 
@@ -69,7 +69,7 @@ public final class JPClassValidatorServiceImpl implements JPClassValidatorServic
   @Override
   public void beforeCreate(JPCreate query) {
     // Запускаем кастомные валидаторы
-    Collection<JPObjectValidator> validators = getValidators(query.getJpClass());
+    Collection<JPClassValidator> validators = getValidators(query.getJpClass());
     if (validators != null) {
       validators.forEach(x -> x.beforeCreate(query));
     }
@@ -77,7 +77,7 @@ public final class JPClassValidatorServiceImpl implements JPClassValidatorServic
 
   @Override
   public void beforeDelete(JPDelete query) {
-    Collection<JPObjectValidator> validators = getValidators(query.getJpClass());
+    Collection<JPClassValidator> validators = getValidators(query.getJpClass());
     if (validators != null) {
       validators.forEach(x -> x.beforeDelete(query));
     }
@@ -90,7 +90,7 @@ public final class JPClassValidatorServiceImpl implements JPClassValidatorServic
    */
   public void beforeUpdate(JPUpdate query) {
     // Запускаем кастомные валидаторы
-    Collection<JPObjectValidator> validators = getValidators(query.getJpId().getJpClass());
+    Collection<JPClassValidator> validators = getValidators(query.getJpId().getJpClass());
     if (validators != null) {
       validators.forEach(x -> x.beforeUpdate(query));
     }

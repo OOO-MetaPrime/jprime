@@ -14,5 +14,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Service
 public @interface JPClassesLink {
+  /**
+   * Признак универсального применения
+   */
+  String UNI = "*";
+
   String[] jpClasses() default {};
 }

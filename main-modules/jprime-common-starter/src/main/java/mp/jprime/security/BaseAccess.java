@@ -26,6 +26,21 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
             }
         ),
         @JPPackage(
+            code = BaseAccess.ONLY_ADMIN_ONLY_READONLY,
+            description = "Только для роли ADMIN только на чтение",
+            name = "Только для роли ADMIN только на чтение",
+            access = {
+                @JPAccess(
+                    type = JPAccessType.PERMIT,
+                    role = ADMIN,
+                    read = true,
+                    create = false,
+                    update = false,
+                    delete = false
+                )
+            }
+        ),
+        @JPPackage(
             code = BaseAccess.ONLY_CREATE,
             description = "Всем ролям только на чтение и создание",
             name = "Всем ролям только на чтение и создание",
@@ -126,6 +141,10 @@ public class BaseAccess implements JPSecuritySettings {
    * Всем ролям только на чтение
    */
   public final static String ONLY_READONLY = "onlyReadonly";
+  /**
+   * Только для роли ADMIN только на чтение
+   */
+  public final static String ONLY_ADMIN_ONLY_READONLY = "onlyAdminOnlyReadonly";
   /**
    * Всем ролям только на чтение + создание
    */

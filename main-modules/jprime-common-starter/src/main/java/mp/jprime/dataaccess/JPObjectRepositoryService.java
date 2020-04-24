@@ -1,11 +1,9 @@
 package mp.jprime.dataaccess;
 
+import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPDelete;
-import mp.jprime.dataaccess.params.JPSelect;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,13 +41,7 @@ public interface JPObjectRepositoryService {
    * @return Количество в выборке
    */
   default Mono<Long> getAsyncTotalCount(JPSelect select) {
-    return Mono.create(x -> {
-      try {
-        x.success(getTotalCount(select));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> getTotalCount(select));
   }
 
   /**
@@ -77,19 +69,31 @@ public interface JPObjectRepositoryService {
   <T extends JPObject> Collection<T> getList(JPSelect select);
 
   /**
+   * Возвращает результаты агрегации
+   *
+   * @param aggr Параметры для выборки
+   * @return Список объектов
+   */
+  default Mono<JPData> getAsyncAggregate(JPAggregate aggr) {
+    return Mono.fromCallable(() -> getAggregate(aggr));
+  }
+
+  /**
+   * Возвращает результаты агрегации
+   *
+   * @param aggr Параметры для выборки
+   * @return Список объектов
+   */
+  JPData getAggregate(JPAggregate aggr);
+
+  /**
    * Создает объект
    *
    * @param query Параметры для создания
    * @return Идентификатор созданного объекта
    */
   default Mono<JPId> asyncCreate(JPCreate query) {
-    return Mono.create(x -> {
-      try {
-        x.success(create(query));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> create(query));
   }
 
   /**
@@ -107,13 +111,7 @@ public interface JPObjectRepositoryService {
    * @return Созданные объект
    */
   default Mono<JPObject> asyncCreateAndGet(JPCreate query) {
-    return Mono.create(x -> {
-      try {
-        x.success(createAndGet(query));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> createAndGet(query));
   }
 
   /**
@@ -131,13 +129,7 @@ public interface JPObjectRepositoryService {
    * @return Идентификатор обновляемого объекта
    */
   default Mono<JPId> asyncUpdate(JPUpdate query) {
-    return Mono.create(x -> {
-      try {
-        x.success(update(query));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> update(query));
   }
 
   /**
@@ -155,13 +147,7 @@ public interface JPObjectRepositoryService {
    * @return Обновленный объект
    */
   default Mono<JPObject> asyncUpdateAndGet(JPUpdate query) {
-    return Mono.create(x -> {
-      try {
-        x.success(updateAndGet(query));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> updateAndGet(query));
   }
 
   /**
@@ -179,13 +165,7 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   default Mono<Long> asyncDelete(JPDelete query) {
-    return Mono.create(x -> {
-      try {
-        x.success(delete(query));
-      } catch (Exception e) {
-        x.error(e);
-      }
-    });
+    return Mono.fromCallable(() -> delete(query));
   }
 
   /**

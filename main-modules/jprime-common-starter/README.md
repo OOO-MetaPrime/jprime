@@ -545,6 +545,108 @@ public class UsersBean extends JPObject {
 }    
 ``` 
 
+## Валидаторы
+
+Перед действиями над объектами есть возможность произвести проверки с помощью валидаторов `mp.jprime.dataaccess.validators.JPClassValidator`
+
+Вызов валидатора происходит перед всеми остальными действиями и по-умолчанию производится перед открытием транзации (если она не была принудительно открыта ранее)
+
+### Реализация валидатора
+
+Валидатор реализует указанный выше интерфейс, обычно является наследником класса `mp.jprime.dataaccess.validators.JPClassValidatorBase` и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+
+На один класс может быть настроено множество валидаторов, а один валидатор может применятся ко многим классам
+
+```
+/**
+ * Проверка СНИЛС
+ */
+@JPClassesLink(
+    jpClasses = {Contact.CLASS_CODE}
+)
+public class ContactValidator extends JPClassValidatorBase {
+  @Override
+  public void beforeCreate(JPCreate query) {
+    ...
+  }
+}
+```
+
+В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
+
+Если на метаописание настроены два разных валидатора, один из которых является наследником другого, то для обработки будет использоваться наследник
+
+### Вызов валидации в прикладном коде
+
+Управлением всеми валидаторами осуществляется через `mp.jprime.dataaccess.validators.JPClassValidatorService`
+
+```
+  private JPClassValidatorService jpClassValidatorService;
+
+  @Autowired
+  private void setJPClassValidatorService(JPClassValidatorService jpClassValidatorService) {
+    this.jpClassValidatorService = jpClassValidatorService;
+  }
+
+  ...
+  
+  private void validate(JPCreate query) {
+    if (query == null) {
+      return;
+    }
+    jpClassValidatorService.beforeCreate(query);
+  }
+```
+
+## Расчет значений по-умолчанию
+
+В JPrime есть возможность рассчитать значения по-умолчанию с помощью `mp.jprime.dataaccess.defvalues.JPObjectDefValue`
+
+### Реализация расчета
+
+Расчетный класс реализует указанный выше интерфейс и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+
+На один класс может быть настроено множество расчетных блоков, а один расчет может применятся ко многим классам
+
+```
+@JPClassesLink(
+    jpClasses = {TestClass.CLASS_CODE}
+)
+public class TestClassDefValue implements JPObjectDefValue {
+  @Override
+  public void appendValues(JPMutableData jpData, JPObjectDefValueParams params) {
+    jpData.putIfAbsent(TestClass.Attr.STATUS, TestClass.Status.STATUS_3);
+  }
+}
+```
+
+В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
+
+Если на метаописание настроены два разных расчетных блока, один из которых является наследником другого, то для обработки будет использоваться наследник
+
+### Вызов расчета в прикладном коде
+
+Управлением всеми расчетными блоками осуществляется через `mp.jprime.dataaccess.defvalues.JPObjectDefValueService`
+
+```
+  private JPObjectDefValueService jpObjectDefValueService;
+
+  @Autowired
+  private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
+    this.jpObjectDefValueService = jpObjectDefValueService;
+  }
+
+  ...
+  
+  @Override
+  public void beforeCreate(JPCreate query) {
+    super.beforeCreate(query);
+    query.getData().putIfAbsent(
+        jpObjectDefValueService.getDefValues(query.getJpClass(), query.getAuth())
+    );
+  }
+```
+
 ## Хендлера операций над объектами
 
 Хендлер над операциями CRUD предоставляет собой реализацию интерфейса `JPClassHandler` и позволяет обработать следущие события
@@ -588,60 +690,8 @@ public class CommonHandler extends JPClassHandlerBase {
 
 Если на метаописание настроены два разных хендлера, один из которых является наследником другого, то для обработки будет использоваться наследник 
 
-## Валидаторы
 
-Перед действиями над объектами есть возможность произвести проверки с помощью валидаторов `mp.jprime.dataaccess.validators.JPObjectValidator`
-
-Вызов валидатора происходит перед всеми остальными действиями и по-умолчанию производится перед открытием транзации (если она не была принудительно открыта ранее)
-
-### Реализация валидатора
-
-Валидатор реализует указанный выше интерфейс, обычно является наследником класса `mp.jprime.dataaccess.validators.JPObjectValidatorBase` и применяется к объектам класса, указанных в аннотации `JPClassesLink`
-
-На один класс может быть настроено множество валидаторов, а один валидатор может применятся ко многим классам
-
-```
-/**
- * Проверка СНИЛС
- */
-@JPClassesLink(
-    jpClasses = {Contact.CLASS_CODE}
-)
-public class ContactValidator extends JPObjectValidatorBase {
-  @Override
-  public void beforeCreate(JPCreate query) {
-    ...
-  }
-}
-```
-
-В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
-
-Если на метаописание настроены два разных валидатора, один из которых является наследником другого, то для обработки будет использоваться наследник
-
-### Вызов валидации в прикладном коде
-
-Управлением всеми валидаторами осуществляется через `mp.jprime.dataaccess.validators.JPClassValidatorService`
-
-```
-  private JPClassValidatorService jpClassValidatorService;
-
-  @Autowired(required = false)
-  private void setJPClassValidatorService(JPClassValidatorService jpClassValidatorService) {
-    this.jpClassValidatorService = jpClassValidatorService;
-  }
-
-  ...
-  
-  private void validate(JPCreate query) {
-    if (query == null) {
-      return;
-    }
-    jpClassValidatorService.beforeCreate(query);
-  }
-```
-
-## Слушатели
+## События
 
 Все события в системе являются ассинхронными. 
 
@@ -649,7 +699,7 @@ public class ContactValidator extends JPObjectValidatorBase {
 
 События инициируются и обрабатываются программным кодом и используются для передачи информации между сервисами
 
-Описание в модуле `jprime-common-systemevents-starter` 
+Описание в модуле `jprime-common-core` 
 
 ## Пользовательские события
 

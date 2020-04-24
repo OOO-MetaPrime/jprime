@@ -11,6 +11,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import mp.jprime.formats.DateFormat;
 import mp.jprime.json.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +25,8 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.util.TimeZone;
-
-import static java.time.temporal.ChronoField.*;
-import static mp.jprime.formats.DateFormat.*;
 
 /**
  * Базовый класс JSON-обработчиков
@@ -52,9 +51,9 @@ public interface JsonMapper {
               .addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ISO_LOCAL_TIME))
               .addDeserializer(LocalDate.class, new LocalDateDeserializer(
                   new DateTimeFormatterBuilder()
-                      .appendValue(YEAR, 4)
+                      .appendValue(ChronoField.YEAR, 4)
                       .appendPattern("-MM[-dd]")
-                      .parseDefaulting(DAY_OF_MONTH, 1)
+                      .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
                       .toFormatter()
               ))
               // Date to String
@@ -92,5 +91,5 @@ public interface JsonMapper {
       .addMixIn(InputStream.class, MixInForIgnoreType.class)
       .setTimeZone(TimeZone.getDefault())
       //  ISO8601
-      .setDateFormat(new SimpleDateFormat(ISO8601));
+      .setDateFormat(new SimpleDateFormat(DateFormat.ISO8601));
 }

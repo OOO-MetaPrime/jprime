@@ -4,6 +4,8 @@
 
 ##  Системные события
 
+Все события в системе являются ассинхронными. 
+
 Событие является наследником класса ``mp.jprime.events.systemevents.JPSystemEvent``
 и может быть инициировано в любом сервисе системы 
 
@@ -31,15 +33,13 @@
 
 ### Подписывание на событие
 
-Класс-обработчик должен реализовывать интерфейс  ``implements ApplicationListener<Event extends JPSystemEvent>``
+Класс-обработчик должен содержать метод с логикой обработки события 
 
-и содержать метод с логикой обработки события 
-
-```
-  @Override
-  public void onApplicationEvent(<Event extends JPSystemEvent> event) {
-    ...
-  }
+```  
+  @EventListener
+  public void handleApplicationEvent(<Event extends JPSystemEvent> event) {
+    ....
+  }  
 ```
 
 ### Реализация SystemEventPublisher

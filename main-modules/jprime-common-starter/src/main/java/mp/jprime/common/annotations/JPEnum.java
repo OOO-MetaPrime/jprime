@@ -6,19 +6,19 @@ public @interface JPEnum {
    *
    * @return Значение
    */
-  String getValue();
+  String value();
 
   /**
    * Название значения
    *
    * @return Название
    */
-  String getDescription();
+  String description();
 
   /**
    * Уникальный qName
    *
    * @return Уникальный qName
    */
-  String getQName() default "";
+  String qName() default "";
 }

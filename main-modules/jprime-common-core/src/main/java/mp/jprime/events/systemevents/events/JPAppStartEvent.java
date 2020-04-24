@@ -3,6 +3,8 @@ package mp.jprime.events.systemevents.events;
 import mp.jprime.events.systemevents.JPEventInfo;
 import mp.jprime.events.systemevents.JPSystemEvent;
 
+import java.time.LocalDateTime;
+
 /**
  * Событие запуска системы
  */
@@ -23,6 +25,16 @@ public class JPAppStartEvent extends JPSystemEvent<JPAppStartEvent.Info> {
    */
   public JPAppStartEvent() {
     this(new Info(null, null, Boolean.FALSE));
+  }
+
+  /**
+   * Событие запуска системы
+   *
+   * @param date Дата события
+   * @param info Данные события
+   */
+  public JPAppStartEvent(LocalDateTime date, Info info) {
+    super(date, info);
   }
 
   /**

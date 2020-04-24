@@ -2,16 +2,10 @@ package mp.jprime.json.services;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPDelete;
-import mp.jprime.dataaccess.params.JPSelect;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.data.Pair;
-import mp.jprime.dataaccess.params.query.enums.AnalyticFunction;
-import mp.jprime.dataaccess.params.query.enums.BooleanCondition;
-import mp.jprime.dataaccess.params.query.enums.FilterOperation;
-import mp.jprime.dataaccess.params.query.enums.OrderDirection;
+import mp.jprime.dataaccess.params.query.enums.*;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.*;
@@ -53,12 +47,43 @@ public class QueryService implements JsonMapper {
   }
 
   /**
+   * Создает описание выборки агрегации
+   *
+   * @param json Строка запроса
+   * @return Описание выборки агрегации
+   */
+  public JsonAggrQuery getAggrQuery(String json) {
+    if (json == null || json.isEmpty()) {
+      return null;
+    }
+    try {
+      return OBJECT_MAPPER.readValue(json, JsonAggrQuery.class);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
    * Создает описание выборки
    *
    * @param query Query
    * @return Описание выборки
    */
   public String toString(JsonQuery query) {
+    try {
+      return OBJECT_MAPPER.writeValueAsString(query);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
+   * Создает описание выборки агрегации
+   *
+   * @param query Query
+   * @return Описание выборки агрегации
+   */
+  public String toString(JsonAggrQuery query) {
     try {
       return OBJECT_MAPPER.writeValueAsString(query);
     } catch (Exception e) {
@@ -136,6 +161,97 @@ public class QueryService implements JsonMapper {
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
+  }
+
+  /**
+   * Создает описание агрегации
+   *
+   * @param jpClassCode Метаописание класса
+   * @param json        Строка запроса
+   * @param auth        Данные аутентификации
+   * @return Описание агрегации
+   */
+  public JPAggregate.Builder getAggregate(String jpClassCode, String json, AuthInfo auth) {
+    try {
+      return getAggregate(jpClassCode, getAggrQuery(json), auth);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
+   * Создает описание агрегации
+   *
+   * @param jpClassCode Метаописание класса
+   * @param query       Описание запроса
+   * @param auth        Данные аутентификации
+   * @return Описание агрегации
+   */
+  public JPAggregate.Builder getAggregate(String jpClassCode, JsonAggrQuery query, AuthInfo auth) {
+    try {
+      JPAggregate.Builder builder = JPAggregate
+          .from(jpClassCode)
+          .auth(auth);
+      if (query != null) {
+        Optional.ofNullable(query.getAggrs())
+            .ifPresent(x -> x.forEach(y -> appendAggr(builder, y)));
+        Optional.ofNullable(query.getFilter())
+            .ifPresent(x -> builder.where(toFilter(x)));
+      }
+      return builder;
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
+   * Учет агрегации
+   *
+   * @param builder Построитель JPAggregate
+   * @param aggr    агрегация
+   */
+  private void appendAggr(JPAggregate.Builder builder, JsonAggregate aggr) {
+    String alias = aggr.getAlias();
+    String attr = aggr.getAttr();
+    String oper = aggr.getOperator();
+    AggregationOperator operator = oper != null ? AggregationOperator.getOperator(oper) : null;
+    if (alias != null && attr != null && operator != null) {
+      builder.aggr(alias, attr, operator);
+    }
+  }
+
+  /**
+   * Учет агрегации
+   *
+   * @param aggr агрегация
+   * @return агрегация
+   */
+  private JsonAggregate toAggr(mp.jprime.dataaccess.params.query.Aggregate aggr) {
+    String alias = aggr.getAlias();
+    String attr = aggr.getAttr();
+    AggregationOperator oper = aggr.getOperator();
+    if (alias != null && attr != null && oper != null) {
+      JsonAggregate json = new JsonAggregate();
+      json.setAlias(alias);
+      json.setAttr(attr);
+      json.setOperator(oper.getCode());
+    }
+    return null;
+  }
+
+
+  /**
+   * Создает описание выборки агрегации
+   *
+   * @param aggregate Описание запроса
+   * @return Описание выборки
+   */
+  public JsonAggrQuery getAggrQuery(JPAggregate aggregate) {
+    JsonAggrQuery query = new JsonAggrQuery();
+    Optional.ofNullable(aggregate.getWhere())
+        .ifPresent(x -> query.setFilter(toExp(x)));
+    query.setAggrs(aggregate.getAggrs().stream().map(this::toAggr).collect(Collectors.toList()));
+    return query;
   }
 
   /**

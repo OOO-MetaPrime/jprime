@@ -9,8 +9,6 @@ import mp.jprime.security.AuthInfo;
  */
 public class JPDelete extends JPBaseCRUD {
   private final JPId jpId;
-  private final AuthInfo auth;
-
 
   /**
    * Конструктор
@@ -20,9 +18,8 @@ public class JPDelete extends JPBaseCRUD {
    * @param source Источник данных
    */
   private JPDelete(JPId jpId, AuthInfo auth, Source source) {
-    super(source);
+    super(source, auth);
     this.jpId = jpId;
-    this.auth = auth;
   }
 
   /**
@@ -41,15 +38,6 @@ public class JPDelete extends JPBaseCRUD {
    */
   public String getJpClass() {
     return getJpId().getJpClass();
-  }
-
-  /**
-   * Данные аутентификации
-   *
-   * @return Данные аутентификации
-   */
-  public AuthInfo getAuth() {
-    return auth;
   }
 
   /**

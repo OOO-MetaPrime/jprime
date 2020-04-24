@@ -2,12 +2,27 @@ package mp.jprime.events.systemevents;
 
 import org.springframework.context.ApplicationEvent;
 
+import java.time.LocalDateTime;
+
 /**
  * Базовый класс событий
  */
 public abstract class JPSystemEvent<T extends JPEventInfo> extends ApplicationEvent {
+  private LocalDateTime date;
   // Данные события
   private T info;
+
+  /**
+   * Create a new JPEvent.
+   *
+   * @param date Дата события
+   * @param info Данные события
+   */
+  public JPSystemEvent(LocalDateTime date, T info) {
+    super("");
+    this.date = date;
+    this.info = info;
+  }
 
   /**
    * Create a new JPEvent.
@@ -16,7 +31,17 @@ public abstract class JPSystemEvent<T extends JPEventInfo> extends ApplicationEv
    */
   public JPSystemEvent(T info) {
     super("");
+    this.date = LocalDateTime.now();
     this.info = info;
+  }
+
+  /**
+   * Дата события
+   *
+   * @return Дата события
+   */
+  public LocalDateTime getDate() {
+    return date;
   }
 
   /**

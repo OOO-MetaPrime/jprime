@@ -1,6 +1,7 @@
 package mp.jprime.meta.beans;
 
 import mp.jprime.meta.JPAttr;
+import mp.jprime.meta.JPVirtualPath;
 
 import java.util.Objects;
 
@@ -15,7 +16,7 @@ public final class JPAttrBean implements JPAttr {
   private final Integer length;
   private final boolean identifier;
   private final boolean mandatory;
-  private final String virtualReference;
+  private final JPVirtualPath virtualReference;
   private final JPType virtualType;
   /**
    * Название атрибута
@@ -35,7 +36,7 @@ public final class JPAttrBean implements JPAttr {
                      boolean mandatory,
                      String name, String shortName, String description,
                      String qName, String jpPackage, String refJpClassCode, String refJpAttrCode,
-                     String virtualReference, String virtualType) {
+                     JPVirtualPath virtualReference, String virtualType) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
@@ -47,7 +48,7 @@ public final class JPAttrBean implements JPAttr {
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
     this.refJpClassCode = refJpClassCode != null && !refJpClassCode.isEmpty() ? refJpClassCode : null;
     this.refJpAttrCode = refJpAttrCode != null && !refJpAttrCode.isEmpty() ? refJpAttrCode : null;
-    this.virtualReference = virtualReference != null && !virtualReference.isEmpty() ? virtualReference : null;
+    this.virtualReference = virtualReference;
     this.virtualType = virtualType != null && !virtualType.isEmpty() ? JPType.getType(virtualType) : null;
 
     this.length = length;
@@ -215,7 +216,7 @@ public final class JPAttrBean implements JPAttr {
    * @return Путь виртуальной ссылки
    */
   @Override
-  public String getVirtualReference() {
+  public JPVirtualPath getVirtualReference() {
     return virtualReference;
   }
 
@@ -275,7 +276,7 @@ public final class JPAttrBean implements JPAttr {
     private String jpPackage;
     private String refJpClassCode;
     private String refJpAttrCode;
-    private String virtualReference;
+    private JPVirtualPath virtualReference;
     private String virtualType;
 
     private Builder() {
@@ -332,7 +333,14 @@ public final class JPAttrBean implements JPAttr {
      * @return Builder
      */
     public Builder virtualReference(String virtualReference) {
-      this.virtualReference = virtualReference;
+      JPVirtualPath res = null;
+      if (virtualReference != null && !virtualReference.isEmpty()) {
+        String[] parts = virtualReference.split("\\.");
+        if (parts.length == 2) {
+          res = JPVirtualPathBean.newBuilder().refAttrCode(parts[0]).targerAttrCode(parts[1]).build();
+        }
+      }
+      this.virtualReference = res;
       return this;
     }
 

@@ -92,7 +92,6 @@ public class JPParamBase implements JPParam {
     this.external = external;
     this.value = value;
     this.enums = Collections.unmodifiableCollection(enums != null ? enums : Collections.emptyList());
-    ;
   }
 
   @Override

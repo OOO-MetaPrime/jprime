@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.beans;
 
-import java.util.Date;
+import java.time.ZonedDateTime;
 
 /**
  * Информация о файле
@@ -8,7 +8,7 @@ import java.util.Date;
 public class FileInfo {
   private final String path;
   private final String name;
-  private final Date createdTime;
+  private final ZonedDateTime createdTime;
   private final long length;
   private final String contentType;
 
@@ -19,7 +19,7 @@ public class FileInfo {
    * @param length      Длина
    * @param contentType Тип
    */
-  public FileInfo(String path, String name, Date createdTime, long length, String contentType) {
+  private FileInfo(String path, String name, ZonedDateTime createdTime, long length, String contentType) {
     this.path = path;
     this.name = name;
     this.createdTime = createdTime;
@@ -35,7 +35,7 @@ public class FileInfo {
     return name;
   }
 
-  public Date getCreatedTime() {
+  public ZonedDateTime getCreatedTime() {
     return createdTime;
   }
 
@@ -45,5 +45,63 @@ public class FileInfo {
 
   public String getContentType() {
     return contentType;
+  }
+
+  /**
+   * Построитель
+   *
+   * @return Builder
+   */
+  public static Builder newBuilder() {
+    return new Builder();
+  }
+
+  /**
+   * Построитель FileInfo
+   */
+  public static final class Builder {
+    private String path;
+    private String name;
+    private ZonedDateTime createdTime;
+    private long length = -1;
+    private String contentType;
+
+    private Builder() {
+
+    }
+
+    public Builder path(String path) {
+      this.path = path;
+      return this;
+    }
+
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
+
+    public Builder createdTime(ZonedDateTime createdTime) {
+      this.createdTime = createdTime;
+      return this;
+    }
+
+    public Builder length(long length) {
+      this.length = length;
+      return this;
+    }
+
+    public Builder contentType(String contentType) {
+      this.contentType = contentType;
+      return this;
+    }
+
+    /**
+     * Создаем FileInfo
+     *
+     * @return FileInfo
+     */
+    public FileInfo build() {
+      return new FileInfo(path, name, createdTime, length, contentType);
+    }
   }
 }

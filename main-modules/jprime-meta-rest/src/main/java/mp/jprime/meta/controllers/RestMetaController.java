@@ -41,7 +41,7 @@ public class RestMetaController {
 
   @ResponseBody
   @GetMapping(value = "/jpClasses/{classCode}",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClass> getClass(@PathVariable("classCode") String classCode) {
     JPClass jpClass = metaStorage.getJPClassByCode(classCode);
@@ -52,7 +52,7 @@ public class RestMetaController {
   }
 
   @ResponseBody
-  @GetMapping(value = "/jpClasses", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/jpClasses", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClassList> getClassList() {
     Collection<JPClass> classes = metaStorage.getJPClasses();
@@ -73,7 +73,7 @@ public class RestMetaController {
 
   @ResponseBody
   @GetMapping(value = "/attrTypes",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.meta.security.Role).META_ADMIN)")
   public Flux<JsonType> getAttrTypes() {
     return Flux.fromArray(JPType.values())
@@ -102,8 +102,6 @@ public class RestMetaController {
   }
 
   private JsonJPAttr toJson(JPAttr jpAttr) {
-    String type = jpAttr.getVirtualType() != null ? jpAttr.getVirtualType().getCode() :
-        (jpAttr.getType() != null ? jpAttr.getType().getCode() : null);
     return JsonJPAttr.newBuilder()
         .code(jpAttr.getCode())
         .guid(jpAttr.getGuid())
@@ -114,7 +112,7 @@ public class RestMetaController {
         .jpPackage(jpAttr.getJpPackage())
         .identifier(jpAttr.isIdentifier())
         .mandatory(jpAttr.isMandatory())
-        .type(type)
+        .type(jpAttr.getValueType().getCode())
         .refJpClass(jpAttr.getRefJpClassCode())
         .refJpAttr(jpAttr.getRefJpAttrCode())
         .length(jpAttr.getLength())

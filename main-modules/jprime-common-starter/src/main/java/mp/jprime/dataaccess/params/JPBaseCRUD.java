@@ -1,6 +1,7 @@
 package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
+import mp.jprime.security.AuthInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,9 +12,11 @@ import java.util.Map;
 abstract class JPBaseCRUD {
   private final Source source;
   private final Map<String, String> props = new HashMap<>();
+  private final AuthInfo auth;
 
-  JPBaseCRUD(Source source) {
+  JPBaseCRUD(Source source, AuthInfo auth) {
     this.source = source;
+    this.auth = auth;
   }
 
   /**
@@ -53,5 +56,15 @@ abstract class JPBaseCRUD {
    */
   public boolean containsProperty(String key) {
     return props.containsKey(key);
+  }
+
+  /**
+   * Данные авторизации
+   * Могут быть не указаны
+   *
+   * @return Данные авторизации
+   */
+  public AuthInfo getAuth() {
+    return auth;
   }
 }

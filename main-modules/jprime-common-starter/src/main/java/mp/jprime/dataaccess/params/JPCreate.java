@@ -15,7 +15,6 @@ public class JPCreate extends JPBaseCRUD {
   private final String jpClass;
   private final JPMutableData data;
   private final Map<String, Collection<JPCreate>> linkedData;
-  private final AuthInfo auth;
 
   /**
    * Конструктор
@@ -28,20 +27,10 @@ public class JPCreate extends JPBaseCRUD {
    */
   private JPCreate(String jpClass, Map<String, Object> data, Map<String,
       Collection<JPCreate>> linkedData, AuthInfo auth, Source source) {
-    super(source);
+    super(source, auth);
     this.jpClass = jpClass;
-    this.data = new JPMutableData(data);
+    this.data = JPMutableData.of(data);
     this.linkedData = linkedData;
-    this.auth = auth;
-  }
-
-  /**
-   * Данные аутентификации
-   *
-   * @return Данные аутентификации
-   */
-  public AuthInfo getAuth() {
-    return auth;
   }
 
   /**

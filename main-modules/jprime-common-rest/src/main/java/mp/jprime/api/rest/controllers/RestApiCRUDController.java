@@ -1,12 +1,9 @@
-package mp.jprime.rest.v1;
+package mp.jprime.api.rest.controllers;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPDelete;
-import mp.jprime.dataaccess.params.JPSelect;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
@@ -19,9 +16,12 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.rest.v1.Controllers;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.web.services.ServerWebExchangeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -30,71 +30,71 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-public interface RestApiBaseController extends JsonMapper {
-  /**
-   * Возвращает маппинг контроллера
-   *
-   * @return Маппинг контроллера
-   */
-  String getApiMapping();
+import java.util.Objects;
 
+@RestController
+@RequestMapping("api/v1")
+public class RestApiCRUDController implements JsonMapper {
+  /**
+   * Заполнение запросов на основе JSON
+   */
+  private QueryService queryService;
+  /**
+   * Интерфейс создания / обновления объекта
+   */
+  private JPObjectRepositoryService repo;
+  /**
+   * Хранилище метаинформации
+   */
+  private JPMetaStorage metaStorage;
+  /**
+   * Методы работы с ServerWebExchangeService
+   */
+  private ServerWebExchangeService sweService;
+  /**
+   * Обработчик JWT
+   */
+  private JWTService jwtService;
   /**
    * Максимальное количество в выборке по-умолчанию
    */
-  int MAX_LIMIT = 50;
+  private final static int MAX_LIMIT = 50;
 
-  /**
-   * Заполнение запросов на основе JSON
-   *
-   * @return Заполнение запросов на основе JSON
-   */
-  QueryService getQueryService();
+  @Value("${jprime.query.queryTimeout:}")
+  private Integer queryTimeout;
 
-  /**
-   * Интерфейс создания / обновления объекта
-   *
-   * @return Интерфейс создания / обновления объекта
-   */
-  JPObjectRepositoryService getRepo();
+  @Autowired
+  private void setQueryService(QueryService queryService) {
+    this.queryService = queryService;
+  }
 
-  /**
-   * Хранилище метаинформации
-   *
-   * @return Хранилище метаинформации
-   */
-  JPMetaStorage getMetaStorage();
+  @Autowired
+  private void setRepo(JPObjectRepositoryService repo) {
+    this.repo = repo;
+  }
 
-  /**
-   * Методы работы с ServerWebExchangeService
-   *
-   * @return Методы работы с ServerWebExchangeService
-   */
-  ServerWebExchangeService getSweService();
+  @Autowired
+  private void setMetaStorage(JPMetaStorage metaStorage) {
+    this.metaStorage = metaStorage;
+  }
 
-  /**
-   * Обработчик JWT
-   *
-   * @return Обработчик JWT
-   */
-  JWTService getJwtService();
+  @Autowired
+  private void setSweService(ServerWebExchangeService sweService) {
+    this.sweService = sweService;
+  }
 
-  /**
-   * queryTimeout
-   *
-   * @return queryTimeout
-   */
-  Integer getQueryTimeout();
+  @Autowired
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
+  }
 
   /**
    * Возвращает список
    *
-   * @param s       JPSelect
+   * @param s JPSelect
    * @return Список
    */
-  default Mono<JsonJPObjectList> getListResult(final JPSelect s, final ServerWebExchange swe) {
-    JPObjectRepositoryService repo = getRepo();
-    JPMetaStorage metaStorage = getMetaStorage();
-    ServerWebExchangeService sweService = getSweService();
+  private Mono<JsonJPObjectList> getListResult(final JPSelect s, final ServerWebExchange swe) {
     JPClass jpClass = metaStorage.getJPClassByCode(s.getJpClass());
     return Mono.zip(
         // Общее количество
@@ -105,7 +105,7 @@ public interface RestApiBaseController extends JsonMapper {
                 .jpObject(x)
                 .metaStorage(metaStorage)
                 .baseUrl(sweService.getBaseUrl(swe))
-                .restMapping(getApiMapping())
+                .restMapping(Controllers.API_MAPPING)
                 .build())
             .collectList(),
         // Создаем результат
@@ -122,15 +122,13 @@ public interface RestApiBaseController extends JsonMapper {
   }
 
   @ResponseBody
-  @GetMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getObjectList(ServerWebExchange swe,
-                                               @PathVariable("pluralCode") String pluralCode,
-                                               @RequestParam(value = "offset", required = false) Integer offset,
-                                               @RequestParam(value = "limit", required = false) Integer limit) {
-    JPMetaStorage metaStorage = getMetaStorage();
-    JWTService jwtService = getJwtService();
+  public Mono<JsonJPObjectList> getObjectList(ServerWebExchange swe,
+                                              @PathVariable("pluralCode") String pluralCode,
+                                              @RequestParam(value = "offset", required = false) Integer offset,
+                                              @RequestParam(value = "limit", required = false) Integer limit) {
 
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
@@ -142,24 +140,21 @@ public interface RestApiBaseController extends JsonMapper {
             .from(jpClass.getCode())
             .offset(offset != null ? offset : 0)
             .limit(limit != null ? limit : MAX_LIMIT)
-            .timeout(getQueryTimeout())
+            .orderByDesc(jpClass.getPrimaryKeyAttr())
+            .timeout(queryTimeout)
             .useDefaultJpAttrs(Boolean.TRUE)
-            .auth(authInfo)
             .source(Source.USER)
+            .auth(authInfo)
             .build(), swe);
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/search", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/{pluralCode}/search", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getObjectList(ServerWebExchange swe,
-                                               @PathVariable("pluralCode") String pluralCode,
-                                               @RequestBody String query) {
-    JPMetaStorage metaStorage = getMetaStorage();
-    JWTService jwtService = getJwtService();
-    QueryService queryService = getQueryService();
-
+  public Mono<JsonJPObjectList> getObjectList(ServerWebExchange swe,
+                                              @PathVariable("pluralCode") String pluralCode,
+                                              @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -168,40 +163,39 @@ public interface RestApiBaseController extends JsonMapper {
     JPSelect.Builder builder;
     try {
       builder = queryService.getSelect(jpClass.getCode(), query, authInfo)
-          .timeout(getQueryTimeout())
+          .timeout(queryTimeout)
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    if (builder.isOrderByEmpty()) {
+      builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
     return getListResult(builder.build(), swe);
   }
 
   @ResponseBody
-  @GetMapping(value = "/{pluralCode}/{objectId}/{attrCode}/{attrValue}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/{pluralCode}/{objectId}/{attrCode}/{attrValue}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getLinkList(ServerWebExchange swe,
-                                             @PathVariable("pluralCode") String pluralCode,
-                                             @PathVariable("objectId") String objectId,
-                                             @PathVariable("attrCode") String attrCode,
-                                             @PathVariable("attrValue") String attrValue) {
+  public Mono<JsonJPObjectList> getLinkList(ServerWebExchange swe,
+                                            @PathVariable("pluralCode") String pluralCode,
+                                            @PathVariable("objectId") String objectId,
+                                            @PathVariable("attrCode") String attrCode,
+                                            @PathVariable("attrValue") String attrValue) {
     return getSearchLinkList(swe, pluralCode, objectId, attrCode, attrValue, null);
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/{objectId}/{attrCode}/{attrValue}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/{pluralCode}/{objectId}/{attrCode}/{attrValue}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getSearchLinkList(ServerWebExchange swe,
-                                                   @PathVariable("pluralCode") String pluralCode,
-                                                   @PathVariable("objectId") String objectId,
-                                                   @PathVariable("attrCode") String attrCode,
-                                                   @PathVariable("attrValue") String attrValue,
-                                                   @RequestBody String query) {
-    JPMetaStorage metaStorage = getMetaStorage();
-    JWTService jwtService = getJwtService();
-    QueryService queryService = getQueryService();
-
+  public Mono<JsonJPObjectList> getSearchLinkList(ServerWebExchange swe,
+                                                  @PathVariable("pluralCode") String pluralCode,
+                                                  @PathVariable("objectId") String objectId,
+                                                  @PathVariable("attrCode") String attrCode,
+                                                  @PathVariable("attrValue") String attrValue,
+                                                  @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
     if (jpAttr == null || jpAttr.getRefJpClassCode() == null || jpClass.isInner()) {
@@ -218,68 +212,87 @@ public interface RestApiBaseController extends JsonMapper {
     try {
       builder = queryService.getSelect(jpAttr.getRefJpClassCode(), query, authInfo)
           .andWhere(Filter.attr(jpAttr.getRefJpAttrCode()).eq(attrValue))
-          .timeout(getQueryTimeout())
+          .timeout(queryTimeout)
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    if (builder.isOrderByEmpty()) {
+      builder.orderByDesc(refClass.getPrimaryKeyAttr());
     }
     return getListResult(builder.build(), swe);
   }
 
   @ResponseBody
-  @GetMapping(value = "/{pluralCode}/{objectId}/{attrCode}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/{pluralCode}/{objectId}/{attrCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getBackReferenceList(ServerWebExchange swe,
-                                                      @PathVariable("pluralCode") String pluralCode,
-                                                      @PathVariable("objectId") String objectId,
-                                                      @PathVariable("attrCode") String attrCode) {
+  public Mono<JsonJPObjectList> getBackReferenceList(ServerWebExchange swe,
+                                                     @PathVariable("pluralCode") String pluralCode,
+                                                     @PathVariable("objectId") String objectId,
+                                                     @PathVariable("attrCode") String attrCode) {
     return getSearchBackReferenceList(swe, pluralCode, objectId, attrCode, null);
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/{objectId}/{attrCode}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/{pluralCode}/{objectId}/{attrCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObjectList> getSearchBackReferenceList(ServerWebExchange swe,
-                                                            @PathVariable("pluralCode") String pluralCode,
-                                                            @PathVariable("objectId") String objectId,
-                                                            @PathVariable("attrCode") String attrCode,
-                                                            @RequestBody String query) {
-    JPMetaStorage metaStorage = getMetaStorage();
-    JWTService jwtService = getJwtService();
-    QueryService queryService = getQueryService();
-
+  public Mono<JsonJPObjectList> getSearchBackReferenceList(ServerWebExchange swe,
+                                                           @PathVariable("pluralCode") String pluralCode,
+                                                           @PathVariable("objectId") String objectId,
+                                                           @PathVariable("attrCode") String attrCode,
+                                                           @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
-    JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    if (jpAttr == null || jpAttr.getRefJpClassCode() == null || jpAttr.getType() != JPType.BACKREFERENCE || jpClass.isInner()) {
+    JPAttr jpAttr = jpClass == null || jpClass.isInner() ? null : jpClass.getAttr(attrCode);
+    JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClassCode() == null || jpAttr.getType() != JPType.BACKREFERENCE
+        ? null : metaStorage.getJPClassByCode(jpAttr.getRefJpClassCode());
+    JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttrCode());
+    JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttrCode());
+    if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClassCode())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
-    JPSelect.Builder builder;
-    try {
-      builder = queryService.getSelect(jpAttr.getRefJpClassCode(), query, authInfo)
-          .andWhere(Filter.attr(jpAttr.getRefJpAttrCode()).eq(objectId))
-          .timeout(getQueryTimeout())
-          .source(Source.USER);
-    } catch (JPRuntimeException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-    return getListResult(builder.build(), swe);
+    return Mono.just(objectId)
+        .flatMap(key -> {
+              if (targetAttr.isIdentifier()) {
+                return Mono.just(key).cast(Object.class);
+              } else {
+                return repo.getAsyncObject(
+                    JPSelect.from(jpClass.getCode())
+                        .attr(targetAttr.getCode())
+                        .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(key))
+                        .build()
+                )
+                    .filter(Objects::nonNull)
+                    .map(o -> o.getAttrValue(targetAttr.getCode()));
+              }
+            }
+        )
+        .flatMap(key -> {
+          AuthInfo authInfo = jwtService.getAuthInfo(swe);
+          JPSelect.Builder builder;
+          try {
+            builder = queryService.getSelect(refJpClass.getCode(), query, authInfo)
+                .andWhere(Filter.attr(refJpAttr.getCode()).eq(key))
+                .timeout(queryTimeout)
+                .source(Source.USER);
+          } catch (JPRuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          if (builder.isOrderByEmpty()) {
+            builder.orderByDesc(refJpClass.getPrimaryKeyAttr());
+          }
+          return getListResult(builder.build(), swe);
+        });
   }
 
   @ResponseBody
-  @GetMapping(value = "/{pluralCode}/{objectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @GetMapping(value = "/{pluralCode}/{objectId}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObject> getObject(ServerWebExchange swe,
-                                       @PathVariable("pluralCode") String pluralCode,
-                                       @PathVariable("objectId") String objectId) {
-    JPObjectRepositoryService repo = getRepo();
-    JPMetaStorage metaStorage = getMetaStorage();
-    ServerWebExchangeService sweService = getSweService();
-    JWTService jwtService = getJwtService();
-
+  public Mono<JsonJPObject> getObject(ServerWebExchange swe,
+                                      @PathVariable("pluralCode") String pluralCode,
+                                      @PathVariable("objectId") String objectId) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -289,7 +302,7 @@ public interface RestApiBaseController extends JsonMapper {
     JPSelect jpSelect = JPSelect
         .from(jpClass)
         .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(objectId))
-        .timeout(getQueryTimeout())
+        .timeout(queryTimeout)
         .useDefaultJpAttrs(Boolean.TRUE)
         .auth(authInfo)
         .source(Source.USER)
@@ -302,22 +315,18 @@ public interface RestApiBaseController extends JsonMapper {
             .metaStorage(metaStorage)
             .jpObject(x)
             .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(getApiMapping())
+            .restMapping(Controllers.API_MAPPING)
             .build())
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
   @ResponseBody
-  @DeleteMapping(value = "/{pluralCode}/{objectId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @DeleteMapping(value = "/{pluralCode}/{objectId}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.ACCEPTED)
-  default Mono<Void> deleteObject(ServerWebExchange swe,
-                                  @PathVariable("pluralCode") String pluralCode,
-                                  @PathVariable("objectId") String objectId) {
-    JPObjectRepositoryService repo = getRepo();
-    JPMetaStorage metaStorage = getMetaStorage();
-    JWTService jwtService = getJwtService();
-
+  public Mono<Void> deleteObject(ServerWebExchange swe,
+                                 @PathVariable("pluralCode") String pluralCode,
+                                 @PathVariable("objectId") String objectId) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -337,18 +346,12 @@ public interface RestApiBaseController extends JsonMapper {
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PostMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.CREATED)
-  default Mono<JsonJPObject> createObject(ServerWebExchange swe,
-                                          @PathVariable("pluralCode") String pluralCode,
-                                          @RequestBody String query) {
-    JPObjectRepositoryService repo = getRepo();
-    JPMetaStorage metaStorage = getMetaStorage();
-    ServerWebExchangeService sweService = getSweService();
-    JWTService jwtService = getJwtService();
-    QueryService queryService = getQueryService();
-
+  public Mono<JsonJPObject> createObject(ServerWebExchange swe,
+                                         @PathVariable("pluralCode") String pluralCode,
+                                         @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -373,23 +376,17 @@ public interface RestApiBaseController extends JsonMapper {
             .metaStorage(metaStorage)
             .jpObject(x)
             .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(getApiMapping())
+            .restMapping(Controllers.API_MAPPING)
             .build());
   }
 
   @ResponseBody
-  @PutMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  @PutMapping(value = "/{pluralCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  default Mono<JsonJPObject> updateObject(ServerWebExchange swe,
-                                          @PathVariable("pluralCode") String pluralCode,
-                                          @RequestBody String query) {
-    JPObjectRepositoryService repo = getRepo();
-    JPMetaStorage metaStorage = getMetaStorage();
-    ServerWebExchangeService sweService = getSweService();
-    JWTService jwtService = getJwtService();
-    QueryService queryService = getQueryService();
-
+  public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
+                                         @PathVariable("pluralCode") String pluralCode,
+                                         @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -417,7 +414,7 @@ public interface RestApiBaseController extends JsonMapper {
             .metaStorage(metaStorage)
             .jpObject(x)
             .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(getApiMapping())
+            .restMapping(Controllers.API_MAPPING)
             .build());
   }
 }

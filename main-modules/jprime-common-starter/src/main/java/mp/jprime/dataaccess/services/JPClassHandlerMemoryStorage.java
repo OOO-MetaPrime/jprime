@@ -2,6 +2,7 @@ package mp.jprime.dataaccess.services;
 
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
+import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.params.JPCreate;
@@ -17,15 +18,24 @@ import java.util.*;
  * Логика вызова CRUD-хендлеров
  */
 @Service
-public final class JPClassHandlerStorageService implements JPClassHandlerStorage, JPClassesLinkFilter<JPClassHandler> {
+public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage, JPClassesLinkFilter<JPClassHandler> {
   private Map<String, Collection<JPClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPClassHandler> uniHandlers = new ArrayList<>();
+  /**
+   * Логика вычисления значений по-умолчанию
+   */
+  private JPObjectDefValueService jpObjectDefValueService;
+
+  @Autowired
+  private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
+    this.jpObjectDefValueService = jpObjectDefValueService;
+  }
 
   /**
    * Считываем аннотации
    */
   @Autowired(required = false)
-  private void setHanlders(Collection<JPClassHandler> handlers) {
+  private void setHandlers(Collection<JPClassHandler> handlers) {
     if (handlers == null) {
       return;
     }
@@ -41,7 +51,7 @@ public final class JPClassHandlerStorageService implements JPClassHandlerStorage
           if (jpClassCode == null || jpClassCode.isEmpty()) {
             continue;
           }
-          if ("*".equals(jpClassCode)) {
+          if (JPClassesLink.UNI.equals(jpClassCode)) {
             uniHandlers.add(handler);
           } else {
             jpClassHandlers.computeIfAbsent(jpClassCode, x -> new ArrayList<>()).add(handler);
@@ -74,10 +84,12 @@ public final class JPClassHandlerStorageService implements JPClassHandlerStorage
   private Collection<JPClassHandler> getHandlers(String jpClassCode) {
     if (jpClassHandlers.containsKey(jpClassCode)) {
       return jpClassHandlers.get(jpClassCode);
-    } else {
+    } else if (!uniHandlers.isEmpty()){
       Collection<JPClassHandler> result = new ArrayList<>(uniHandlers);
       jpClassHandlers.put(jpClassCode, result);
       return result;
+    } else {
+      return null;
     }
   }
 
@@ -88,6 +100,9 @@ public final class JPClassHandlerStorageService implements JPClassHandlerStorage
    */
   @Override
   public void beforeCreate(JPCreate query) {
+    query.getData().putIfAbsent(
+        jpObjectDefValueService.getDefValues(query.getJpClass(), query.getAuth())
+    );
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
       handlers.forEach(x -> x.beforeCreate(query));

@@ -9,7 +9,7 @@ dependencies {
   api('org.springframework.kafka:spring-kafka')
   api('org.springframework:spring-tx')
   api('org.apache.commons:commons-lang3:3.9')
-  api('org.apache.kafka:kafka-log4j-appender:2.1.0')
+  api('org.apache.kafka:kafka-log4j-appender:2.5.0')
   api('com.lmax:disruptor:3.4.2')
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')

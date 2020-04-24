@@ -75,7 +75,7 @@ public class RestAccessController {
 
   @ResponseBody
   @GetMapping(value = "jpObjects/{pluralCode}/{objectId}",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPObjectAccess> getAccess(ServerWebExchange swe,
                                             @PathVariable("pluralCode") String pluralCode,
@@ -101,7 +101,7 @@ public class RestAccessController {
 
   @ResponseBody
   @GetMapping(value = "jpClasses/{classCode}",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClassAccess> getInfo(ServerWebExchange swe,
                                          @PathVariable("classCode") String classCode) {
@@ -115,7 +115,7 @@ public class RestAccessController {
 
   @ResponseBody
   @GetMapping(value = "jpClasses",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Flux<JsonJPClassAccess> getInfoList(ServerWebExchange swe) {
     Collection<JPClass> classes = metaStorage.getJPClasses();
@@ -130,7 +130,7 @@ public class RestAccessController {
 
   @ResponseBody
   @GetMapping(value = "jpPackages",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAnyAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN, T(mp.jprime.meta.security.Role).META_ADMIN)")
   public Flux<JsonSecurityPackage> getJPPackages(ServerWebExchange swe) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();
@@ -144,7 +144,7 @@ public class RestAccessController {
 
   @ResponseBody
   @GetMapping(value = "jpPackages/{code}",
-      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+      produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAnyAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN, T(mp.jprime.meta.security.Role).META_ADMIN)")
   public Mono<JsonSecurityPackage> getJPPackages(@PathVariable("code") String code) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();

@@ -140,6 +140,74 @@ paths:
           description: Authorization information is missing or invalid.
         '5XX':
           description: Unexpected error.
+          
+  '/api/v1/{pluralCode}/aggregate':
+    post:
+      tags:
+      - list
+      summary: Получение агрегация по списку объектов
+      description: Вычисление агрегаций
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественный код метакласса
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/aggregateRequest'
+        description: Параметры для вычисления
+      responses:
+        '200':
+          description: Размеры агрегаций
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/aggregateResponse'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{pluralCode}/defvalue':
+    post:
+      tags:
+      - list
+      summary: Получение значений по-умолчанию
+      description: Значения по-умолчанию
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественный код метакласса
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/defvalueRequest'
+        description: Параметры для вычисления
+      responses:
+        '200':
+          description: Значения по-умолчанию
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/defvalueResponse'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
 
   '/api/v1/{pluralCode}/{objectId}/{attrCode}/{attrValue}':
     post:
@@ -476,56 +544,6 @@ paths:
           description: 'invalid input, object invalid'
         '409':
           description: an existing item already exists
-
-  '/utils/v1/{utilCode}/mode/{modeCode}':
-    post:
-      tags:
-      - util
-      summary: exec mode of util
-      description:
-        you can execute step of choosing util
-      parameters:
-      - in: path
-        name: utilCode
-        required: true
-        schema:
-          type: string
-          format: string
-        description: The util's code
-      - in: path
-        name: modeCode
-        required: true
-        schema:
-          type: string
-          format: string
-        description: The util step's code
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: string
-              format: json
-              example:
-                request: hello
-              description: request json
-        description: object to add
-      responses:
-        '200':
-          description: execute
-          content:
-            application/json:
-              schema:
-                type: string
-                format: json
-                description: response json
-                example:
-                  response: Thanks for hello
-        '400':
-          description: Bad request.
-        '401':
-          description: Authorization information is missing or invalid.
-        '5XX':
-          description: Unexpected error.
 
 components:
   securitySchemes:
@@ -950,3 +968,104 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/objectData'
+
+    aggregateRequest:
+      type: object
+      properties:
+        aggrs:
+          type: array
+          description: настройки агрегаций
+          items:
+            type: object
+            properties:
+              alias:
+                type: string
+                description: Псеводним агрегации, под которым будет отображен результат
+                example: a1
+              attr:
+                type: string
+                description: Кодовое имя атрибута, на который накладывается агрегация
+                example: creationDate
+              operator:
+                type: string
+                enum: [MAX, MIN, AVG, SUM, COUNT, COUNT_DISTINCT]
+                description: Код агрегации
+                example: MAX
+          example:
+              [
+                  {
+                      "alias": "a1",
+                      "attr": "creationDate",
+                      "operator": "MAX"
+                  },
+                  {
+                      "alias": "a2",
+                      "attr": "creationDate",
+                      "operator": "MIN"
+                  }
+              ]
+        filter:
+          type: object
+          description: Ограничение выборки
+          items:
+            $ref: '#/components/schemas/expression'
+          example:
+              {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
+
+    aggregateResponse:
+      type: object
+      properties:
+        classCode:
+          type: string
+          format: string
+          description: Кодовое имя класса
+          example: personalCard
+        aggrs:
+          description: Набор значений агрегаций
+          additionalProperties:
+            type: string
+            example: 'alias'
+          example:
+            a1: "2020-04-16T15:33:03.468+0300"
+            a2: "2020-04-02T12:15:00.000+0300"
+
+    defvalueRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: string
+          description: Идентификатор объекта, из которого создаем (может быть не указан)
+          example: 1
+        classCode:
+          type: string
+          format: string
+          description: Кодовое имя класса объекта, из которого создаем (может быть не указан)
+          example: spbCompany
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          description: Данные объекта, из которого создаем (может быть не указан)
+          example:
+            sex: M
+            address: Мск
+            citezenships: 1
+
+    defvalueResponse:
+      type: object
+      properties:
+        classCode:
+          type: string
+          format: string
+          description: Кодовое имя класса
+          example: spbDoc
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          description: Значения по-умолчанию для атрибутов
+          example:
+            userOwnerId: 9999999912
+            citizenship: 643
+            status: 1

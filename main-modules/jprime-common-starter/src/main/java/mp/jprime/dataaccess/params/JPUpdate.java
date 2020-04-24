@@ -17,7 +17,6 @@ public class JPUpdate extends JPBaseCRUD {
   private final Map<String, Collection<JPCreate>> linkedCreate;
   private final Map<String, Collection<JPUpdate>> linkedUpdate;
   private final Map<String, Collection<JPDelete>> linkedDelete;
-  private final AuthInfo auth;
 
   /**
    * Конструктор
@@ -35,22 +34,12 @@ public class JPUpdate extends JPBaseCRUD {
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
                    AuthInfo auth, Source source) {
-    super(source);
+    super(source, auth);
     this.jpId = jpId;
-    this.data = new JPMutableData(data);
+    this.data = JPMutableData.of(data);
     this.linkedCreate = Collections.unmodifiableMap(linkedCreate == null ? Collections.emptyMap() : linkedCreate);
     this.linkedUpdate = Collections.unmodifiableMap(linkedUpdate == null ? Collections.emptyMap() : linkedUpdate);
     this.linkedDelete = Collections.unmodifiableMap(linkedDelete == null ? Collections.emptyMap() : linkedDelete);
-    this.auth = auth;
-  }
-
-  /**
-   * Данные аутентификации
-   *
-   * @return Данные аутентификации
-   */
-  public AuthInfo getAuth() {
-    return auth;
   }
 
   /**

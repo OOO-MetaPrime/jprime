@@ -28,6 +28,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -85,6 +86,7 @@ public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPubl
     props.put(ConsumerConfig.GROUP_ID_CONFIG, UUID.randomUUID().toString());
     props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
     props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+    props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 1);
     return new DefaultKafkaConsumerFactory<>(props);
   }
 
@@ -142,7 +144,8 @@ public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPubl
 
 
   private String toJSON(JPSystemEvent event) throws JsonProcessingException {
-    return KAFKA_OBJECT_MAPPER.writeValueAsString(new JPEventData(event.getClass().getName(),
+    return KAFKA_OBJECT_MAPPER.writeValueAsString(new JPEventData(event.getDate(),
+        event.getClass().getName(),
         event.getInfo().getClass().getName(),
         KAFKA_OBJECT_MAPPER.writeValueAsString(event.getInfo())));
   }
@@ -155,7 +158,7 @@ public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPubl
     JPEventInfo info = (JPEventInfo) KAFKA_OBJECT_MAPPER.readValue(data.getInfo(), javaClassCache.getClass(data.getInfoClassName()));
     return (JPSystemEvent) javaClassCache
         .getClass(data.getEventClassName())
-        .getDeclaredConstructor(info.getClass())
-        .newInstance(info);
+        .getDeclaredConstructor(LocalDateTime.class, info.getClass())
+        .newInstance(data.getDate(), info);
   }
 }

@@ -1,5 +1,7 @@
 package mp.jprime.events.stream;
 
+import java.time.LocalDateTime;
+
 /**
  * Данные события
  *
@@ -7,11 +9,22 @@ package mp.jprime.events.stream;
  */
 public class JPEventBaseInfo<T extends JsonEvent> implements JPEventInfo<T> {
   private String eventType;
+  private LocalDateTime date;
   private T eventData;
 
-  private JPEventBaseInfo(String eventType, T eventData) {
+  private JPEventBaseInfo(String eventType, LocalDateTime date, T eventData) {
     this.eventType = eventType;
+    this.date = date;
     this.eventData = eventData;
+  }
+
+  /**
+   * Дата события
+   *
+   * @return Дата события
+   */
+  public LocalDateTime getDate() {
+    return date;
   }
 
   /**
@@ -48,10 +61,22 @@ public class JPEventBaseInfo<T extends JsonEvent> implements JPEventInfo<T> {
    */
   public static final class Builder<T extends JsonEvent> {
     private String eventType;
+    private LocalDateTime date;
     private T eventData;
 
 
     private Builder() {
+    }
+
+    /**
+     * Дата события
+     *
+     * @param date Дата события
+     * @return Builder
+     */
+    public Builder<T> date(LocalDateTime date) {
+      this.date = date;
+      return this;
     }
 
     /**
@@ -82,7 +107,7 @@ public class JPEventBaseInfo<T extends JsonEvent> implements JPEventInfo<T> {
      * @return Event
      */
     public JPEventBaseInfo<T> build() {
-      return new JPEventBaseInfo<>(eventType, eventData);
+      return new JPEventBaseInfo<>(eventType, date, eventData);
     }
   }
 }
