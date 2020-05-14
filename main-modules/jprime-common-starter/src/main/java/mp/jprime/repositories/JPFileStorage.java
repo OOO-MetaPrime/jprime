@@ -34,7 +34,7 @@ public interface JPFileStorage extends JPStorage {
    * @param fileName Имя файла
    * @param stream   Поток с данными
    */
-  void save(String path, String fileName, InputStream stream);
+  FileInfo save(String path, String fileName, InputStream stream);
 
   /**
    * Чтение файла

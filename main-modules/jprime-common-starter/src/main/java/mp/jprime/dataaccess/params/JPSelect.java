@@ -92,7 +92,6 @@ public class JPSelect extends JPBaseCRUD {
     return orderBy;
   }
 
-
   /**
    * Кодовое имя класса
    *

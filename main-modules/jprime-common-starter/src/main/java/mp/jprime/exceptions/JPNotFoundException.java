@@ -17,4 +17,11 @@ public class JPNotFoundException extends JPAppRuntimeException {
   public JPNotFoundException(String messageCode, String message) {
     super(messageCode, message);
   }
+
+  /**
+   * Конструктор
+   */
+  public JPNotFoundException() {
+    this("data.notFound", "Данные не найдены");
+  }
 }

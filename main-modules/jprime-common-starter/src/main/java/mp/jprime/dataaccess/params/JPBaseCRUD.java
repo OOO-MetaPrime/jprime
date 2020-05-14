@@ -9,12 +9,12 @@ import java.util.Map;
 /**
  * Базовый класс для параметров CRUD операций
  */
-abstract class JPBaseCRUD {
+abstract public class JPBaseCRUD {
   private final Source source;
   private final Map<String, String> props = new HashMap<>();
   private final AuthInfo auth;
 
-  JPBaseCRUD(Source source, AuthInfo auth) {
+  public JPBaseCRUD(Source source, AuthInfo auth) {
     this.source = source;
     this.auth = auth;
   }

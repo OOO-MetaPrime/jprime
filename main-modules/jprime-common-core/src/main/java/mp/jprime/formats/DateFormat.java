@@ -9,6 +9,10 @@ public final class DateFormat {
    */
   public static final String YYYYY_MM_DD = "yyyy-MM-dd";
   /**
+   * Год-месяц-день чч:мм
+   */
+  public static final String YYYYY_MM_DD_HH_MM = "yyyy-MM-dd HH:mm";
+  /**
    * день-месяц-год
    */
   public static final String DD_MM_YYYY = "dd-MM-yyyy";

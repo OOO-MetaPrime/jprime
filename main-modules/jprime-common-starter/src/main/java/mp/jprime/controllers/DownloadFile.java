@@ -32,12 +32,7 @@ public interface DownloadFile {
 
   default Mono<ResponseEntity> read(InputStream is, String fileTitle, Long fileLength, String contentType, String userAgent) {
     return Mono.justOrEmpty(contentType)
-        .map(x -> {
-          if (x == null) {
-            x = FILE_TYPE_DETECTOR.mediaType(fileTitle);
-          }
-          return x;
-        })
+        .defaultIfEmpty(FILE_TYPE_DETECTOR.mediaType(fileTitle))
         .map(x -> {
               ResponseEntity.BodyBuilder b = ResponseEntity.ok()
                   .contentType(x == null ? APPLICATION_OCTET_STREAM : MediaType.valueOf(x));

@@ -8,7 +8,7 @@ public abstract class JPMeta {
     /**
      * Глобальный идентификатор объекта
      */
-    String GUID = "guid";
+    String UUID = "uuid";
     /**
      * Пользователь, создавший объект
      */
