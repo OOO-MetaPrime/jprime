@@ -160,14 +160,17 @@ components:
         code:
           type: string
           format: string
+          description: Кодовое имя
           example: spbCompany
         pluralCode:
           type: string
           format: string
+          description: Множественный код кодового имени
           example: spbCompanies
         qName:
           type: string
           format: string
+          description: Полный код класса
           example: 'spb.spbCompany'
         name:
           type: string
@@ -187,17 +190,21 @@ components:
         jpPackage:
           type: string
           format: string
+          description: Настройки доступа
           example: 'adminAccess'
         guid:
           type: string
           format: string
+          description: Глобальный идентификатор
           example: "92566524-c57b-4656-be9b-4357bc56ea08"
         immutable:
           type: boolean
           format: boolean
+          description: Признак неизменяемости метаописания
           example: true
         attrs:
           type: array
+          description: Список атрибутов класса
           items:
             $ref: '#/components/schemas/metaAttr'
 
@@ -211,26 +218,32 @@ components:
         code:
           type: string
           format: string
+          description: Кодовое имя атрибута
           example: name
         type:
           type: string
           format: string
+          description: Тип атрибута
           example: string
         guid:
           type: string
           format: string
+          description: Глобальный идентификатор
           example: '3e4cc29e-9ab4-4cce-86ff-9d4f9a42d923'
         identifier:
           type: boolean
           format: boolean
+          description: Признак идентификатора
           example: true
         mandatory:
           type: boolean
           format: boolean
+          description: Признак обязательности
           example: true
         qName:
           type: string
           format: string
+          description: Полный код атрибута
           example: 'jpClass.className1.PersonalCard.name'
         name:
           type: string
@@ -245,17 +258,55 @@ components:
         description:
           type: string
           format: string
-          description: Название класса
+          description: Описание атрибута
           example: 'Имя гражданина'
         length:
           type: number
           format: number
+          description: Длина (для строковых полей)
           example: 10
         refJpClass:
           type: string
           format: string
+          description: Кодовое имя класса, на который ссылается
           example: string
         refJpAttr:
           type: string
           format: string
+          description: Кодовое имя атрибута ссылочного класса
           example: string
+        refJpFile:
+          type: object
+          description: Описание файлового атрибута
+          items:
+            $ref: '#/components/schemas/jpFile'
+          example: {
+                "titleAttr": "fileTitle",
+                "extAttr": "fileExt",
+                "sizeAttr": "fileSize",
+                "dateAttr": "fileDate"
+            }
+
+    jpFile:
+      type: object
+      properties:
+        titleAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Заголовок файла
+          example: fileTitle
+        extAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Расширение файла
+          example: fileExt
+        sizeAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Размер файла
+          example: fileSize
+        dateAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Дата файла
+          example: fileDate

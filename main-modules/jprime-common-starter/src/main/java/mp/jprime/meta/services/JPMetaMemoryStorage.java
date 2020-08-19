@@ -1,12 +1,13 @@
 package mp.jprime.meta.services;
 
+import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPImmutableClass;
 import mp.jprime.meta.JPMetaDynamicLoader;
 import mp.jprime.meta.annotations.services.JPMetaAnnoLoader;
-import mp.jprime.meta.events.JPMetaChangeEvent;
+import mp.jprime.meta.events.JPMetaLoadFinishEvent;
 import mp.jprime.meta.xmlloader.services.JPMetaXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,10 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
   private JPMetaDynamicLoader dynamicLoader;
 
   /**
+   * Публикация событий
+   */
+  private ApplicationEventPublisher eventPublisher;
+  /**
    * Размещает метаописание в хранилище
    */
   private JPMetaMemoryStorage(@Autowired JPMetaAnnoLoader annoLoader,
@@ -50,6 +55,11 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     Flux.concat(p)
         .filter(Objects::nonNull)
         .subscribe(this::applyJPClass);
+  }
+
+  @Autowired
+  private void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
+    this.eventPublisher = eventPublisher;
   }
 
   @Autowired(required = false)
@@ -87,7 +97,7 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     Map<String, JPClass> pluralCodeJpClassMap = new ConcurrentHashMap<>();
     // Добавляем постоянные настройки
     for (JPClass cls : this.classes) {
-      if (cls instanceof JPImmutableClass) {
+      if (cls.isImmutable()) {
         classes.add(cls);
         codeJpClassMap.put(cls.getCode(), cls);
         pluralCodeJpClassMap.put(cls.getPluralCode(), cls);
@@ -107,6 +117,8 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     this.umClasses = umClasses;
     this.codeJpClassMap = codeJpClassMap;
     this.pluralCodeJpClassMap = pluralCodeJpClassMap;
+
+    eventPublisher.publishEvent(new JPMetaLoadFinishEvent());
   }
 
 
@@ -142,8 +154,8 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     return pluralCode == null ? null : pluralCodeJpClassMap.get(pluralCode);
   }
 
-  @EventListener
-  public void handleJPMetaChangeEvent(JPMetaChangeEvent event) {
+  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.meta.events.JPMetaChangeEvent).CODE)")
+  public void handleJPMetaChangeEvent(JPSystemApplicationEvent event) {
     dynamicLoad();
   }
 

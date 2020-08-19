@@ -6,9 +6,6 @@ import mp.jprime.metamaps.annotations.JPAttrMap;
 import mp.jprime.metamaps.annotations.JPClassMap;
 import mp.jprime.metamaps.beans.JPAttrMapBean;
 import mp.jprime.metamaps.beans.JPClassMapBean;
-import mp.jprime.metamaps.beans.JPImmutableClassMapBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -22,8 +19,6 @@ import java.util.Collection;
  */
 @Service
 public class JPMapsAnnoLoader implements JPMapsLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(JPMapsAnnoLoader.class);
-
   private Collection<JPMeta> metas;
 
   /**
@@ -39,6 +34,7 @@ public class JPMapsAnnoLoader implements JPMapsLoader {
    *
    * @return Список метаописания
    */
+  @Override
   public Flux<mp.jprime.metamaps.JPClassMap> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -71,14 +67,11 @@ public class JPMapsAnnoLoader implements JPMapsLoader {
             .readOnly(attr.readOnly())
             .build());
       }
-      mp.jprime.metamaps.JPClassMap newCls = JPImmutableClassMapBean.newBuilder()
-          .jpClassMap(JPClassMapBean.newBuilder()
-              .code(cls.code())
-              .storage(cls.storage())
-              .map(cls.map())
-              .attrs(newAttrs)
-              .build()
-          )
+      mp.jprime.metamaps.JPClassMap newCls = JPClassMapBean.newBuilder()
+          .code(cls.code())
+          .storage(cls.storage())
+          .map(cls.map())
+          .attrs(newAttrs)
           .build();
       sink.next(newCls);
     }

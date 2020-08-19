@@ -1,5 +1,6 @@
 package mp.jprime.security.beans;
 
+import mp.jprime.security.JPSecurityPackageAccess;
 import mp.jprime.security.JPSecurityPackage;
 
 import java.util.ArrayList;
@@ -30,26 +31,30 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   /**
    * Разрешительные настройки
    */
-  private final Map<String, JPAccess> permitAccess;
+  private final Map<String, JPSecurityPackageAccess> permitAccess;
   /**
    * Запретительные настройки
    */
-  private final Map<String, JPAccess> prohibitionAccess;
+  private final Map<String, JPSecurityPackageAccess> prohibitionAccess;
+  private final Boolean immutable;
 
   private JPSecurityPackageBean(String code, String description, String name, String qName,
-                                Collection<JPAccess> permitAccess, Collection<JPAccess> prohibitionAccess) {
+                                Collection<JPSecurityPackageAccess> permitAccess, Collection<JPSecurityPackageAccess> prohibitionAccess,
+                                boolean immutable) {
+    this.immutable = immutable;
+
     this.code = code;
     this.description = description;
     this.name = name;
     this.qName = qName;
 
-    final Map<String, JPAccess> newPermitAccess = new HashMap<>();
+    final Map<String, JPSecurityPackageAccess> newPermitAccess = new HashMap<>();
     if (permitAccess != null) {
       permitAccess.forEach(x -> newPermitAccess.put(x.getRole(), x));
     }
     this.permitAccess = newPermitAccess;
 
-    final Map<String, JPAccess> newProhibitionAccess = new HashMap<>();
+    final Map<String, JPSecurityPackageAccess> newProhibitionAccess = new HashMap<>();
     if (prohibitionAccess != null) {
       prohibitionAccess.forEach(x -> newProhibitionAccess.put(x.getRole(), x));
     }
@@ -102,7 +107,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    * @return Разрешительные настройки
    */
   @Override
-  public Collection<JPAccess> getPermitAccess() {
+  public Collection<JPSecurityPackageAccess> getPermitAccess() {
     return permitAccess.values();
   }
 
@@ -112,7 +117,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    * @return Запретительные настройки
    */
   @Override
-  public Collection<JPAccess> getProhibitionAccess() {
+  public Collection<JPSecurityPackageAccess> getProhibitionAccess() {
     return prohibitionAccess.values();
   }
 
@@ -126,11 +131,11 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   public boolean checkRead(Collection<String> roles) {
     boolean result = false;
     for (String role : roles) {
-      JPAccess prohibition = prohibitionAccess.get(role);
+      JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isRead()) {
         return false;
       }
-      JPAccess permit = permitAccess.get(role);
+      JPSecurityPackageAccess permit = permitAccess.get(role);
       result = result || (permit != null && permit.isRead());
     }
     return result;
@@ -146,11 +151,11 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   public boolean checkDelete(Collection<String> roles) {
     boolean result = false;
     for (String role : roles) {
-      JPAccess prohibition = prohibitionAccess.get(role);
+      JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isDelete()) {
         return false;
       }
-      JPAccess permit = permitAccess.get(role);
+      JPSecurityPackageAccess permit = permitAccess.get(role);
       result = result || (permit != null && permit.isDelete());
     }
     return result;
@@ -166,11 +171,11 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   public boolean checkUpdate(Collection<String> roles) {
     boolean result = false;
     for (String role : roles) {
-      JPAccess prohibition = prohibitionAccess.get(role);
+      JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isUpdate()) {
         return false;
       }
-      JPAccess permit = permitAccess.get(role);
+      JPSecurityPackageAccess permit = permitAccess.get(role);
       result = result || (permit != null && permit.isUpdate());
     }
     return result;
@@ -186,14 +191,24 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   public boolean checkCreate(Collection<String> roles) {
     boolean result = false;
     for (String role : roles) {
-      JPAccess prohibition = prohibitionAccess.get(role);
+      JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isCreate()) {
         return false;
       }
-      JPAccess permit = permitAccess.get(role);
+      JPSecurityPackageAccess permit = permitAccess.get(role);
       result = result || (permit != null && permit.isCreate());
     }
     return result;
+  }
+
+  /**
+   * Признак неизменяемой настройки
+   *
+   * @return Да/Нет
+   */
+  @Override
+  public boolean isImmutable() {
+    return immutable;
   }
 
   @Override
@@ -204,6 +219,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
         ", qName='" + qName + '\'' +
         ", permitAccess='" + permitAccess + '\'' +
         ", prohibitionAccess='" + prohibitionAccess + '\'' +
+        ", immutable=" + immutable +
         '}';
   }
 
@@ -224,8 +240,9 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
     private String description;
     private String name;
     private String qName;
-    private Collection<JPAccess> permitAccess = new ArrayList<>();
-    private Collection<JPAccess> prohibitionAccess = new ArrayList<>();
+    private Collection<JPSecurityPackageAccess> permitAccess = new ArrayList<>();
+    private Collection<JPSecurityPackageAccess> prohibitionAccess = new ArrayList<>();
+    private boolean immutable = true;
 
     private Builder() {
     }
@@ -236,7 +253,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
      * @return JPPackageSecurity
      */
     public JPSecurityPackageBean build() {
-      return new JPSecurityPackageBean(code, description, name, qName, permitAccess, prohibitionAccess);
+      return new JPSecurityPackageBean(code, description, name, qName, permitAccess, prohibitionAccess, immutable);
     }
 
     /**
@@ -289,7 +306,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
      * @param access Настройки доступа
      * @return Builder
      */
-    public Builder permitAccess(JPAccess access) {
+    public Builder permitAccess(JPSecurityPackageAccess access) {
       this.permitAccess.add(access);
       return this;
     }
@@ -300,8 +317,19 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
      * @param access Настройки доступа
      * @return Builder
      */
-    public Builder prohibitionAccess(JPAccess access) {
+    public Builder prohibitionAccess(JPSecurityPackageAccess access) {
       this.prohibitionAccess.add(access);
+      return this;
+    }
+
+    /**
+     * Признак неизменяемости
+     *
+     * @param immutable Признак неизменяемости
+     * @return Builder
+     */
+    public Builder immutable(boolean immutable) {
+      this.immutable = immutable;
       return this;
     }
   }

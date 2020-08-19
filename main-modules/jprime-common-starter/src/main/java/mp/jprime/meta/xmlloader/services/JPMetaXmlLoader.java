@@ -7,11 +7,8 @@ import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaLoader;
 import mp.jprime.meta.beans.JPAttrBean;
 import mp.jprime.meta.beans.JPClassBean;
-import mp.jprime.meta.beans.JPImmutableClassBean;
-import mp.jprime.meta.xmlloader.beans.XmlJpAttr;
-import mp.jprime.meta.xmlloader.beans.XmlJpAttrs;
-import mp.jprime.meta.xmlloader.beans.XmlJpClass;
-import mp.jprime.meta.xmlloader.beans.XmlJpClasses;
+import mp.jprime.meta.beans.JPFileBean;
+import mp.jprime.meta.xmlloader.beans.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -42,6 +39,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
    *
    * @return Список метаописания
    */
+  @Override
   public Flux<JPClass> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -79,8 +77,8 @@ public class JPMetaXmlLoader implements JPMetaLoader {
             Collection<JPAttr> newAttrs = new ArrayList<>(attrs.length);
             for (XmlJpAttr attr : attrs) {
               String name = attr.getName();
-              String shortName = attr.getShortName();
               String descr = attr.getDescription();
+              XmlJpFile jpFile = attr.getRefJpFile();
 
               newAttrs.add(JPAttrBean.newBuilder()
                   .guid(attr.getGuid())
@@ -91,35 +89,45 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .qName(attr.getqName())
                   .jpPackage(attr.getJpPackage())
                   .name(name != null ? name : descr)
-                  .shortName(shortName)
+                  .shortName(attr.getShortName())
                   .description(descr)
                   .code(attr.getCode())
                   .jpClassCode(cls.getGuid())
                   .refJpClassCode(attr.getRefJpClass())
                   .refJpAttrCode(attr.getRefJpAttr())
-                  .virtualReference(attr.getVirtualReference())
-                  .virtualType(attr.getVirtualType())
+                  .virtualReference(attr.getVirtualReference(), attr.getVirtualType())
+                  .refJpFile(
+                      jpFile == null || jpFile.getStorageCode() == null || jpFile.getStorageFilePath() == null ||
+                          jpFile.getStorageCode().isEmpty() || jpFile.getStorageFilePath().isEmpty() ? null :
+                          JPFileBean.newBuilder()
+                              .storageCode(jpFile.getStorageCode())
+                              .storageFilePath(jpFile.getStorageFilePath())
+                              .storageCodeAttrCode(jpFile.getStorageCodeAttrCode())
+                              .storageFilePathAttrCode(jpFile.getStorageFilePathAttrCode())
+                              .fileTitleAttrCode(jpFile.getFileTitleAttrCode())
+                              .fileExtAttrCode(jpFile.getFileExtAttrCode())
+                              .fileSizeAttrCode(jpFile.getFileSizeAttrCode())
+                              .fileDateAttrCode(jpFile.getFileDateAttrCode())
+                              .build()
+                  )
                   .build());
             }
             String name = cls.getName();
             String shortName = cls.getShortName();
             String descr = cls.getDescription();
 
-            JPClass newCls = JPImmutableClassBean.newBuilder()
-                .jpClass(JPClassBean.newBuilder()
-                    .guid(cls.getGuid())
-                    .code(cls.getCode())
-                    .qName(cls.getqName())
-                    .pluralCode(cls.getPluralCode())
-                    .jpPackage(cls.getJpPackage())
-                    .name(name != null ? name : descr)
-                    .shortName(shortName)
-                    .description(descr)
-                    .shortName(cls.getShortName())
-                    .description(cls.getDescription())
-                    .attrs(newAttrs)
-                    .build()
-                )
+            JPClass newCls = JPClassBean.newBuilder()
+                .guid(cls.getGuid())
+                .code(cls.getCode())
+                .qName(cls.getqName())
+                .pluralCode(cls.getPluralCode())
+                .jpPackage(cls.getJpPackage())
+                .name(name != null ? name : descr)
+                .shortName(shortName)
+                .description(descr)
+                .shortName(cls.getShortName())
+                .description(cls.getDescription())
+                .attrs(newAttrs)
                 .build();
             sink.next(newCls);
           }

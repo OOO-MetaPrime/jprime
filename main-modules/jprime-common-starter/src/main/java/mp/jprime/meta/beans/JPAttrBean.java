@@ -1,6 +1,7 @@
 package mp.jprime.meta.beans;
 
 import mp.jprime.meta.JPAttr;
+import mp.jprime.meta.JPFile;
 import mp.jprime.meta.JPVirtualPath;
 
 import java.util.Objects;
@@ -16,8 +17,6 @@ public final class JPAttrBean implements JPAttr {
   private final Integer length;
   private final boolean identifier;
   private final boolean mandatory;
-  private final JPVirtualPath virtualReference;
-  private final JPType virtualType;
   /**
    * Название атрибута
    */
@@ -31,12 +30,14 @@ public final class JPAttrBean implements JPAttr {
   private final String jpPackage;
   private final String refJpClassCode;
   private final String refJpAttrCode;
+  private final JPFile refJpFile;
+  private final JPVirtualPath virtualReference;
 
   private JPAttrBean(String jpClassCode, String guid, String code, String type, Integer length, boolean identifier,
                      boolean mandatory,
                      String name, String shortName, String description,
-                     String qName, String jpPackage, String refJpClassCode, String refJpAttrCode,
-                     JPVirtualPath virtualReference, String virtualType) {
+                     String qName, String jpPackage,
+                     String refJpClassCode, String refJpAttrCode, JPFile refJpFile, JPVirtualPath virtualReference) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
@@ -48,8 +49,8 @@ public final class JPAttrBean implements JPAttr {
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
     this.refJpClassCode = refJpClassCode != null && !refJpClassCode.isEmpty() ? refJpClassCode : null;
     this.refJpAttrCode = refJpAttrCode != null && !refJpAttrCode.isEmpty() ? refJpAttrCode : null;
+    this.refJpFile = refJpFile;
     this.virtualReference = virtualReference;
-    this.virtualType = virtualType != null && !virtualType.isEmpty() ? JPType.getType(virtualType) : null;
 
     this.length = length;
     this.identifier = identifier;
@@ -211,6 +212,16 @@ public final class JPAttrBean implements JPAttr {
   }
 
   /**
+   * Возвращает описание файла
+   *
+   * @return Описание файла
+   */
+  @Override
+  public JPFile getRefJpFile() {
+    return refJpFile;
+  }
+
+  /**
    * Путь виртуальной ссылки
    *
    * @return Путь виртуальной ссылки
@@ -218,16 +229,6 @@ public final class JPAttrBean implements JPAttr {
   @Override
   public JPVirtualPath getVirtualReference() {
     return virtualReference;
-  }
-
-  /**
-   * Тип виртуальной ссылки
-   *
-   * @return Тип виртуальной ссылки
-   */
-  @Override
-  public JPType getVirtualType() {
-    return virtualType;
   }
 
   /**
@@ -252,8 +253,8 @@ public final class JPAttrBean implements JPAttr {
         ", qName='" + qName + '\'' +
         ", refJpClassCode='" + refJpClassCode + '\'' +
         ", refJpAttrCode='" + refJpAttrCode + '\'' +
+        ", refJpFile='" + refJpFile + '\'' +
         ", virtualReference='" + virtualReference + '\'' +
-        ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         '}';
   }
@@ -276,8 +277,8 @@ public final class JPAttrBean implements JPAttr {
     private String jpPackage;
     private String refJpClassCode;
     private String refJpAttrCode;
+    private JPFile refJpFile;
     private JPVirtualPath virtualReference;
-    private String virtualType;
 
     private Builder() {
     }
@@ -290,7 +291,7 @@ public final class JPAttrBean implements JPAttr {
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage,
-          refJpClassCode, refJpAttrCode, virtualReference, virtualType);
+          refJpClassCode, refJpAttrCode, refJpFile, virtualReference);
     }
 
     /**
@@ -332,12 +333,16 @@ public final class JPAttrBean implements JPAttr {
      * @param virtualReference Путь виртуальной ссылки
      * @return Builder
      */
-    public Builder virtualReference(String virtualReference) {
+    public Builder virtualReference(String virtualReference, String virtualType) {
       JPVirtualPath res = null;
       if (virtualReference != null && !virtualReference.isEmpty()) {
         String[] parts = virtualReference.split("\\.");
         if (parts.length == 2) {
-          res = JPVirtualPathBean.newBuilder().refAttrCode(parts[0]).targerAttrCode(parts[1]).build();
+          res = JPVirtualPathBean.newBuilder()
+              .refAttrCode(parts[0])
+              .targerAttrCode(parts[1])
+              .type(virtualType)
+              .build();
         }
       }
       this.virtualReference = res;
@@ -345,13 +350,13 @@ public final class JPAttrBean implements JPAttr {
     }
 
     /**
-     * Тип виртуальной ссылки
+     * астройки хранения файла
      *
-     * @param virtualType Тип виртуальной ссылки
+     * @param refJpFile астройки хранения файла
      * @return Builder
      */
-    public Builder virtualType(String virtualType) {
-      this.virtualType = virtualType;
+    public Builder refJpFile(JPFile refJpFile) {
+      this.refJpFile = refJpFile;
       return this;
     }
 

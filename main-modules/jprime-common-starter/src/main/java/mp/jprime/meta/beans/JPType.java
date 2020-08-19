@@ -1,13 +1,9 @@
 package mp.jprime.meta.beans;
 
 import java.math.BigInteger;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
-
 /**
  * Тип атрибута
  */
@@ -39,7 +35,7 @@ public enum JPType {
   /**
    * Файл
    */
-  FILE("file", "Файл", null),
+  FILE("file", "Файл", String.class),
   /**
    * Вещественное (32 бита)
    */
@@ -48,6 +44,10 @@ public enum JPType {
    * Целочисленное (32 бита)
    */
   INT("integer", "Целочисленное (32 бита)", Integer.class),
+  /**
+   * JSONa
+   */
+  JSON("json", "JSON", String.class),
   /**
    * Целочисленное (64 бита)
    */

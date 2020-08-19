@@ -4,12 +4,11 @@ import mp.jprime.meta.JPMeta;
 import mp.jprime.meta.JPMetaLoader;
 import mp.jprime.meta.annotations.JPClass;
 import mp.jprime.meta.annotations.JPAttr;
+import mp.jprime.meta.annotations.JPFile;
 import mp.jprime.meta.beans.JPAttrBean;
 import mp.jprime.meta.beans.JPClassBean;
-import mp.jprime.meta.beans.JPImmutableClassBean;
+import mp.jprime.meta.beans.JPFileBean;
 import mp.jprime.meta.beans.JPType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -23,8 +22,6 @@ import java.util.Collection;
  */
 @Service
 public class JPMetaAnnoLoader implements JPMetaLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(JPMetaAnnoLoader.class);
-
   private Collection<JPMeta> metas;
 
   /**
@@ -40,6 +37,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
    *
    * @return Список метаописания
    */
+  @Override
   public Flux<mp.jprime.meta.JPClass> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -62,6 +60,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
       }
       Collection<mp.jprime.meta.JPAttr> newAttrs = new ArrayList<>(attrs.length);
       for (JPAttr attr : attrs) {
+        JPFile jpFile = attr.refJpFile();
         newAttrs.add(JPAttrBean.newBuilder()
             .guid(attr.guid())
             .type(attr.type().getCode())
@@ -77,24 +76,38 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .jpClassCode(cls.guid())
             .refJpClassCode(attr.refJpClass())
             .refJpAttrCode(attr.refJpAttr())
-            .virtualReference(attr.virtualReference())
-            .virtualType(!JPType.NONE.getCode().equals(attr.virtualType().getCode()) ? attr.virtualType().getCode() : null)
-            .build());
+            .virtualReference(
+                attr.virtualReference(),
+                !JPType.NONE.getCode().equals(attr.virtualType().getCode()) ? attr.virtualType().getCode() : null
+            )
+            .refJpFile(
+                jpFile.storageCode().isEmpty() || jpFile.storageFilePath().isEmpty() ? null :
+                    JPFileBean.newBuilder()
+                        .storageCode(jpFile.storageCode())
+                        .storageFilePath(jpFile.storageFilePath())
+                        .storageCodeAttrCode(jpFile.storageCodeAttrCode())
+                        .storageFilePathAttrCode(jpFile.storageFilePathAttrCode())
+                        .fileTitleAttrCode(jpFile.fileTitleAttrCode())
+                        .fileExtAttrCode(jpFile.fileExtAttrCode())
+                        .fileSizeAttrCode(jpFile.fileSizeAttrCode())
+                        .fileDateAttrCode(jpFile.fileDateAttrCode())
+                        .build()
+            )
+            .build()
+        );
       }
-      mp.jprime.meta.JPClass newCls = JPImmutableClassBean.newBuilder()
-          .jpClass(JPClassBean.newBuilder()
-              .guid(cls.guid())
-              .code(cls.code())
-              .qName(cls.qName())
-              .pluralCode(cls.pluralCode())
-              .jpPackage(cls.jpPackage())
-              .inner(cls.inner())
-              .name(cls.name())
-              .shortName(cls.shortName())
-              .description(cls.description())
-              .attrs(newAttrs)
-              .build()
-          )
+      mp.jprime.meta.JPClass newCls = JPClassBean.newBuilder()
+          .guid(cls.guid())
+          .code(cls.code())
+          .qName(cls.qName())
+          .pluralCode(cls.pluralCode())
+          .jpPackage(cls.jpPackage())
+          .inner(cls.inner())
+          .actionLog(cls.actionLog())
+          .name(cls.name())
+          .shortName(cls.shortName())
+          .description(cls.description())
+          .attrs(newAttrs)
           .build();
       sink.next(newCls);
     }

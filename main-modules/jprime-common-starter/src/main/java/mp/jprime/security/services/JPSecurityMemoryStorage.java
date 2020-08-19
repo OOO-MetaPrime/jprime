@@ -1,10 +1,9 @@
 package mp.jprime.security.services;
 
-import mp.jprime.security.JPImmutableSecurityPackage;
+import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.security.JPSecurityDynamicLoader;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
-import mp.jprime.security.events.SecurityChangeEvent;
 import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -16,7 +15,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Описание настроек безопаности
+ * Описание настроек RBAC
  */
 @Service
 public final class JPSecurityMemoryStorage implements JPSecurityStorage {
@@ -80,7 +79,24 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public JPSecurityPackage getJPPackageByCode(String code) {
-    return setts.get(code);
+    return code != null ? setts.get(code) : null;
+  }
+
+  /**
+   * Проверка всех пакетов на доступ на чтение
+   *
+   * @param roles Роли
+   * @return Список кодов пакета
+   */
+  @Override
+  public Collection<String> checkRead(Collection<String> roles) {
+    Collection<String> codes = new ArrayList<>();
+    for (JPSecurityPackage sett : this.setts.values()) {
+      if (sett.checkRead(roles)) {
+        codes.add(sett.getCode());
+      }
+    }
+    return codes;
   }
 
   /**
@@ -92,7 +108,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkRead(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? setts.get(packageCode) : null;
+    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
     return sett == null || sett.checkRead(roles);
   }
 
@@ -105,7 +121,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkDelete(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? setts.get(packageCode) : null;
+    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
     return sett == null || sett.checkDelete(roles);
   }
 
@@ -118,7 +134,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkUpdate(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? setts.get(packageCode) : null;
+    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
     return sett == null || sett.checkUpdate(roles);
   }
 
@@ -131,7 +147,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkCreate(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? setts.get(packageCode) : null;
+    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
     return sett == null || sett.checkCreate(roles);
   }
 
@@ -147,13 +163,13 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
 
     Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
 
-    // Добавляем постоянные классы
+    // Добавляем постоянные настройки
     for (JPSecurityPackage sett : this.setts.values()) {
-      if (sett instanceof JPImmutableSecurityPackage) {
+      if (sett.isImmutable()) {
         setts.put(sett.getCode(), sett);
       }
     }
-    // Добавляем динамические классы
+    // Добавляем динамические настройки
     for (JPSecurityPackage sett : list) {
       if (setts.containsKey(sett.getCode())) {
         continue;
@@ -163,8 +179,8 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
     this.setts = setts;
   }
 
-  @EventListener
-  public void handleSecurityChangeEvent(SecurityChangeEvent event) {
+  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.security.events.SecurityChangeEvent).CODE)")
+  public void handleSecurityChangeEvent(JPSystemApplicationEvent event) {
     dynamicLoad();
   }
 

@@ -2,12 +2,10 @@ package mp.jprime.meta.controllers;
 
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPImmutableClass;
+import mp.jprime.meta.JPFile;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.*;
 import mp.jprime.meta.services.JPMetaStorage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -24,7 +22,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("meta/v1")
 public class RestMetaController {
-  private static final Logger LOG = LoggerFactory.getLogger(RestMetaController.class);
   /**
    * Хранилище метаинформации
    */
@@ -91,7 +88,7 @@ public class RestMetaController {
         .shortName(jpClass.getShortName())
         .description(jpClass.getDescription())
         .jpPackage(jpClass.getJpPackage())
-        .immutable(jpClass instanceof JPImmutableClass)
+        .immutable(jpClass.isImmutable())
         .attrs(jpClass
             .getAttrs()
             .stream()
@@ -102,6 +99,7 @@ public class RestMetaController {
   }
 
   private JsonJPAttr toJson(JPAttr jpAttr) {
+    JPFile jpFile = jpAttr.getRefJpFile();
     return JsonJPAttr.newBuilder()
         .code(jpAttr.getCode())
         .guid(jpAttr.getGuid())
@@ -116,6 +114,14 @@ public class RestMetaController {
         .refJpClass(jpAttr.getRefJpClassCode())
         .refJpAttr(jpAttr.getRefJpAttrCode())
         .length(jpAttr.getLength())
+        .refJpFile(
+            jpFile == null || jpAttr.getType() != JPType.FILE ? null : JsonJPFile.newBuilder()
+                .titleAttr(jpFile.getFileTitleAttrCode())
+                .extAttr(jpFile.getFileExtAttrCode())
+                .sizeAttr(jpFile.getFileSizeAttrCode())
+                .dateAttr(jpFile.getFileDateAttrCode())
+                .build()
+        )
         .build();
   }
 }

@@ -8,10 +8,6 @@ import mp.jprime.dataaccess.params.JPUpdate;
  * Валидатор данных
  */
 public interface JPClassValidator {
-  enum Type {
-    CREATE, UPDATE, DELETE
-  }
-
   /**
    * Перед созданием
    *

@@ -24,12 +24,16 @@ public final class JPClassBean implements JPClass {
   private final String qName;
   private final String jpPackage;
   private final boolean inner;
+  private final boolean actionLog;
   private final Map<String, JPAttr> attrs;
   private final JPAttr primaryKeyAttr;
+  private final Boolean immutable;
 
   private JPClassBean(String guid, String code, String pluralCode,
                       String name, String shortName, String description, String qName,
-                      String jpPackage, boolean inner, Collection<JPAttr> attrs) {
+                      String jpPackage, boolean inner, boolean actionLog, Collection<JPAttr> attrs, boolean immutable) {
+    this.immutable = immutable;
+
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
     this.pluralCode = pluralCode != null && !pluralCode.isEmpty() ? pluralCode : null;
@@ -39,6 +43,7 @@ public final class JPClassBean implements JPClass {
     this.qName = qName != null && !qName.isEmpty() ? qName : null;
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
     this.inner = inner;
+    this.actionLog = actionLog;
 
     // Ключевой атрибут
     JPAttr primaryKeyAttr = null;
@@ -157,6 +162,16 @@ public final class JPClassBean implements JPClass {
   }
 
   /**
+   * Признак логирования действий над объектами (удаление/создание/изменение)
+   *
+   * @return Признак логирования действий над объектами (удаление/создание/изменение)
+   */
+  @Override
+  public boolean useActionLog() {
+    return actionLog;
+  }
+
+  /**
    * Список атрибутов
    *
    * @return Список атрибутов
@@ -187,17 +202,28 @@ public final class JPClassBean implements JPClass {
     return primaryKeyAttr;
   }
 
+  /**
+   * Признак неизменяемой меты
+   *
+   * @return Да/Нет
+   */
+  @Override
+  public boolean isImmutable() {
+    return immutable;
+  }
+
   @Override
   public String toString() {
     return "JPClass{" +
-        "guid='" + guid + '\'' +
-        ", code='" + code + '\'' +
+        "code='" + code + '\'' +
+        ", guid='" + guid + '\'' +
         ", pluralCode='" + pluralCode + '\'' +
         ", name='" + name + '\'' +
         ", shortName='" + shortName + '\'' +
         ", name='" + description + '\'' +
         ", qName='" + qName + '\'' +
         ", attrs=" + attrs +
+        ", immutable = " + immutable +
         '}';
   }
 
@@ -223,7 +249,9 @@ public final class JPClassBean implements JPClass {
     private String qName;
     private String jpPackage;
     private boolean inner;
+    private boolean actionLog;
     private Collection<JPAttr> attrs;
+    private boolean immutable = true;
 
     private Builder() {
     }
@@ -234,7 +262,8 @@ public final class JPClassBean implements JPClass {
      * @return Метаописание
      */
     public JPClassBean build() {
-      return new JPClassBean(guid, code, pluralCode, name, shortName, description, qName, jpPackage, inner, attrs);
+      return new JPClassBean(guid, code, pluralCode, name, shortName, description, qName, jpPackage,
+          inner, actionLog, attrs, immutable);
     }
 
     /**
@@ -337,6 +366,17 @@ public final class JPClassBean implements JPClass {
     }
 
     /**
+     * Признак логирования действий над объектами (удаление/создание/изменение)
+     *
+     * @param actionLog Признак логирования действий над объектами (удаление/создание/изменение)
+     * @return Builder
+     */
+    public Builder actionLog(boolean actionLog) {
+      this.actionLog = actionLog;
+      return this;
+    }
+
+    /**
      * Атрибуты класса
      *
      * @param attrs Атрибуты класса
@@ -344,6 +384,17 @@ public final class JPClassBean implements JPClass {
      */
     public Builder attrs(Collection<JPAttr> attrs) {
       this.attrs = attrs;
+      return this;
+    }
+
+    /**
+     * Признак неизменяемой меты
+     *
+     * @param immutable Признак неизменяемой меты
+     * @return Builder
+     */
+    public Builder immutable(boolean immutable) {
+      this.immutable = immutable;
       return this;
     }
   }

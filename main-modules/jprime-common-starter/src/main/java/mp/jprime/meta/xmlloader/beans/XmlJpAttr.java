@@ -19,6 +19,7 @@ public class XmlJpAttr {
   private String refJpAttr;
   private String virtualReference;
   private String virtualType;
+  private XmlJpFile refJpFile;
 
   public String getGuid() {
     return guid;
@@ -140,6 +141,14 @@ public class XmlJpAttr {
     this.virtualType = virtualType;
   }
 
+  public XmlJpFile getRefJpFile() {
+    return refJpFile;
+  }
+
+  public void setRefJpFile(XmlJpFile refJpFile) {
+    this.refJpFile = refJpFile;
+  }
+
   @Override
   public String toString() {
     return "XmlJpAttr{" +
@@ -155,7 +164,8 @@ public class XmlJpAttr {
         ", type='" + type + '\'' +
         ", refJpClass='" + refJpClass + '\'' +
         ", refJpAttr='" + refJpAttr + '\'' +
-        ", virtualType='" + virtualType + '\'' +
+        ", refJpFile='" + refJpFile + '\'' +
+        ", virtualReference='" + virtualReference + '\'' +
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         '}';

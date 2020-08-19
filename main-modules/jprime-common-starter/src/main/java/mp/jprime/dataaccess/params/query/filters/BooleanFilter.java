@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.params.query.filters;
 
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.enums.BooleanCondition;
+import mp.jprime.dataaccess.enums.BooleanCondition;
 
 import java.util.Arrays;
 import java.util.Collection;

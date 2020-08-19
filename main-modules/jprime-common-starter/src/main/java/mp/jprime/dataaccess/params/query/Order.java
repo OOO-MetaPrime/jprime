@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.params.query;
 
 
-import mp.jprime.dataaccess.params.query.enums.OrderDirection;
+import mp.jprime.dataaccess.enums.OrderDirection;
 
 import java.util.Objects;
 

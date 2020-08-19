@@ -105,18 +105,18 @@ public interface JPAttr {
   String getRefJpAttrCode();
 
   /**
-   * Путь виртуальной ссылки
+   * Возвращает описание файла
    *
-   * @return Путь виртуальной ссылки
+   * @return Описание файла
    */
-  JPVirtualPath getVirtualReference();
+  JPFile getRefJpFile();
 
   /**
-   * Тип виртуальной ссылки
+   * Описание виртуальной ссылки
    *
-   * @return Тип виртуальной ссылки
+   * @return Описание виртуальной ссылки
    */
-  JPType getVirtualType();
+  JPVirtualPath getVirtualReference();
 
   /**
    * Тип значения атрибута
@@ -124,6 +124,7 @@ public interface JPAttr {
    * @return Тип значения атрибута
    */
   default JPType getValueType() {
-    return getType() == JPType.VIRTUALREFERENCE && getVirtualType() != null ? getVirtualType() : getType();
+    JPVirtualPath path = getType() == JPType.VIRTUALREFERENCE ? getVirtualReference() : null;
+    return path != null && path.getType() != null ? path.getType() : getType();
   }
 }

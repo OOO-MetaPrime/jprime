@@ -1,5 +1,6 @@
 package mp.jprime.events.systemevents.services;
 
+import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.events.systemevents.JPSystemEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -18,6 +19,6 @@ public class ApplicationEventService implements SystemEventPublisher {
 
   @Override
   public void publishEvent(JPSystemEvent event) {
-    eventPublisher.publishEvent(event);
+    eventPublisher.publishEvent(JPSystemApplicationEvent.from(event));
   }
 }

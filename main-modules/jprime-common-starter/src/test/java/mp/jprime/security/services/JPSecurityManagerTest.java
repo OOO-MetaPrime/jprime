@@ -1,11 +1,14 @@
 package mp.jprime.security.services;
 
+import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
+import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -22,8 +25,16 @@ public class JPSecurityManagerTest {
   private JPSecurityStorage securityManager;
 
   @Configuration
-  @ComponentScan(value = {"mp.jprime.security.*"})
-  public static  class Config {
+  @ComponentScan(basePackages = {"mp.jprime.security"},
+      useDefaultFilters=false,
+      includeFilters = @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          classes = {JPSecurityStorage.class, JPSecurityAnnoLoader.class, JPSecurityXmlLoader.class }),
+      excludeFilters = @ComponentScan.Filter(
+          type = FilterType.ASSIGNABLE_TYPE,
+          classes = {JPAccessService.class})
+  )
+  public static class Config {
   }
 
 

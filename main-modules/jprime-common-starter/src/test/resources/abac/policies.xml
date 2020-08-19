@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<jpAbac>
+  <jpPolicySets>
+    <jpPolicySet>
+      <name>Группа политик xml-тест</name>
+      <qName>jpPolicySet.xmlTest</qName>
+      <jpClasses>
+        <jpClass>test1</jpClass>
+        <jpClass>test2</jpClass>
+      </jpClasses>
+      <jpPolicies>
+        <jpPolicy>
+          <name>Политика Создание</name>
+          <qName>jpPolicySet.xmlTest.create</qName>
+          <actions>
+            <action>create</action>
+          </actions>
+          <subjectRules>
+            <subjectRule>
+              <name>Доступно только роли TEST_ROLE</name>
+              <qName>jpPolicySet.xmlTest.create.rule1</qName>
+              <username/>
+              <role>
+                <in>
+                  <value>TEST_ROLE</value>
+                </in>
+                <notIn>
+                  <value>TEST_ROLE</value>
+                </notIn>
+              </role>
+              <orgId/>
+              <depId/>
+              <effect>permit</effect>
+            </subjectRule>
+          </subjectRules>
+          <resourceRules>
+            <resourceRule>
+            </resourceRule>
+          </resourceRules>
+          <enviromentRules>
+            <enviromentRule>
+              <name>Доступно в определенные часы</name>
+              <qName>jpPolicySet.xmlTest.create.enviromentRule1</qName>
+              <effect>permit</effect>
+              <time>
+                <daysOfWeek>6,7</daysOfWeek>
+                <fromTime>10:00</fromTime>
+                <toTime>17:59</toTime>
+                <fromDateTime>2010-01-10T00:00:00</fromDateTime>
+                <toDateTime>2020-01-10T23:59:59</toDateTime>
+              </time>
+            </enviromentRule>
+          </enviromentRules>
+        </jpPolicy>
+        <jpPolicy>
+          <name>Политика Обновление</name>
+          <qName>jpPolicySet.xmlTest.update</qName>
+          <actions>
+            <action>read</action>
+            <action>update</action>
+          </actions>
+          <subjectRules>
+            <subjectRule>
+            </subjectRule>
+          </subjectRules>
+          <resourceRules>
+            <resourceRule>
+              <name>Доступно только автору</name>
+              <qName>jpPolicySet.xmlTest.update.rule1</qName>
+              <attr>userOwnerId</attr>
+              <cond>
+                <in>
+                  <value>{AUTH_USERID}</value>
+                </in>
+              </cond>
+              <effect>permit</effect>
+            </resourceRule>
+          </resourceRules>
+          <enviromentRules>
+            <enviromentRule>
+            </enviromentRule>
+          </enviromentRules>
+        </jpPolicy>
+      </jpPolicies>
+    </jpPolicySet>
+  </jpPolicySets>
+</jpAbac>

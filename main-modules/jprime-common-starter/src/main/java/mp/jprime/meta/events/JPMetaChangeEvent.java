@@ -1,104 +1,26 @@
 package mp.jprime.meta.events;
 
+import mp.jprime.events.systemevents.JPCommonSystemEvent;
 import mp.jprime.events.systemevents.JPSystemEvent;
-import mp.jprime.events.systemevents.JPEventInfo;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 
 /**
  * Событие изменения метаописания
  */
-public class JPMetaChangeEvent extends JPSystemEvent<JPMetaChangeEvent.Info> {
+public final class JPMetaChangeEvent {
   /**
-   * Изменения метаописания класса
-   *
-   * @param classCode Код метаописания класса
+   * Код события изменения метаописания
    */
-  public JPMetaChangeEvent(String classCode) {
-    this(new Info(classCode));
-  }
+  public static final String CODE = "metaChangeEvent";
 
   /**
-   * Изменения метаописания
+   * Событие изменения метаописания
    */
-  public JPMetaChangeEvent() {
-    this(new Info(Boolean.TRUE));
-  }
-
-  /**
-   * Изменения метаописания
-   *
-   * @param date Дата события
-   * @param info Данные события
-   */
-  public JPMetaChangeEvent(LocalDateTime date, Info info) {
-    super(date, info);
-  }
-
-  /**
-   * Изменения метаописания
-   *
-   * @param info Данные события
-   */
-  public JPMetaChangeEvent(Info info) {
-    super(info);
-  }
-
-  /**
-   * Код события
-   *
-   * @return Код события
-   */
-  @Override
-  public String getEventCode() {
-    return "metaChangeEvent";
-  }
-
-  /**
-   * Признак внешнего события (можно пересылать за пределы системы, в UI например)
-   *
-   * @return Да/Нет
-   */
-  @Override
-  public boolean isExternal() {
-    return true;
-  }
-
-  /**
-   * Описание события
-   */
-  public static class Info implements JPEventInfo {
-    private String classCode;
-    private boolean globalChange;
-
-    private Info() {
-
-    }
-
-    private Info(boolean globalChange) {
-      this.globalChange = globalChange;
-    }
-
-    private Info(String classCode) {
-      this.classCode = classCode;
-    }
-
-    /**
-     * Кодовое имя измененного класса
-     *
-     * @return Кодовое имя измененного класса
-     */
-    public String getClassCode() {
-      return classCode;
-    }
-
-    /**
-     * Признак глобального изменения
-     *
-     * @return Признак глобального изменения
-     */
-    public boolean isGlobalChange() {
-      return globalChange;
-    }
+  public static JPSystemEvent newEvent() {
+    return JPCommonSystemEvent.newBuilder()
+        .eventCode(CODE)
+        .external(true)
+        .build();
   }
 }

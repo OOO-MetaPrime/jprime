@@ -1,71 +1,37 @@
 package mp.jprime.events.systemevents;
 
-import org.springframework.context.ApplicationEvent;
-
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
- * Базовый класс событий
+ * Системное событие
  */
-public abstract class JPSystemEvent<T extends JPEventInfo> extends ApplicationEvent {
-  private LocalDateTime date;
-  // Данные события
-  private T info;
-
-  /**
-   * Create a new JPEvent.
-   *
-   * @param date Дата события
-   * @param info Данные события
-   */
-  public JPSystemEvent(LocalDateTime date, T info) {
-    super("");
-    this.date = date;
-    this.info = info;
-  }
-
-  /**
-   * Create a new JPEvent.
-   *
-   * @param info Данные события
-   */
-  public JPSystemEvent(T info) {
-    super("");
-    this.date = LocalDateTime.now();
-    this.info = info;
-  }
-
+public interface JPSystemEvent {
   /**
    * Дата события
    *
    * @return Дата события
    */
-  public LocalDateTime getDate() {
-    return date;
-  }
-
-  /**
-   * Данные события
-   *
-   * @return Данные события
-   */
-  public T getInfo() {
-    return info;
-  }
+  LocalDateTime getEventDate();
 
   /**
    * Код события
    *
    * @return Код события
    */
-  abstract public String getEventCode();
+  String getEventCode();
 
   /**
    * Признак внешнего события (можно пересылать за пределы системы, в UI например)
    *
-   * @return Да/Нет
+   * @return Признак внешнего события (можно пересылать за пределы системы, в UI например)
    */
-  public boolean isExternal() {
-    return false;
-  }
+  boolean isExternal();
+
+  /**
+   * Дополнительные свойства
+   *
+   * @return Дополнительные свойства
+   */
+  Map<String, String> getData();
 }

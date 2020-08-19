@@ -3,7 +3,7 @@ package mp.jprime.dataaccess.params;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.Order;
-import mp.jprime.dataaccess.params.query.enums.OrderDirection;
+import mp.jprime.dataaccess.enums.OrderDirection;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Запрос получения данных
  */
-public class JPSelect extends JPBaseCRUD {
+public class JPSelect extends JPBaseParams {
   private final String jpClass;
   private final Integer offset;
   private final Integer limit;
@@ -300,7 +300,9 @@ public class JPSelect extends JPBaseCRUD {
      * @return Builder
      */
     public Builder attr(String attrCode) {
-      this.select.put(attrCode, null);
+      if (attrCode != null) {
+        this.select.put(attrCode, null);
+      }
       return this;
     }
 
@@ -337,8 +339,10 @@ public class JPSelect extends JPBaseCRUD {
      * @return Builder
      */
     public Builder attr(String attrCode, Collection<String> linkAttrCodes) {
-      Collection<String> linkAttrs = linkAttrCodes != null ? Collections.unmodifiableCollection(linkAttrCodes) : null;
-      this.select.put(attrCode, linkAttrs);
+      if (attrCode != null) {
+        Collection<String> linkAttrs = linkAttrCodes != null ? Collections.unmodifiableCollection(linkAttrCodes) : null;
+        this.select.put(attrCode, linkAttrs);
+      }
       return this;
     }
 
@@ -447,6 +451,9 @@ public class JPSelect extends JPBaseCRUD {
      * @return Builder
      */
     public Builder andWhere(Filter where) {
+      if (where == null) {
+        return this;
+      }
       if (this.where == null) {
         this.where = where;
       } else {
@@ -462,6 +469,9 @@ public class JPSelect extends JPBaseCRUD {
      * @return Builder
      */
     public Builder orWhere(Filter where) {
+      if (where == null) {
+        return this;
+      }
       if (this.where == null) {
         this.where = where;
       } else {

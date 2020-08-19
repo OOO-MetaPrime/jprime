@@ -37,7 +37,8 @@
 
 ```  
   @EventListener
-  public void handleApplicationEvent(<Event extends JPSystemEvent> event) {
+  public void handleApplicationEvent(JPSystemApplicationEvent event) {
+    JPSystemEvent jpSystemEvent = event.getEvent();
     ....
   }  
 ```

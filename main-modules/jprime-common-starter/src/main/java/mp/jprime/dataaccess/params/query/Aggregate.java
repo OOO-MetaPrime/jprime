@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.params.query;
 
-import mp.jprime.dataaccess.params.query.enums.AggregationOperator;
+import mp.jprime.dataaccess.enums.AggregationOperator;
 
 import java.util.Objects;
 

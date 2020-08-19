@@ -40,4 +40,13 @@ public interface JPClassMap {
    * @return Маппинг атрибутов
    */
   JPAttrMap getAttr(String code);
+
+  /**
+   * Признак неизменяемой привязки к хранилищу
+   *
+   * @return Да/Нет
+   */
+  default boolean isImmutable() {
+    return Boolean.TRUE;
+  }
 }

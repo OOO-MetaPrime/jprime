@@ -98,9 +98,16 @@ public @interface JPAttr {
   String refJpAttr() default "";
 
   /**
-   *  Путь виртуальной ссылки
+   * Настройки хранения файла
    *
-   * @return  Путь виртуальной ссылки
+   * @return Настройки хранения файла
+   */
+  JPFile refJpFile() default @JPFile(storageCode = "", storageFilePath = "");
+
+  /**
+   * Путь виртуальной ссылки
+   *
+   * @return Путь виртуальной ссылки
    */
   String virtualReference() default "";
 

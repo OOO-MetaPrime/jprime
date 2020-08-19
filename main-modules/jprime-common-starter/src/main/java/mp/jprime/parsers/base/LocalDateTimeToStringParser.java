@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.json.format.DateTimeFormat;
+import mp.jprime.formats.DateFormat;
 import mp.jprime.parsers.TypeParser;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +23,7 @@ public class LocalDateTimeToStringParser implements TypeParser<LocalDateTime, St
     if (value == null) {
       return null;
     }
-    return DateTimeFormat.LOCAL_DATETIME_FORMAT.format(ZonedDateTime.of(value, TimeZone.getDefault().toZoneId()));
+    return DateFormat.LOCAL_DATETIME_FORMAT.format(ZonedDateTime.of(value, TimeZone.getDefault().toZoneId()));
   }
 
   /**

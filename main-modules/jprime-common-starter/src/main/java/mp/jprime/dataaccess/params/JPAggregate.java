@@ -3,7 +3,7 @@ package mp.jprime.dataaccess.params;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.query.Aggregate;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.enums.AggregationOperator;
+import mp.jprime.dataaccess.enums.AggregationOperator;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 
@@ -12,7 +12,7 @@ import java.util.*;
 /**
  * Запрос агрегации данных
  */
-public class JPAggregate extends JPBaseCRUD {
+public class JPAggregate extends JPBaseParams {
   private final String jpClass;
   private final Collection<Aggregate> aggrs;
   private final Filter where;

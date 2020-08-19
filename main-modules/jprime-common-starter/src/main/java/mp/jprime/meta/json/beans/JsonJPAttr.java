@@ -56,6 +56,10 @@ public class JsonJPAttr {
    * Кодовое имя атрибута ссылочного класса
    */
   private String refJpAttr;
+  /**
+   * Настройки файлового атрибута
+   */
+  private JsonJPFile refJpFile;
 
   public JsonJPAttr() {
 
@@ -64,7 +68,7 @@ public class JsonJPAttr {
   private JsonJPAttr(String guid, String code, String qName,
                      String name, String shortName, String description,
                      String jpPackage, boolean identifier, boolean mandatory,
-                     String type, Integer length, String refJpClass, String refJpAttr) {
+                     String type, Integer length, String refJpClass, String refJpAttr, JsonJPFile refJpFile) {
     this.guid = guid;
     this.code = code;
     this.qName = qName;
@@ -78,6 +82,7 @@ public class JsonJPAttr {
     this.length = length;
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
+    this.refJpFile = refJpFile;
   }
 
   /**
@@ -198,6 +203,15 @@ public class JsonJPAttr {
   }
 
   /**
+   * Настройки файлового атрибута
+   *
+   * @return Настройки файлового атрибута
+   */
+  public JsonJPFile getRefJpFile() {
+    return refJpFile;
+  }
+
+  /**
    * Построитель JsonJPAttr
    *
    * @return Builder
@@ -223,6 +237,7 @@ public class JsonJPAttr {
     private String refJpClass;
     private String refJpAttr;
     private Integer length;
+    private JsonJPFile refJpFile;
 
     private Builder() {
 
@@ -305,9 +320,14 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder refJpFile(JsonJPFile refJpFile) {
+      this.refJpFile = refJpFile;
+      return this;
+    }
+
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, length, refJpClass, refJpAttr);
+          type, length, refJpClass, refJpAttr, refJpFile);
     }
   }
 }

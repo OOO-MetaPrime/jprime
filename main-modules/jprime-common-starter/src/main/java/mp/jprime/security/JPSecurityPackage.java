@@ -1,7 +1,5 @@
 package mp.jprime.security;
 
-import mp.jprime.security.beans.JPAccess;
-
 import java.util.Collection;
 
 /**
@@ -41,14 +39,14 @@ public interface JPSecurityPackage {
    *
    * @return Разрешительные настройки
    */
-  Collection<JPAccess> getPermitAccess();
+  Collection<JPSecurityPackageAccess> getPermitAccess();
 
   /**
    * Запретительные настройки
    *
    * @return Запретительные настройки
    */
-  Collection<JPAccess> getProhibitionAccess();
+  Collection<JPSecurityPackageAccess> getProhibitionAccess();
 
   /**
    * Проверка доступа на чтение
@@ -81,4 +79,13 @@ public interface JPSecurityPackage {
    * @return Да/Нет
    */
   boolean checkCreate(Collection<String> roles);
+
+  /**
+   * Признак неизменяемой настройки
+   *
+   * @return Да/Нет
+   */
+  default boolean isImmutable() {
+    return Boolean.TRUE;
+  }
 }

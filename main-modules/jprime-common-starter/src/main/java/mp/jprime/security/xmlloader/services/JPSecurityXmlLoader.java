@@ -4,8 +4,7 @@ import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.security.JPSecurityLoader;
 import mp.jprime.security.JPSecurityPackage;
-import mp.jprime.security.beans.JPAccess;
-import mp.jprime.security.beans.JPImmutableSecurityPackageBean;
+import mp.jprime.security.beans.JPSecurityPackageAccessBean;
 import mp.jprime.security.beans.JPSecurityPackageBean;
 import mp.jprime.security.xmlloader.beans.*;
 import org.slf4j.Logger;
@@ -36,6 +35,7 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
    *
    * @return Список описания настроек доступа к пакету
    */
+  @Override
   public Flux<JPSecurityPackage> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -78,7 +78,7 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
             XmlJpProhibitionAccess prohibitionAccess = pkg.getJpProhibitionAccess();
             if (permitAccess != null && permitAccess.getJpAccess() != null) {
               for (XmlJpAccess access : permitAccess.getJpAccess()) {
-                builder.permitAccess(JPAccess.newBuilder()
+                builder.permitAccess(JPSecurityPackageAccessBean.newBuilder()
                     .role(access.getRole())
                     .create(access.isCreate())
                     .read(access.isRead())
@@ -89,7 +89,7 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
             }
             if (prohibitionAccess != null && prohibitionAccess.getJpAccess() != null) {
               for (XmlJpAccess access : prohibitionAccess.getJpAccess()) {
-                builder.prohibitionAccess(JPAccess.newBuilder()
+                builder.prohibitionAccess(JPSecurityPackageAccessBean.newBuilder()
                     .role(access.getRole())
                     .create(access.isCreate())
                     .read(access.isRead())
@@ -98,7 +98,7 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
                     .build());
               }
             }
-            sink.next(JPImmutableSecurityPackageBean.newBuilder().secPackage(builder.build()).build());
+            sink.next(builder.build());
           }
         }
       }

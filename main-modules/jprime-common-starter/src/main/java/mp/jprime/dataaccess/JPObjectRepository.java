@@ -13,10 +13,6 @@ import java.util.Collection;
  * Интерфейс создания/изменения объекта
  */
 public interface JPObjectRepository {
-  enum Type {
-    CREATE, UPDATE
-  }
-
   /**
    * Возвращает объект
    *

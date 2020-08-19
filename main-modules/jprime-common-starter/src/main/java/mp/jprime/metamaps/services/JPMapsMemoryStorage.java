@@ -1,9 +1,8 @@
 package mp.jprime.metamaps.services;
 
+import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.events.JPMetaChangeEvent;
 import mp.jprime.metamaps.JPClassMap;
-import mp.jprime.metamaps.JPImmutableClassMap;
 import mp.jprime.metamaps.JPMapsDynamicLoader;
 import mp.jprime.metamaps.annotations.services.JPMapsAnnoLoader;
 import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
@@ -77,7 +76,7 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
     // Добавляем постоянные классы
     for (Map<String, JPClassMap> values : this.maps.values()) {
       for (JPClassMap map : values.values()) {
-        if (map instanceof JPImmutableClassMap) {
+        if (map.isImmutable()) {
           maps.computeIfAbsent(map.getCode(), x -> new HashMap<>()).put(map.getStorage(), map);
         }
       }
@@ -116,8 +115,8 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
     return storages != null ? storages.values().iterator().next() : null;
   }
 
-  @EventListener
-  public void handleJPMetaChangeEvent(JPMetaChangeEvent event) {
+  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.meta.events.JPMetaChangeEvent).CODE)")
+  public void handleJPMetaChangeEvent(JPSystemApplicationEvent event) {
     dynamicLoad();
   }
 

@@ -1,7 +1,6 @@
 package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
-import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -11,9 +10,8 @@ import java.util.*;
 /**
  * Запрос создания
  */
-public class JPCreate extends JPBaseCRUD {
+public class JPCreate extends JPSave {
   private final String jpClass;
-  private final JPMutableData data;
   private final Map<String, Collection<JPCreate>> linkedData;
 
   /**
@@ -25,11 +23,11 @@ public class JPCreate extends JPBaseCRUD {
    * @param auth       Данные аутентификации
    * @param source     Источник данных
    */
-  private JPCreate(String jpClass, Map<String, Object> data, Map<String,
-      Collection<JPCreate>> linkedData, AuthInfo auth, Source source) {
-    super(source, auth);
+  private JPCreate(String jpClass, Map<String, Object> data,
+                   Map<String, Collection<JPCreate>> linkedData,
+                   AuthInfo auth, Source source) {
+    super(data, source, auth);
     this.jpClass = jpClass;
-    this.data = JPMutableData.of(data);
     this.linkedData = linkedData;
   }
 
@@ -40,15 +38,6 @@ public class JPCreate extends JPBaseCRUD {
    */
   public String getJpClass() {
     return jpClass;
-  }
-
-  /**
-   * Данные для создания
-   *
-   * @return Данные для создания
-   */
-  public JPMutableData getData() {
-    return data;
   }
 
   /**
@@ -84,12 +73,9 @@ public class JPCreate extends JPBaseCRUD {
   /**
    * Построитель JPCreate
    */
-  public static final class Builder {
+  public static final class Builder extends JPSave.Builder<Builder> {
     private String jpClass;
-    private Map<String, Object> data = new HashMap<>();
     private Map<String, Collection<JPCreate>> linkedData = new HashMap<>();
-    private AuthInfo auth;
-    private Source source;
 
     private Builder(String jpClass) {
       this.jpClass = jpClass;
@@ -100,42 +86,19 @@ public class JPCreate extends JPBaseCRUD {
      *
      * @return JPCreate
      */
+    @Override
     public JPCreate build() {
       return new JPCreate(jpClass, data, linkedData, auth, source);
     }
 
     /**
-     * Аутентификация
+     * Возвращает кодовое имя класса
      *
-     * @param auth Аутентификация
-     * @return Builder
+     * @return Кодовое имя класса
      */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
-    }
-
-    /**
-     * Значение атрибута при создании
-     *
-     * @param attr  атрибут
-     * @param value значение атрибута
-     * @return Builder
-     */
-    public Builder set(JPAttr attr, Object value) {
-      return attr != null ? set(attr.getCode(), value) : this;
-    }
-
-    /**
-     * Значение атрибута при создании
-     *
-     * @param attrCode кодовое имя атрибута
-     * @param value    значение атрибута
-     * @return Builder
-     */
-    public Builder set(String attrCode, Object value) {
-      this.data.put(attrCode, value);
-      return this;
+    @Override
+    public String getJpClass() {
+      return jpClass;
     }
 
     /**
@@ -158,17 +121,6 @@ public class JPCreate extends JPBaseCRUD {
      */
     public Builder addWith(String attrCode, JPCreate create) {
       this.linkedData.computeIfAbsent(attrCode, x -> new ArrayList<>()).add(create);
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
       return this;
     }
   }

@@ -7,7 +7,6 @@ import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsLoader;
 import mp.jprime.metamaps.beans.JPAttrMapBean;
 import mp.jprime.metamaps.beans.JPClassMapBean;
-import mp.jprime.metamaps.beans.JPImmutableClassMapBean;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpAttrMap;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpAttrMaps;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpClassMap;
@@ -42,6 +41,7 @@ public class JPMapsXmlLoader implements JPMapsLoader {
    *
    * @return Список описания привязки меты к хранилищам
    */
+  @Override
   public Flux<JPClassMap> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -86,15 +86,11 @@ public class JPMapsXmlLoader implements JPMapsLoader {
                   .readOnly(attr.getReadOnly())
                   .build());
             }
-            JPClassMap newCls = JPImmutableClassMapBean.newBuilder()
-                .jpClassMap(
-                    JPClassMapBean.newBuilder()
-                        .code(cls.getCode())
-                        .storage(cls.getStorage())
-                        .map(cls.getMap())
-                        .attrs(newAttrs)
-                        .build()
-                )
+            JPClassMap newCls = JPClassMapBean.newBuilder()
+                .code(cls.getCode())
+                .storage(cls.getStorage())
+                .map(cls.getMap())
+                .attrs(newAttrs)
                 .build();
             sink.next(newCls);
           }

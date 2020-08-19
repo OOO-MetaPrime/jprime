@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.data.Pair;
-import mp.jprime.dataaccess.params.query.enums.*;
+import mp.jprime.dataaccess.enums.*;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.*;
@@ -27,7 +27,7 @@ public class QueryService implements JsonMapper {
   /**
    * Максимальное количество в выборке по-умолчанию
    */
-  private static final int MAX_LIMIT = 50;
+  public static final int MAX_LIMIT = 50;
 
   /**
    * Создает описание выборки
@@ -439,7 +439,7 @@ public class QueryService implements JsonMapper {
    * @param exp Условие
    * @return Filter Условие
    */
-  private Filter toFilter(JsonExpr exp) {
+  public Filter toFilter(JsonExpr exp) {
     JsonCond c = exp.getCond();
     Collection<JsonExpr> and = exp.getAnd();
     Collection<JsonExpr> or = exp.getOr();

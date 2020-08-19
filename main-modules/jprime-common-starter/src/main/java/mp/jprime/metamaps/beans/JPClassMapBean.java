@@ -20,16 +20,20 @@ public final class JPClassMapBean implements JPClassMap {
   private final String storage;
   private final String map;
   private final Map<String, JPAttrMap> attrs;
+  private final Boolean immutable;
 
   /**
    * Конструктор
    *
-   * @param code    Кодовое имя класса
-   * @param storage Кодовое имя хранилища
-   * @param map     Мап на БД
-   * @param attrs   Маппинг атрибутов
+   * @param code      Кодовое имя класса
+   * @param storage   Кодовое имя хранилища
+   * @param map       Мап на БД
+   * @param attrs     Маппинг атрибутов
+   * @param immutable Признак неизменяемости
    */
-  private JPClassMapBean(String code, String storage, String map, Collection<JPAttrMap> attrs) {
+  private JPClassMapBean(String code, String storage, String map, Collection<JPAttrMap> attrs, boolean immutable) {
+    this.immutable = immutable;
+
     this.code = code != null && !code.isEmpty() ? code : null;
     this.storage = storage != null && !storage.isEmpty() ? storage : null;
     this.map = map != null && !map.isEmpty() ? map : null;
@@ -99,6 +103,16 @@ public final class JPClassMapBean implements JPClassMap {
   }
 
   /**
+   * Признак неизменяемой привязки к хранилищу
+   *
+   * @return Да/Нет
+   */
+  @Override
+  public boolean isImmutable() {
+    return immutable;
+  }
+
+  /**
    * Построитель JPClassMap
    *
    * @return Builder
@@ -114,6 +128,7 @@ public final class JPClassMapBean implements JPClassMap {
         ", storage='" + storage + '\'' +
         ", map='" + map + '\'' +
         ", attrs=" + attrs +
+        ", immutable = " + immutable +
         '}';
   }
 
@@ -125,6 +140,7 @@ public final class JPClassMapBean implements JPClassMap {
     private String storage;
     private String map;
     private Collection<JPAttrMap> attrs;
+    private boolean immutable = true;
 
     private Builder() {
     }
@@ -135,7 +151,7 @@ public final class JPClassMapBean implements JPClassMap {
      * @return Метаописание
      */
     public JPClassMapBean build() {
-      return new JPClassMapBean(code, storage, map, attrs);
+      return new JPClassMapBean(code, storage, map, attrs, immutable);
     }
 
     /**
@@ -180,6 +196,17 @@ public final class JPClassMapBean implements JPClassMap {
      */
     public Builder attrs(Collection<JPAttrMap> attrs) {
       this.attrs = attrs;
+      return this;
+    }
+
+    /**
+     * Признак неизменяемости
+     *
+     * @param immutable Признак неизменяемости
+     * @return Builder
+     */
+    public Builder immutable(boolean immutable) {
+      this.immutable = immutable;
       return this;
     }
   }

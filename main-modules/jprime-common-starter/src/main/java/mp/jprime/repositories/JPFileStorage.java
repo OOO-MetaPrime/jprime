@@ -1,6 +1,6 @@
 package mp.jprime.repositories;
 
-import mp.jprime.dataaccess.beans.FileInfo;
+import mp.jprime.files.beans.FileInfo;
 
 import java.io.InputStream;
 

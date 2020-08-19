@@ -7,7 +7,7 @@ import mp.jprime.security.AuthInfo;
 /**
  * Запрос удаления
  */
-public class JPDelete extends JPBaseCRUD {
+public class JPDelete extends JPBaseParams {
   private final JPId jpId;
 
   /**

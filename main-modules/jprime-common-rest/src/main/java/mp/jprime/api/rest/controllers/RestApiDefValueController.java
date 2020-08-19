@@ -77,7 +77,7 @@ public class RestApiDefValueController implements JsonMapper {
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    AuthInfo auth = jwtService.getAuthInfo(swe);
     JsonObjectData jsonObjectData;
     try {
       jsonObjectData = queryService.getObjectData(query);
@@ -90,7 +90,7 @@ public class RestApiDefValueController implements JsonMapper {
             .rootId(jsonObjectData.getId())
             .rootJpClassCode(jsonObjectData.getClassCode())
             .rootData(JPData.of(jsonObjectData.getData()))
-            .auth(authInfo)
+            .auth(auth)
             .source(Source.USER)
             .build()
     )

@@ -22,6 +22,23 @@
 				<qName>jpClass.className1.PersonalCard.birthDate</qName>
 				<description>Дата рождения гражданина</description>
 			</jpAttr>
+      <jpAttr>
+        <guid>120a6804-b77c-4047-941f-0be44e41cb65</guid>
+        <code>scanCopy</code>
+        <type>file</type>
+        <qName>jpClass.className1.PersonalCard.scanCopy</qName>
+        <description>Скан копия гражданина</description>
+        <refJpFile>
+          <storageCode>fileStorage</storageCode>
+          <storageFilePath>filePath</storageFilePath>
+          <storageCodeAttrCode>attr1</storageCodeAttrCode>
+          <storageFilePathAttrCode>attr2</storageFilePathAttrCode>
+          <fileTitleAttrCode>attr4</fileTitleAttrCode>
+          <fileExtAttrCode>attr5</fileExtAttrCode>
+          <fileSizeAttrCode>attr6</fileSizeAttrCode>
+          <fileDateAttrCode>attr7</fileDateAttrCode>
+        </refJpFile>
+      </jpAttr>
 		</jpAttrs>
 	</jpClass>
 	<jpClass>
@@ -48,21 +65,6 @@
 		</jpAttrs>
 	</jpClass>	
 </jpClasses>
-
-<jpClassMaps>
-	<jpClassMap code="personalCard" storage="База данных1" map="map1">
-		<jpAttrMaps>
-			<jpAttrMap code="name" map="A_NAME"/>
-			<jpAttrMap code="birthDate" map="a_birthDate"/>
-		</jpAttrMaps>
-	</jpClassMap>
-	<jpClassMap code="personalCard" storage="База данных2" map="map2">
-		<jpAttrMaps>
-			<jpAttrMap code="name" map="NAME"/>
-			<jpAttrMap code="birthDate" map="birthDate"/>
-		</jpAttrMaps>
-	</jpClassMap>
-</jpClassMaps>
 
 
 

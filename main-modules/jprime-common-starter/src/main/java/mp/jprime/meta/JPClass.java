@@ -71,6 +71,15 @@ public interface JPClass {
   boolean isInner();
 
   /**
+   * Признак логирования действий над объектами (удаление/создание/изменение)
+   *
+   * @return Признак логирования действий над объектами (удаление/создание/изменение)
+   */
+  default boolean useActionLog() {
+    return true;
+  }
+
+  /**
    * Список атрибутов
    *
    * @return Список атрибутов
@@ -101,4 +110,13 @@ public interface JPClass {
    * @return Ключевой атрибут
    */
   JPAttr getPrimaryKeyAttr();
+
+  /**
+   * Признак неизменяемой меты
+   *
+   * @return Да/Нет
+   */
+  default boolean isImmutable() {
+    return Boolean.TRUE;
+  }
 }

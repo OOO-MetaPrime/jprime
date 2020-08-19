@@ -36,10 +36,8 @@ paths:
     get:
       tags:
       - object
-      summary: get object of metaClass
-      operationId: getObject
-      description:
-        you can search for available objects in the system
+      summary: получние объекта класса
+      description: получние объекта класса
       parameters:
       - in: path
         name: pluralCode
@@ -47,14 +45,14 @@ paths:
         schema:
           type: string
           format: string
-        description: The object's metaClass multiple code
+        description: Множественный код метаописания
       - in: path
         name: objectId
         required: true
         schema:
           type: string
           format: string
-        description: The object ID
+        description: Идентификтор объекта
       responses:
         '200':
           description: get obj
@@ -69,8 +67,8 @@ paths:
         '404':
           description: An object with the specified ID was not found.
         '5XX':
-
           description: Unexpected error.
+
     delete:
       tags:
       - delete
@@ -109,10 +107,8 @@ paths:
     post:
       tags:
       - list
-      summary: searches object of metaClass
-      operationId: searchObject
-      description:
-        you can search for available objects in the system
+      summary: Поиск объектов класса
+      description: Отображение списка объектов по указанным условиям
       parameters:
       - in: path
         name: pluralCode
@@ -120,7 +116,7 @@ paths:
         schema:
           type: string
           format: string
-        description: The object's metaClass multiple code
+        description: Множественное кодовое имя класса
       requestBody:
         content:
           application/json:
@@ -140,7 +136,55 @@ paths:
           description: Authorization information is missing or invalid.
         '5XX':
           description: Unexpected error.
-          
+
+  '/api/v1/{pluralCode}/search/{attrCode}/{attrValue}':
+    post:
+      tags:
+      - list
+      summary: Поиск объектов класса с фильтрацией по 1 атрибуту
+      description: Отображение списка объектов по указанным условиям
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественное кодовое имя класса
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Кодовое имя атрибута класса
+      - in: path
+        name: attrValue
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Значение атрибута
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+        description: object to add
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
   '/api/v1/{pluralCode}/aggregate':
     post:
       tags:
@@ -516,9 +560,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              items:
-                $ref: '#/components/schemas/objectData'
+              $ref: '#/components/schemas/objectData'
               example:
               - classCode: 'testClass'
                 data:
@@ -545,6 +587,51 @@ paths:
         '409':
           description: an existing item already exists
 
+  '/api/v1/{pluralCode}/{objectId}/file/{attrCode}/{bearer}':
+    get:
+      summary: скачивание файла
+      description: получние файла
+      parameters:
+      - in: path
+        name: pluralCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественный код метаописания
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Идентификтор объекта
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: кодовое имя атрибута типа файл
+      - in: path
+        name: bearer
+        required: true
+        schema:
+          type: string
+          format: string
+        description: токен авторизации
+      responses:
+        '200':
+          description: Файл скачен
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: An object with the specified ID was not found.
+        '5XX':
+          description: Unexpected error.
+
 components:
   securitySchemes:
     password:
@@ -556,41 +643,6 @@ components:
             read: allows reading resources
 
   schemas:
-    searchQuery:
-      type: object
-      properties:
-        offset:
-          type: integer
-          format: integer
-          example: 10
-        limit:
-          type: integer
-          format: integer
-          example: 50
-        totalCount:
-          type: boolean
-          format: boolean
-          example: true
-        attrs:
-          type: array
-          items:
-            type: string
-          example:
-              ["attr1", "attr2","attr3" ,"attr4"]
-        filter:
-          type: object
-          items:
-            $ref: '#/components/schemas/expression'
-          example:
-              {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
-        orders:
-          type: array
-          items:
-            $ref: '#/components/schemas/order'
-          example:
-          - asc: "attr1"
-          - desc: "attr2"
-
     expression:
       type: object
       description: Настройка условий. Указывается одно из значений
@@ -738,8 +790,7 @@ components:
         notExists:
           type: object
           description: Ссылочный атрибут не содержит объекты по указанному условию
-          items:
-            $ref: '#/components/schemas/expression'
+          $ref: '#/components/schemas/expression'
         like:
           type: string
           description: Значение содержит указанное
@@ -783,6 +834,41 @@ components:
           type: string
           format: string
           description: Сортировка по убыванию значений
+
+    searchQuery:
+      type: object
+      properties:
+        offset:
+          type: integer
+          format: integer
+          example: 10
+        limit:
+          type: integer
+          format: integer
+          example: 50
+        totalCount:
+          type: boolean
+          format: boolean
+          example: true
+        attrs:
+          type: array
+          items:
+            type: string
+          example:
+              ["attr1", "attr2","attr3" ,"attr4"]
+        filter:
+          type: object
+          items:
+            $ref: '#/components/schemas/expression'
+          example:
+              {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
+        orders:
+          type: array
+          items:
+            $ref: '#/components/schemas/order'
+          example:
+          - asc: "attr1"
+          - desc: "attr2"
 
     objectList:
       type: object

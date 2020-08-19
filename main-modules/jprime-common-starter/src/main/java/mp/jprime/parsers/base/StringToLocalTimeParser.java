@@ -1,10 +1,11 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.json.format.DateTimeFormat;
+import mp.jprime.formats.DateFormat;
 import mp.jprime.parsers.TypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
+
 /**
  * String -> LocalTime
  */
@@ -17,13 +18,13 @@ public class StringToLocalTimeParser implements TypeParser<String, LocalTime> {
    * @return Данные в выходном формате
    */
   public LocalTime parse(String value) {
-    if (value == null) {
+    if (value == null || value.trim().isEmpty()) {
       return null;
     }
     if (value.length() > 19) {
       value = value.substring(11, 19);
     }
-    return LocalTime.parse(value, DateTimeFormat.LOCAL_TIME_FORMAT);
+    return LocalTime.parse(value, DateFormat.LOCAL_TIME_FORMAT);
   }
 
   /**

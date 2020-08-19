@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.params.query.filters;
 
 import mp.jprime.dataaccess.params.query.data.Pair;
-import mp.jprime.dataaccess.params.query.enums.FilterOperation;
+import mp.jprime.dataaccess.enums.FilterOperation;
 
 /**
  * Между

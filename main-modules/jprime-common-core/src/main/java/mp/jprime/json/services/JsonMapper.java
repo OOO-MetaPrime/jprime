@@ -3,16 +3,14 @@ package mp.jprime.json.services;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import mp.jprime.formats.DateFormat;
-import mp.jprime.json.format.DateTimeFormat;
+import mp.jprime.lang.JsonString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,13 +54,19 @@ public interface JsonMapper {
                       .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
                       .toFormatter()
               ))
+              .addDeserializer(JsonString.class, new StdDeserializer<JsonString>(JsonString.class) {
+                @Override
+                public JsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                  return JsonString.from(p.getCodec().readTree(p).toString());
+                }
+              })
               // Date to String
               .addSerializer(LocalDateTime.class,
                   new JsonSerializer<LocalDateTime>() {
                     @Override
                     public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
                       ZonedDateTime zdt = ZonedDateTime.of(localDateTime, TimeZone.getDefault().toZoneId());
-                      jsonGenerator.writeString(DateTimeFormat.LOCAL_DATETIME_FORMAT.format(zdt));
+                      jsonGenerator.writeString(DateFormat.LOCAL_DATETIME_FORMAT.format(zdt));
                     }
                   }
               )
@@ -70,7 +74,7 @@ public interface JsonMapper {
                   new JsonSerializer<LocalTime>() {
                     @Override
                     public void serialize(LocalTime localTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                      jsonGenerator.writeString(DateTimeFormat.LOCAL_TIME_FORMAT.format(localTime));
+                      jsonGenerator.writeString(DateFormat.LOCAL_TIME_FORMAT.format(localTime));
                     }
                   }
               )
@@ -78,7 +82,15 @@ public interface JsonMapper {
                   new JsonSerializer<LocalDate>() {
                     @Override
                     public void serialize(LocalDate LocalDate, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                      jsonGenerator.writeString(DateTimeFormat.LOCAL_DATE_FORMAT.format(LocalDate));
+                      jsonGenerator.writeString(DateFormat.LOCAL_DATE_FORMAT.format(LocalDate));
+                    }
+                  }
+              )
+              .addSerializer(JsonString.class,
+                  new JsonSerializer<JsonString>() {
+                    @Override
+                    public void serialize(JsonString v, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                      jsonGenerator.writeString(v.toString());
                     }
                   }
               )

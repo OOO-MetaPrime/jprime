@@ -6,11 +6,9 @@ import mp.jprime.security.JPSecuritySettings;
 import mp.jprime.security.annotations.JPAccess;
 import mp.jprime.security.annotations.JPPackage;
 import mp.jprime.security.annotations.JPPackages;
+import mp.jprime.security.beans.JPSecurityPackageAccessBean;
 import mp.jprime.security.beans.JPAccessType;
-import mp.jprime.security.beans.JPImmutableSecurityPackageBean;
 import mp.jprime.security.beans.JPSecurityPackageBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -23,8 +21,6 @@ import java.util.Collection;
  */
 @Service
 public class JPSecurityAnnoLoader implements JPSecurityLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(JPSecurityAnnoLoader.class);
-
   private Collection<JPSecuritySettings> setts;
 
   /**
@@ -40,6 +36,7 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
    *
    * @return Список метаописания
    */
+  @Override
   public Flux<JPSecurityPackage> load() {
     return Flux.create(x -> {
       loadTo(x);
@@ -71,7 +68,7 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
             .description(pack.description())
             .qName(pack.qName());
         for (JPAccess access : accesses) {
-          mp.jprime.security.beans.JPAccess accessBean = mp.jprime.security.beans.JPAccess.newBuilder()
+          JPSecurityPackageAccessBean accessBean = JPSecurityPackageAccessBean.newBuilder()
               .role(access.role())
               .create(access.create())
               .read(access.read())
@@ -84,7 +81,7 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
             builder.prohibitionAccess(accessBean);
           }
         }
-        sink.next(JPImmutableSecurityPackageBean.newBuilder().secPackage(builder.build()).build());
+        sink.next(builder.build());
       }
     }
   }

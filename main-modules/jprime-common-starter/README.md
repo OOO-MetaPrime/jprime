@@ -282,7 +282,7 @@
 </jpClassMaps>
 ```
 
-## Настройки доступа
+## Настройки RBAC
 
 Настройки доступа разрешительные и запретительные для определенных ролей
 
@@ -363,6 +363,267 @@
   </jpPackages>
 </jpSecurity>
 ```
+
+## Настройки ABAC
+
+Разграничение доступа доступа на основе атрибутов субъекта, окружения и ресурса
+
+### Структура настроек
+
+#### Группа политик
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| name | Название группы политики |
+| qName | QName названия |
+| jpClasses | Список классов, к которым применяется группа политик. Если список пуст, то ко всем данным |
+| policies | Список политик |
+
+#### Политика
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| name | Название группы политики |
+| qName | QName названия |
+| actions | Действия, к которым применяется политика (read, create, update, delete) |
+| subjectRules | Список правил для пользователя |
+| resourceRules | Список правил для объекта |
+| enviromentRules | Список правил для окружения |
+
+#### Правило для пользователя
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| name | Название группы политики |
+| qName | QName названия |
+| effect | Возвращает тип доступа (разрешительный/запретительный) permit/prohibition |
+| username | Условие на логин |
+| role | Условие на роли |
+| orgId | Условие на организацию |
+| depId | Условие на подразделение |
+
+#### Правило для окружения
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| name | Название группы политики |
+| qName | QName названия |
+| effect | Возвращает тип доступа (разрешительный/запретительный) permit/prohibition |
+| ip | Условие на IP |
+| time | Условие на время применения политики |
+| time.daysOfWeek | Дни: пнд/вск |
+| time.fromTime | Начало периода в формате HH:mm |
+| time.toTime | Окончание периода в формате HH:mm |
+| time.fromDateTime | Начало периода в формате yyyy-MM-dd'T'HH:mm:ss |
+| time.toDateTime | Окончание периода в формате yyyy-MM-dd'T'HH:mm:ss  |
+
+#### Правило для объекта
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| name | Название группы политики |
+| qName | QName названия |
+| effect | Возвращает тип доступа (разрешительный/запретительный) permit/prohibition |
+| attr | Кодовое имя атрибута |
+| cond | Условие на атрибут |
+
+#### Условие
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| in | Список значений |
+| notIn | Список значений |
+
+### Способы описания настроек
+
+#### Аннотации
+
+* Аннотация детализирует наследника от ``mp.jprime.security.JPSecuritySettings``
+
+```
+@JPPolicySets(
+    value = {
+        @JPPolicySet(
+            name = "Группа политик annotation-тест",
+            qName = "jpPolicySet.annotationTest",
+            jpClasses = {"main"},
+            policies = {
+                @JPPolicy(
+                    name = "Политика Создание",
+                    qName = "jpPolicySet.annotationTest.create",
+                    actions = {JPAction.CREATE},
+                    subjectRules = {
+                        @JPSubjectRule(
+                            name = "Доступно только роли TEST_ROLE",
+                            qName = "jpPolicySet.annotationTest.create.rule1",
+                            role = @JPCond(in = {"ADMIN_ROLE", "TEST1_ROLE"}),
+                            effect = JPAccessType.PERMIT
+                        )
+                    },
+                     enviromentRules = {
+                         @JPEnviromentRule(
+                             name = "Доступно только в течении для 2010-01-10",
+                             qName = "jpPolicySet.annotationTest.create.envRule1",
+                             time = @JPTime(
+                                 daysOfWeek = {DayOfWeek.MONDAY, DayOfWeek.THURSDAY},
+                                 fromTime = "10:00",
+                                 toTime = "17:59",
+                                 fromDateTime = "2010-01-10T00:00:00",
+                                 toDateTime = "2020-01-10T23:59:59"
+                             )
+                         )
+                     }
+                ),
+                @JPPolicy(
+                    name = "Политика Обновление",
+                    qName = "jpPolicySet.annotationTest.update1",
+                    actions = {JPAction.READ, JPAction.UPDATE},
+                    subjectRules = {
+                        @JPSubjectRule(
+                            name = "Доступно только роли ADMIN_ROLE",
+                            qName = "jpPolicySet.annotationTest.update1.rule1",
+                            role = @JPCond(in = {"ADMIN_ROLE"}),
+                            effect = JPAccessType.PERMIT
+                        )
+                    }
+                ),
+                @JPPolicy(
+                    name = "Политика Обновление",
+                    qName = "jpPolicySet.annotationTest.update2",
+                    actions = {JPAction.READ, JPAction.UPDATE},
+                    subjectRules = {
+                        @JPSubjectRule(
+                            name = "Доступно только роли TEST1_ROLE",
+                            qName = "jpPolicySet.annotationTest.update2.rule1",
+                            role = @JPCond(in = {"TEST1_ROLE"}),
+                            effect = JPAccessType.PERMIT
+                        )
+                    },
+                    resourceRules = {
+                        @JPResourceRule(
+                            name = "Доступны test1 и test2",
+                            qName = "jpPolicySet.annotationTest.update2.rule1",
+                            attr = "name",
+                            cond = @JPCond(in = {"test1", "test2"}),
+                            effect = JPAccessType.PERMIT
+                        ),
+                        @JPResourceRule(
+                            name = "Доступны все, кроме test2",
+                            qName = "jpPolicySet.annotationTest.update2.rule2",
+                            attr = "name",
+                            cond = @JPCond(notIn = {"test2"}),
+                            effect = JPAccessType.PERMIT
+                        ),
+                        @JPResourceRule(
+                            name = "Не доступен test3",
+                            qName = "jpPolicySet.annotationTest.update3.rule3",
+                            attr = "name",
+                            cond = @JPCond(in = {"test3"}),
+                            effect = JPAccessType.PROHIBITION
+                        )
+                    }
+                ),
+            }
+        )
+    }
+)
+```
+
+#### XML
+
+* xml файл, указанной структуры, должен быть размещен в src/main/resources/abac
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+
+<jpAbac>
+  <jpPolicySets>
+    <jpPolicySet>
+      <name>Группа политик xml-тест</name>
+      <qName>jpPolicySet.xmlTest</qName>
+      <jpClasses>
+        <jpClass>test1</jpClass>
+        <jpClass>test2</jpClass>
+      </jpClasses>
+      <jpPolicies>
+        <jpPolicy>
+          <name>Политика Создание</name>
+          <qName>jpPolicySet.xmlTest.create</qName>
+          <actions>
+            <action>create</action>
+          </actions>
+          <subjectRules>
+            <subjectRule>
+              <name>Доступно только роли TEST_ROLE</name>
+              <qName>jpPolicySet.xmlTest.create.rule1</qName>
+              <username/>
+              <role>
+                <in>
+                  <value>TEST_ROLE</value>
+                </in>
+                <notIn>
+                  <value>TEST_ROLE</value>
+                </notIn>
+              </role>
+              <orgId/>
+              <depId/>
+              <effect>permit</effect>
+            </subjectRule>
+          </subjectRules>
+          <resourceRules>
+            <resourceRule>
+            </resourceRule>
+          </resourceRules>
+          <enviromentRules>
+            <enviromentRule>
+              <name>Доступно в определенные часы</name>
+              <qName>jpPolicySet.xmlTest.create.enviromentRule1</qName>
+              <effect>permit</effect>
+              <time>
+                <daysOfWeek>6,7</daysOfWeek>
+                <fromTime>10:00</fromTime>
+                <toTime>17:59</toTime>
+                <fromDateTime>2010-01-10T00:00:00</fromDateTime>
+                <toDateTime>2020-01-10T23:59:59</toDateTime>
+              </time>
+            </enviromentRule>
+          </enviromentRules>
+        </jpPolicy>
+        <jpPolicy>
+          <name>Политика Обновление</name>
+          <qName>jpPolicySet.xmlTest.update</qName>
+          <actions>
+            <action>read</action>
+            <action>update</action>
+          </actions>
+          <subjectRules>
+            <subjectRule>
+            </subjectRule>
+          </subjectRules>
+          <resourceRules>
+            <resourceRule>
+              <name>Доступно только автору</name>
+              <qName>jpPolicySet.xmlTest.update.rule1</qName>
+              <attr>userOwnerId</attr>
+              <cond>
+                <in>
+                  <value>{AUTH_USERID}</value>
+                </in>
+              </cond>
+              <effect>permit</effect>
+            </resourceRule>
+          </resourceRules>
+          <enviromentRules>
+            <enviromentRule>
+            </enviromentRule>
+          </enviromentRules>
+        </jpPolicy>
+      </jpPolicies>
+    </jpPolicySet>
+  </jpPolicySets>
+</jpAbac>
+```
+
 
 ## JPrime API
 

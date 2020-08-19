@@ -1,12 +1,12 @@
 package mp.jprime.dataaccess.params.query.filters;
 
+import mp.jprime.dataaccess.conds.ValueCond;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.enums.FilterOperation;
 
 /**
  * Условие по значениям
  */
-public abstract class ValueFilter<T> extends Filter {
+public abstract class ValueFilter<T> extends Filter implements ValueCond<T> {
   private String attrCode;
   private T attrValue;
 
@@ -35,14 +35,8 @@ public abstract class ValueFilter<T> extends Filter {
    *
    * @return Значение атрибута
    */
+  @Override
   public T getValue() {
     return attrValue;
   }
-
-  /**
-   * Операция
-   *
-   * @return Операция
-   */
-  abstract public FilterOperation getOper();
 }

@@ -4,6 +4,9 @@ package mp.jprime.meta;
  * Метаописание классов
  */
 public abstract class JPMeta {
+  /**
+   * Метаописание атрибутов
+   */
   public interface Attr {
     /**
      * Глобальный идентификатор объекта

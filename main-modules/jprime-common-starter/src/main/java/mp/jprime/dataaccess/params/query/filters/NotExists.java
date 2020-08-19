@@ -1,8 +1,7 @@
 package mp.jprime.dataaccess.params.query.filters;
 
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.enums.AnalyticFunction;
-import mp.jprime.dataaccess.params.query.enums.FilterOperation;
+import mp.jprime.dataaccess.enums.AnalyticFunction;
 
 /**
  * Не существует

@@ -2,7 +2,6 @@ package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.security.AuthInfo;
 
@@ -11,9 +10,8 @@ import java.util.*;
 /**
  * Запрос обновления
  */
-public class JPUpdate extends JPBaseCRUD {
+public class JPUpdate extends JPSave {
   private final JPId jpId;
-  private final JPMutableData data;
   private final Map<String, Collection<JPCreate>> linkedCreate;
   private final Map<String, Collection<JPUpdate>> linkedUpdate;
   private final Map<String, Collection<JPDelete>> linkedDelete;
@@ -34,9 +32,8 @@ public class JPUpdate extends JPBaseCRUD {
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
                    AuthInfo auth, Source source) {
-    super(source, auth);
+    super(data, source, auth);
     this.jpId = jpId;
-    this.data = JPMutableData.of(data);
     this.linkedCreate = Collections.unmodifiableMap(linkedCreate == null ? Collections.emptyMap() : linkedCreate);
     this.linkedUpdate = Collections.unmodifiableMap(linkedUpdate == null ? Collections.emptyMap() : linkedUpdate);
     this.linkedDelete = Collections.unmodifiableMap(linkedDelete == null ? Collections.emptyMap() : linkedDelete);
@@ -59,15 +56,6 @@ public class JPUpdate extends JPBaseCRUD {
   public String getJpClass() {
     JPId id = getJpId();
     return id != null ? id.getJpClass() : null;
-  }
-
-  /**
-   * Данные для обновления
-   *
-   * @return Данные для обновления
-   */
-  public JPMutableData getData() {
-    return data;
   }
 
   /**
@@ -110,14 +98,11 @@ public class JPUpdate extends JPBaseCRUD {
   /**
    * Построитель JPUpdate
    */
-  public static final class Builder {
+  public static final class Builder extends JPSave.Builder<Builder> {
     private final JPId jpId;
-    private Map<String, Object> data = new HashMap<>();
     private Map<String, Collection<JPCreate>> linkedCreate = new HashMap<>();
     private Map<String, Collection<JPUpdate>> linkedUpdate = new HashMap<>();
     private Map<String, Collection<JPDelete>> linkedDelete = new HashMap<>();
-    private AuthInfo auth;
-    private Source source;
 
     private Builder(JPId jpId) {
       this.jpId = jpId;
@@ -128,42 +113,28 @@ public class JPUpdate extends JPBaseCRUD {
      *
      * @return JPUpdate
      */
+    @Override
     public JPUpdate build() {
       return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, auth, source);
     }
 
     /**
-     * Аутентификация
+     * Возвращает идентификатор объекта
      *
-     * @param auth Аутентификация
-     * @return Builder
+     * @return идентификатор объекта
      */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
+    public JPId getJpId() {
+      return jpId;
     }
 
     /**
-     * Значение атрибута при обновлении
+     * Возвращает кодовое имя класса
      *
-     * @param attr  атрибут
-     * @param value значение атрибута
-     * @return Builder
+     * @return Кодовое имя класса
      */
-    public Builder set(JPAttr attr, Object value) {
-      return attr != null ? set(attr.getCode(), value) : this;
-    }
-
-    /**
-     * Значение атрибута при обновлении
-     *
-     * @param attrCode кодовое имя атрибута
-     * @param value    значение атрибута
-     * @return Builder
-     */
-    public Builder set(String attrCode, Object value) {
-      this.data.put(attrCode, value);
-      return this;
+    @Override
+    public String getJpClass() {
+      return jpId.getJpClass();
     }
 
     /**
@@ -232,17 +203,6 @@ public class JPUpdate extends JPBaseCRUD {
      */
     public Builder addWith(String attrCode, JPDelete delete) {
       this.linkedDelete.computeIfAbsent(attrCode, x -> new ArrayList<>()).add(delete);
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
       return this;
     }
   }

@@ -5,26 +5,34 @@ import mp.jprime.security.JPSecurityPackage;
 import java.util.Collection;
 
 /**
- * Описание настроек безопаности
+ * Описание настроек RBAC
  */
 public interface JPSecurityStorage {
   /**
-   * Возвращает загруженные настройки доступа
+   * Возвращает загруженные настройки RBAC
    *
-   * @return Настройки доступа
+   * @return Настройки RBAC
    */
   Collection<JPSecurityPackage> getPackages();
 
   /**
-   * Возвращает настройку доступа по коду
+   * Возвращает настройку RBAC по коду
    *
    * @param code Код
-   * @return Настройка доступа
+   * @return Настройка RBAC
    */
   JPSecurityPackage getJPPackageByCode(String code);
 
   /**
-   * Проверка доступа на чтение
+   * Проверка всех пакетов на доступ на чтение
+   *
+   * @param roles Роли
+   * @return Список кодов пакета
+   */
+  Collection<String> checkRead(Collection<String> roles);
+
+  /**
+   * Проверка RBAC на чтение
    *
    * @param packageCode Код пакета
    * @param roles       Роли
@@ -33,7 +41,7 @@ public interface JPSecurityStorage {
   boolean checkRead(String packageCode, Collection<String> roles);
 
   /**
-   * Проверка доступа на удаление
+   * Проверка RBAC на удаление
    *
    * @param packageCode Код пакета
    * @param roles       Роли
@@ -42,7 +50,7 @@ public interface JPSecurityStorage {
   boolean checkDelete(String packageCode, Collection<String> roles);
 
   /**
-   * Проверка доступа на обновление
+   * Проверка RBAC на обновление
    *
    * @param packageCode Код пакета
    * @param roles       Роли
@@ -51,7 +59,7 @@ public interface JPSecurityStorage {
   boolean checkUpdate(String packageCode, Collection<String> roles);
 
   /**
-   * Проверка доступа на создание
+   * Проверка RBAC на создание
    *
    * @param packageCode Код пакета
    * @param roles       Роли
