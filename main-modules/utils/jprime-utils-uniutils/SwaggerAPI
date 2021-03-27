@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  title: UniUtils REST API
+  description: This is a Utils REST API
+  contact:
+    email: info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+security:
+- password:
+  - read
+tags:
+- name: action
+  description: Запуск утилиты
+
+paths:
+  /utils/v1/attrvaluechangeutil/mode/change:
+    post:
+      tags:
+      - action
+      description: Запуск утилиты массового изменения атрибутов
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/attrvaluechangeutil-change-request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/attrvaluechangeutil-change-response'
+        400:
+          description: Bad request. See the logs for details
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+
+components:
+  schemas:
+
+    attrvaluechangeutil-change-request:
+      type: object
+      description: запуск утилиты
+      properties:
+        objectClassCode:
+          type: string
+          description: код класса меты
+          example: eguApplicant
+        objectIds:
+          type: array
+          description: список идентификаторов сущностей, в которых надо обновить атрибуты
+          items:
+            type: string
+            example: ["1","2","3"]
+        attrs:
+          type: array
+          description: список пар код-значение атрибутов, которые нужно изменить
+          items:
+            $ref: '#/components/schemas/attr'
+
+
+    attr:
+      type: object
+      description: пара код-значение атрибута
+      properties:
+        attrCode:
+          type: string
+          description: код атрибута в мете
+          example: middleName
+        attrValue:
+          type: string
+          description: новое значение атрибута, может быть `null`
+          example: new middleName
+
+    attrvaluechangeutil-change-response:
+      type: object
+      description: ответ утилиты
+      properties:
+        description:
+          type: string
+          description: описание
+          example: Массовое внесение изменений успешно выполнено
+        changeData:
+          type: boolean
+          description: флаг, изменились ли данные
+          example: true
+        resultType:
+          type: string
+          description: тип результата
+          example: message
+        qName:
+          type: string
+          description: qName ответа
+          example: attrvaluechangeutil.done
+
+
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0

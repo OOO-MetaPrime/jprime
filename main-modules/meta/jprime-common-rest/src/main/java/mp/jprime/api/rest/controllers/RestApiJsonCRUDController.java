@@ -1,6 +1,6 @@
 package mp.jprime.api.rest.controllers;
 
-import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.*;
@@ -10,7 +10,6 @@ import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonJPObject;
 import mp.jprime.json.beans.JsonJPObjectList;
-import mp.jprime.json.services.JsonMapper;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
@@ -34,7 +33,7 @@ import java.util.Objects;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiJsonCRUDController implements JsonMapper {
+public class RestApiJsonCRUDController {
   /**
    * Заполнение запросов на основе JSON
    */
@@ -42,7 +41,7 @@ public class RestApiJsonCRUDController implements JsonMapper {
   /**
    * Интерфейс создания / обновления объекта
    */
-  private JPObjectRepositoryService repo;
+  private JPReactiveObjectRepositoryService repo;
   /**
    * Хранилище метаинформации
    */
@@ -69,7 +68,7 @@ public class RestApiJsonCRUDController implements JsonMapper {
   }
 
   @Autowired
-  private void setRepo(JPObjectRepositoryService repo) {
+  private void setRepo(JPReactiveObjectRepositoryService repo) {
     this.repo = repo;
   }
 

@@ -12,7 +12,7 @@ public class JPCreateRightException extends JPSecurityException {
   private final String classCode;
 
   public JPCreateRightException(String classCode) {
-    super(classCode + " no create permission");
+    super(classCode + ".create.denied", classCode + " no create permission");
     this.classCode = classCode;
   }
 

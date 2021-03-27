@@ -115,35 +115,38 @@ public class RestAccessController {
   @ResponseBody
   @GetMapping(value = "jpPackages",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAnyAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN, T(mp.jprime.meta.security.Role).META_ADMIN)")
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Flux<JsonSecurityPackage> getJPPackages(ServerWebExchange swe) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();
     if (packages == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+    AuthInfo auth = jwtService.getAuthInfo(swe);
     return Flux.fromIterable(packages)
-        .map(this::toSecurityPackage)
+        .map(x -> toSecurityPackage(x, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
   @ResponseBody
   @GetMapping(value = "jpPackages/{code}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAnyAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN, T(mp.jprime.meta.security.Role).META_ADMIN)")
-  public Mono<JsonSecurityPackage> getJPPackages(@PathVariable("code") String code) {
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  public Mono<JsonSecurityPackage> getJPPackages(ServerWebExchange swe,
+                                                 @PathVariable("code") String code) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();
     if (packages == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+    AuthInfo auth = jwtService.getAuthInfo(swe);
     return Flux.fromIterable(packages)
         .filter(x -> x.getCode().equals(code))
-        .map(this::toSecurityPackage)
+        .map(x -> toSecurityPackage(x, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .next();
   }
 
   private JsonJPObjectAccess toJPObjectAccessModel(JPClass jpClass, String objectId, AuthInfo auth) {
-    return JsonJPObjectAccess.newBuilder()
+    JsonJPObjectAccess.Builder builder = JsonJPObjectAccess.newBuilder()
         .objectClassCode(jpClass.getCode())
         .objectId(objectId)
         .read(
@@ -157,28 +160,41 @@ public class RestAccessController {
         )
         .delete(
             objectAccessService.checkDelete(JPId.get(jpClass.getCode(), objectId), auth)
-        )
-        .build();
+        );
+    // Доступ к атрибутам
+    jpClass.getAttrs().stream()
+        .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
+        .forEach(
+            attr -> builder.attrEdit(attr.getCode(), securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
+        );
+    return builder.build();
   }
 
   private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass, AuthInfo auth) {
-    return JsonJPClassAccess.newBuilder()
+    JsonJPClassAccess.Builder builder = JsonJPClassAccess.newBuilder()
         .classCode(jpClass.getCode())
         .read(securityManager.checkRead(jpClass.getJpPackage(), auth.getRoles()))
         .create(objectAccessService.checkCreate(jpClass.getCode(), auth))
         .update(securityManager.checkUpdate(jpClass.getJpPackage(), auth.getRoles()))
-        .delete(securityManager.checkDelete(jpClass.getJpPackage(), auth.getRoles()))
-        .build();
+        .delete(securityManager.checkDelete(jpClass.getJpPackage(), auth.getRoles()));
+
+    // Доступ к атрибутам
+    jpClass.getAttrs().stream()
+        .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
+        .forEach(
+            attr -> builder.attrEdit(attr.getCode(), securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
+        );
+    return builder.build();
   }
 
 
-  private JsonSecurityPackage toSecurityPackage(JPSecurityPackage pkg) {
+  private JsonSecurityPackage toSecurityPackage(JPSecurityPackage pkg, AuthInfo auth) {
     return JsonSecurityPackage.newBuilder()
         .code(pkg.getCode())
         .name(pkg.getName())
         .description(pkg.getDescription())
         .qName(pkg.getQName())
-        .accesses(
+        .accesses(auth == null || !auth.getRoles().contains(mp.jprime.security.security.Role.AUTH_ADMIN) ? null :
             Stream.concat(
                 pkg.getPermitAccess().stream()
                     .map(x -> JsonSecurityAccess.newBuilder()

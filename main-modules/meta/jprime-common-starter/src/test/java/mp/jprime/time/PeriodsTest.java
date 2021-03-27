@@ -1,21 +1,23 @@
 package mp.jprime.time;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.time.ZoneId;
 import java.util.Collection;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration()
-public class PeriodsTest {
+class PeriodsTest {
+  @Lazy(value = false)
   @Configuration
   @ComponentScan(value = {"mp.jprime.time"})
   public static class Config {
@@ -30,9 +32,9 @@ public class PeriodsTest {
     d = (d % 30); // Уменьшаем дни
     Period period = Period.of(Math.max(y, 0), Math.max(m, 0), Math.max(d, 0)).normalized();
 
-    Assert.assertEquals(1, period.getYears());
-    Assert.assertEquals(4, period.getMonths());
-    Assert.assertEquals(10, period.getDays());
+    assertEquals(1, period.getYears());
+    assertEquals(4, period.getMonths());
+    assertEquals(10, period.getDays());
   }
 
   @Test
@@ -42,7 +44,7 @@ public class PeriodsTest {
         LocalDate.of(2020,1,22)
     );
 
-    Assert.assertEquals(2, period.getDays() + 1);
+    assertEquals(2, period.getDays() + 1);
   }
 
   @Test
@@ -69,7 +71,7 @@ public class PeriodsTest {
                 LocalDate.of(2016, 12, 31)
             )
         ).getPeriod();
-    Assert.assertEquals(2, periods.size());
+    assertEquals(2, periods.size());
   }
 
 }

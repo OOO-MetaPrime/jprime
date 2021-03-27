@@ -1,5 +1,6 @@
 package mp.jprime.meta.beans;
 
+import mp.jprime.common.JPClassAttr;
 import mp.jprime.meta.JPVirtualPath;
 
 /**
@@ -64,6 +65,40 @@ public final class JPVirtualPathBean implements JPVirtualPath {
     return new Builder();
   }
 
+  /**
+   * Путь виртуальной ссылки
+   *
+   * @param attrsPath Путь виртуальной ссылки
+   * @param attrType Код типа атрибута на который ссылаемся
+   * @return JPVirtualPathBean
+   */
+  public static JPVirtualPath newInstance(String[] attrsPath, JPType attrType) {
+    if (attrsPath == null || attrsPath.length == 0) {
+      return null;
+    }
+    if (attrsPath.length == 2) {
+      return new JPVirtualPathBean(attrsPath[0], attrsPath[1], attrType != null ? attrType.getCode() : null);
+    }
+    return null;
+  }
+
+  /**
+   * Путь виртуальной ссылки
+   *
+   * @param virtualReference Путь виртуальной ссылки
+   * @param attrType Код типа атрибута на который ссылаемся
+   * @return JPVirtualPathBean
+   */
+  public static JPVirtualPath newInstance(String virtualReference, String virtualType) {
+    if (virtualReference != null && !virtualReference.isEmpty()) {
+      String[] parts = virtualReference.split("\\.");
+      if (parts.length == 2) {
+        return new JPVirtualPathBean(parts[0], parts[1], virtualType);
+      }
+    }
+    return null;
+  }
+
   public static final class Builder {
     private String refAttrCode;
     private String targerAttrCode;
@@ -76,6 +111,7 @@ public final class JPVirtualPathBean implements JPVirtualPath {
     public JPVirtualPathBean build() {
       return new JPVirtualPathBean(refAttrCode, targerAttrCode, virtualType);
     }
+
 
     /**
      * Кодовое имя ссылочного атрибута, по которому строится ссылка

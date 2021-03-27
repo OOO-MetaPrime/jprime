@@ -2,6 +2,10 @@ package mp.jprime.security.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.HashMap;
+import java.util.Map;
+
+
 /**
  * Доступ к объекту текущим пользователем
  */
@@ -11,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "read",
     "create",
     "update",
-    "delete"
+    "delete",
+    "editAttrs",
 })
 public final class JsonJPObjectAccess {
   private String objectClassCode;
@@ -20,19 +25,24 @@ public final class JsonJPObjectAccess {
   private boolean create;
   private boolean update;
   private boolean delete;
+  private Map<String, Boolean> editAttrs = new HashMap<>();
 
   public JsonJPObjectAccess() {
 
   }
 
   private JsonJPObjectAccess(String objectClassCode, String objectId,
-                             boolean read, boolean create, boolean update, boolean delete) {
+                             boolean read, boolean create, boolean update, boolean delete,
+                             Map<String, Boolean> editAttrs) {
     this.objectClassCode = objectClassCode;
     this.objectId = objectId;
     this.read = read;
     this.create = create;
     this.update = update;
     this.delete = delete;
+    if (editAttrs != null) {
+      this.editAttrs.putAll(editAttrs);
+    }
   }
 
   public String getObjectClassCode() {
@@ -59,6 +69,10 @@ public final class JsonJPObjectAccess {
     return delete;
   }
 
+  public Map<String, Boolean> getEditAttrs() {
+    return editAttrs;
+  }
+
   /**
    * Построитель JPClassAccess
    *
@@ -78,6 +92,7 @@ public final class JsonJPObjectAccess {
     private boolean create;
     private boolean update;
     private boolean delete;
+    private Map<String, Boolean> editAttrs = new HashMap<>();
 
     private Builder() {
 
@@ -89,7 +104,7 @@ public final class JsonJPObjectAccess {
      * @return JPClassAccess
      */
     public JsonJPObjectAccess build() {
-      return new JsonJPObjectAccess(objectClassCode, objectId, read, create, update, delete);
+      return new JsonJPObjectAccess(objectClassCode, objectId, read, create, update, delete, editAttrs);
     }
 
     /**
@@ -156,6 +171,34 @@ public final class JsonJPObjectAccess {
     public Builder delete(boolean delete) {
       this.delete = delete;
       return this;
+    }
+
+    /**
+     * Настройки доступа к атрибуту
+     *
+     * @param attrCode Кодовое имя атрибута
+     * @param isView   Доступ на чтение
+     * @param isEdit   Доступ на редактирвание
+     * @return Builder
+     */
+    public Builder attrAccess(String attrCode, boolean isView, boolean isEdit) {
+      if (isView) {
+        editAttrs.put(attrCode, isEdit);
+      } else {
+        editAttrs.remove(attrCode);
+      }
+      return this;
+    }
+
+    /**
+     * Настройки доступа к атрибуту
+     *
+     * @param attrCode Кодовое имя атрибута
+     * @param isEdit   Доступ на редактирвание
+     * @return Builder
+     */
+    public Builder attrEdit(String attrCode, boolean isEdit) {
+      return attrAccess(attrCode, Boolean.TRUE, isEdit);
     }
   }
 }

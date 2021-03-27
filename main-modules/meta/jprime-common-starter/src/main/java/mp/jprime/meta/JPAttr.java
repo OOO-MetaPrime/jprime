@@ -2,6 +2,8 @@ package mp.jprime.meta;
 
 import mp.jprime.meta.beans.JPType;
 
+import java.util.Collection;
+
 /**
  * метаописание атрибута
  */
@@ -127,4 +129,11 @@ public interface JPAttr {
     JPVirtualPath path = getType() == JPType.VIRTUALREFERENCE ? getVirtualReference() : null;
     return path != null && path.getType() != null ? path.getType() : getType();
   }
+
+  /**
+   * Схема свойств псевдо-меты
+   *
+   * @return свойства псевдо-меты
+   */
+  Collection<JPProperty> getSchemaProps();
 }

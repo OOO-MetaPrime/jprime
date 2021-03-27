@@ -1,6 +1,6 @@
 package mp.jprime.repositories;
 
-import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionManager;
 
 /**
  * Описание типового хранилища
@@ -21,11 +21,11 @@ public interface JPStorage {
   String getTitle();
 
   /**
-   * DataSourceTransactionManager
+   * TransactionManager
    *
-   * @return DataSourceTransactionManager
+   * @return TransactionManager
    */
-  default PlatformTransactionManager getTransactionManager() {
+  default TransactionManager getTransactionManager() {
     return null;
   }
 }

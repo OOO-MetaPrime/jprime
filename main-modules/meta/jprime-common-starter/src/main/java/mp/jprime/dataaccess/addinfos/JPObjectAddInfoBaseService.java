@@ -1,9 +1,6 @@
 package mp.jprime.dataaccess.addinfos;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.beans.JPObject;
-import mp.jprime.dataaccess.params.JPSelect;
-import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +18,6 @@ import java.util.stream.Stream;
 @Service
 public final class JPObjectAddInfoBaseService implements JPObjectAddInfoService {
   private Collection<JPObjectAddInfoProvider> providers;
-  private JPObjectRepositoryService rep;
   private JPMetaStorage metaStorage;
 
   /**
@@ -30,11 +26,6 @@ public final class JPObjectAddInfoBaseService implements JPObjectAddInfoService 
   @Autowired(required = false)
   private void setDefValues(Collection<JPObjectAddInfoProvider> providers) {
     this.providers = providers != null ? providers : Collections.emptyList();
-  }
-
-  @Autowired
-  private void setRep(JPObjectRepositoryService rep) {
-    this.rep = rep;
   }
 
   @Autowired
@@ -55,15 +46,6 @@ public final class JPObjectAddInfoBaseService implements JPObjectAddInfoService 
     if (jpClass == null || id == null) {
       return Collections.emptyList();
     }
-    JPObject object = rep.getObject(
-        JPSelect.from(jpClassCode)
-            .where(
-                Filter.attr(jpClass.getPrimaryKeyAttr()).eq(id)
-            )
-            .build());
-    if (object == null) {
-      return Collections.emptyList();
-    }
     return get(params);
   }
 
@@ -80,16 +62,7 @@ public final class JPObjectAddInfoBaseService implements JPObjectAddInfoService 
     if (jpClass == null || id == null) {
       return Flux.empty();
     }
-    return rep
-        .getAsyncObject(
-            JPSelect.from(jpClassCode)
-                .where(
-                    Filter.attr(jpClass.getPrimaryKeyAttr()).eq(id)
-                )
-                .auth(params.getAuth())
-                .build()
-        )
-        .flatMapMany(object -> Flux.fromIterable(get(params)));
+    return Flux.fromIterable(get(params));
   }
 
   private Collection<AddInfo> get(JPObjectAddInfoParams params) {

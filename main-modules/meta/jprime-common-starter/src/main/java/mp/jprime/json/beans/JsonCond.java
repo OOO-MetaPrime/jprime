@@ -7,8 +7,6 @@ import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 
-import static mp.jprime.formats.DateFormat.YYYYY_MM_DD;
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonCond {
   // Кодовое имя атрибута

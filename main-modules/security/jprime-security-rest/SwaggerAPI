@@ -203,6 +203,15 @@ components:
           type: boolean
           description: Признак доступа на удаление
           format: boolean
+        editAttrs:
+          description: Список атрибутов, доступных для редактирования
+          additionalProperties:
+            type: boolean
+            example: true
+          example:
+            attrCode1: true
+            attrCode2: true
+            attrCode3: false
 
     jpObjectAccess:
       type: object
@@ -231,6 +240,15 @@ components:
           type: boolean
           description: Признак доступа на удаление
           format: boolean
+        editAttrs:
+          description: Список атрибутов, доступных для редактирования
+          additionalProperties:
+            type: boolean
+            example: true
+          example:
+            attrCode1: true
+            attrCode2: true
+            attrCode3: false
 
     securityPackageList:
       type: array

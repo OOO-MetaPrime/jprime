@@ -2,32 +2,35 @@ package mp.jprime.security.abac;
 
 import mp.jprime.dataaccess.JPAction;
 import mp.jprime.security.abac.services.JPAbacStorage;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration()
-public class JPAbacManagerTest {
+class JPAbacManagerTest {
   @Autowired
   private JPAbacStorage securityManager;
 
+  @Lazy(value = false)
   @Configuration
-  @ComponentScan(basePackages = {"mp.jprime.security", "mp.jprime.meta", "mp.jprime.parsers"})
+  @ComponentScan(basePackages = {"mp.jprime.security", "mp.jprime.meta", "mp.jprime.parsers", "mp.jprime.log"})
   public static class Config {
   }
 
   @Test
-  public void testLoadSettings() {
-    Assert.assertEquals(2, securityManager.getSettings().size());
-    Assert.assertEquals(2, securityManager.getSettings("test1", JPAction.CREATE).size());
-    Assert.assertEquals(2, securityManager.getSettings("test1", JPAction.READ).size());
-    Assert.assertEquals(2, securityManager.getSettings("test1", JPAction.UPDATE).size());
+  void testLoadSettings() {
+    assertEquals(2, securityManager.getSettings().size());
+    assertEquals(2, securityManager.getSettings("test1", JPAction.CREATE).size());
+    assertEquals(2, securityManager.getSettings("test1", JPAction.READ).size());
+    assertEquals(2, securityManager.getSettings("test1", JPAction.UPDATE).size());
   }
 }
 

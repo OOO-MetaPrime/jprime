@@ -18,37 +18,39 @@ class MultiTransactionStatus implements TransactionStatus {
   private final PlatformTransactionManager mainTransactionManager;
   private final Map<PlatformTransactionManager, TransactionStatus> transactionStatuses = new ConcurrentHashMap<>();
 
-  private boolean newSynchonization;
+  private boolean primaryTransaction;
 
   /**
    * Creates a new {@link MultiTransactionStatus} for the given {@link PlatformTransactionManager}.
    *
    * @param mainTransactionManager must not be {@literal null}.
    */
-  public MultiTransactionStatus(PlatformTransactionManager mainTransactionManager) {
+  MultiTransactionStatus(PlatformTransactionManager mainTransactionManager) {
     Assert.notNull(mainTransactionManager, "TransactionManager must not be null!");
     this.mainTransactionManager = mainTransactionManager;
   }
 
-  public Map<PlatformTransactionManager, TransactionStatus> getTransactionStatuses() {
+  Map<PlatformTransactionManager, TransactionStatus> getTransactionStatuses() {
     return transactionStatuses;
   }
 
-  public void setNewSynchonization() {
-    this.newSynchonization = true;
+  void setPrimaryTransaction() {
+    this.primaryTransaction = true;
   }
 
-  public boolean isNewSynchonization() {
-    return newSynchonization;
+  boolean isPrimaryTransaction() {
+    return primaryTransaction;
   }
 
-  public void registerTransactionManager(TransactionDefinition definition, PlatformTransactionManager transactionManager) {
+  void registerTransactionManager(TransactionDefinition definition, PlatformTransactionManager transactionManager) {
     getTransactionStatuses().put(transactionManager, transactionManager.getTransaction(definition));
   }
 
-  public void commit(PlatformTransactionManager transactionManager) {
-    TransactionStatus transactionStatus = getTransactionStatus(transactionManager);
-    transactionManager.commit(transactionStatus);
+  void commit(PlatformTransactionManager transactionManager) {
+    TransactionStatus status = getTransactionStatus(transactionManager);
+    if (!status.isCompleted()) {
+      transactionManager.commit(status);
+    }
   }
 
   /**
@@ -56,14 +58,18 @@ class MultiTransactionStatus implements TransactionStatus {
    *
    * @param transactionManager must not be {@literal null}.
    */
-  public void rollback(PlatformTransactionManager transactionManager) {
-    transactionManager.rollback(getTransactionStatus(transactionManager));
+  void rollback(PlatformTransactionManager transactionManager) {
+    TransactionStatus status = getTransactionStatus(transactionManager);
+    if (!status.isCompleted()) {
+      transactionManager.rollback(status);
+    }
   }
 
   /*
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#isRollbackOnly()
    */
+  @Override
   public boolean isRollbackOnly() {
     return getMainTransactionStatus().isRollbackOnly();
   }
@@ -72,6 +78,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#isCompleted()
    */
+  @Override
   public boolean isCompleted() {
     return getMainTransactionStatus().isCompleted();
   }
@@ -80,6 +87,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#isNewTransaction()
    */
+  @Override
   public boolean isNewTransaction() {
     return getMainTransactionStatus().isNewTransaction();
   }
@@ -88,6 +96,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#hasSavepoint()
    */
+  @Override
   public boolean hasSavepoint() {
     return getMainTransactionStatus().hasSavepoint();
   }
@@ -96,6 +105,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#setRollbackOnly()
    */
+  @Override
   public void setRollbackOnly() {
     for (TransactionStatus ts : transactionStatuses.values()) {
       ts.setRollbackOnly();
@@ -106,6 +116,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.SavepointManager#createSavepoint()
    */
+  @Override
   public Object createSavepoint() throws TransactionException {
 
     SavePoints savePoints = new SavePoints();
@@ -120,6 +131,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.SavepointManager#rollbackToSavepoint(java.lang.Object)
    */
+  @Override
   public void rollbackToSavepoint(Object savepoint) throws TransactionException {
     SavePoints savePoints = (SavePoints) savepoint;
     savePoints.rollback();
@@ -129,6 +141,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.SavepointManager#releaseSavepoint(java.lang.Object)
    */
+  @Override
   public void releaseSavepoint(Object savepoint) throws TransactionException {
     ((SavePoints) savepoint).release();
   }
@@ -137,6 +150,7 @@ class MultiTransactionStatus implements TransactionStatus {
    * (non-Javadoc)
    * @see org.springframework.transaction.TransactionStatus#flush()
    */
+  @Override
   public void flush() {
     for (TransactionStatus transactionStatus : transactionStatuses.values()) {
       transactionStatus.flush();
@@ -176,7 +190,7 @@ class MultiTransactionStatus implements TransactionStatus {
       return savepoints.get(transactionStatus);
     }
 
-    public void release() {
+    void release() {
       for (TransactionStatus transactionStatus : savepoints.keySet()) {
         transactionStatus.releaseSavepoint(savepointFor(transactionStatus));
       }

@@ -8,7 +8,7 @@ REST-методы публикации метаданных на чтение
 
 ``GET /meta/v1/attrTypes/``
 
-* роль META_ADMIN
+* роль AUTH_ACCESS
 
 * ответ
 
@@ -19,7 +19,7 @@ REST-методы публикации метаданных на чтение
 | 500 | Ошибка сервера
 | 200 | Утилита отработала успешно 
 
-```
+```json
 [
     {
         "code": "string",
@@ -51,7 +51,7 @@ REST-методы публикации метаданных на чтение
 | 500 | Ошибка сервера
 | 200 | Утилита отработала успешно 
 
-```
+```json
 {
     "totalCount": 4,
     "classes": [
@@ -97,7 +97,7 @@ REST-методы публикации метаданных на чтение
 | 500 | Ошибка сервера
 | 200 | Утилита отработала успешно 
 
-```
+```json
 {
     "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
     "code": "userEvent",
@@ -141,7 +141,54 @@ REST-методы публикации метаданных на чтение
                 "sizeAttr": "fileSize",
                 "dateAttr": "fileDate"
             }
-        },        
+        },     
+        {
+            "guid": "a717e338-1e08-4610-917f-9c9969db51b9",
+            "code": "jsonattr",
+            "qName": "common.userevent.jsonattr",
+            "name": "Test json attrs",
+            "shortName": "Test json attrs",
+            "description": "Test json attrs",
+            "jpPackage": null,
+            "identifier": false,
+            "mandatory": false,
+            "type": "json",
+            "length": null,
+            "refJpClass": null,
+            "refJpAttr": null,
+            "refJpFile": null,
+            "jpProps": [
+                {
+                    "code": "testprop",
+                    "qName": "common.userevent.jsonprop",
+                    "name": "Test Prop",
+                    "shortName": null,
+                    "description": null,
+                    "mandatory": false,
+                    "multiple": false,
+                    "type": "element",
+                    "length": null,
+                    "refJpClassCode": null,
+                    "refJpAttrCode": null,
+                    "jpProps": [
+                        {
+                            "code": "innertestprop",
+                            "qName": "common.userevent.injsonprop",
+                            "name": "Inner Test Prop",
+                            "shortName": null,
+                            "description": null,
+                            "mandatory": false,
+                            "multiple": false,
+                            "type": "string",
+                            "length": null,
+                            "refJpClassCode": null,
+                            "refJpAttrCode": null,
+                            "jpProps": []
+                        }
+                    ]
+                }
+            ]
+        }   
         ...
     ]
 }
@@ -175,6 +222,7 @@ REST-методы публикации метаданных на чтение
 | refJpClass | Кодовое имя класса, на который ссылается
 | refJpAttr | Кодовое имя атрибута ссылочного класса
 | refJpFile | Описание файлового атрибута
+| jpProps | Схема свойств псевдо-меты |
 
 Параметры описания файлового атрибута (для type file)
 
@@ -184,3 +232,26 @@ REST-методы публикации метаданных на чтение
 | extAttr | Кодовое имя атрибута - Расширение файла 
 | sizeAttr | Кодовое имя атрибута - Размер файла 
 | dateAttr | Кодовое имя атрибута - Дата файла
+
+Описание свойства псевдо-меты ``jpProps`` (для type json)
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| code | Кодовое имя свойства |
+| qName | Полный код свойства |
+| name | Название свойства |
+| shortName | Короткое название свойства |
+| description | Описание свойства |
+| mandatory | Признак обязательности |
+| multiple | Признак множественности |
+| type | Тип свойства |
+| length | Длина (для строковых полей, в том числе для строковых виртуальных) |
+| refJpClass | Кодовое имя класса, на который ссылается |
+| refJpAttr | Кодовое имя атрибута ссылочного класса |
+| jpProps | Схема вложенных свойств |
+
+## Настройки
+
+`jprime.meta.api.filter.enabled` - признак публикации указанных данных
+`jprime.meta.api.filter.jpClassCodes` - список кодовых имен классов через [,] для публикации
+`jprime.meta.api.filter.jpStorageCodes` - список кодовых имен хранилищ через [,], классы которых публикуем

@@ -1,10 +1,12 @@
 package mp.jprime.meta.services;
 
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
+import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaDynamicLoader;
 import mp.jprime.meta.annotations.services.JPMetaAnnoLoader;
 import mp.jprime.meta.events.JPMetaLoadFinishEvent;
+import mp.jprime.meta.log.Event;
 import mp.jprime.meta.xmlloader.services.JPMetaXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
@@ -21,6 +23,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 public final class JPMetaMemoryStorage implements JPMetaStorage {
+  /**
+   * Системный журнал
+   */
+  private AppLogger appLogger;
+
   /**
    * Список всей меты
    */
@@ -44,11 +51,15 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    * Публикация событий
    */
   private ApplicationEventPublisher eventPublisher;
+
   /**
    * Размещает метаописание в хранилище
    */
-  private JPMetaMemoryStorage(@Autowired JPMetaAnnoLoader annoLoader,
+  private JPMetaMemoryStorage(@Autowired AppLogger appLogger,
+                              @Autowired JPMetaAnnoLoader annoLoader,
                               @Autowired JPMetaXmlLoader xmlLoader) {
+    this.appLogger = appLogger;
+
     Collection<Flux<JPClass>> p = new ArrayList<>();
     p.add(annoLoader.load());
     p.add(xmlLoader.load());
@@ -74,6 +85,10 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    */
   private void applyJPClass(JPClass cls) {
     if (codeJpClassMap.containsKey(cls.getCode())) {
+      return;
+    }
+    if (cls.getPrimaryKeyAttr() == null) {
+      appLogger.error(Event.PRIMARY_KEY_NOT_FOUND, "JPClass \"" + cls.getCode() + "\" not loaded. Primary key is absent.");
       return;
     }
     classes.add(cls);

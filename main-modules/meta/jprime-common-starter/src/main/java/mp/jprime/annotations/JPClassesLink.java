@@ -17,7 +17,12 @@ public @interface JPClassesLink {
   /**
    * Признак универсального применения
    */
-  String UNI = "*";
+  boolean uni() default false;
 
+  /**
+   * Список классов для привязки
+   *
+   * @return Массив кодовых имен
+   */
   String[] jpClasses() default {};
 }

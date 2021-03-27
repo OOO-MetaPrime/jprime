@@ -2,21 +2,21 @@ package mp.jprime.metamaps.xmlloader;
 
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpClassMaps;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.test.context.junit4.SpringRunner;
+import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 
 import java.net.URL;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(SpringRunner.class)
-public class XmlJpClassMapsTest {
+@ExtendWith(SpringExtension.class)
+class XmlJpClassMapsTest {
   @Test
-  public void testCorrectReadFile() throws Exception {
+  void testCorrectReadFile() throws Exception {
     URL url = ResourceUtils.getURL("classpath:" + JPMapsXmlLoader.RESOURCES_FOLDER + "jpClassMaps.xml");
 
     XmlJpClassMaps xmlJpClassMaps = new XmlMapper().readValue(url, XmlJpClassMaps.class);

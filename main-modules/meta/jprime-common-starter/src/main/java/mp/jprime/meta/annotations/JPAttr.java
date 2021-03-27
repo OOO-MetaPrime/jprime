@@ -109,7 +109,7 @@ public @interface JPAttr {
    *
    * @return Путь виртуальной ссылки
    */
-  String virtualReference() default "";
+  String[] virtualReference() default {};
 
   /**
    * Тип виртуальной ссылки
@@ -117,4 +117,18 @@ public @interface JPAttr {
    * @return Тип виртуальной ссылки
    */
   JPType virtualType() default JPType.NONE;
+
+  /**
+   * Свойства псевдо-меты
+   *
+   * @return свойства псевдо-меты
+   */
+  JPProperty[] jpProps() default {};
+
+  /**
+   * Схемы вложенных свойств псевдо-меты
+   *
+   * @return вложенные свойства псевдо-меты
+   */
+  JPPropertySchema[] schemaProps() default {};
 }

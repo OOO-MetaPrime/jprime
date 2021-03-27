@@ -12,7 +12,7 @@ public class JPSelectRightException extends JPSecurityException {
   private final String classCode;
 
   public JPSelectRightException(String classCode) {
-    super(classCode + " no read permission");
+    super(classCode + ".read.denied", classCode + " no read permission");
     this.classCode = classCode;
   }
 

@@ -12,7 +12,7 @@ public class JPDeleteRightException extends JPSecurityException {
   private final String classCode;
 
   public JPDeleteRightException(String classCode) {
-    super(classCode + " no delete permission");
+    super(classCode + ".delete.denied", classCode + " no delete permission");
     this.classCode = classCode;
   }
 

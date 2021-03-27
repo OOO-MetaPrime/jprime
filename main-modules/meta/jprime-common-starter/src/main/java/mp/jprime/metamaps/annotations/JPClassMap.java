@@ -34,7 +34,7 @@ public @interface JPClassMap {
    *
    * @return Мап на хранилище
    */
-  String map();
+  String map() default "";
 
   /**
    * Список маппинга атрибутов класса

@@ -34,9 +34,7 @@ public final class JPObjectAddInfoJavaProvider implements JPObjectAddInfoProvide
           if (jpClassCode == null || jpClassCode.isEmpty()) {
             continue;
           }
-          if (!JPClassesLink.UNI.equals(jpClassCode)) {
-            jpObjectAddInfos.computeIfAbsent(jpClassCode, x -> new ArrayList<>()).add(addInfo);
-          }
+          jpObjectAddInfos.computeIfAbsent(jpClassCode, x -> new ArrayList<>()).add(addInfo);
         }
       } catch (Exception e) {
         throw JPRuntimeException.wrapException(e);

@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 
 @Configuration
+@Lazy(value = false)
 @ConditionalOnProperty(value = "jprime.events.systemevents.app.enabled", havingValue = "true")
 public class ApplicationEventService implements SystemEventPublisher {
   private ApplicationEventPublisher eventPublisher;

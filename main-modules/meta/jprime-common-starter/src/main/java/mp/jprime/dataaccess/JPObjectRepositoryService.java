@@ -8,6 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Интерфейс создания/изменения объекта
@@ -32,6 +33,16 @@ public interface JPObjectRepositoryService {
   default JPObject getObject(JPSelect select) {
     Collection<JPObject> result = getList(select);
     return result != null && !result.isEmpty() ? result.iterator().next() : null;
+  }
+
+  /**
+   * Возвращает optional результата запроса
+   *
+   * @param select Параметры для выборки
+   * @return optional
+   */
+  default Optional<JPObject> getOptionalObject(JPSelect select) {
+    return Optional.ofNullable(getObject(select));
   }
 
   /**

@@ -7,7 +7,6 @@ import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonDefValueResult;
 import mp.jprime.json.beans.JsonObjectData;
-import mp.jprime.json.services.JsonMapper;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -25,7 +24,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiDefValueController implements JsonMapper {
+public class RestApiDefValueController {
   /**
    * Заполнение запросов на основе JSON
    */

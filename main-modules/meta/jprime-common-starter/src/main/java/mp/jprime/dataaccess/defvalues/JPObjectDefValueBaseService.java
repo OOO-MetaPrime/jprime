@@ -56,13 +56,13 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
         if (anno == null) {
           continue;
         }
-        for (String jpClassCode : anno.jpClasses()) {
-          if (jpClassCode == null || jpClassCode.isEmpty()) {
-            continue;
-          }
-          if (JPClassesLink.UNI.equals(jpClassCode)) {
-            uniDefValues.add(defValue);
-          } else {
+        if (anno.uni()) {
+          uniDefValues.add(defValue);
+        } else {
+          for (String jpClassCode : anno.jpClasses()) {
+            if (jpClassCode == null || jpClassCode.isEmpty()) {
+              continue;
+            }
             jpObjectDefValues.computeIfAbsent(jpClassCode, x -> new ArrayList<>()).add(defValue);
           }
         }
@@ -80,7 +80,7 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
       jpObjectDefValues.put(key, filter(values));
     }
 
-    this.uniDefValues = filter(uniDefValues);
+    this.uniDefValues = uniDefValues;
     this.jpObjectDefValues = jpObjectDefValues;
   }
 

@@ -1,6 +1,6 @@
 package mp.jprime.api.rest.controllers;
 
-import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.*;
@@ -10,7 +10,6 @@ import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.files.controllers.DownloadFileRestController;
 import mp.jprime.json.beans.JsonJPObject;
-import mp.jprime.json.services.JsonMapper;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.repositories.JPFileLoader;
@@ -42,7 +41,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiMultipartCRUDController extends DownloadFileRestController implements JsonMapper {
+public class RestApiMultipartCRUDController extends DownloadFileRestController {
   /**
    * Поле в multipart запросе, содержащее json с данными для создания/удаления
    */
@@ -55,7 +54,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   /**
    * Интерфейс создания / обновления объекта
    */
-  private JPObjectRepositoryService repo;
+  private JPReactiveObjectRepositoryService repo;
   /**
    * Выгрузка файлов объекта
    */
@@ -92,7 +91,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   }
 
   @Autowired
-  private void setRepo(JPObjectRepositoryService repo) {
+  private void setRepo(JPReactiveObjectRepositoryService repo) {
     this.repo = repo;
   }
 

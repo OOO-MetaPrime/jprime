@@ -6,6 +6,8 @@ import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsDynamicLoader;
 import mp.jprime.metamaps.annotations.services.JPMapsAnnoLoader;
 import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
+import mp.jprime.repositories.JPStorage;
+import mp.jprime.repositories.services.RepositoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -30,6 +32,10 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
    * Динамическая загрузка меты
    */
   private JPMapsDynamicLoader dynamicLoader;
+  /**
+   * Описания хранилищ
+   */
+  private RepositoryStorage repoStorage;
 
   /**
    * Размещает метаописание в хранилище
@@ -42,6 +48,11 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
     Flux.concat(p)
         .filter(Objects::nonNull)
         .subscribe(this::applyJPClassMap);
+  }
+
+  @Autowired
+  private void setRepoStorage(RepositoryStorage repoStorage) {
+    this.repoStorage = repoStorage;
   }
 
   @Autowired(required = false)
@@ -112,7 +123,16 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
   @Override
   public JPClassMap get(@NonNull JPClass jpClass) {
     Map<String, JPClassMap> storages = maps.get(jpClass.getCode());
-    return storages != null ? storages.values().iterator().next() : null;
+    if (storages == null) {
+      return null;
+    }
+    for (JPClassMap map : storages.values()) {
+      JPStorage storage = repoStorage.getStorage(map.getStorage());
+      if (storage != null) {
+        return map;
+      }
+    }
+    return null;
   }
 
   @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.meta.events.JPMetaChangeEvent).CODE)")

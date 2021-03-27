@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public final class JPMutableData {
   private final Map<String, Object> dataMap;
@@ -83,6 +84,18 @@ public final class JPMutableData {
    */
   public <T> T put(String key, Object value) {
     return (T) dataMap.put(key, value);
+  }
+
+
+  /**
+   * Сохраняет данные
+   *
+   * @param key   Ключ
+   * @param mappingFunction Вычисление значения
+   * @return Значение
+   */
+  public <T> T computeIfAbsent(String key, Function<String, ? extends Object> mappingFunction) {
+    return (T) dataMap.computeIfAbsent(key, mappingFunction);
   }
 
   /**

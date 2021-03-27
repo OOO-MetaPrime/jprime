@@ -51,12 +51,8 @@ public class JPMapsAnnoLoader implements JPMapsLoader {
       if (cls == null) {
         continue;
       }
+
       JPAttrMap[] attrs = cls.attrs();
-      if (attrs.length == 0) {
-        continue;
-      }
-
-
       Collection<mp.jprime.metamaps.JPAttrMap> newAttrs = new ArrayList<>(attrs.length);
       for (JPAttrMap attr : attrs) {
         newAttrs.add(JPAttrMapBean.newBuilder()

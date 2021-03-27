@@ -13,6 +13,7 @@
 				<code>name</code>
 				<type>string</type>
 				<qName>jpClass.className1.PersonalCard.name</qName>
+        <identifier>true</identifier>
 				<description>Имя гражданина</description>
 			</jpAttr>
 			<jpAttr>
@@ -41,29 +42,6 @@
       </jpAttr>
 		</jpAttrs>
 	</jpClass>
-	<jpClass>
-		<guid>92566524-c57b-4656-be9b-4357bc56ea08</guid>
-		<code>personalCard</code>
-		<pluralCode>personalCards</pluralCode>
-		<qName>jpClass.className1.PersonalCard</qName>
-		<description>Личное дело содержит сведения, предоставляемые гражданином в процессе обращения в ОСЗН; сведения, поступающие из внешних организаций; сведения, формируемые непосредственно в ОСЗН</description>
-		<jpAttrs>
-			<jpAttr>
-				<guid>3e4cc29e-9ab4-4cce-86ff-9d4f9a42d923</guid>
-				<code>name</code>
-				<type>string</type>
-				<qName>jpClass.className1.PersonalCard.name</qName>
-				<description>Имя гражданина</description>
-			</jpAttr>
-			<jpAttr>
-				<guid>120a6804-b77c-4047-941f-0be44e41cb65</guid>
-				<code>birthDate</code>				
-				<type>date</type>
-				<qName>jpClass.className1.PersonalCard.birthDate</qName>
-				<description>Дата рождения гражданина</description>
-			</jpAttr>
-		</jpAttrs>
-	</jpClass>	
 </jpClasses>
 
 

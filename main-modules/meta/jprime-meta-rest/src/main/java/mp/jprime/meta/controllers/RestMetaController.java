@@ -1,8 +1,6 @@
 package mp.jprime.meta.controllers;
 
-import mp.jprime.meta.JPAttr;
-import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPFile;
+import mp.jprime.meta.*;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.*;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -16,6 +14,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -25,15 +24,20 @@ public class RestMetaController {
   /**
    * Хранилище метаинформации
    */
-  private JPMetaStorage metaStorage;
-
+  private JPMetaStorage jpMetaStorage;
   /**
-   * Конструктор
-   *
-   * @param metaStorage Хранилище метаинформации
+   * Фильтр меты
    */
-  public RestMetaController(@Autowired JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private JPMetaFilter jpMetaFilter;
+
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
+  }
+
+  @Autowired
+  private void setJpMetaStorage(JPMetaStorage jpMetaStorage) {
+    this.jpMetaStorage = jpMetaStorage;
   }
 
   @ResponseBody
@@ -41,8 +45,8 @@ public class RestMetaController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClass> getClass(@PathVariable("classCode") String classCode) {
-    JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-    if (jpClass == null || jpClass.isInner()) {
+    JPClass jpClass = jpMetaStorage.getJPClassByCode(classCode);
+    if (!jpMetaFilter.filter(jpClass)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return Mono.just(toJson(jpClass));
@@ -52,13 +56,10 @@ public class RestMetaController {
   @GetMapping(value = "/jpClasses", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClassList> getClassList() {
-    Collection<JPClass> classes = metaStorage.getJPClasses();
-    if (classes == null) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    List<JsonJPClass> list = classes
+    Collection<JPClass> classes = jpMetaStorage.getJPClasses();
+    List<JsonJPClass> list = classes == null || classes.isEmpty() ? Collections.emptyList() : classes
         .stream()
-        .filter(x -> !x.isInner())
+        .filter(jpClass -> jpMetaFilter.filter(jpClass))
         .map(this::toJson)
         .collect(Collectors.toList());
     return Mono.just(JsonJPClassList.newBuilder()
@@ -71,10 +72,10 @@ public class RestMetaController {
   @ResponseBody
   @GetMapping(value = "/attrTypes",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.meta.security.Role).META_ADMIN)")
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Flux<JsonType> getAttrTypes() {
     return Flux.fromArray(JPType.values())
-        .filter(x-> x != JPType.NONE)
+        .filter(x -> x != JPType.NONE)
         .map(x -> new JsonType(x.getCode(), x.getTitle()));
   }
 
@@ -122,6 +123,30 @@ public class RestMetaController {
                 .dateAttr(jpFile.getFileDateAttrCode())
                 .build()
         )
+        .schemaProps(toJsonJPProperty(jpAttr.getSchemaProps()))
         .build();
   }
+
+  private Collection<JsonJPProperty> toJsonJPProperty(Collection<JPProperty> properties) {
+    return properties == null ? null :
+        properties.stream().map(this::toJsonJPProperty).collect(Collectors.toList());
+  }
+
+  private JsonJPProperty toJsonJPProperty(JPProperty property) {
+    return JsonJPProperty.builder()
+        .code(property.getCode())
+        .type(property.getType() == null ? null : property.getType().getCode())
+        .length(property.getLength())
+        .multiple(property.isMultiple())
+        .mandatory(property.isMandatory())
+        .name(property.getName())
+        .shortName(property.getShortName())
+        .description(property.getDescription())
+        .qName(property.getQName())
+        .refJpClassCode(property.getRefJpClassCode())
+        .refJpAttrCode(property.getRefJpAttrCode())
+        .schemaProps(toJsonJPProperty(property.getSchemaProps()))
+        .build();
+  }
+
 }

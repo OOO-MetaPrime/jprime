@@ -185,18 +185,27 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
   }
 
   private Filter getFilter(Collection<Policy> policies) {
+    // Признак использования фильтра (отключаем, если нет ограниченмя по атрибуту)
+    boolean useFilters = true;
+
     Map<JPAccessType, Map<String, Collection<CollectionCond<String>>>> allValues = new HashMap<>();
-    policies.stream()
-        .map(Policy::getResourceRules)
-        .filter(Objects::nonNull)
-        .forEach(list ->
-            list.forEach(cond -> {
+    for (Policy policy : policies) {
+      if (policy.getResourceRules().isEmpty()) {
+        useFilters = false;
+      } else {
+        policy.getResourceRules()
+            .forEach(cond -> {
               allValues
                   .computeIfAbsent(cond.getEffect(), map -> new HashMap<>())
                   .computeIfAbsent(cond.getAttrCode(), v -> new ArrayList<>())
                   .add(cond.getCond());
-            })
-        );
+            });
+      }
+    }
+
+    if (!useFilters) {
+      return null;
+    }
 
     Collection<Filter> filters = new ArrayList<>();
     for (Map.Entry<JPAccessType, Map<String, Collection<CollectionCond<String>>>> entryType : allValues.entrySet()) {

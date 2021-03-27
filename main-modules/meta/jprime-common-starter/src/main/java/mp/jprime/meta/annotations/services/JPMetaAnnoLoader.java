@@ -1,21 +1,25 @@
 package mp.jprime.meta.annotations.services;
 
+import mp.jprime.beans.PropertyType;
+import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.meta.JPMetaLoader;
-import mp.jprime.meta.annotations.JPClass;
+import mp.jprime.meta.JPProperty;
 import mp.jprime.meta.annotations.JPAttr;
+import mp.jprime.meta.annotations.JPClass;
 import mp.jprime.meta.annotations.JPFile;
-import mp.jprime.meta.beans.JPAttrBean;
-import mp.jprime.meta.beans.JPClassBean;
-import mp.jprime.meta.beans.JPFileBean;
-import mp.jprime.meta.beans.JPType;
+import mp.jprime.meta.annotations.JPPropertySchema;
+import mp.jprime.meta.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Загрузка метаинформации по аннотациям
@@ -61,6 +65,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
       Collection<mp.jprime.meta.JPAttr> newAttrs = new ArrayList<>(attrs.length);
       for (JPAttr attr : attrs) {
         JPFile jpFile = attr.refJpFile();
+        Map<String, JPPropertySchema> schemas = getSchemas(attr.schemaProps());
         newAttrs.add(JPAttrBean.newBuilder()
             .guid(attr.guid())
             .type(attr.type().getCode())
@@ -77,8 +82,10 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .refJpClassCode(attr.refJpClass())
             .refJpAttrCode(attr.refJpAttr())
             .virtualReference(
-                attr.virtualReference(),
-                !JPType.NONE.getCode().equals(attr.virtualType().getCode()) ? attr.virtualType().getCode() : null
+                JPVirtualPathBean.newInstance(
+                    attr.virtualReference(),
+                    !JPType.NONE.getCode().equals(attr.virtualType().getCode()) ? attr.virtualType() : null
+                )
             )
             .refJpFile(
                 jpFile.storageCode().isEmpty() || jpFile.storageFilePath().isEmpty() ? null :
@@ -93,6 +100,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
                         .fileDateAttrCode(jpFile.fileDateAttrCode())
                         .build()
             )
+            .schemaProps(toJPProperty(attr.jpProps(), schemas))
             .build()
         );
       }
@@ -111,5 +119,43 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
           .build();
       sink.next(newCls);
     }
+  }
+
+  private Collection<JPProperty> toJPProperty(mp.jprime.meta.annotations.JPProperty[] schemaProps,
+                                              Map<String, JPPropertySchema> schemas) {
+    if (schemaProps == null || schemaProps.length == 0) {
+      return null;
+    }
+    return Arrays.stream(schemaProps).map(p -> toJPProperty(p, schemas)).collect(Collectors.toList());
+  }
+
+  private JPProperty toJPProperty(mp.jprime.meta.annotations.JPProperty property,
+                                  Map<String, JPPropertySchema> schemas) {
+    JPPropertyBean.Builder jpProp = JPPropertyBean.builder()
+        .code(property.code())
+        .type(property.type())
+        .length(property.length())
+        .multiple(property.multiple())
+        .mandatory(property.mandatory())
+        .name(property.name())
+        .shortName(property.shortName())
+        .description(property.description())
+        .qName(property.qName())
+        .refJpClassCode(property.refJpClass())
+        .refJpAttrCode(property.refJpAttr());
+    if (PropertyType.ELEMENT.equals(property.type())) {
+      JPPropertySchema schema = schemas.get(property.schemaCode());
+      if (schema == null) {
+        throw new JPRuntimeException("Invalid property schema code: '" + property.schemaCode() + '\'' +
+            " in the JPProperty{code='" + property.code() + "', qName='" + property.qName() + "'}");
+      }
+      jpProp.schemaProps(toJPProperty(schema.jpProps(), schemas));
+    }
+    return jpProp.build();
+  }
+
+  private Map<String, JPPropertySchema> getSchemas(JPPropertySchema[] schemas) {
+    return Arrays.stream(schemas)
+        .collect(Collectors.toMap(JPPropertySchema::code, s -> s));
   }
 }

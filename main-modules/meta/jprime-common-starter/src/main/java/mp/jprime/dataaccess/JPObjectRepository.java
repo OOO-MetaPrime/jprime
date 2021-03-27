@@ -4,69 +4,61 @@ import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Интерфейс создания/изменения объекта
  */
-public interface JPObjectRepository {
+public interface JPObjectRepository extends JPReactiveObjectRepository {
   /**
    * Возвращает объект
    *
-   * @param select Параметры для выборки
+   * @param query Параметры для выборки
    * @return Объект
    */
-  default Mono<JPObject> getAsyncObject(JPSelect select) {
-    return getAsyncList(select).singleOrEmpty();
-  }
-
-  /**
-   * Возвращает объект
-   *
-   * @param select Параметры для выборки
-   * @return Объект
-   */
-  default JPObject getObject(JPSelect select) {
-    Collection<JPObject> result = getList(select);
+  default JPObject getObject(JPSelect query) {
+    Collection<JPObject> result = getList(query);
     return result != null && !result.isEmpty() ? result.iterator().next() : null;
   }
 
   /**
-   * Возвращает количество объектов, удовлетворяющих выборке
+   * Возвращает optional результата запроса
    *
    * @param select Параметры для выборки
-   * @return Количество в выборке
+   * @return optional
    */
-  default Mono<Long> getAsyncTotalCount(JPSelect select) {
-    return Mono.fromCallable(() -> getTotalCount(select));
+  default Optional<JPObject> getOptionalObject(JPSelect select) {
+    return Optional.ofNullable(getObject(select));
   }
 
   /**
    * Возвращает количество объектов, удовлетворяющих выборке
    *
-   * @param select Параметры для выборки
+   * @param query Параметры для выборки
    * @return Количество в выборке
    */
-  Long getTotalCount(JPSelect select);
+  default Mono<Long> getAsyncTotalCount(JPSelect query) {
+    return Mono.fromCallable(() -> getTotalCount(query));
+  }
+
+  /**
+   * Возвращает количество объектов, удовлетворяющих выборке
+   *
+   * @param query Параметры для выборки
+   * @return Количество в выборке
+   */
+  Long getTotalCount(JPSelect query);
 
   /**
    * Возвращает список объектов
    *
-   * @param select Параметры для выборки
+   * @param query Параметры для выборки
    * @return Список объектов
    */
-  Flux<JPObject> getAsyncList(JPSelect select);
-
-  /**
-   * Возвращает список объектов
-   *
-   * @param select Параметры для выборки
-   * @return Список объектов
-   */
-  <T extends JPObject> Collection<T> getList(JPSelect select);
+  <T extends JPObject> Collection<T> getList(JPSelect query);
 
   /**
    * Создает объект

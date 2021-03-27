@@ -22,6 +22,6 @@ public class JPBrokenTokenException extends JPSecurityException {
    * @param message сообщение
    */
   public JPBrokenTokenException(String message) {
-    super(message);
+    super("brokentoken", message);
   }
 }

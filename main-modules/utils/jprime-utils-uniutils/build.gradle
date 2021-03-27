@@ -1,0 +1,11 @@
+dependencies {
+  api project(":jprime-utils-starter")
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}

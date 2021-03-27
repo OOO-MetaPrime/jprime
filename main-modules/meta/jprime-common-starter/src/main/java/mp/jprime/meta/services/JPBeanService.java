@@ -24,6 +24,17 @@ public interface JPBeanService {
   /**
    * Создает объект
    *
+   * @param jpClass Метаописание класса
+   * @param jpData  Данные объекта
+   * @return Новый объект
+   */
+  default JPObject newInstance(JPClass jpClass, JPData jpData) {
+    return newInstance(jpClass, jpData, null);
+  }
+
+  /**
+   * Создает объект
+   *
    * @param jpClass      Метаописание класса
    * @param jpData       Данные объекта
    * @param jpLinkedData Данные связанных объектов

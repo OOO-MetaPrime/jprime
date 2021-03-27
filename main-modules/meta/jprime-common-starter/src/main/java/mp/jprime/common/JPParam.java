@@ -9,6 +9,14 @@ import java.util.Collection;
  */
 public interface JPParam {
   /**
+   * кодовое имя метакласса корневого объекта
+   */
+  String ROOT_OBJECT_CLASS_CODE = "rootObjectClassCode";
+  /**
+   * идентификатор корневого объекта
+   */
+  String ROOT_OBJECT_ID = "rootObjectId";
+  /**
    * кодовое имя метакласса объекта/ов
    */
   String OBJECT_CLASS_CODE = "objectClassCode";
@@ -16,6 +24,10 @@ public interface JPParam {
    * идентификатор или идентификаторы объектов через запятую, в случае списка
    */
   String OBJECT_IDS = "objectIds";
+  /**
+   * Фильтр
+   */
+  String OBJECT_JP_FILTER = "objectJpFilter";
 
   /**
    * Кодовое имя атрибута

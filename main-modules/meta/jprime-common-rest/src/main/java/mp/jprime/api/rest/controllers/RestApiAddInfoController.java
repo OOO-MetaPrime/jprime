@@ -6,7 +6,6 @@ import mp.jprime.dataaccess.addinfos.JPObjectAddInfoService;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonAddInfo;
 import mp.jprime.json.beans.JsonIdentityData;
-import mp.jprime.json.services.JsonMapper;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -24,7 +23,7 @@ import reactor.core.publisher.Flux;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiAddInfoController implements JsonMapper {
+public class RestApiAddInfoController {
   /**
    * Заполнение запросов на основе JSON
    */

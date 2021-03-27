@@ -199,6 +199,37 @@
 | virtualReference | Путь виртуальной ссылки |
 | virtualType | Тип виртуальной ссылки |
 | length | Длина (для строковых полей, в том числе для строковых виртуальных) |
+| jpProps | Свойства псевдо-меты |
+| schemaProps | Схемы вложенных свойств псевдо-меты |
+
+Описание свойства псевдо-меты ``JPProperty``
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| code | Кодовое имя свойства |
+| qName | Полный код свойства |
+| name | Название свойства |
+| shortName | Короткое название свойства |
+| description | Описание свойства |
+| mandatory | Признак обязательности |
+| multiple | Признак множественности |
+| type | Тип свойства |
+| length | Длина (для строковых полей, в том числе для строковых виртуальных) |
+| refJpClass | Кодовое имя класса, на который ссылается |
+| refJpAttr | Кодовое имя атрибута ссылочного класса |
+| schemaCode | Код схемы, описывающей структуру свойства |
+
+Описание схемы свойств псевдо-меты ``JPPropertySchema``
+
+| Свойство     | Описание  |
+| ------------- | ------------------ | 
+| code | Кодовое имя свойства |
+| jpProps | Свойства псевдо-меты |
+
+* При описании свойства ``JPProperty`` с типом ``ELEMENT`` необходимо так же описать его схему в свойстве ``schemaProps``
+у ``@JPAttr`` с помощью ``@JPPropertySchema`` и указать код этой схемы в поле ``schemaCode`` аннотации ``JPProperty``
+
+* Схемы свойств можно переиспользовать в пределах одного атрибута.
 
 ### Способы описания меты
 
@@ -226,6 +257,41 @@
             name = "Гуид события",
             shortName = null,
             description = null            
+        ),
+        @JPAttr(
+            guid = "a6f40c06-e41f-4003-a4df-a72d304adc7d",
+            code = "event",
+            type = JPType.JSON,
+            qName = "common.userevent.event",
+            name = "JSON-описание события",
+            shortName = null,
+            description = null,
+            jpProps = {
+                @JPProperty(
+                    code = "event_desc",
+                    type = PropertyType.ELEMENT,
+                    qName = "common.userevent.prop",
+                    name = "JSON-описание события",
+                    shortName = null,
+                    description = null,
+                    schemaCode = "test_schema"
+                )
+            },
+            schemaProps = {
+                @JPPropertySchema(
+                    code = "test_schema",
+                    jpProps = {
+                        @JPProperty(
+                            code = "event_string",
+                            type = PropertyType.STRING,
+                            qName = "common.userevent.string",
+                            name = "поле-описание события",
+                            shortName = null,
+                            description = null
+                        )
+                    }
+                )
+            }         
         )
     }
 )
@@ -253,11 +319,40 @@
         <identifier>true</identifier>
         <qName>common.userevent.eventGuid</qName>
         <name>Гуид события</name>
+        <jpProps>
+          <jpProperty>
+            <code>testprop</code>
+            <name>Test Prop</name>
+            <qName>egu.eguApplication.jsonattr.jsonprop</qName>
+            <type>element</type>
+            <jpProps>
+              <jpProperty>
+                <code>innertestprop</code>
+                <name>Inner Test Prop</name>
+                <qName>egu.eguApplication.jsonattr.injsonprop</qName>
+                <type>string</type>
+              </jpProperty>
+            </jpProps>
+          </jpProperty>
+        </jpProps>
       </jpAttr>
     </jpAttrs>
   </jpClass>
 </jpClasses>      
 ```
+
+### Типовые атрибуты
+
+В JPrime существует набор системных зарезервированных кодовых имен атрибутов
+
+| Кодовое имя атрибута     | Описание  | Примечание  |
+| ------------- | ------------------ |  ------------------ | 
+| userOwnerId |Пользователь, создавший объект | Заполняется userId при создании |
+| creationDate | Дата создания | Заполняется датой создания |
+| userEditorId | Пользователь, изменивший объект | Заполняется userId при создании и изменении |
+| changeDate | Дата редактирования | Заполняется датой создания и изменения |
+| jpPackage | Настройка доступа к объекту | Содержит код настройки доступа к объекту |
+
 
 ## Описание маппинга
 
@@ -823,7 +918,7 @@ public class UsersBean extends JPObject {
 
 При наличии в любом классе атрибута, ссылающегося на users, при получении объекта этого класса, всегда будет дополнительно заполнятся linkedData
 
-```
+```json
 {
     "id": 9970000303,
     "classCode": "companyJobFair",
@@ -845,11 +940,15 @@ public class UsersBean extends JPObject {
 
 ## Валидаторы
 
-Перед действиями над объектами есть возможность произвести проверки с помощью валидаторов `mp.jprime.dataaccess.validators.JPClassValidator`
+Перед действиями над объектами есть возможность произвести проверки с помощью валидаторов:
+ 
+* `mp.jprime.dataaccess.validators.JPClassValidator` для обычного использования
+* `mp.jprime.dataaccess.validators.JPReactiveClassValidator` для реактивного кода
+
 
 Вызов валидатора происходит перед всеми остальными действиями и по-умолчанию производится перед открытием транзации (если она не была принудительно открыта ранее)
 
-### Реализация валидатора
+### Реализация валидатора на примере jprime.dataaccess.validators.JPClassValidator
 
 Валидатор реализует указанный выше интерфейс, обычно является наследником класса `mp.jprime.dataaccess.validators.JPClassValidatorBase` и применяется к объектам класса, указанных в аннотации `JPClassesLink`
 
@@ -981,19 +1080,24 @@ public class TestObjectAddInfo implements JPObjectAddInfo {
 
 ## Хендлера операций над объектами
 
-Хендлер над операциями CRUD предоставляет собой реализацию интерфейса `JPClassHandler` и позволяет обработать следущие события
+Хендлер над операциями CRUD предоставляет собой реализацию интерфейса:
+
+* `mp.jprime.dataaccess.handlers.JPClassHandler` для обычного использования
+* `mp.jprime.dataaccess.handlers.JPReactiveClassHandler` для реактивного кода
+
+ и позволяет обработать следущие события
 ```
-  void beforeCreate(JPCreate query);
+  beforeCreate(JPCreate query);
 
-  void beforeUpdate(JPUpdate query);
+  beforeUpdate(JPUpdate query);
 
-  void afterCreate(Comparable newObjectId, JPCreate query);
+  afterCreate(Comparable newObjectId, JPCreate query);
 
-  void afterUpdate(JPUpdate query);
+  afterUpdate(JPUpdate query);
 
-  void beforeDelete(JPDelete query);
+  beforeDelete(JPDelete query);
 
-  void afterDelete(JPDelete query);
+  afterDelete(JPDelete query);
 ```
  
 ### Связь java-хендлера и метаописания класса
@@ -1013,7 +1117,7 @@ public class PersBookHandler extends JPClassHandlerBase {
 
 ```
 @JPClassesLink(
-    jpClasses = {"*"}
+   uni = true
 )
 public class CommonHandler extends JPClassHandlerBase {
   ...
@@ -1098,7 +1202,7 @@ public class CommonHandler extends JPClassHandlerBase {
 
 Пример:
 
-```
+```json
 {
     "totalCount": true,
     "offset": 0,

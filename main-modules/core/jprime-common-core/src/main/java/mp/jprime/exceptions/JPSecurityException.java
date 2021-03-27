@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
  * Ошибка безопасности
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)
-public abstract class JPSecurityException extends JPRuntimeException {
+public abstract class JPSecurityException extends JPAppRuntimeException {
 
   /**
    * Создание исключительной ситуации без параметров
@@ -19,9 +19,10 @@ public abstract class JPSecurityException extends JPRuntimeException {
   /**
    * Создание исключительной ситуации с сообщением об ошибке
    *
-   * @param message сообщение
+   * @param messageCode Код ошибки
+   * @param message     Ошибка
    */
-  public JPSecurityException(String message) {
-    super(message);
+  public JPSecurityException(String messageCode, String message) {
+    super(messageCode, message);
   }
 }

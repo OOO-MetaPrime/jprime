@@ -77,3 +77,11 @@ gradlew idea
 ```
 gradlew build
 ```
+
+## Настройки
+
+| Код     | Описание
+| ------------- |------------------
+| spring.application.name |  имя сервиса
+| jprime.publickey.name | Имя файла с публичным ключом в cert папке
+| eureka.client.service-url.default-zone | урл до сервера eureka (discovery service)

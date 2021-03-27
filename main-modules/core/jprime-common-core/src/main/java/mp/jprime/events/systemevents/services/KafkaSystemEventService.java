@@ -3,7 +3,7 @@ package mp.jprime.events.systemevents.services;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.events.systemevents.json.services.JsonJPSystemEventConvertor;
-import mp.jprime.json.services.KafkaJsonMapper;
+import mp.jprime.json.services.JPKafkaJsonMapper;
 import mp.jprime.events.systemevents.JPSystemEvent;
 import mp.jprime.events.systemevents.json.JsonJPSystemEvent;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
@@ -19,6 +19,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
@@ -32,9 +33,10 @@ import java.util.Map;
 import java.util.UUID;
 
 @EnableKafka
+@Lazy(value = false)
 @Configuration
 @ConditionalOnProperty(value = "jprime.events.systemevents.kafka.enabled", havingValue = "true")
-public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPublisher {
+public class KafkaSystemEventService implements SystemEventPublisher {
   private static final Logger LOG = LoggerFactory.getLogger(KafkaSystemEventService.class);
 
   @Value("${jprime.events.systemevents.kafka.kafkaServers:}")
@@ -47,6 +49,13 @@ public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPubl
   private ApplicationEventPublisher eventPublisher;
 
   private JsonJPSystemEventConvertor jsonJPSystemEventConvertor;
+
+  private JPKafkaJsonMapper jpKafkaJsonMapper;
+
+  @Autowired
+  private void setJPKafkaJsonMapper(JPKafkaJsonMapper jpKafkaJsonMapper) {
+    this.jpKafkaJsonMapper = jpKafkaJsonMapper;
+  }
 
   @Autowired
   private void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
@@ -141,10 +150,10 @@ public class KafkaSystemEventService implements KafkaJsonMapper, SystemEventPubl
 
 
   private String toJSON(JPSystemEvent event) throws JsonProcessingException {
-    return KAFKA_OBJECT_MAPPER.writeValueAsString(jsonJPSystemEventConvertor.toJsonJPSystemEvent(event));
+    return jpKafkaJsonMapper.getObjectMapper().writeValueAsString(jsonJPSystemEventConvertor.toJsonJPSystemEvent(event));
   }
 
   private JPSystemEvent toEvent(String string) throws IOException, SecurityException {
-    return jsonJPSystemEventConvertor.toJPSystemEvent(KAFKA_OBJECT_MAPPER.readValue(string, JsonJPSystemEvent.class));
+    return jsonJPSystemEventConvertor.toJPSystemEvent(jpKafkaJsonMapper.getObjectMapper().readValue(string, JsonJPSystemEvent.class));
   }
 }

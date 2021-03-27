@@ -4,14 +4,14 @@ import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.filters.And;
 import mp.jprime.json.beans.*;
 import mp.jprime.json.services.QueryService;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -19,7 +19,10 @@ import java.util.HashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@RunWith(SpringRunner.class)
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration()
 public class QueryTest {
   private static final JsonQuery query;
@@ -29,6 +32,7 @@ public class QueryTest {
   @Autowired
   private QueryService queryService;
 
+  @Lazy(value = false)
   @Configuration
   @ComponentScan("mp.jprime.json.services")
   public static class Config {
@@ -66,30 +70,30 @@ public class QueryTest {
 
     JsonQuery newQuery = queryService.getQuery(json);
 
-    Assert.assertNotNull(newQuery);
-    Assert.assertNotNull(newQuery.getAttrs());
-    Assert.assertNotNull(newQuery.getFilter());
-    Assert.assertNotNull(newQuery.getFilter().getAnd());
-    Assert.assertNotNull(newQuery.getOrders());
-    Assert.assertEquals(4, newQuery.getAttrs().size());
-    Assert.assertEquals(4, newQuery.getLinkAttrs().size());
-    Assert.assertEquals(7, newQuery.getFilter().getAnd().size());
-    Assert.assertEquals(2, newQuery.getOrders().size());
+    assertNotNull(newQuery);
+    assertNotNull(newQuery.getAttrs());
+    assertNotNull(newQuery.getFilter());
+    assertNotNull(newQuery.getFilter().getAnd());
+    assertNotNull(newQuery.getOrders());
+    assertEquals(4, newQuery.getAttrs().size());
+    assertEquals(4, newQuery.getLinkAttrs().size());
+    assertEquals(7, newQuery.getFilter().getAnd().size());
+    assertEquals(2, newQuery.getOrders().size());
   }
 
   @Test
   public void testJpSelectCreator() {
     JPSelect jpSelect = queryService.getSelect("test", query, null).build();
 
-    Assert.assertNotNull(jpSelect);
+    assertNotNull(jpSelect);
 
-    Assert.assertNotNull(jpSelect);
-    Assert.assertNotNull(jpSelect.getAttrs());
-    Assert.assertNotNull(jpSelect.getWhere());
-    Assert.assertNotNull(((And) jpSelect.getWhere()).getFilters());
-    Assert.assertNotNull(jpSelect.getOrderBy());
-    Assert.assertEquals(4, jpSelect.getAttrs().size());
-    Assert.assertEquals(7, ((And) jpSelect.getWhere()).getFilters().size());
-    Assert.assertEquals(2, jpSelect.getOrderBy().size());
+    assertNotNull(jpSelect);
+    assertNotNull(jpSelect.getAttrs());
+    assertNotNull(jpSelect.getWhere());
+    assertNotNull(((And) jpSelect.getWhere()).getFilters());
+    assertNotNull(jpSelect.getOrderBy());
+    assertEquals(4, jpSelect.getAttrs().size());
+    assertEquals(7, ((And) jpSelect.getWhere()).getFilters().size());
+    assertEquals(2, jpSelect.getOrderBy().size());
   }
 }

@@ -12,7 +12,7 @@ public class JPRunRightException extends JPSecurityException {
   private final String classCode;
 
   public JPRunRightException(String classCode) {
-    super(classCode + " no run permission");
+    super(classCode + ".run.denied", classCode + " no run permission");
     this.classCode = classCode;
   }
 

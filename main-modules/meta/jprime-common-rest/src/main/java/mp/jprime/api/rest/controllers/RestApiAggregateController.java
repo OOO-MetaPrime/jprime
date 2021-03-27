@@ -5,7 +5,6 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonAggregateResult;
-import mp.jprime.json.services.JsonMapper;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -23,7 +22,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiAggregateController implements JsonMapper {
+public class RestApiAggregateController {
   /**
    * Заполнение запросов на основе JSON
    */

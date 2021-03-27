@@ -1,13 +1,13 @@
 package mp.jprime.meta.xmlloader.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import mp.jprime.beans.PropertyType;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaLoader;
-import mp.jprime.meta.beans.JPAttrBean;
-import mp.jprime.meta.beans.JPClassBean;
-import mp.jprime.meta.beans.JPFileBean;
+import mp.jprime.meta.JPProperty;
+import mp.jprime.meta.beans.*;
 import mp.jprime.meta.xmlloader.beans.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +19,13 @@ import reactor.core.publisher.FluxSink;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Загрузка метаинформации из xml
@@ -95,7 +99,11 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .jpClassCode(cls.getGuid())
                   .refJpClassCode(attr.getRefJpClass())
                   .refJpAttrCode(attr.getRefJpAttr())
-                  .virtualReference(attr.getVirtualReference(), attr.getVirtualType())
+                  .virtualReference(
+                      JPVirtualPathBean.newInstance(
+                          attr.getVirtualReference(), attr.getVirtualType()
+                      )
+                  )
                   .refJpFile(
                       jpFile == null || jpFile.getStorageCode() == null || jpFile.getStorageFilePath() == null ||
                           jpFile.getStorageCode().isEmpty() || jpFile.getStorageFilePath().isEmpty() ? null :
@@ -110,6 +118,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                               .fileDateAttrCode(jpFile.getFileDateAttrCode())
                               .build()
                   )
+                  .schemaProps(toJPProperty(attr.getSchemaProps()))
                   .build());
             }
             String name = cls.getName();
@@ -139,4 +148,30 @@ public class JPMetaXmlLoader implements JPMetaLoader {
       throw JPRuntimeException.wrapException(e);
     }
   }
+
+  private Collection<JPProperty> toJPProperty(XmlJpProps schemaProps) {
+    if (schemaProps != null && schemaProps.getJpProperties() != null) {
+      return Arrays.stream(schemaProps.getJpProperties()).map(this::toJPProperty).collect(Collectors.toList());
+    } else {
+      return null;
+    }
+  }
+
+  private JPProperty toJPProperty(XmlJpProperty property) {
+    return JPPropertyBean.builder()
+        .code(property.getCode())
+        .type(PropertyType.getType(property.getType()))
+        .length(property.getLength())
+        .multiple(property.isMultiple())
+        .mandatory(property.isMandatory())
+        .name(property.getName())
+        .shortName(property.getShortName())
+        .description(property.getDescription())
+        .qName(property.getqName())
+        .refJpClassCode(property.getRefJpClassCode())
+        .refJpAttrCode(property.getRefJpAttrCode())
+        .schemaProps(toJPProperty(property.getSchemaProps()))
+        .build();
+  }
+
 }

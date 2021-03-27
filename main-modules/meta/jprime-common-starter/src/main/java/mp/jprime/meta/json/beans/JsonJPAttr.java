@@ -1,6 +1,10 @@
 package mp.jprime.meta.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Collection;
+import java.util.Collections;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonJPAttr {
@@ -60,15 +64,19 @@ public class JsonJPAttr {
    * Настройки файлового атрибута
    */
   private JsonJPFile refJpFile;
+  /**
+   * Схема свойств псевдо-меты
+   */
+  @JsonProperty(value = "jpProps")
+  private Collection<JsonJPProperty> schemaProps;
 
   public JsonJPAttr() {
 
   }
 
-  private JsonJPAttr(String guid, String code, String qName,
-                     String name, String shortName, String description,
-                     String jpPackage, boolean identifier, boolean mandatory,
-                     String type, Integer length, String refJpClass, String refJpAttr, JsonJPFile refJpFile) {
+  private JsonJPAttr(String guid, String code, String qName, String name, String shortName, String description,
+                     String jpPackage, boolean identifier, boolean mandatory, String type, Integer length,
+                     String refJpClass, String refJpAttr, JsonJPFile refJpFile, Collection<JsonJPProperty> schemaProps) {
     this.guid = guid;
     this.code = code;
     this.qName = qName;
@@ -83,6 +91,7 @@ public class JsonJPAttr {
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
     this.refJpFile = refJpFile;
+    this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
   }
 
   /**
@@ -211,6 +220,19 @@ public class JsonJPAttr {
     return refJpFile;
   }
 
+  public Collection<JsonJPProperty> getSchemaProps() {
+    return schemaProps;
+  }
+
+  /**
+   * Схема свойств псевдо-меты
+   *
+   * @return список свойств псевдо-меты
+   */
+  public void setSchemaProps(Collection<JsonJPProperty> schemaProps) {
+    this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
+  }
+
   /**
    * Построитель JsonJPAttr
    *
@@ -238,6 +260,7 @@ public class JsonJPAttr {
     private String refJpAttr;
     private Integer length;
     private JsonJPFile refJpFile;
+    private Collection<JsonJPProperty> schemaProps;
 
     private Builder() {
 
@@ -325,9 +348,14 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder schemaProps(Collection<JsonJPProperty> schemaProps) {
+      this.schemaProps = schemaProps;
+      return this;
+    }
+
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, length, refJpClass, refJpAttr, refJpFile);
+          type, length, refJpClass, refJpAttr, refJpFile, schemaProps);
     }
   }
 }

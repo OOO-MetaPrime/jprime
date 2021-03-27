@@ -1,6 +1,7 @@
 package mp.jprime.meta.xmlloader.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpAttr {
@@ -20,6 +21,8 @@ public class XmlJpAttr {
   private String virtualReference;
   private String virtualType;
   private XmlJpFile refJpFile;
+  @JacksonXmlProperty(localName = "jpProps")
+  private XmlJpProps schemaProps;
 
   public String getGuid() {
     return guid;
@@ -149,6 +152,14 @@ public class XmlJpAttr {
     this.refJpFile = refJpFile;
   }
 
+  public XmlJpProps getSchemaProps() {
+    return schemaProps;
+  }
+
+  public void setSchemaProps(XmlJpProps schemaProps) {
+    this.schemaProps = schemaProps;
+  }
+
   @Override
   public String toString() {
     return "XmlJpAttr{" +
@@ -168,6 +179,7 @@ public class XmlJpAttr {
         ", virtualReference='" + virtualReference + '\'' +
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
+        ", schemaProps=" + schemaProps +
         '}';
   }
 }

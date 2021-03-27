@@ -2,8 +2,11 @@ package mp.jprime.meta.beans;
 
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPFile;
+import mp.jprime.meta.JPProperty;
 import mp.jprime.meta.JPVirtualPath;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -32,11 +35,12 @@ public final class JPAttrBean implements JPAttr {
   private final String refJpAttrCode;
   private final JPFile refJpFile;
   private final JPVirtualPath virtualReference;
+  private final Collection<JPProperty> schemaProps;
 
   private JPAttrBean(String jpClassCode, String guid, String code, String type, Integer length, boolean identifier,
                      boolean mandatory,
                      String name, String shortName, String description,
-                     String qName, String jpPackage,
+                     String qName, String jpPackage, Collection<JPProperty> schemaProps,
                      String refJpClassCode, String refJpAttrCode, JPFile refJpFile, JPVirtualPath virtualReference) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
@@ -51,6 +55,8 @@ public final class JPAttrBean implements JPAttr {
     this.refJpAttrCode = refJpAttrCode != null && !refJpAttrCode.isEmpty() ? refJpAttrCode : null;
     this.refJpFile = refJpFile;
     this.virtualReference = virtualReference;
+    this.schemaProps = schemaProps == null || schemaProps.isEmpty() ? null :
+        Collections.unmodifiableCollection(schemaProps);
 
     this.length = length;
     this.identifier = identifier;
@@ -231,6 +237,17 @@ public final class JPAttrBean implements JPAttr {
     return virtualReference;
   }
 
+
+  /**
+   * Схема свойств псевдо-меты
+   *
+   * @return свойства псевдо-меты
+   */
+  @Override
+  public Collection<JPProperty> getSchemaProps() {
+    return schemaProps;
+  }
+
   /**
    * Построитель JPAttr
    *
@@ -279,6 +296,7 @@ public final class JPAttrBean implements JPAttr {
     private String refJpAttrCode;
     private JPFile refJpFile;
     private JPVirtualPath virtualReference;
+    private Collection<JPProperty> schemaProps;
 
     private Builder() {
     }
@@ -290,7 +308,7 @@ public final class JPAttrBean implements JPAttr {
      */
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
-          name, shortName, description, qName, jpPackage,
+          name, shortName, description, qName, jpPackage, schemaProps,
           refJpClassCode, refJpAttrCode, refJpFile, virtualReference);
     }
 
@@ -333,19 +351,8 @@ public final class JPAttrBean implements JPAttr {
      * @param virtualReference Путь виртуальной ссылки
      * @return Builder
      */
-    public Builder virtualReference(String virtualReference, String virtualType) {
-      JPVirtualPath res = null;
-      if (virtualReference != null && !virtualReference.isEmpty()) {
-        String[] parts = virtualReference.split("\\.");
-        if (parts.length == 2) {
-          res = JPVirtualPathBean.newBuilder()
-              .refAttrCode(parts[0])
-              .targerAttrCode(parts[1])
-              .type(virtualType)
-              .build();
-        }
-      }
-      this.virtualReference = res;
+    public Builder virtualReference(JPVirtualPath virtualReference) {
+      this.virtualReference = virtualReference;
       return this;
     }
 
@@ -480,5 +487,17 @@ public final class JPAttrBean implements JPAttr {
       this.jpPackage = jpPackage;
       return this;
     }
+
+    /**
+     * Схема свойств псевдо-меты
+     *
+     * @param schemaProps Схема свойств псевдо-меты
+     * @return Builder
+     */
+    public Builder schemaProps(Collection<JPProperty> schemaProps) {
+      this.schemaProps = schemaProps;
+      return this;
+    }
+
   }
 }

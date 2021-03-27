@@ -2,29 +2,46 @@ package mp.jprime.json.services;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.enums.*;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.data.Pair;
-import mp.jprime.dataaccess.enums.*;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.*;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * Заполнение SELECT на основе REST
  */
 @Service
-public class QueryService implements JsonMapper {
+public class QueryService {
+  private JPJsonMapper jpJsonMapper;
+
+  @Autowired
+  private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
+    this.jpJsonMapper = jpJsonMapper;
+  }
+
   /**
    * Максимальное количество в выборке по-умолчанию
    */
   public static final int MAX_LIMIT = 50;
+
+  private final Function<String, String> CLASS_MAP_FUNCTION = (classCode) -> classCode;
+  private final BiFunction<String, String, String> REFCLASS_FUNCTION = (classCode, refAttrCode) -> null;
+  private final BiFunction<String, String, String> ATTR_MAP_FUNCTION = (classCode, attrCode) -> attrCode;
 
   /**
    * Создает описание выборки
@@ -37,7 +54,7 @@ public class QueryService implements JsonMapper {
       return null;
     }
     try {
-      return OBJECT_MAPPER.readValue(json, JsonQuery.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonQuery.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -54,7 +71,7 @@ public class QueryService implements JsonMapper {
       return null;
     }
     try {
-      return OBJECT_MAPPER.readValue(json, JsonAggrQuery.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonAggrQuery.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -68,7 +85,7 @@ public class QueryService implements JsonMapper {
    */
   public String toString(JsonQuery query) {
     try {
-      return OBJECT_MAPPER.writeValueAsString(query);
+      return jpJsonMapper.getObjectMapper().writeValueAsString(query);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -82,7 +99,7 @@ public class QueryService implements JsonMapper {
    */
   public String toString(JsonAggrQuery query) {
     try {
-      return OBJECT_MAPPER.writeValueAsString(query);
+      return jpJsonMapper.getObjectMapper().writeValueAsString(query);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -220,12 +237,17 @@ public class QueryService implements JsonMapper {
   /**
    * Учет агрегации
    *
-   * @param aggr агрегация
+   * @param aggr         агрегация
+   * @param classCode    Код класса
+   * @param attrCodeFunc Логика маппинга атрибута
    * @return агрегация
    */
-  private JsonAggregate toAggr(mp.jprime.dataaccess.params.query.Aggregate aggr) {
-    String alias = aggr.getAlias();
+  private JsonAggregate toAggr(mp.jprime.dataaccess.params.query.Aggregate aggr,
+                               String classCode,
+                               BiFunction<String, String, String> attrCodeFunc) {
     String attr = aggr.getAttr();
+    attr = attr != null ? attrCodeFunc.apply(classCode, attr) : null;
+    String alias = aggr.getAlias();
     AggregationOperator oper = aggr.getOperator();
     if (alias != null && attr != null && oper != null) {
       JsonAggregate json = new JsonAggregate();
@@ -244,10 +266,31 @@ public class QueryService implements JsonMapper {
    * @return Описание выборки
    */
   public JsonAggrQuery getAggrQuery(JPAggregate aggregate) {
+    return getAggrQuery(aggregate, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  }
+
+  /**
+   * Создает описание выборки агрегации
+   *
+   * @param aggregate        Описание запроса
+   * @param refClassCodeFunc Логика маппинга класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание выборки
+   */
+  public JsonAggrQuery getAggrQuery(JPAggregate aggregate,
+                                    BiFunction<String, String, String> refClassCodeFunc,
+                                    BiFunction<String, String, String> attrCodeFunc) {
+    String classCode = aggregate.getJpClass();
+
     JsonAggrQuery query = new JsonAggrQuery();
     Optional.ofNullable(aggregate.getWhere())
-        .ifPresent(x -> query.setFilter(toExp(x)));
-    query.setAggrs(aggregate.getAggrs().stream().map(this::toAggr).collect(Collectors.toList()));
+        .ifPresent(x -> query.setFilter(toExp(x, classCode, refClassCodeFunc, attrCodeFunc)));
+    query.setAggrs(
+        aggregate.getAggrs()
+            .stream()
+            .map(aggr -> toAggr(aggr, classCode, attrCodeFunc))
+            .collect(Collectors.toList())
+    );
     return query;
   }
 
@@ -258,25 +301,58 @@ public class QueryService implements JsonMapper {
    * @return Описание выборки
    */
   public JsonQuery getQuery(JPSelect select) {
+    return getQuery(select, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  }
+
+  /**
+   * Создает описание выборки
+   *
+   * @param select           Описание запроса
+   * @param refClassCodeFunc Логика маппинга класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание выборки
+   */
+  public JsonQuery getQuery(JPSelect select,
+                            BiFunction<String, String, String> refClassCodeFunc,
+                            BiFunction<String, String, String> attrCodeFunc) {
+    String classCode = select.getJpClass();
+
     JsonQuery query = new JsonQuery();
     query.setLimit(select.getLimit());
     query.setOffset(select.getOffset());
     query.setTotalCount(select.isTotalCount());
-    query.setAttrs(select.getAttrs());
-    query.setLinkAttrs(select.getAttrs()
-        .stream()
-        .collect(HashMap::new,
-            (m, v) -> {
-              Collection<String> attrs = select.getLinkAttrs(v);
-              if (attrs != null && !attrs.isEmpty()) {
-                m.put(v, StringUtils.join(attrs, ","));
-              }
-            },
-            HashMap::putAll)
+    query.setAttrs(
+        select.getAttrs()
+            .stream()
+            .map(attrCode -> attrCodeFunc.apply(classCode, attrCode))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList())
+    );
+    query.setLinkAttrs(
+        select.getAttrs()
+            .stream()
+            .collect(HashMap::new,
+                (m, linkAttr) -> {
+                  Collection<String> attrs = select.getLinkAttrs(linkAttr);
+                  if (attrs != null && !attrs.isEmpty()) {
+                    attrs = attrs.stream()
+                        .map(attrCode -> attrCodeFunc.apply(refClassCodeFunc.apply(classCode, linkAttr), attrCode))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList());
+                    m.put(attrCodeFunc.apply(classCode, linkAttr), StringUtils.join(attrs, ","));
+                  }
+                },
+                HashMap::putAll)
     );
     Optional.ofNullable(select.getWhere())
-        .ifPresent(x -> query.setFilter(toExp(x)));
-    query.setOrders(select.getOrderBy().stream().map(this::toOrder).collect(Collectors.toList()));
+        .ifPresent(x -> query.setFilter(toExp(x, classCode, refClassCodeFunc, attrCodeFunc)));
+    query.setOrders(
+        select.getOrderBy()
+            .stream()
+            .map(order -> this.toOrder(order, classCode, attrCodeFunc))
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList())
+    );
     return query;
   }
 
@@ -308,13 +384,33 @@ public class QueryService implements JsonMapper {
    * @return Expr Условие
    */
   public JsonExpr toExp(Filter filter) {
+    return toExp(filter, null, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  }
+
+  /**
+   * Учет условия
+   *
+   * @param filter           Условие
+   * @param classCode        Кодовое имя класса
+   * @param refClassCodeFunc Логика маппинга класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Expr Условие
+   */
+  public JsonExpr toExp(Filter filter,
+                        String classCode,
+                        BiFunction<String, String, String> refClassCodeFunc,
+                        BiFunction<String, String, String> attrCodeFunc) {
 
     if (filter instanceof BooleanFilter) {
       BooleanFilter c = (BooleanFilter) filter;
       if (c.getCond() == BooleanCondition.AND) {
-        return new JsonExpr().and(c.getFilters().stream().map(this::toExp).collect(Collectors.toList()));
+        return new JsonExpr().and(
+            c.getFilters().stream().map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc)).collect(Collectors.toList())
+        );
       } else if (c.getCond() == BooleanCondition.OR) {
-        return new JsonExpr().or(c.getFilters().stream().map(this::toExp).collect(Collectors.toList()));
+        return new JsonExpr().or(
+            c.getFilters().stream().map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc)).collect(Collectors.toList())
+        );
       }
     }
 
@@ -330,87 +426,96 @@ public class QueryService implements JsonMapper {
       cond = JsonCond.newFeatureCond(v.getFeatureCode());
     } else if (filter instanceof YearFilter) {
       YearFilter v = (YearFilter) filter;
+      String attrName = attrCodeFunc.apply(classCode, v.getAttrCode());
       if (v.getOper() == FilterOperation.EQ_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).eqYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).eqYear(v.getValue());
       } else if (v.getOper() == FilterOperation.GT_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gtYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gtYear(v.getValue());
       } else if (v.getOper() == FilterOperation.GTE_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gteYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gteYear(v.getValue());
       } else if (v.getOper() == FilterOperation.NEQ_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).neqYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).neqYear(v.getValue());
       } else if (v.getOper() == FilterOperation.LT_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).ltYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).ltYear(v.getValue());
       } else if (v.getOper() == FilterOperation.LTE_YEAR) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).lteYear(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).lteYear(v.getValue());
       }
     } else if (filter instanceof LocalDateDateFilter) {
       LocalDateDateFilter v = (LocalDateDateFilter) filter;
+      String attrName = attrCodeFunc.apply(classCode, v.getAttrCode());
       if (v.getOper() == FilterOperation.EQ_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).eqDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).eqDay(v.getValue());
       } else if (v.getOper() == FilterOperation.GT_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gtDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gtDay(v.getValue());
       } else if (v.getOper() == FilterOperation.GTE_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gteDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gteDay(v.getValue());
       } else if (v.getOper() == FilterOperation.NEQ_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).neqDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).neqDay(v.getValue());
       } else if (v.getOper() == FilterOperation.LT_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).ltDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).ltDay(v.getValue());
       } else if (v.getOper() == FilterOperation.LTE_DAY) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).lteDay(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).lteDay(v.getValue());
       } else if (v.getOper() == FilterOperation.EQ_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).eqMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).eqMonth(v.getValue());
       } else if (v.getOper() == FilterOperation.GT_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gtMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gtMonth(v.getValue());
       } else if (v.getOper() == FilterOperation.GTE_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gteMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).gteMonth(v.getValue());
       } else if (v.getOper() == FilterOperation.NEQ_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).neqMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).neqMonth(v.getValue());
       } else if (v.getOper() == FilterOperation.LT_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).ltMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).ltMonth(v.getValue());
       } else if (v.getOper() == FilterOperation.LTE_MONTH) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).lteMonth(v.getValue());
+        cond = JsonCond.newAttrCond(attrName).lteMonth(v.getValue());
       }
     } else if (filter instanceof ValueFilter) {
       ValueFilter v = (ValueFilter) filter;
+      String attrName = attrCodeFunc.apply(classCode, v.getAttrCode());
       if (v.getOper() == FilterOperation.EQ) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).eq(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.GT) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gt(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.GTE) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).gte(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).gte(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.NEQ) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).neq(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).neq(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.LT) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).lt(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).lt(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.LTE) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).lte(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).lte(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.IN) {
         IN in = (IN) v;
-        cond = JsonCond.newAttrCond(v.getAttrCode()).in(toStrings(in.getValue()));
+        cond = JsonCond.newAttrCond(attrName).in(toStrings(in.getValue()));
       } else if (v.getOper() == FilterOperation.NOTIN) {
         NotIN notIn = (NotIN) v;
-        cond = JsonCond.newAttrCond(v.getAttrCode()).notIn(toStrings(notIn.getValue()));
+        cond = JsonCond.newAttrCond(attrName).notIn(toStrings(notIn.getValue()));
       } else if (v.getOper() == FilterOperation.ISNULL) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).isNull(true);
+        cond = JsonCond.newAttrCond(attrName).isNull(true);
       } else if (v.getOper() == FilterOperation.ISNOTNULL) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).isNotNull(true);
+        cond = JsonCond.newAttrCond(attrName).isNotNull(true);
       } else if (v.getOper() == FilterOperation.LIKE) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).like(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).like(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.FUZZYLIKE) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).fuzzyLike(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).fuzzyLike(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.FUZZYORDERLIKE) {
-        cond = JsonCond.newAttrCond(v.getAttrCode()).fuzzyOrderLike(stringValue(v.getValue()));
+        cond = JsonCond.newAttrCond(attrName).fuzzyOrderLike(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.BETWEEN) {
         Between b = (Between) v;
         Pair pair = b.getValue();
-        cond = JsonCond.newAttrCond(v.getAttrCode()).between(new JsonBetweenCond(stringValue(pair.getFrom()), stringValue(pair.getTo())));
+        cond = JsonCond.newAttrCond(attrName).between(new JsonBetweenCond(stringValue(pair.getFrom()), stringValue(pair.getTo())));
       }
     } else if (filter instanceof LinkFilter) {
       LinkFilter l = (LinkFilter) filter;
+      String attrName = attrCodeFunc.apply(classCode, l.getAttrCode());
+      String refClassCode = refClassCodeFunc.apply(classCode, l.getAttrCode());
       if (l.getFunction() == AnalyticFunction.EXISTS) {
-        cond = JsonCond.newAttrCond(l.getAttrCode()).exists(toExp(l.getFilter()));
+        cond = JsonCond.newAttrCond(attrName).exists(
+            toExp(l.getFilter(), refClassCode, refClassCodeFunc, attrCodeFunc)
+        );
       } else if (l.getFunction() == AnalyticFunction.NOTEXISTS) {
-        cond = JsonCond.newAttrCond(l.getAttrCode()).notExists(toExp(l.getFilter()));
+        cond = JsonCond.newAttrCond(attrName).notExists(
+            toExp(l.getFilter(), refClassCode, refClassCodeFunc, attrCodeFunc)
+        );
       }
     }
     return cond != null ? new JsonExpr(cond) : null;
@@ -419,14 +524,22 @@ public class QueryService implements JsonMapper {
   /**
    * Учет сортировки
    *
-   * @param order сортировка
+   * @param order        сортировка
+   * @param classCode    Код класса
+   * @param attrCodeFunc Логика маппинга атрибута
    * @return сортировка
    */
-  private JsonOrder toOrder(mp.jprime.dataaccess.params.query.Order order) {
+  private JsonOrder toOrder(mp.jprime.dataaccess.params.query.Order order,
+                            String classCode,
+                            BiFunction<String, String, String> attrCodeFunc) {
+    String attrName = attrCodeFunc.apply(classCode, order.getAttr());
+    if (attrName == null) {
+      return null;
+    }
     if (order.getOrder() == OrderDirection.ASC) {
-      return new JsonOrder().asc(order.getAttr());
+      return new JsonOrder().asc(attrName);
     } else if (order.getOrder() == OrderDirection.DESC) {
-      return new JsonOrder().desc(order.getAttr());
+      return new JsonOrder().desc(attrName);
     }
     return null;
   }
@@ -564,7 +677,7 @@ public class QueryService implements JsonMapper {
    */
   public JsonObjectData getObjectData(String json) {
     try {
-      return OBJECT_MAPPER.readValue(json, JsonObjectData.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonObjectData.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -578,7 +691,7 @@ public class QueryService implements JsonMapper {
    */
   public JsonIdentityData getIdentityData(String json) {
     try {
-      return OBJECT_MAPPER.readValue(json, JsonIdentityData.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonIdentityData.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -592,7 +705,7 @@ public class QueryService implements JsonMapper {
    */
   public JsonIdentityData getDeleteData(String json) {
     try {
-      return OBJECT_MAPPER.readValue(json, JsonIdentityData.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonIdentityData.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -606,7 +719,7 @@ public class QueryService implements JsonMapper {
    */
   public String toString(JsonIdentityData data) {
     try {
-      return OBJECT_MAPPER.writeValueAsString(data);
+      return jpJsonMapper.getObjectMapper().writeValueAsString(data);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -620,7 +733,7 @@ public class QueryService implements JsonMapper {
    */
   public String toString(JsonObjectData data) {
     try {
-      return OBJECT_MAPPER.writeValueAsString(data);
+      return jpJsonMapper.getObjectMapper().writeValueAsString(data);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -671,58 +784,111 @@ public class QueryService implements JsonMapper {
    * @return Описание создания
    */
   public JsonObjectData toObjectData(JPCreate query) {
+    return toObjectData(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  }
+
+  /**
+   * Создает описание создания
+   *
+   * @param query            Описание запроса
+   * @param classCodeFunc    Логика маппинга класса
+   * @param refClassCodeFunc Логика маппинга ссылочного класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание создания
+   */
+  public JsonObjectData toObjectData(JPCreate query,
+                                     Function<String, String> classCodeFunc,
+                                     BiFunction<String, String, String> refClassCodeFunc,
+                                     BiFunction<String, String, String> attrCodeFunc) {
     if (query == null) {
       return null;
     }
-    JsonObjectData data = new JsonObjectData();
-    data.setClassCode(query.getJpClass());
-    Optional.ofNullable(query.getData())
-        .ifPresent(m -> m.forEach((x, y) -> data.getData().put(x, y)));
+    String classCode = classCodeFunc.apply(query.getJpClass());
+
+    JsonObjectData data = toJsonObjectData(query, classCode, attrCodeFunc);
+
     Optional.ofNullable(query.getLinkedData())
-        .ifPresent(m -> m.forEach((x, y) -> addCreateWith(x, y, data)));
+        .ifPresent(m -> m.forEach((x, y) -> {
+          String attr = attrCodeFunc.apply(classCode, x);
+          if (attr != null) {
+            addCreateWith(attr, classCodeFunc, refClassCodeFunc, attrCodeFunc, y, data);
+          }
+        }));
+    return data;
+  }
+
+  private JsonObjectData toJsonObjectData(JPSave query,
+                                          String classCode,
+                                          BiFunction<String, String, String> attrCodeFunc) {
+    JsonObjectData data = new JsonObjectData();
+    data.setClassCode(classCode);
+    Optional.ofNullable(query.getData())
+        .ifPresent(m -> m.forEach((x, y) -> {
+          String attr = attrCodeFunc.apply(classCode, x);
+          if (attr != null) {
+            data.getData().put(attr, y);
+          }
+        }));
     return data;
   }
 
   /**
    * Создает описание удаления
    *
-   * @param query Описание запроса
+   * @param query         Описание запроса
+   * @param classCodeFunc Логика маппинга класса
    * @return Описание удаления
    */
-  public JsonObjectData toObjectData(JPDelete query) {
+  public JsonObjectData toObjectData(JPDelete query,
+                                     Function<String, String> classCodeFunc) {
     if (query == null) {
       return null;
     }
+    String classCode = classCodeFunc.apply(query.getJpId().getJpClass());
+
     JsonObjectData data = new JsonObjectData();
     data.setId(query.getJpId().getId());
-    data.setClassCode(query.getJpClass());
+    data.setClassCode(classCode);
     return data;
   }
 
-  private void addCreateWith(String attrCode, Collection<JPCreate> creates, JsonObjectData data) {
+  private void addCreateWith(String attrCode,
+                             Function<String, String> classCodeFunc,
+                             BiFunction<String, String, String> refClassCodeFunc,
+                             BiFunction<String, String, String> attrCodeFunc,
+                             Collection<JPCreate> creates,
+                             JsonObjectData data) {
     if (data == null || attrCode == null || creates == null || creates.isEmpty()) {
       return;
     }
     JsonObjectLinkedData linked = data.getLinkedData().computeIfAbsent(attrCode, x -> new JsonObjectLinkedData());
-    creates.forEach(x -> linked.getCreate().add(toObjectData(x)));
+    creates.forEach(x -> linked.getCreate().add(toObjectData(x, classCodeFunc, refClassCodeFunc, attrCodeFunc)));
   }
 
-  private void addUpdateWith(String attrCode, Collection<JPUpdate> updates, JsonObjectData data) {
+  private void addUpdateWith(String attrCode,
+                             Function<String, String> classCodeFunc,
+                             BiFunction<String, String, String> refClassCodeFunc,
+                             BiFunction<String, String, String> attrCodeFunc,
+                             Collection<JPUpdate> updates,
+                             JsonObjectData data) {
     if (data == null || attrCode == null || updates == null || updates.isEmpty()) {
       return;
     }
     JsonObjectLinkedData linked = data.getLinkedData().computeIfAbsent(attrCode, x -> new JsonObjectLinkedData());
-    updates.forEach(x -> linked.getUpdate().add(toObjectData(x)));
+    updates.forEach(x -> linked.getUpdate().add(toObjectData(x, classCodeFunc, refClassCodeFunc, attrCodeFunc)));
   }
 
-  private void addDeleteWith(String attrCode, Collection<JPDelete> deletes, JsonObjectData data) {
+  private void addDeleteWith(String attrCode,
+                             Function<String, String> classCodeFunc,
+                             Collection<JPDelete> deletes,
+                             JsonObjectData data) {
     if (data == null || attrCode == null || deletes == null || deletes.isEmpty()) {
       return;
     }
     JsonObjectLinkedData linked = data.getLinkedData().computeIfAbsent(attrCode, x -> new JsonObjectLinkedData());
     deletes.stream()
         .filter(Objects::nonNull)
-        .forEach(x -> linked.getDelete().add(toObjectData(x)));
+        .forEach(x -> linked.getDelete().add(toObjectData(x, classCodeFunc)));
   }
 
   /**
@@ -887,17 +1053,53 @@ public class QueryService implements JsonMapper {
    * @return Описание обновления
    */
   public JsonObjectData toObjectData(JPUpdate query) {
-    JsonObjectData data = new JsonObjectData();
+    return toObjectData(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  }
+
+  /**
+   * Создает описание обновления
+   *
+   * @param query            Описание запроса
+   * @param classCodeFunc    Логика маппинга класса
+   * @param refClassCodeFunc Логика маппинга класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание обновления
+   */
+  public JsonObjectData toObjectData(JPUpdate query,
+                                     Function<String, String> classCodeFunc,
+                                     BiFunction<String, String, String> refClassCodeFunc,
+                                     BiFunction<String, String, String> attrCodeFunc) {
+    if (query == null) {
+      return null;
+    }
+    String classCode = query.getJpId().getJpClass();
+
+    JsonObjectData data = toJsonObjectData(query, classCodeFunc.apply(query.getJpId().getJpClass()), attrCodeFunc);
     data.setId(query.getJpId().getId());
-    data.setClassCode(query.getJpId().getJpClass());
-    Optional.ofNullable(query.getData())
-        .ifPresent(m -> m.forEach((x, y) -> data.getData().put(x, y)));
+
     Optional.ofNullable(query.getLinkedCreate())
-        .ifPresent(m -> m.forEach((x, y) -> addCreateWith(x, y, data)));
+        .ifPresent(m -> m.forEach((x, y) -> addCreateWith(
+            attrCodeFunc.apply(classCode, x),
+            classCodeFunc,
+            refClassCodeFunc,
+            attrCodeFunc,
+            y,
+            data))
+        );
     Optional.ofNullable(query.getLinkedUpdate())
-        .ifPresent(m -> m.forEach((x, y) -> addUpdateWith(x, y, data)));
+        .ifPresent(m -> m.forEach((x, y) -> addUpdateWith(
+            attrCodeFunc.apply(classCode, x),
+            classCodeFunc,
+            refClassCodeFunc,
+            attrCodeFunc,
+            y,
+            data)));
     Optional.ofNullable(query.getLinkedDelete())
-        .ifPresent(m -> m.forEach((x, y) -> addDeleteWith(x, y, data)));
+        .ifPresent(m -> m.forEach((x, y) -> addDeleteWith(
+            attrCodeFunc.apply(classCode, x),
+            classCodeFunc,
+            y,
+            data)));
     return data;
   }
 
@@ -948,11 +1150,43 @@ public class QueryService implements JsonMapper {
   /**
    * Создает описание запроса
    *
+   * @param update           JPUpdate
+   * @param classCodeFunc    Логика маппинга класса
+   * @param refClassCodeFunc Логика маппинга ссылочного класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание выборки
+   */
+  public String toString(JPUpdate update,
+                         Function<String, String> classCodeFunc,
+                         BiFunction<String, String, String> refClassCodeFunc,
+                         BiFunction<String, String, String> attrCodeFunc) {
+    return toString(toObjectData(update, classCodeFunc, refClassCodeFunc, attrCodeFunc));
+  }
+
+  /**
+   * Создает описание запроса
+   *
    * @param create JPCreate
    * @return Описание выборки
    */
   public String toString(JPCreate create) {
     return toString(toObjectData(create));
+  }
+
+  /**
+   * Создает описание запроса
+   *
+   * @param create           JPCreate
+   * @param classCodeFunc    Логика маппинга класса
+   * @param refClassCodeFunc Логика маппинга ссылочного класса
+   * @param attrCodeFunc     Логика маппинга атрибута
+   * @return Описание выборки
+   */
+  public String toString(JPCreate create,
+                         Function<String, String> classCodeFunc,
+                         BiFunction<String, String, String> refClassCodeFunc,
+                         BiFunction<String, String, String> attrCodeFunc) {
+    return toString(toObjectData(create, classCodeFunc, refClassCodeFunc, attrCodeFunc));
   }
 
   /**

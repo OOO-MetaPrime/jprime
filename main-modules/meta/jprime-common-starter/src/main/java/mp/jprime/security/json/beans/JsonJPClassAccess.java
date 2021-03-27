@@ -2,6 +2,9 @@ package mp.jprime.security.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Доступ к классу текущим пользователем
  */
@@ -10,7 +13,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "read",
     "create",
     "update",
-    "delete"
+    "delete",
+    "editAttrs",
 })
 public final class JsonJPClassAccess {
   private String classCode;
@@ -18,17 +22,23 @@ public final class JsonJPClassAccess {
   private boolean create;
   private boolean update;
   private boolean delete;
+  private Map<String, Boolean> editAttrs = new HashMap<>();
 
   public JsonJPClassAccess() {
 
   }
 
-  private JsonJPClassAccess(String classCode, boolean read, boolean create, boolean update, boolean delete) {
+  private JsonJPClassAccess(String classCode,
+                            boolean read, boolean create, boolean update, boolean delete,
+                            Map<String, Boolean> editAttrs) {
     this.classCode = classCode;
     this.read = read;
     this.create = create;
     this.update = update;
     this.delete = delete;
+    if (editAttrs != null) {
+      this.editAttrs.putAll(editAttrs);
+    }
   }
 
   public String getClassCode() {
@@ -51,6 +61,10 @@ public final class JsonJPClassAccess {
     return delete;
   }
 
+  public Map<String, Boolean> getEditAttrs() {
+    return editAttrs;
+  }
+
   /**
    * Построитель JPClassAccess
    *
@@ -69,6 +83,7 @@ public final class JsonJPClassAccess {
     private boolean create;
     private boolean update;
     private boolean delete;
+    private Map<String, Boolean> editAttrs = new HashMap<>();
 
     private Builder() {
 
@@ -80,7 +95,7 @@ public final class JsonJPClassAccess {
      * @return JPClassAccess
      */
     public JsonJPClassAccess build() {
-      return new JsonJPClassAccess(classCode, read, create, update, delete);
+      return new JsonJPClassAccess(classCode, read, create, update, delete, editAttrs);
     }
 
     /**
@@ -136,6 +151,34 @@ public final class JsonJPClassAccess {
     public Builder delete(boolean delete) {
       this.delete = delete;
       return this;
+    }
+
+    /**
+     * Настройки доступа к атрибуту
+     *
+     * @param attrCode Кодовое имя атрибута
+     * @param isView   Доступ на чтение
+     * @param isEdit   Доступ на редактирвание
+     * @return Builder
+     */
+    public Builder attrAccess(String attrCode, boolean isView, boolean isEdit) {
+      if (isView) {
+        editAttrs.put(attrCode, isEdit);
+      } else {
+        editAttrs.remove(attrCode);
+      }
+      return this;
+    }
+
+    /**
+     * Настройки доступа к атрибуту
+     *
+     * @param attrCode Кодовое имя атрибута
+     * @param isEdit   Доступ на редактирвание
+     * @return Builder
+     */
+    public Builder attrEdit(String attrCode, boolean isEdit) {
+      return attrAccess(attrCode, Boolean.TRUE, isEdit);
     }
   }
 }

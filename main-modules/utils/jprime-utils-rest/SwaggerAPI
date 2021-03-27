@@ -1,0 +1,276 @@
+openapi: 3.0.0
+info:
+  title: Utils REST API
+  description: This is a Utils REST API
+  contact:
+    email: info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+security:
+- password:
+  - read
+tags:
+- name: action
+  description: Запуск утилиты
+
+paths:
+  /utils/v1/{utilCode}/mode/{modeCode}:
+    post:
+      tags:
+      - action
+      description: Запуск шага утилиты
+      parameters:
+      - in: path
+        name: utilCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код утилиты
+      - in: path
+        name: modeCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код шага утилиты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: json запрос, соответствующий формату утилиты
+              type: string
+              format: json
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: json запрос, соответствующий формату утилиты
+                type: string
+                format: json
+        400:
+          description: Bad request.
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/labels:
+    get:
+      tags:
+      - action
+      description: Получение описание всех утилит (доступно только роли ADMIN)
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/labelList'
+        400:
+          description: Bad request.
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/settings:
+    get:
+      tags:
+      - action
+      description: Получение списка всех утилит, доступных пользователю
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/settingsList'
+        400:
+          description: Bad request.
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/settings/{classCode}:
+    get:
+      tags:
+      - action
+      description: Получение списка всех утилит, доступных пользователю для указанного класса
+      parameters:
+      - in: path
+        name: classCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код метакласса
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/settingsList'
+        400:
+          description: Bad request.
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+
+components:
+  schemas:
+    labelList:
+      type: array
+      description: список описаний утилит
+      items:
+        $ref: '#/components/schemas/label'
+
+    label:
+      type: object
+      description: описание утилиты
+      properties:
+        utilCode:
+          type: string
+          description: Урл утилиты
+          example: testUtil
+        modeCode:
+          type: string
+          description: Код шага
+          example: testMode
+        title:
+          type: string
+          description: Название шага
+          example: Тестовая утилита
+        qName:
+          type: string
+          description: QName шага
+          example: testUtil.testMode
+
+
+    settingsList:
+      type: array
+      description: список настроек утилит
+      items:
+        $ref: '#/components/schemas/settings'
+
+    settings:
+      type: object
+      description: настройки утилиты
+      properties:
+        utilCode:
+          type: string
+          description: Урл утилиты
+          example: testUtil
+        modeCode:
+          type: string
+          description: Код шага
+          example: testMode
+        title:
+          type: string
+          description: Название шага
+          example: Тестовая утилита
+        qName:
+          type: string
+          description: QName шага
+          example: testUtil.testMode
+        jpClasses:
+          type: array
+          description: Список классов, для которых доступна утилита
+          items:
+            type: string
+          example: ["classCode1","classCode2"]
+        type:
+          type: string
+          description: Тип привязки утилиты (объект, список, произвольная)
+          example: object
+        jpAttrs:
+          type: array
+          description: Настройки доступа на атрибутах
+          items:
+            $ref: '#/components/schemas/utilClassAttr'
+        inParams:
+          type: array
+          description: Список входных параметров
+          items:
+            $ref: '#/components/schemas/utilParam'
+        resultType:
+          type: string
+          description: Тип выходных параметров (message, jpId, jpObject, jpObjectList, custom)
+          example: message
+        outCustomParams:
+          type: array
+          description: Список выходных параметров
+          items:
+            $ref: '#/components/schemas/utilParam'
+
+    utilClassAttr:
+      type: object
+      description: информация метаатрибута
+      properties:
+        jpClass:
+          type: string
+          description: Код класса
+          example: pers
+        jpAttr:
+          type: string
+          description: Код атрибута
+          example: payRef
+
+    utilParam:
+      type: object
+      description: настройка параметра утилиты
+      properties:
+        code:
+          type: string
+          description: Код
+          example: id
+        type:
+          type: string
+          description: Тип
+          example: long
+        length:
+          type: number
+          description: Длина для строковых полей
+          example: 10
+        description:
+          type: string
+          description: Название
+          example: Идентификатор ЛД
+        qName:
+          type: string
+          description: qName
+          example: util.perscopy.in.id
+        mandatory:
+          type: boolean
+          description: Признак обязательности
+          example: true
+        multiple:
+          type: boolean
+          description: Разрешен ли множественный выбор
+          example: false
+        refJpClass:
+          type: string
+          description: Класс из меты
+          example: pers
+        refJpAttr:
+          type: string
+          description: Атрибут класса
+          example: reg_num
+        refFilter:
+          description: json для фильтрации объектов
+          type: object
+          example: {"cond": {"attr": "companyId", "eq": "12"}}
+
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0
