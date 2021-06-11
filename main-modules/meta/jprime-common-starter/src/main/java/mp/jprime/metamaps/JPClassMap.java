@@ -28,6 +28,13 @@ public interface JPClassMap {
   String getMap();
 
   /**
+   * Схема в хранилище
+   *
+   * @return Схема в хранилище
+   */
+  String getSchema();
+
+  /**
    * Маппинг атрибутов
    *
    * @return Маппинг атрибутов

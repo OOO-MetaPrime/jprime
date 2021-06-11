@@ -6,7 +6,7 @@ import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonDefValueResult;
-import mp.jprime.json.beans.JsonObjectData;
+import mp.jprime.json.beans.JsonDefValuesQuery;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -77,9 +77,9 @@ public class RestApiDefValueController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    JsonObjectData jsonObjectData;
+    JsonDefValuesQuery jsonDefValuesQuery;
     try {
-      jsonObjectData = queryService.getObjectData(query);
+      jsonDefValuesQuery = queryService.getDefValuesQuery(query);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
@@ -87,9 +87,10 @@ public class RestApiDefValueController {
         .getAsyncDefValues(
             jpClass.getCode(),
             JPObjectDefValueParamsBean.newBuilder()
-                .rootId(jsonObjectData.getId())
-                .rootJpClassCode(jsonObjectData.getClassCode())
-                .rootData(JPData.of(jsonObjectData.getData()))
+                .rootId(jsonDefValuesQuery.getId())
+                .rootJpClassCode(jsonDefValuesQuery.getClassCode())
+                .rootData(JPData.of(jsonDefValuesQuery.getData()))
+                .refAttrCode(jsonDefValuesQuery.getRefAttrCode())
                 .auth(auth)
                 .source(Source.USER)
                 .build()

@@ -9,10 +9,11 @@ import mp.jprime.metamaps.beans.JPClassMapBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Загрузка мапинга по аннотациям
@@ -35,17 +36,15 @@ public class JPMapsAnnoLoader implements JPMapsLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<mp.jprime.metamaps.JPClassMap> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public Flux<Collection<mp.jprime.metamaps.JPClassMap>> load() {
+    return Mono.fromCallable(this::annoLoad).flux();
   }
 
-  private void loadTo(FluxSink<mp.jprime.metamaps.JPClassMap> sink) {
+  private Collection<mp.jprime.metamaps.JPClassMap> annoLoad() {
     if (metas == null || metas.isEmpty()) {
-      return;
+      return Collections.emptyList();
     }
+    Collection<mp.jprime.metamaps.JPClassMap> result = new ArrayList<>();
     for (JPMeta meta : metas) {
       JPClassMap cls = meta.getClass().getAnnotation(JPClassMap.class);
       if (cls == null) {
@@ -67,9 +66,11 @@ public class JPMapsAnnoLoader implements JPMapsLoader {
           .code(cls.code())
           .storage(cls.storage())
           .map(cls.map())
+          .schema(cls.schema())
           .attrs(newAttrs)
           .build();
-      sink.next(newCls);
+      result.add(newCls);
     }
+    return result;
   }
 }

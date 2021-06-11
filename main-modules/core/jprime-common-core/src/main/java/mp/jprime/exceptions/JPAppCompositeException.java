@@ -1,6 +1,7 @@
 package mp.jprime.exceptions;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.ArrayList;
@@ -81,5 +82,23 @@ public class JPAppCompositeException extends JPAppRuntimeException implements Co
    */
   public void fillData(Collection<JPAppRuntimeException> list) {
     list.addAll(data);
+  }
+
+  /**
+   * Проверить, пуст ли список ошибок
+   *
+   * @return Результат проверки
+   */
+  public boolean isEmpty() {
+    return CollectionUtils.isEmpty(umData);
+  }
+
+  /**
+   * Проверить, что список ошибок не пуст
+   *
+   * @return Результат проверки
+   */
+  public boolean isNotEmpty() {
+    return !isEmpty();
   }
 }

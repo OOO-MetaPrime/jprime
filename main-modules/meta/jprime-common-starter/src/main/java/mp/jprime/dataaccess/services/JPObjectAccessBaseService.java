@@ -1,7 +1,8 @@
 package mp.jprime.dataaccess.services;
 
-import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.dataaccess.checkers.JPDataCheckService;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPClass;
@@ -23,6 +24,8 @@ public abstract class JPObjectAccessBaseService {
   protected JPSecurityStorage securityManager;
   // Хранилище метаинформации
   protected JPMetaStorage metaStorage;
+  // Сервис проверки данных указанному условию
+  private JPDataCheckService dataCheckService;
 
   @Autowired
   private void setAccessService(JPResourceAccessService accessService) {
@@ -39,12 +42,25 @@ public abstract class JPObjectAccessBaseService {
     this.securityManager = securityManager;
   }
 
-  protected boolean isCreateCheck(String classCode, AuthInfo auth) {
+  @Autowired
+  private void setDataCheckService(JPDataCheckService dataCheckService) {
+    this.dataCheckService = dataCheckService;
+  }
+
+  protected boolean isCreateCheck(String classCode, JPMutableData createData, AuthInfo auth) {
     if (classCode == null || auth == null) {
       return false;
     }
     JPResourceAccess access = accessService.checkCreate(classCode, auth);
-    return access == null || access.isAccess();
+    if (!access.isAccess()) {
+      return false;
+    }
+    Filter accessFilter = access.getFilter();
+    // проверки на значение
+    if (createData != null && accessFilter != null && !checkData(accessFilter, createData, auth)) {
+      return false;
+    }
+    return true;
   }
 
   protected JPSelect toSelect(JPId id, JPClass jpClass, JPResourceAccess access, AuthInfo auth) {
@@ -68,5 +84,9 @@ public abstract class JPObjectAccessBaseService {
       filter = Filter.and(filter, selectWhere);
     }
     return filter;
+  }
+
+  protected boolean checkData(Filter filter, JPMutableData data, AuthInfo auth) {
+    return dataCheckService.check(filter, data, auth);
   }
 }

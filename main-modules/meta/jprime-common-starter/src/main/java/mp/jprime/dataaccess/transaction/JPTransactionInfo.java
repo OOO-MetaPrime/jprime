@@ -1,7 +1,6 @@
 package mp.jprime.dataaccess.transaction;
 
 import mp.jprime.dataaccess.transaction.events.TransactionEvent;
-import org.springframework.transaction.TransactionStatus;
 
 import java.util.ArrayList;
 import java.util.Collection;

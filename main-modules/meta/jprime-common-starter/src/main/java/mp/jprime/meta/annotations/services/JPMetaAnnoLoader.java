@@ -13,12 +13,9 @@ import mp.jprime.meta.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,17 +39,15 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<mp.jprime.meta.JPClass> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public Flux<Collection<mp.jprime.meta.JPClass>> load() {
+    return Mono.fromCallable(this::annoLoad).flux();
   }
 
-  private void loadTo(FluxSink<mp.jprime.meta.JPClass> sink) {
+  private Collection<mp.jprime.meta.JPClass> annoLoad() {
     if (metas == null || metas.isEmpty()) {
-      return;
+      return Collections.emptyList();
     }
+    Collection<mp.jprime.meta.JPClass> result = new ArrayList<>();
     for (JPMeta meta : metas) {
       JPClass cls = meta.getClass().getAnnotation(mp.jprime.meta.annotations.JPClass.class);
       if (cls == null) {
@@ -117,8 +112,9 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
           .description(cls.description())
           .attrs(newAttrs)
           .build();
-      sink.next(newCls);
+      result.add(newCls);
     }
+    return result;
   }
 
   private Collection<JPProperty> toJPProperty(mp.jprime.meta.annotations.JPProperty[] schemaProps,

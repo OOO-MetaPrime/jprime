@@ -9,15 +9,16 @@ import mp.jprime.security.beans.JPSecurityPackageBean;
 import mp.jprime.security.xmlloader.beans.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.*;
+import java.io.InputStream;
 
 /**
  * Загрузка настроек доступа к пакету
@@ -29,6 +30,13 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
    * Папка с описанием настроек доступа к пакету
    */
   public static final String RESOURCES_FOLDER = "security/";
+
+  private ApplicationContext applicationContext;
+
+  @Autowired
+  private void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
+  }
 
   /**
    * Вычитывает описание настроек доступа к пакету
@@ -44,23 +52,20 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
   }
 
   private void loadTo(FluxSink<JPSecurityPackage> sink) {
-    URL url = null;
     try {
-      url = ResourceUtils.getURL("classpath:" + JPSecurityXmlLoader.RESOURCES_FOLDER);
-    } catch (FileNotFoundException e) {
-      LOG.debug(e.getMessage(), e);
-    }
-    if (url == null) {
-      return;
-    }
-    try {
-      Path path = toPath(url);
-      if (path == null || !Files.exists(path)) {
+      Resource[] resources = null;
+      try {
+        resources = applicationContext.getResources("classpath:" + JPSecurityXmlLoader.RESOURCES_FOLDER + "*.xml");
+      } catch (FileNotFoundException e) {
+        LOG.debug(e.getMessage(), e);
+      }
+      if (resources == null || resources.length == 0) {
         return;
       }
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-        for (Path entry : stream) {
-          XmlJpSecurity xmlJpSecurity = new XmlMapper().readValue(Files.newBufferedReader(entry), XmlJpSecurity.class);
+
+      for (Resource res : resources) {
+        try (InputStream is = res.getInputStream()) {
+          XmlJpSecurity xmlJpSecurity = new XmlMapper().readValue(is, XmlJpSecurity.class);
           if (xmlJpSecurity == null || xmlJpSecurity.getJpPackages() == null) {
             continue;
           }

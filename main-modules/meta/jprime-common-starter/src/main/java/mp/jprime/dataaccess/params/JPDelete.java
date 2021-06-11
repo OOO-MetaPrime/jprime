@@ -52,6 +52,17 @@ public class JPDelete extends JPBaseParams {
 
   /**
    * Построитель JPDelete
+   *
+   * @param jpClass Кодовое имя метаописания класса
+   * @param id      Идентификатор объекта
+   * @return Builder
+   */
+  public static Builder delete(String jpClass, Object id) {
+    return new Builder(JPId.get(jpClass, id));
+  }
+
+  /**
+   * Построитель JPDelete
    */
   public static final class Builder {
     private JPId jpId;

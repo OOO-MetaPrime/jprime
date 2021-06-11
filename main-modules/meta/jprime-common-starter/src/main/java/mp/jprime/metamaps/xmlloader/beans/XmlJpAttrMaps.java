@@ -8,7 +8,7 @@ import java.util.Arrays;
 public class XmlJpAttrMaps {
   @JacksonXmlProperty(localName = "jpAttrMap")
   @JacksonXmlElementWrapper(useWrapping = false)
-  private mp.jprime.metamaps.xmlloader.beans.XmlJpAttrMap[] jpAttrMaps;
+  private XmlJpAttrMap[] jpAttrMaps;
 
   public XmlJpAttrMap[] getJpAttrMaps() {
     return jpAttrMaps;

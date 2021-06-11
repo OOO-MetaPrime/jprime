@@ -49,12 +49,12 @@ public class QueryService {
    * @param json Строка запроса
    * @return Описание выборки
    */
-  public JsonQuery getQuery(String json) {
+  public JsonSelect getQuery(String json) {
     if (json == null || json.isEmpty()) {
       return null;
     }
     try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonQuery.class);
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonSelect.class);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -83,7 +83,7 @@ public class QueryService {
    * @param query Query
    * @return Описание выборки
    */
-  public String toString(JsonQuery query) {
+  public String toString(JsonSelect query) {
     try {
       return jpJsonMapper.getObjectMapper().writeValueAsString(query);
     } catch (Exception e) {
@@ -149,7 +149,7 @@ public class QueryService {
    * @param auth        Данные аутентификации
    * @return Описание выборки
    */
-  public JPSelect.Builder getSelect(String jpClassCode, JsonQuery query, AuthInfo auth) {
+  public JPSelect.Builder getSelect(String jpClassCode, JsonSelect query, AuthInfo auth) {
     try {
       JPSelect.Builder builder = JPSelect
           .from(jpClassCode)
@@ -300,7 +300,7 @@ public class QueryService {
    * @param select Описание запроса
    * @return Описание выборки
    */
-  public JsonQuery getQuery(JPSelect select) {
+  public JsonSelect getQuery(JPSelect select) {
     return getQuery(select, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
@@ -312,12 +312,12 @@ public class QueryService {
    * @param attrCodeFunc     Логика маппинга атрибута
    * @return Описание выборки
    */
-  public JsonQuery getQuery(JPSelect select,
-                            BiFunction<String, String, String> refClassCodeFunc,
-                            BiFunction<String, String, String> attrCodeFunc) {
+  public JsonSelect getQuery(JPSelect select,
+                             BiFunction<String, String, String> refClassCodeFunc,
+                             BiFunction<String, String, String> attrCodeFunc) {
     String classCode = select.getJpClass();
 
-    JsonQuery query = new JsonQuery();
+    JsonSelect query = new JsonSelect();
     query.setLimit(select.getLimit());
     query.setOffset(select.getOffset());
     query.setTotalCount(select.isTotalCount());
@@ -689,6 +689,34 @@ public class QueryService {
    * @param json Строка запроса
    * @return Описание данных
    */
+  public JsonUpdate getUpdate(String json) {
+    try {
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonUpdate.class);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
+   * Создает запрос значений по-умолчанию
+   *
+   * @param json Строка запроса
+   * @return Описание запроса
+   */
+  public JsonDefValuesQuery getDefValuesQuery(String json) {
+    try {
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonDefValuesQuery.class);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
+   * Создает описание данных
+   *
+   * @param json Строка запроса
+   * @return Описание данных
+   */
   public JsonIdentityData getIdentityData(String json) {
     try {
       return jpJsonMapper.getObjectMapper().readValue(json, JsonIdentityData.class);
@@ -731,7 +759,7 @@ public class QueryService {
    * @param data ObjectData
    * @return Описание данных
    */
-  public String toString(JsonObjectData data) {
+  public String toString(JsonUpdate data) {
     try {
       return jpJsonMapper.getObjectMapper().writeValueAsString(data);
     } catch (Exception e) {
@@ -803,13 +831,14 @@ public class QueryService {
     if (query == null) {
       return null;
     }
-    String classCode = classCodeFunc.apply(query.getJpClass());
+    String fromClassCode = query.getJpClass();
+    String toClassCode = classCodeFunc.apply(fromClassCode);
 
-    JsonObjectData data = toJsonObjectData(query, classCode, attrCodeFunc);
+    JsonObjectData data = toJsonObjectData(query, fromClassCode, toClassCode, attrCodeFunc);
 
     Optional.ofNullable(query.getLinkedData())
         .ifPresent(m -> m.forEach((x, y) -> {
-          String attr = attrCodeFunc.apply(classCode, x);
+          String attr = attrCodeFunc.apply(fromClassCode, x);
           if (attr != null) {
             addCreateWith(attr, classCodeFunc, refClassCodeFunc, attrCodeFunc, y, data);
           }
@@ -818,19 +847,37 @@ public class QueryService {
   }
 
   private JsonObjectData toJsonObjectData(JPSave query,
-                                          String classCode,
+                                          String fromClassCode,
+                                          String toClassCode,
                                           BiFunction<String, String, String> attrCodeFunc) {
     JsonObjectData data = new JsonObjectData();
-    data.setClassCode(classCode);
+    data.setClassCode(toClassCode);
     Optional.ofNullable(query.getData())
         .ifPresent(m -> m.forEach((x, y) -> {
-          String attr = attrCodeFunc.apply(classCode, x);
+          String attr = attrCodeFunc.apply(fromClassCode, x);
           if (attr != null) {
             data.getData().put(attr, y);
           }
         }));
     return data;
   }
+
+  private JsonUpdate toJsonUpdate(JPUpdate update,
+                                  String fromClassCode,
+                                  String toClassCode,
+                                  BiFunction<String, String, String> attrCodeFunc) {
+    JsonUpdate data = new JsonUpdate();
+    data.setClassCode(toClassCode);
+    Optional.ofNullable(update.getData())
+        .ifPresent(m -> m.forEach((x, y) -> {
+          String attr = attrCodeFunc.apply(fromClassCode, x);
+          if (attr != null) {
+            data.getData().put(attr, y);
+          }
+        }));
+    return data;
+  }
+
 
   /**
    * Создает описание удаления
@@ -875,7 +922,7 @@ public class QueryService {
       return;
     }
     JsonObjectLinkedData linked = data.getLinkedData().computeIfAbsent(attrCode, x -> new JsonObjectLinkedData());
-    updates.forEach(x -> linked.getUpdate().add(toObjectData(x, classCodeFunc, refClassCodeFunc, attrCodeFunc)));
+    updates.forEach(x -> linked.getUpdate().add(toJsonUpdate(x, classCodeFunc, refClassCodeFunc, attrCodeFunc)));
   }
 
   private void addDeleteWith(String attrCode,
@@ -939,7 +986,7 @@ public class QueryService {
    */
   public JPUpdate.Builder getUpdate(String json, Source source, AuthInfo auth) {
     try {
-      return getUpdate(getObjectData(json), source, auth);
+      return getUpdate(getUpdate(json), source, auth);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -1007,38 +1054,40 @@ public class QueryService {
   /**
    * Создает описание обновления
    *
-   * @param query Описание запроса
-   * @param auth  Данные аутентификации
+   * @param update Описание запроса
+   * @param auth   Данные аутентификации
    * @return Описание обновления
    */
-  public JPUpdate.Builder getUpdate(JsonObjectData query, AuthInfo auth) {
-    return getUpdate(query, null, auth);
+  public JPUpdate.Builder getUpdate(JsonUpdate update, AuthInfo auth) {
+    return getUpdate(update, null, auth);
   }
 
   /**
    * Создает описание обновления
    *
-   * @param query  Описание запроса
+   * @param update Описание запроса
    * @param source Источник данных
    * @param auth   Данные аутентификации
    * @return Описание обновления
    */
-  public JPUpdate.Builder getUpdate(JsonObjectData query, Source source, AuthInfo auth) {
+  public JPUpdate.Builder getUpdate(JsonUpdate update, Source source, AuthInfo auth) {
     try {
-      if (query == null) {
+      if (update == null) {
         return null;
       }
-      if (query.getId() == null) {
+      if (update.getId() == null) {
         return null;
       }
       JPUpdate.Builder builder = JPUpdate
-          .update(JPId.get(query.getClassCode(), query.getId()))
+          .update(JPId.get(update.getClassCode(), update.getId()))
           .source(source)
           .auth(auth);
-      Optional.ofNullable(query.getData())
+      Optional.ofNullable(update.getData())
           .ifPresent(m -> m.forEach(builder::set));
-      Optional.ofNullable(query.getLinkedData())
+      Optional.ofNullable(update.getLinkedData())
           .ifPresent(m -> m.forEach((x, y) -> addWith(x, y, builder, source, auth)));
+      Optional.ofNullable(update.getFilter())
+          .ifPresent(x -> builder.where(toFilter(x)));
       return builder;
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
@@ -1052,32 +1101,32 @@ public class QueryService {
    * @param query Описание запроса
    * @return Описание обновления
    */
-  public JsonObjectData toObjectData(JPUpdate query) {
-    return toObjectData(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+  public JsonUpdate toJsonUpdate(JPUpdate query) {
+    return toJsonUpdate(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**
    * Создает описание обновления
    *
-   * @param query            Описание запроса
+   * @param update           Описание запроса
    * @param classCodeFunc    Логика маппинга класса
    * @param refClassCodeFunc Логика маппинга класса
    * @param attrCodeFunc     Логика маппинга атрибута
    * @return Описание обновления
    */
-  public JsonObjectData toObjectData(JPUpdate query,
-                                     Function<String, String> classCodeFunc,
-                                     BiFunction<String, String, String> refClassCodeFunc,
-                                     BiFunction<String, String, String> attrCodeFunc) {
-    if (query == null) {
+  public JsonUpdate toJsonUpdate(JPUpdate update,
+                                 Function<String, String> classCodeFunc,
+                                 BiFunction<String, String, String> refClassCodeFunc,
+                                 BiFunction<String, String, String> attrCodeFunc) {
+    if (update == null) {
       return null;
     }
-    String classCode = query.getJpId().getJpClass();
+    String classCode = update.getJpId().getJpClass();
 
-    JsonObjectData data = toJsonObjectData(query, classCodeFunc.apply(query.getJpId().getJpClass()), attrCodeFunc);
-    data.setId(query.getJpId().getId());
+    JsonUpdate data = toJsonUpdate(update, classCode, classCodeFunc.apply(update.getJpId().getJpClass()), attrCodeFunc);
+    data.setId(update.getJpId().getId());
 
-    Optional.ofNullable(query.getLinkedCreate())
+    Optional.ofNullable(update.getLinkedCreate())
         .ifPresent(m -> m.forEach((x, y) -> addCreateWith(
             attrCodeFunc.apply(classCode, x),
             classCodeFunc,
@@ -1086,7 +1135,7 @@ public class QueryService {
             y,
             data))
         );
-    Optional.ofNullable(query.getLinkedUpdate())
+    Optional.ofNullable(update.getLinkedUpdate())
         .ifPresent(m -> m.forEach((x, y) -> addUpdateWith(
             attrCodeFunc.apply(classCode, x),
             classCodeFunc,
@@ -1094,12 +1143,14 @@ public class QueryService {
             attrCodeFunc,
             y,
             data)));
-    Optional.ofNullable(query.getLinkedDelete())
+    Optional.ofNullable(update.getLinkedDelete())
         .ifPresent(m -> m.forEach((x, y) -> addDeleteWith(
             attrCodeFunc.apply(classCode, x),
             classCodeFunc,
             y,
             data)));
+    Optional.ofNullable(update.getWhere())
+        .ifPresent(x -> data.setFilter(toExp(x, classCode, refClassCodeFunc, attrCodeFunc)));
     return data;
   }
 
@@ -1144,7 +1195,7 @@ public class QueryService {
    * @return Описание выборки
    */
   public String toString(JPUpdate update) {
-    return toString(toObjectData(update));
+    return toString(toJsonUpdate(update));
   }
 
   /**
@@ -1160,7 +1211,7 @@ public class QueryService {
                          Function<String, String> classCodeFunc,
                          BiFunction<String, String, String> refClassCodeFunc,
                          BiFunction<String, String, String> attrCodeFunc) {
-    return toString(toObjectData(update, classCodeFunc, refClassCodeFunc, attrCodeFunc));
+    return toString(toJsonUpdate(update, classCodeFunc, refClassCodeFunc, attrCodeFunc));
   }
 
   /**

@@ -19,6 +19,7 @@ public final class JPClassMapBean implements JPClassMap {
   private final String code;
   private final String storage;
   private final String map;
+  private final String schema;
   private final Map<String, JPAttrMap> attrs;
   private final Boolean immutable;
 
@@ -27,16 +28,18 @@ public final class JPClassMapBean implements JPClassMap {
    *
    * @param code      Кодовое имя класса
    * @param storage   Кодовое имя хранилища
-   * @param map       Мап на БД
+   * @param map       Мап на хранилище
+   * @param schema    Схема хранилище
    * @param attrs     Маппинг атрибутов
    * @param immutable Признак неизменяемости
    */
-  private JPClassMapBean(String code, String storage, String map, Collection<JPAttrMap> attrs, boolean immutable) {
+  private JPClassMapBean(String code, String storage, String map, String schema, Collection<JPAttrMap> attrs, boolean immutable) {
     this.immutable = immutable;
 
     this.code = code != null && !code.isEmpty() ? code : null;
     this.storage = storage != null && !storage.isEmpty() ? storage : null;
     this.map = map != null && !map.isEmpty() ? map : null;
+    this.schema = schema != null && !schema.isEmpty() ? schema : null;
 
     this.attrs = attrs == null ?
         Collections.emptyMap() : attrs.stream().collect(Collectors.toMap(JPAttrMap::getCode, Function.identity()));
@@ -61,12 +64,21 @@ public final class JPClassMapBean implements JPClassMap {
   }
 
   /**
-   * Мап на БД
+   * Мап на хранилище
    *
-   * @return Мап на БД
+   * @return Мап на хранилище
    */
   public String getMap() {
     return map;
+  }
+
+  /**
+   * Схема в хранилище
+   *
+   * @return Схема в хранилище
+   */
+  public String getSchema() {
+    return schema;
   }
 
   @Override
@@ -127,6 +139,7 @@ public final class JPClassMapBean implements JPClassMap {
         "code='" + code + '\'' +
         ", storage='" + storage + '\'' +
         ", map='" + map + '\'' +
+        ", schema='" + schema + '\'' +
         ", attrs=" + attrs +
         ", immutable = " + immutable +
         '}';
@@ -139,6 +152,7 @@ public final class JPClassMapBean implements JPClassMap {
     private String code;
     private String storage;
     private String map;
+    private String schema;
     private Collection<JPAttrMap> attrs;
     private boolean immutable = true;
 
@@ -151,13 +165,13 @@ public final class JPClassMapBean implements JPClassMap {
      * @return Метаописание
      */
     public JPClassMapBean build() {
-      return new JPClassMapBean(code, storage, map, attrs, immutable);
+      return new JPClassMapBean(code, storage, map, schema, attrs, immutable);
     }
 
     /**
-     * Мап на БД
+     * Мап на хранилище
      *
-     * @param map Мап на БД
+     * @param map Мап на хранилище
      * @return Builder
      */
     public Builder map(String map) {
@@ -165,6 +179,16 @@ public final class JPClassMapBean implements JPClassMap {
       return this;
     }
 
+    /**
+     * Схема в хранилище
+     *
+     * @param schema Схема в хранилище
+     * @return Builder
+     */
+    public Builder schema(String schema) {
+      this.schema = schema;
+      return this;
+    }
 
     /**
      * Кодовое имя атрибута

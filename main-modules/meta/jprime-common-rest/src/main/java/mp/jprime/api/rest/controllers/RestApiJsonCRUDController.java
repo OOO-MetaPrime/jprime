@@ -19,6 +19,8 @@ import mp.jprime.rest.v1.Controllers;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.web.services.ServerWebExchangeService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -34,6 +36,8 @@ import java.util.Objects;
 @RestController
 @RequestMapping("api/v1")
 public class RestApiJsonCRUDController {
+  private static final Logger LOG = LoggerFactory.getLogger(RestApiJsonCRUDController.class);
+
   /**
    * Заполнение запросов на основе JSON
    */
@@ -54,13 +58,16 @@ public class RestApiJsonCRUDController {
    * Обработчик JWT
    */
   private JWTService jwtService;
-  /**
-   * Максимальное количество в выборке по-умолчанию
-   */
-  private final static int MAX_LIMIT = 50;
 
   @Value("${jprime.query.queryTimeout:}")
   private Integer queryTimeout;
+  @Value("${jprime.api.checkLimit:true}")
+  private boolean checkLimit;
+  /**
+   * Максимальное количество в выборке через api
+   */
+  @Value("${jprime.api.maxLimit:1000}")
+  private Integer maxLimit;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -90,10 +97,17 @@ public class RestApiJsonCRUDController {
   /**
    * Возвращает список
    *
-   * @param s JPSelect
+   * @param builder JPSelect.Builder
    * @return Список
    */
-  private Mono<JsonJPObjectList> getListResult(final JPSelect s, final ServerWebExchange swe) {
+  private Mono<JsonJPObjectList> getListResult(final JPSelect.Builder builder, final ServerWebExchange swe) {
+    Integer limit = builder.limit();
+    if (checkLimit && limit != null && limit > maxLimit) {
+      LOG.error("Warning. Select query limit for " + builder.getJpClass() + " exceeded: " + limit);
+      builder.limit(maxLimit);
+    }
+    JPSelect s = builder.build();
+
     JPClass jpClass = metaStorage.getJPClassByCode(s.getJpClass());
     return Mono.zip(
         // Общее количество
@@ -134,17 +148,16 @@ public class RestApiJsonCRUDController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    return getListResult(
-        JPSelect
-            .from(jpClass.getCode())
-            .offset(offset != null ? offset : 0)
-            .limit(limit != null ? limit : MAX_LIMIT)
-            .orderByDesc(jpClass.getPrimaryKeyAttr())
-            .timeout(queryTimeout)
-            .useDefaultJpAttrs(Boolean.TRUE)
-            .source(Source.USER)
-            .auth(auth)
-            .build(), swe);
+    JPSelect.Builder builder = JPSelect
+        .from(jpClass.getCode())
+        .offset(offset != null ? offset : 0)
+        .limit(limit != null ? limit : QueryService.MAX_LIMIT)
+        .orderByDesc(jpClass.getPrimaryKeyAttr())
+        .timeout(queryTimeout)
+        .useDefaultJpAttrs(Boolean.TRUE)
+        .source(Source.USER)
+        .auth(auth);
+    return getListResult(builder, swe);
   }
 
   @ResponseBody
@@ -170,7 +183,7 @@ public class RestApiJsonCRUDController {
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder.build(), swe);
+    return getListResult(builder, swe);
   }
 
   @ResponseBody
@@ -200,7 +213,7 @@ public class RestApiJsonCRUDController {
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder.build(), swe);
+    return getListResult(builder, swe);
   }
 
   @ResponseBody
@@ -249,7 +262,7 @@ public class RestApiJsonCRUDController {
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(refClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder.build(), swe);
+    return getListResult(builder, swe);
   }
 
   @ResponseBody
@@ -311,7 +324,7 @@ public class RestApiJsonCRUDController {
           if (builder.isOrderByEmpty()) {
             builder.orderByDesc(refJpClass.getPrimaryKeyAttr());
           }
-          return getListResult(builder.build(), swe);
+          return getListResult(builder, swe);
         });
   }
 

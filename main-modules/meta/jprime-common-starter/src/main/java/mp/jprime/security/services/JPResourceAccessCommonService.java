@@ -9,6 +9,7 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.abac.EnvironmentRule;
 import mp.jprime.security.abac.Policy;
+import mp.jprime.security.abac.ResourceRule;
 import mp.jprime.security.abac.SubjectRule;
 import mp.jprime.security.abac.services.JPAbacStorage;
 import mp.jprime.security.beans.JPAccessType;
@@ -25,6 +26,10 @@ import java.util.*;
  */
 @Service
 public class JPResourceAccessCommonService implements JPResourceAccessService {
+  private enum RESULT {
+    YES, NO, SKIP
+  }
+
   // Хранилище метаинформации
   private JPMetaStorage metaStorage;
   // Хранилище настроек безопасности
@@ -129,7 +134,11 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     }
     Collection<Policy> checks = new ArrayList<>(policies.size());
     for (Policy policy : policies) {
-      if (prePIP(policy, auth)) {
+      RESULT res = prePIP(policy, auth);
+      if (res == RESULT.NO) {
+        return JPResourceAccessBean.from(Boolean.FALSE);
+      }
+      if (res == RESULT.YES) {
         checks.add(policy);
       }
     }
@@ -139,23 +148,29 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     return JPResourceAccessBean.from(Boolean.TRUE, getFilter(checks));
   }
 
-  private boolean prePIP(Policy policy, AuthInfo auth) {
+  private RESULT prePIP(Policy policy, AuthInfo auth) {
     for (SubjectRule subjectRule : policy.getSubjectRules()) {
-      if (!check(subjectRule, auth)) {
-        return false;
+      RESULT res = check(subjectRule, auth);
+      if (res == RESULT.NO) {
+        return RESULT.NO;
+      } else if (res == RESULT.SKIP) {
+        return RESULT.SKIP;
       }
     }
     for (EnvironmentRule environmentRule : policy.getEnvironmentRules()) {
-      if (!check(environmentRule, auth)) {
-        return false;
+      RESULT res = check(environmentRule, auth);
+      if (res == RESULT.NO) {
+        return RESULT.NO;
+      } else if (res == RESULT.SKIP) {
+        return RESULT.SKIP;
       }
     }
-    return true;
+    return RESULT.YES;
   }
 
-  private boolean check(SubjectRule rule, AuthInfo auth) {
+  private RESULT check(SubjectRule rule, AuthInfo auth) {
     if (rule == null) {
-      return Boolean.TRUE;
+      return RESULT.YES;
     }
     CollectionCond<String> usernameCond = rule.getUsernameCond();
     CollectionCond<String> roleCond = rule.getRoleCond();
@@ -165,12 +180,16 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
         (roleCond == null || roleCond.check(auth.getRoles())) &&
         (orgIdCondCond == null || orgIdCondCond.check(auth.getOrgId())) &&
         (depIdCondCond == null || depIdCondCond.check(auth.getDepId()));
-    return (JPAccessType.PERMIT == rule.getEffect()) == check;
+    if (JPAccessType.PERMIT == rule.getEffect()) {
+      return check ? RESULT.YES : RESULT.SKIP;
+    } else {
+      return check ? RESULT.NO : RESULT.YES;
+    }
   }
 
-  private boolean check(EnvironmentRule rule, AuthInfo auth) {
+  private RESULT check(EnvironmentRule rule, AuthInfo auth) {
     if (rule == null) {
-      return Boolean.TRUE;
+      return RESULT.YES;
     }
     LocalDateTime curDate = LocalDateTime.now();
     LocalTime curTime = curDate.toLocalTime();
@@ -181,57 +200,89 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
         (rule.getToDateTime() == null || !rule.getToDateTime().isBefore(curDate)) &&
         (rule.getFromTime() == null || !rule.getFromTime().isAfter(curTime)) &&
         (rule.getToTime() == null || !rule.getToTime().isBefore(curTime));
-    return (JPAccessType.PERMIT == rule.getEffect()) == check;
+    if (JPAccessType.PERMIT == rule.getEffect()) {
+      return check ? RESULT.YES : RESULT.SKIP;
+    } else {
+      return check ? RESULT.NO : RESULT.YES;
+    }
   }
 
   private Filter getFilter(Collection<Policy> policies) {
+    if (policies == null || policies.isEmpty()) {
+      return null;
+    }
     // Признак использования фильтра (отключаем, если нет ограниченмя по атрибуту)
-    boolean useFilters = true;
+    boolean hasFullPermit = false;
 
-    Map<JPAccessType, Map<String, Collection<CollectionCond<String>>>> allValues = new HashMap<>();
+    Map<String, Collection<CollectionCond<String>>> permitConds = new HashMap<>();
+    Map<String, Collection<CollectionCond<String>>> prohibitionConds = new HashMap<>();
     for (Policy policy : policies) {
       if (policy.getResourceRules().isEmpty()) {
-        useFilters = false;
+        hasFullPermit = true;
       } else {
-        policy.getResourceRules()
-            .forEach(cond -> {
-              allValues
-                  .computeIfAbsent(cond.getEffect(), map -> new HashMap<>())
-                  .computeIfAbsent(cond.getAttrCode(), v -> new ArrayList<>())
-                  .add(cond.getCond());
-            });
+        for (ResourceRule rule : policy.getResourceRules()) {
+          if (rule.getEffect() == JPAccessType.PERMIT) {
+            permitConds
+                .computeIfAbsent(rule.getAttrCode(), v -> new ArrayList<>())
+                .add(rule.getCond());
+          } else {
+            prohibitionConds
+                .computeIfAbsent(rule.getAttrCode(), v -> new ArrayList<>())
+                .add(rule.getCond());
+          }
+        }
       }
     }
 
-    if (!useFilters) {
+    if (hasFullPermit && prohibitionConds.isEmpty()) {
       return null;
     }
 
     Collection<Filter> filters = new ArrayList<>();
-    for (Map.Entry<JPAccessType, Map<String, Collection<CollectionCond<String>>>> entryType : allValues.entrySet()) {
-      for (Map.Entry<String, Collection<CollectionCond<String>>> entryAttrs : entryType.getValue().entrySet()) {
-        String attrCode = entryAttrs.getKey();
-        Collection<CollectionCond<String>> conds = entryAttrs.getValue();
-        if (attrCode == null || attrCode.isEmpty() || conds == null || conds.isEmpty() || conds.contains(null)) {
-          continue;
-        }
-        Collection<String> values = new ArrayList<>();
-        for (CollectionCond<String> cond : conds) {
-          Collection<String> v = cond.getValue();
-          if (v == null) {
-            continue;
-          }
-          if (cond.getOper() == FilterOperation.IN) {
-            values.addAll(v);
-          } else if (cond.getOper() == FilterOperation.NOTIN) {
-            values.removeAll(v);
-          }
-        }
-        filters.add(
-            JPAccessType.PERMIT == entryType.getKey() ? Filter.attr(attrCode).in(values) : Filter.attr(attrCode).notIn(values)
-        );
-      }
+    addFilter(JPAccessType.PROHIBITION, prohibitionConds, filters);
+    if (!hasFullPermit) {
+      addFilter(JPAccessType.PERMIT, permitConds, filters);
     }
     return filters.isEmpty() ? null : Filter.and(filters);
+  }
+
+  private void addFilter(JPAccessType accessType,
+                         Map<String, Collection<CollectionCond<String>>> condsMap,
+                         Collection<Filter> filters) {
+    if (condsMap.isEmpty()) {
+      return;
+    }
+    for (Map.Entry<String, Collection<CollectionCond<String>>> entryAttrs : condsMap.entrySet()) {
+      String attrCode = entryAttrs.getKey();
+      Collection<CollectionCond<String>> conds = entryAttrs.getValue();
+      if (attrCode == null || attrCode.isEmpty() || conds == null || conds.isEmpty() || conds.contains(null)) {
+        continue;
+      }
+      Collection<String> inValues = new ArrayList<>();
+      Collection<String> notInValues = new ArrayList<>();
+      for (CollectionCond<String> cond : conds) {
+        Collection<String> v = cond.getValue();
+        if (v == null) {
+          continue;
+        }
+        if (cond.getOper() == FilterOperation.IN) {
+          inValues.addAll(v);
+        } else if (cond.getOper() == FilterOperation.NOTIN) {
+          notInValues.addAll(v);
+        }
+      }
+      filters.add(
+          JPAccessType.PERMIT == accessType ?
+              Filter.and(
+                  !inValues.isEmpty() ? Filter.attr(attrCode).in(inValues) : null,
+                  !notInValues.isEmpty() ? Filter.attr(attrCode).notIn(notInValues) : null
+              )
+              :
+              Filter.and(
+                  !inValues.isEmpty() ? Filter.attr(attrCode).notIn(inValues) : null,
+                  !notInValues.isEmpty() ? Filter.attr(attrCode).in(notInValues) : null
+              )
+      );
+    }
   }
 }

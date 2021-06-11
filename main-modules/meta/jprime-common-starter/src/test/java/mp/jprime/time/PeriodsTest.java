@@ -1,12 +1,6 @@
 package mp.jprime.time;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -14,17 +8,10 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith(SpringExtension.class)
-@ContextConfiguration()
 class PeriodsTest {
-  @Lazy(value = false)
-  @Configuration
-  @ComponentScan(value = {"mp.jprime.time"})
-  public static class Config {
-  }
 
   @Test
-  public void testPeriod() {
+  void testPeriod() {
     int y = 1;
     int m = 1;
     int d = 100;
@@ -38,17 +25,17 @@ class PeriodsTest {
   }
 
   @Test
-  public void testDiffPeriods() {
+  void testDiffPeriods() {
     Period period = Period.between(
-        LocalDate.of(2020,1,21),
-        LocalDate.of(2020,1,22)
+        LocalDate.of(2020, 1, 21),
+        LocalDate.of(2020, 1, 22)
     );
 
     assertEquals(2, period.getDays() + 1);
   }
 
   @Test
-  public void testCrossPeriods() {
+  void testCrossPeriods() {
     Collection<JPPeriod> periods = JPPeriods.get()
         .add(
             JPPeriod.get(

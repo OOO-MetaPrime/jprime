@@ -6,7 +6,16 @@ import org.springframework.context.ApplicationEvent;
  * Событие окончания загрузки метаописания
  */
 public class JPMetaLoadFinishEvent extends ApplicationEvent {
-  public JPMetaLoadFinishEvent() {
+  private JPMetaLoadFinishEvent() {
     super("");
+  }
+
+  /**
+   * Конструктор
+   *
+   * @return Событие
+   */
+  public static JPMetaLoadFinishEvent newEvent() {
+    return new JPMetaLoadFinishEvent();
   }
 }

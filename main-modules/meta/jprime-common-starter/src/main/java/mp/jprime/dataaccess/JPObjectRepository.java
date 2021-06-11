@@ -128,7 +128,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
    * Обновляем объект
    *
    * @param query Параметры для обновления
-   * @return Идентификатор обновляемого объекта
+   * @return Идентификатор обновленного объекта
    */
   JPId update(JPUpdate query);
 

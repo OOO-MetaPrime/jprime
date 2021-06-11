@@ -16,4 +16,8 @@ public class JPRepositoryNotFoundException extends JPRuntimeException {
   public JPRepositoryNotFoundException(String dbCode) {
     super(dbCode + " repository not found");
   }
+
+  public JPRepositoryNotFoundException(String where, String dbCode) {
+    super("repository with code '" + dbCode + "' not found in the " + where);
+  }
 }

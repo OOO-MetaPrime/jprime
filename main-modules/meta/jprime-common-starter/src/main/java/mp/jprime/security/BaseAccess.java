@@ -57,8 +57,8 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
         ),
         @JPPackage(
             code = BaseAccess.COMMON_READONLY,
-            description = "Доступ полный для роли ADMIN, остальным на чтение",
-            name = "Доступ полный для роли ADMIN, остальным на чтение",
+            description = "Полный доступ для роли ADMIN, остальным на чтение",
+            name = "Полный доступ роли ADMIN, остальным на чтение",
             access = {
                 @JPAccess(
                     type = JPAccessType.PERMIT,
@@ -88,8 +88,8 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
         ),
         @JPPackage(
             code = BaseAccess.ADMIN_ACCESS,
-            description = "Полный доступ и только для роли ADMIN",
-            name = "Полный доступ и только для роли ADMIN",
+            description = "Полный доступ для роли ADMIN",
+            name = "Полный доступ для роли ADMIN",
             access = {
                 @JPAccess(
                     type = JPAccessType.PERMIT,
@@ -173,11 +173,11 @@ public class BaseAccess implements JPSecuritySettings {
    */
   public final static String ONLY_CREATE = "onlyCreate";
   /**
-   * Доступ полный для роли ADMIN, остальным на чтение
+   * Полный доступ для роли ADMIN, остальным на чтение
    */
   public final static String COMMON_READONLY = "commonReadonly";
   /**
-   * Полный доступ и только для роли ADMIN
+   * Полный доступ для роли ADMIN
    */
   public final static String ADMIN_ACCESS = "adminAccess";
   /**

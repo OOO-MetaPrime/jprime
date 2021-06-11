@@ -24,4 +24,15 @@ public class JPForbiddenException extends JPAppRuntimeException {
   public JPForbiddenException(String messageCode, String message) {
     super(messageCode, message);
   }
+
+  /**
+   * Создание исключительной ситуации для класса
+   *
+   * @param messageCode Код ошибки
+   * @param classCode   Код класса
+   * @return
+   */
+  public static JPForbiddenException fromClassCode(String messageCode, String classCode) {
+    return new JPForbiddenException(messageCode, "Доступ к классу \"" + classCode + "\" запрещён");
+  }
 }

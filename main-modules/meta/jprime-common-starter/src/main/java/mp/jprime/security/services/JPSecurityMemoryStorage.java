@@ -6,6 +6,7 @@ import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
 import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Описание настроек RBAC
  */
 @Service
+@Lazy(value = false)
 public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   /**
    * Описания настроек безопаности

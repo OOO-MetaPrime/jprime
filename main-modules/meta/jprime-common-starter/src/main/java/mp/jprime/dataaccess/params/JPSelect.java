@@ -208,6 +208,15 @@ public class JPSelect extends JPBaseParams {
     }
 
     /**
+     * Метакласс
+     *
+     * @return Метакласс
+     */
+    public String getJpClass() {
+      return jpClass;
+    }
+
+    /**
      * Смещение начала выборки
      *
      * @param offset Смещение начала выборки
@@ -227,6 +236,15 @@ public class JPSelect extends JPBaseParams {
     public Builder limit(Integer limit) {
       this.limit = limit;
       return this;
+    }
+
+    /**
+     * Объектов в выборке
+     *
+     * @return Объектов в выборке
+     */
+    public Integer limit() {
+      return limit;
     }
 
     /**

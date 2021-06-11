@@ -90,7 +90,7 @@ public final class JPMutableData {
   /**
    * Сохраняет данные
    *
-   * @param key   Ключ
+   * @param key             Ключ
    * @param mappingFunction Вычисление значения
    * @return Значение
    */
@@ -194,53 +194,24 @@ public final class JPMutableData {
   }
 
   /**
+   * Построитель JPMutableData
+   *
+   * @param key   Ключ
+   * @param value Значение
+   * @return JPMutableData
+   */
+  public static JPMutableData of(String key, Object value) {
+    JPMutableData data = JPMutableData.empty();
+    data.put(key, value);
+    return data;
+  }
+
+  /**
    * Возвращает данные
    *
    * @return Данные
    */
   public Map<String, Object> toMap() {
     return new HashMap<>(dataMap);
-  }
-
-
-  /**
-   * Построитель JPMutableData
-   *
-   * @return Builder
-   */
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * Построитель JPMutableData
-   */
-  public static final class Builder {
-    private Map<String, Object> data;
-
-    private Builder() {
-
-    }
-
-    /**
-     * Создаем JPData
-     *
-     * @return JPData
-     */
-    public JPMutableData build() {
-      return new JPMutableData(data);
-    }
-
-
-    /**
-     * Данные объекта
-     *
-     * @param data Данные объекта
-     * @return Builder
-     */
-    public Builder data(Map<String, Object> data) {
-      this.data = data;
-      return this;
-    }
   }
 }

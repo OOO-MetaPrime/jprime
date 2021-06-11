@@ -9,6 +9,7 @@ import mp.jprime.security.abac.PolicyTarget;
 import mp.jprime.security.abac.annotations.JPAbacAnnoLoader;
 import mp.jprime.security.abac.xmlloader.services.JPAbacXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
  * Описание настроек ABAC
  */
 @Service
+@Lazy(value = false)
 public final class JPAbacMemoryStorage implements JPAbacStorage {
   /**
    * Описания настроек ABAC

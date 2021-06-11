@@ -75,6 +75,24 @@ public class JPObject {
   }
 
   /**
+   * Данные связного объекта
+   *
+   * @return Данные связного объекта
+   */
+  public JPObject getLinkedObject(String attr) {
+    return jpLinkedData != null ? jpLinkedData.get(attr) : null;
+  }
+
+  /**
+   * Данные связного объекта
+   *
+   * @return Данные связного объекта
+   */
+  public JPObject getLinkedObject(JPAttr attr) {
+    return jpLinkedData != null ? jpLinkedData.get(attr) : null;
+  }
+
+  /**
    * Кодовое имя пакета объекта
    *
    * @return Кодовое имя пакета объекта

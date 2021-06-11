@@ -5,6 +5,7 @@ import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.meta.JPAttr;
 
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.Collection;
 
 /**
@@ -476,8 +477,28 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
+    public IN in(Comparable... value) {
+      return new IN(attrCode, Arrays.asList(value));
+    }
+
+    /**
+     * В указанном списке
+     *
+     * @param value Значение
+     * @return Условие
+     */
     public NotIN notIn(Collection<? extends Comparable> value) {
       return new NotIN(attrCode, value);
+    }
+
+    /**
+     * В указанном списке
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public NotIN notIn(Comparable... value) {
+      return new NotIN(attrCode, Arrays.asList(value));
     }
 
     /**

@@ -7,6 +7,13 @@ import java.util.Collection;
  */
 public interface PolicySet {
   /**
+   * Код политики
+   *
+   * @return Код политики
+   */
+  String getCode();
+
+  /**
    * Название группы
    *
    * @return Название группы

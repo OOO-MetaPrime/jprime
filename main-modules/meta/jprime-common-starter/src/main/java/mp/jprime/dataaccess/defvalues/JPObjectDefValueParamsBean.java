@@ -11,14 +11,16 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
   private final Object rootId;
   private final String rootJpClassCode;
   private final JPData rootData;
+  private final String refAttrCode;
   private final AuthInfo authInfo;
   private final Source source;
 
   private JPObjectDefValueParamsBean(Object rootId, String rootJpClassCode, JPData rootData,
-                                     AuthInfo authInfo, Source source) {
+                                     String refAttrCode, AuthInfo authInfo, Source source) {
     this.rootId = rootId;
     this.rootJpClassCode = rootJpClassCode;
     this.rootData = rootData;
+    this.refAttrCode = refAttrCode;
     this.authInfo = authInfo;
     this.source = source;
   }
@@ -57,6 +59,17 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
   }
 
   /**
+   * Атрибут текущего класса, по которому строилась ссылка
+   * Может быть не указан
+   *
+   * @return Атрибут текущего класса, по которому строилась ссылка
+   */
+  @Override
+  public String getRefAttrCode() {
+    return refAttrCode;
+  }
+
+  /**
    * Данные авторизации
    * Могут быть не указаны
    *
@@ -92,8 +105,9 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
   public static final class Builder {
     private Object rootId;
     private String rootJpClassCode;
-    private AuthInfo authInfo;
     private JPData rootData;
+    private String refAttrCode;
+    private AuthInfo authInfo;
     private Source source;
 
     private Builder() {
@@ -106,7 +120,7 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
      * @return JPObjectDefValueParamsBean
      */
     public JPObjectDefValueParamsBean build() {
-      return new JPObjectDefValueParamsBean(rootId, rootJpClassCode, rootData, authInfo, source);
+      return new JPObjectDefValueParamsBean(rootId, rootJpClassCode, rootData, refAttrCode, authInfo, source);
     }
 
     /**
@@ -139,6 +153,17 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
      */
     public Builder rootData(JPData rootData) {
       this.rootData = rootData;
+      return this;
+    }
+
+    /**
+     * Атрибут текущего класса, по которому строилась ссылка
+     *
+     * @param refAttrCode Атрибут текущего класса, по которому строилась ссылка
+     * @return Builder
+     */
+    public Builder refAttrCode(String refAttrCode) {
+      this.refAttrCode = refAttrCode;
       return this;
     }
 

@@ -11,7 +11,7 @@ public enum FilterOperation {
   /**
    * Указано значение
    */
-  ISNOTNULL("ISNUTNULL"),
+  ISNOTNULL("ISNOTNULL"),
   /**
    * Равно
    */

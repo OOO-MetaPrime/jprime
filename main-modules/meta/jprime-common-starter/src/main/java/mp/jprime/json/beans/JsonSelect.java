@@ -11,7 +11,7 @@ import java.util.*;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class JsonQuery {
+public class JsonSelect {
   @JsonProperty
   private Integer limit;
   @JsonProperty

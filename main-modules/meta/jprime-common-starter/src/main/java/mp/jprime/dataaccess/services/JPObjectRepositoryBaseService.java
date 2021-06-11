@@ -3,15 +3,20 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPObjectRepository;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.beans.*;
+import mp.jprime.dataaccess.beans.JPData;
+import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.*;
-import mp.jprime.exceptions.*;
+import mp.jprime.exceptions.JPClassMapNotFoundException;
+import mp.jprime.exceptions.JPClassNotFoundException;
+import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.services.JPMapsStorage;
 import mp.jprime.repositories.JPObjectStorage;
 import mp.jprime.repositories.JPStorage;
+import mp.jprime.repositories.exceptions.JPRepositoryNotFoundException;
 import mp.jprime.repositories.services.RepositoryStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +25,9 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
@@ -87,16 +94,7 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
 
   private JPObjectRepository getRepository(String classCode) {
     try {
-      JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-      if (jpClass == null) {
-        throw new JPClassNotFoundException(classCode);
-      }
-      // Получаем маппинг класса
-      JPClassMap jpClassMap = mapsStorage.get(jpClass);
-      if (jpClassMap == null) {
-        throw new JPClassMapNotFoundException(classCode);
-      }
-      JPStorage storage = repoStorage.getStorage(jpClassMap.getStorage());
+      JPStorage storage = getJpStorage(classCode);
       if (!(storage instanceof JPObjectStorage)) {
         throw new JPClassMapNotFoundException(classCode);
       }
@@ -106,11 +104,37 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
         rep = repoMap.get(storageClass);
         storageClass = storageClass.getSuperclass();
       }
-      return rep;
+      if (rep != null) {
+        return rep;
+      } else {
+        throw new JPRepositoryNotFoundException("JPObjectRepositoryService", storage.getCode());
+      }
     } catch (JPRuntimeException e) {
       LOG.error(e.getMessage(), e);
       throw e;
     }
+  }
+
+  private JPStorage getJpStorage(String classCode) {
+    JPClass jpClass = metaStorage.getJPClassByCode(classCode);
+    if (jpClass == null) {
+      throw new JPClassNotFoundException(classCode);
+    }
+    // Получаем маппинг класса
+    JPClassMap jpClassMap = mapsStorage.get(jpClass);
+    if (jpClassMap == null) {
+      throw new JPClassMapNotFoundException(classCode);
+    }
+    return repoStorage.getStorage(jpClassMap.getStorage());
+  }
+
+  @Override
+  public Optional<String> getStorageCode(String classCode) {
+    JPStorage jpStorage = getJpStorage(classCode);
+    if (jpStorage != null) {
+      return Optional.of(jpStorage.getCode());
+    }
+    return Optional.empty();
   }
 
   @Override

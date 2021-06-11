@@ -1,0 +1,71 @@
+import java.time.LocalDateTime
+import java.time.ZoneId
+
+ext {
+  SUBMODULES_SECTION_NAME = 'submodules'
+  PROJECT_VERSION_TITLE = 'Project-Version'
+  BUILD_DATE_TITLE = 'Build-Date'
+}
+
+static def getDate(String format) {
+  return LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(format)
+}
+
+def getSubmoduleHash() {
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD'
+    standardOutput = stdout
+  }
+  String hash = stdout.toString().trim()
+  return hash;
+}
+
+def getRootHash() {
+  def stdout = new ByteArrayOutputStream()
+  exec {
+    commandLine 'git', 'rev-parse', '--short', 'HEAD'
+    standardOutput = stdout
+  }
+  return stdout.toString().trim()
+}
+
+String getSubmoduleName(String line) {
+  String submodule = "";
+  if (line.contains('\'')) {
+    submodule = line.substring(line.indexOf('\'') + 1, line.lastIndexOf('\''))
+    if (submodule.contains('/')) {
+      submodule = submodule.substring(submodule.lastIndexOf('/') + 1)
+    }
+  }
+  if (submodule.isEmpty()) {
+    throw new RuntimeException("Submodule status parsing error: unexpected result from command line");
+  }
+  return submodule;
+}
+
+ext.common = [
+  getManifestAttrs: { ->
+    Map<String, GString> attrs = new HashMap<>();
+    attrs.put(PROJECT_VERSION_TITLE, "${getRootHash()}");
+    attrs.put(BUILD_DATE_TITLE, "${getDate('yyyy.MM.dd HH:mm:ss')}");
+    return attrs;
+  },
+  getSubmodulesVersion: { ->
+      Map<String, GString> attrs = new HashMap<>();
+      String subs = getSubmoduleHash();
+      String[] lines = subs.split("\n");
+      String submodule = null;
+      for (String line : lines) {
+        if (line.startsWith("Entering")) {
+          submodule = getSubmoduleName(line);
+        } else if (submodule != null) {
+          attrs.put(submodule, "${line}");
+          submodule = null;
+        } else {
+          throw new RuntimeException("Submodule status parsing error: unexpected result from command line");
+        }
+      }
+      return attrs;
+    }
+]

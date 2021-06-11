@@ -9,22 +9,18 @@ import mp.jprime.meta.JPMetaLoader;
 import mp.jprime.meta.JPProperty;
 import mp.jprime.meta.beans.*;
 import mp.jprime.meta.xmlloader.beans.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 /**
@@ -32,11 +28,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JPMetaXmlLoader implements JPMetaLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(JPMetaXmlLoader.class);
-  /**
-   * Папка с метаописанием
-   */
-  public static final String RESOURCES_FOLDER = "meta/";
+  private final Collection<JPMetaXmlResources> resources;
+
+  public JPMetaXmlLoader(@Autowired(required = false) Collection<JPMetaXmlResources> resources) {
+    this.resources = resources;
+  }
 
   /**
    * Вычитывает метаописание
@@ -44,31 +40,31 @@ public class JPMetaXmlLoader implements JPMetaLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<JPClass> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public Flux<Collection<JPClass>> load() {
+    return Mono.fromCallable(this::xmlLoad).flux();
   }
 
-  private void loadTo(FluxSink<JPClass> sink) {
-    URL url = null;
-    try {
-      url = ResourceUtils.getURL("classpath:" + JPMetaXmlLoader.RESOURCES_FOLDER);
-    } catch (FileNotFoundException e) {
-      LOG.debug(e.getMessage(), e);
+  private Collection<JPClass> xmlLoad() {
+    if (resources == null || resources.isEmpty()) {
+      return Collections.emptyList();
     }
-    if (url == null) {
-      return;
+    Collection<JPClass> result = new ArrayList<>();
+    for (JPMetaXmlResources resource : resources) {
+      result.addAll(xmlLoad(resource.getResources()));
+    }
+    return result;
+  }
+
+  private Collection<JPClass> xmlLoad(Collection<Resource> resources) {
+    if (resources == null || resources.isEmpty()) {
+      return Collections.emptyList();
     }
     try {
-      Path path = toPath(url);
-      if (path == null || !Files.exists(path)) {
-        return;
-      }
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-        for (Path entry : stream) {
-          XmlJpClasses xmlJpClasses = new XmlMapper().readValue(Files.newBufferedReader(entry), XmlJpClasses.class);
+      Collection<JPClass> result = new ArrayList<>();
+
+      for (Resource res : resources) {
+        try (InputStream is = res.getInputStream()) {
+          XmlJpClasses xmlJpClasses = new XmlMapper().readValue(is, XmlJpClasses.class);
           if (xmlJpClasses == null || xmlJpClasses.getJpClasses() == null) {
             continue;
           }
@@ -140,10 +136,12 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                 .description(cls.getDescription())
                 .attrs(newAttrs)
                 .build();
-            sink.next(newCls);
+
+            result.add(newCls);
           }
         }
       }
+      return result;
     } catch (IOException e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -173,5 +171,4 @@ public class JPMetaXmlLoader implements JPMetaLoader {
         .schemaProps(toJPProperty(property.getSchemaProps()))
         .build();
   }
-
 }

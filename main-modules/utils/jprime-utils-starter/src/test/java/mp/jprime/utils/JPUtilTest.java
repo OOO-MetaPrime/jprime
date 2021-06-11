@@ -29,7 +29,7 @@ public class JPUtilTest {
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.utils", "mp.jprime.log"}
+      basePackages = {"mp.jprime.utils", "mp.jprime.log", "mp.jprime.json"}
   )
   public static class Config {
     @MockBean

@@ -6,11 +6,13 @@ import mp.jprime.security.abac.PolicyTarget;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.UUID;
 
 /**
  * Группа политик
  */
 public class PolicySetBean implements PolicySet {
+  private final String code;
   private final String name;
   private final String qName;
   private final PolicyTarget target;
@@ -22,11 +24,22 @@ public class PolicySetBean implements PolicySet {
 
   private PolicySetBean(String name, String qName, PolicyTarget target,
                         Collection<Policy> policies, boolean immutable) {
+    this.code = UUID.randomUUID().toString();
     this.name = name;
     this.qName = qName;
     this.target = target;
     this.policies = Collections.unmodifiableCollection(policies != null ? policies : Collections.emptyList());
     this.immutable = immutable;
+  }
+
+  /**
+   * Код политики
+   *
+   * @return Код политики
+   */
+  @Override
+  public String getCode() {
+    return code;
   }
 
   /**

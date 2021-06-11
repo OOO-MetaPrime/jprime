@@ -35,7 +35,7 @@ subprojects {
     maven { url "https://repo.spring.io/snapshot" }
     maven { url "https://repo.spring.io/milestone" }
     maven { url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts" }
-    maven { url "https://dl.bintray.com/cuba-platform/main/" }
+    maven { url "https://repo.cuba-platform.com/content/groups/work/" }
   }
 
   dependencyManagement {
@@ -47,6 +47,16 @@ subprojects {
   configurations {
     all*.exclude module: 'spring-boot-starter-logging'
     all*.exclude module: 'slf4j-log4j12'
+  }
+
+  test {
+    failFast(true)
+    useJUnitPlatform {
+      excludeTags 'manualTests'
+      if (System.properties['test.profile'] == 'unit') {
+        excludeTags 'integrationTests'
+      }
+    }
   }
 }
 

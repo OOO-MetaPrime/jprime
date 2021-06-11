@@ -1,0 +1,17 @@
+dependencies {
+  api('org.springframework.cloud:spring-cloud-starter-netflix-eureka-client')
+}
+
+configurations {
+  all*.exclude group: 'com.sun.jersey', module: 'jersey-client'
+  all*.exclude group: 'com.sun.jersey', module: 'jersey-core2'
+  all*.exclude group: 'com.sun.jersey.contribs', module: 'jersey-apache-client4'
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

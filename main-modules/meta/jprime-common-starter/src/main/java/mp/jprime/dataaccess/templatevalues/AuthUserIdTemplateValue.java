@@ -1,0 +1,32 @@
+package mp.jprime.dataaccess.templatevalues;
+
+import mp.jprime.security.AuthInfo;
+import org.springframework.stereotype.Service;
+
+/**
+ * AUTH_USERID - Идентификатор пользователя
+ */
+@Service
+public class AuthUserIdTemplateValue implements TemplateValue {
+  /**
+   * Возвращает шаблон
+   *
+   * @return Шаблон
+   */
+  @Override
+  public String getTemplate() {
+    return "AUTH_USERID";
+  }
+
+  /**
+   * Форматируем шаблонное значение
+   *
+   * @param value    Значение
+   * @param authInfo AuthInfo
+   * @return Значение поля
+   */
+  @Override
+  public Object getValue(Object value, AuthInfo authInfo) {
+    return authInfo != null ? authInfo.getUserId() : null;
+  }
+}

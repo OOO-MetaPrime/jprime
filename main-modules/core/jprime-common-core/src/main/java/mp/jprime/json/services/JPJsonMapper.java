@@ -38,7 +38,7 @@ public class JPJsonMapper {
         // Подключаем javaTime
         .registerModule(
             new JavaTimeModule()
-                // String to Date
+                 // String to LocalDateTime
                 .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(
                     new DateTimeFormatterBuilder()
                         .parseCaseInsensitive()
@@ -48,7 +48,9 @@ public class JPJsonMapper {
                         .optionalEnd()
                         .toFormatter()
                 ))
+                // String to LocalTime
                 .addDeserializer(LocalTime.class, new LocalTimeDeserializer(DateTimeFormatter.ISO_LOCAL_TIME))
+                // String to LocalDate
                 .addDeserializer(LocalDate.class, new LocalDateDeserializer(
                     new DateTimeFormatterBuilder()
                         .appendValue(ChronoField.YEAR, 4)
@@ -56,19 +58,21 @@ public class JPJsonMapper {
                         .parseDefaulting(ChronoField.DAY_OF_MONTH, 1)
                         .toFormatter()
                 ))
+                // String to JsonString
                 .addDeserializer(JsonString.class, new StdDeserializer<JsonString>(JsonString.class) {
                   @Override
                   public JsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     return JsonString.from(p.getCodec().readTree(p).toString());
                   }
                 })
+                // String to XmlString
                 .addDeserializer(XmlString.class, new StdDeserializer<XmlString>(XmlString.class) {
                   @Override
                   public XmlString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     return XmlString.from(p.getCodec().readTree(p).toString());
                   }
                 })
-                // Date to String
+                // LocalDateTime to String
                 .addSerializer(LocalDateTime.class,
                     new JsonSerializer<LocalDateTime>() {
                       @Override
@@ -78,6 +82,7 @@ public class JPJsonMapper {
                       }
                     }
                 )
+                // LocalTime to String
                 .addSerializer(LocalTime.class,
                     new JsonSerializer<LocalTime>() {
                       @Override
@@ -86,6 +91,7 @@ public class JPJsonMapper {
                       }
                     }
                 )
+                // LocalDate to String
                 .addSerializer(LocalDate.class,
                     new JsonSerializer<LocalDate>() {
                       @Override
@@ -94,6 +100,7 @@ public class JPJsonMapper {
                       }
                     }
                 )
+                // JsonString to String
                 .addSerializer(JsonString.class,
                     new JsonSerializer<JsonString>() {
                       @Override
@@ -102,6 +109,7 @@ public class JPJsonMapper {
                       }
                     }
                 )
+                // XmlString to String
                 .addSerializer(XmlString.class,
                     new JsonSerializer<XmlString>() {
                       @Override

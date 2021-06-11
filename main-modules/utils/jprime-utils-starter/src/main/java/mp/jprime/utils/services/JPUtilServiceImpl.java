@@ -441,7 +441,7 @@ public final class JPUtilServiceImpl implements JPUtilService {
       this.qName = null;
       this.inParams = Collections.emptyList();
       this.outCustomParams = Collections.emptyList();
-      this.jpPackage = !StringUtils.isEmpty(jpPackage) ? jpPackage : null;
+      this.jpPackage = StringUtils.hasText(jpPackage) ? jpPackage : null;
       this.authRoles = authRoles;
       this.paramInClass = null;
       this.actionLog = true;
@@ -481,7 +481,7 @@ public final class JPUtilServiceImpl implements JPUtilService {
               .map(this::toJPUtilParam)
               .collect(Collectors.toList())
       );
-      this.jpPackage = !StringUtils.isEmpty(jpPackage) ? jpPackage : null;
+      this.jpPackage = StringUtils.hasText(jpPackage) ? jpPackage : null;
       this.authRoles = authRoles;
 
       Class paramInClass = null;

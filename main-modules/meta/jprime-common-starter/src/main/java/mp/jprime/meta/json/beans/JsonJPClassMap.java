@@ -6,6 +6,7 @@ public final class JsonJPClassMap {
   private String guid;
   private String storage;
   private String map;
+  private String schema;
   /**
    * Синхронизация с хранилищем
    */
@@ -19,10 +20,11 @@ public final class JsonJPClassMap {
 
   }
 
-  private JsonJPClassMap(String guid, String storage, String map, boolean storageSync, Collection<JsonJPAttrMap> attrMaps) {
+  private JsonJPClassMap(String guid, String storage, String map, String schema, boolean storageSync, Collection<JsonJPAttrMap> attrMaps) {
     this.guid = guid;
     this.storage = storage;
     this.map = map;
+    this.schema = schema;
     this.storageSync = storageSync;
     this.attrMaps = attrMaps;
   }
@@ -52,6 +54,15 @@ public final class JsonJPClassMap {
    */
   public String getMap() {
     return map;
+  }
+
+  /**
+   * Схема в хранилище
+   *
+   * @return Схема в хранилище
+   */
+  public String getSchema() {
+    return schema;
   }
 
   /**
@@ -88,6 +99,7 @@ public final class JsonJPClassMap {
     private String guid;
     private String storage;
     private String map;
+    private String schema;
     private boolean storageSync;
     private Collection<JsonJPAttrMap> attrMaps;
 
@@ -110,6 +122,11 @@ public final class JsonJPClassMap {
       return this;
     }
 
+    public Builder schema(String schema) {
+      this.schema = schema;
+      return this;
+    }
+
     public Builder storageSync(boolean storageSync) {
       this.storageSync = storageSync;
       return this;
@@ -121,7 +138,7 @@ public final class JsonJPClassMap {
     }
 
     public JsonJPClassMap build() {
-      return new JsonJPClassMap(guid, storage, map, storageSync, attrMaps);
+      return new JsonJPClassMap(guid, storage, map, schema, storageSync, attrMaps);
     }
   }
 }

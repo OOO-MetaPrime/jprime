@@ -2,6 +2,7 @@ package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.security.AuthInfo;
 
@@ -15,6 +16,7 @@ public class JPUpdate extends JPSave {
   private final Map<String, Collection<JPCreate>> linkedCreate;
   private final Map<String, Collection<JPUpdate>> linkedUpdate;
   private final Map<String, Collection<JPDelete>> linkedDelete;
+  private final Filter where;
 
   /**
    * Конструктор
@@ -31,12 +33,13 @@ public class JPUpdate extends JPSave {
                    Map<String, Collection<JPCreate>> linkedCreate,
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
-                   AuthInfo auth, Source source) {
+                   Filter where, AuthInfo auth, Source source) {
     super(data, source, auth);
     this.jpId = jpId;
     this.linkedCreate = Collections.unmodifiableMap(linkedCreate == null ? Collections.emptyMap() : linkedCreate);
     this.linkedUpdate = Collections.unmodifiableMap(linkedUpdate == null ? Collections.emptyMap() : linkedUpdate);
     this.linkedDelete = Collections.unmodifiableMap(linkedDelete == null ? Collections.emptyMap() : linkedDelete);
+    this.where = where;
   }
 
   /**
@@ -86,6 +89,15 @@ public class JPUpdate extends JPSave {
   }
 
   /**
+   * Условия
+   *
+   * @return Условия
+   */
+  public Filter getWhere() {
+    return where;
+  }
+
+  /**
    * Построитель JPUpdate
    *
    * @param jpId JPId
@@ -97,12 +109,24 @@ public class JPUpdate extends JPSave {
 
   /**
    * Построитель JPUpdate
+   *
+   * @param jpClass Кодовое имя метаописания класса
+   * @param id      Идентификатор объекта
+   * @return Builder
+   */
+  public static Builder update(String jpClass, Object id) {
+    return new Builder(JPId.get(jpClass, id));
+  }
+
+  /**
+   * Построитель JPUpdate
    */
   public static final class Builder extends JPSave.Builder<Builder> {
     private final JPId jpId;
     private Map<String, Collection<JPCreate>> linkedCreate = new HashMap<>();
     private Map<String, Collection<JPUpdate>> linkedUpdate = new HashMap<>();
     private Map<String, Collection<JPDelete>> linkedDelete = new HashMap<>();
+    private Filter where;
 
     private Builder(JPId jpId) {
       this.jpId = jpId;
@@ -115,7 +139,7 @@ public class JPUpdate extends JPSave {
      */
     @Override
     public JPUpdate build() {
-      return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, auth, source);
+      return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, where, auth, source);
     }
 
     /**
@@ -203,6 +227,53 @@ public class JPUpdate extends JPSave {
      */
     public Builder addWith(String attrCode, JPDelete delete) {
       this.linkedDelete.computeIfAbsent(attrCode, x -> new ArrayList<>()).add(delete);
+      return this;
+    }
+
+    /**
+     * Условие выборки
+     *
+     * @param where Условие выборки
+     * @return Builder
+     */
+    public Builder where(Filter where) {
+      this.where = where;
+      return this;
+    }
+
+    /**
+     * Условие выборки
+     *
+     * @param where Условие выборки
+     * @return Builder
+     */
+    public Builder andWhere(Filter where) {
+      if (where == null) {
+        return this;
+      }
+      if (this.where == null) {
+        this.where = where;
+      } else {
+        this.where = Filter.and(this.where, where);
+      }
+      return this;
+    }
+
+    /**
+     * Условие выборки
+     *
+     * @param where Условие выборки
+     * @return Builder
+     */
+    public Builder orWhere(Filter where) {
+      if (where == null) {
+        return this;
+      }
+      if (this.where == null) {
+        this.where = where;
+      } else {
+        this.where = Filter.or(this.where, where);
+      }
       return this;
     }
   }

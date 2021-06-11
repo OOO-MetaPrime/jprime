@@ -37,6 +37,13 @@ public @interface JPClassMap {
   String map() default "";
 
   /**
+   * Схема в хранилище
+   *
+   * @return Схема в хранилище
+   */
+  String schema() default "";
+
+  /**
    * Список маппинга атрибутов класса
    *
    * @return Список маппинга атрибутов класса

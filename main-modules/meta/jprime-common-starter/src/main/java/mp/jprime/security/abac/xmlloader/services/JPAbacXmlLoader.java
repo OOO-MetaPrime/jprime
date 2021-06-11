@@ -15,24 +15,19 @@ import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.DirectoryStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -47,11 +42,18 @@ public class JPAbacXmlLoader implements JPAbacLoader {
    */
   public static final String RESOURCES_FOLDER = "abac/";
 
+  private ApplicationContext applicationContext;
+
   private ParserService parserService;
 
   @Autowired
   private void setParserService(ParserService parserService) {
     this.parserService = parserService;
+  }
+
+  @Autowired
+  private void setApplicationContext(ApplicationContext applicationContext) {
+    this.applicationContext = applicationContext;
   }
 
   /**
@@ -68,23 +70,20 @@ public class JPAbacXmlLoader implements JPAbacLoader {
   }
 
   private void loadTo(FluxSink<PolicySet> sink) {
-    URL url = null;
     try {
-      url = ResourceUtils.getURL("classpath:" + JPAbacXmlLoader.RESOURCES_FOLDER);
-    } catch (FileNotFoundException e) {
-      LOG.debug(e.getMessage(), e);
-    }
-    if (url == null) {
-      return;
-    }
-    try {
-      Path path = toPath(url);
-      if (path == null || !Files.exists(path)) {
+      Resource[] resources = null;
+      try {
+        resources = applicationContext.getResources("classpath:" + JPAbacXmlLoader.RESOURCES_FOLDER + "*.xml");
+      } catch (FileNotFoundException e) {
+        LOG.debug(e.getMessage(), e);
+      }
+      if (resources == null || resources.length == 0) {
         return;
       }
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-        for (Path entry : stream) {
-          XmlJpAbac xmlJpAbac = new XmlMapper().readValue(Files.newBufferedReader(entry), XmlJpAbac.class);
+
+      for (Resource res : resources) {
+        try (InputStream is = res.getInputStream()) {
+          XmlJpAbac xmlJpAbac = new XmlMapper().readValue(is, XmlJpAbac.class);
           if (xmlJpAbac == null || xmlJpAbac.getJpPolicySets() == null) {
             continue;
           }

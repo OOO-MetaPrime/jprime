@@ -1,6 +1,5 @@
 package mp.jprime.metamaps.services;
 
-import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.meta.JPClass;
 import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsDynamicLoader;
@@ -9,8 +8,7 @@ import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.repositories.services.RepositoryStorage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -18,36 +16,38 @@ import reactor.util.annotation.NonNull;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 /**
  * Описания привязки метаинформации к хранилищу
  */
 @Service
+@Lazy(value = false)
 public final class JPMapsMemoryStorage implements JPMapsStorage {
-  /**
-   * Описания привязки метаинформации к хранилищу
-   */
-  private Map<String, Map<String, JPClassMap>> maps = new ConcurrentHashMap<>();
-  /**
-   * Динамическая загрузка меты
-   */
-  private JPMapsDynamicLoader dynamicLoader;
   /**
    * Описания хранилищ
    */
   private RepositoryStorage repoStorage;
+
+  private AtomicReference<Cache> cacheRef = new AtomicReference<Cache>() {
+    {
+      set(new Cache());
+    }
+  };
+
 
   /**
    * Размещает метаописание в хранилище
    */
   private JPMapsMemoryStorage(@Autowired JPMapsAnnoLoader annoLoader,
                               @Autowired JPMapsXmlLoader xmlLoader) {
-    Collection<Flux<JPClassMap>> p = new ArrayList<>();
+    Collection<Flux<Collection<JPClassMap>>> p = new ArrayList<>();
     p.add(annoLoader.load());
     p.add(xmlLoader.load());
     Flux.concat(p)
         .filter(Objects::nonNull)
-        .subscribe(this::applyJPClassMap);
+        .subscribe(this::applyJPClassMaps);
   }
 
   @Autowired
@@ -56,21 +56,31 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
   }
 
   @Autowired(required = false)
-  private void setDynamicLoader(JPMapsDynamicLoader dynamicLoader) {
-    this.dynamicLoader = dynamicLoader;
+  private void setDynamicLoader(Collection<JPMapsDynamicLoader> dynamicLoaders) {
+    Flux
+        .merge(
+            dynamicLoaders.stream()
+                .map(JPMapsDynamicLoader::load)
+                .collect(Collectors.toList())
+        )
+        .filter(Objects::nonNull)
+        .subscribe(this::applyDynamicJPClassMaps);
   }
 
   /**
    * Сохраняет указанную настройку
    *
-   * @param map настройку
+   * @param maps настройки
    */
-  private void applyJPClassMap(JPClassMap map) {
-    Map<String, JPClassMap> storages = maps.computeIfAbsent(map.getCode(), x -> new HashMap<>());
-    if (storages.containsKey(map.getStorage())) {
-      return;
+  private void applyJPClassMaps(Collection<JPClassMap> maps) {
+    Cache cache = cacheRef.get();
+    for (JPClassMap map : maps) {
+      Map<String, JPClassMap> storages = cache.maps.computeIfAbsent(map.getCode(), x -> new HashMap<>());
+      if (storages.containsKey(map.getStorage())) {
+        continue;
+      }
+      storages.put(map.getStorage(), map);
     }
-    storages.put(map.getStorage(), map);
   }
 
   /**
@@ -83,24 +93,31 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
       return;
     }
 
-    Map<String, Map<String, JPClassMap>> maps = new ConcurrentHashMap<>();
-    // Добавляем постоянные классы
-    for (Map<String, JPClassMap> values : this.maps.values()) {
-      for (JPClassMap map : values.values()) {
-        if (map.isImmutable()) {
-          maps.computeIfAbsent(map.getCode(), x -> new HashMap<>()).put(map.getStorage(), map);
+    while (true) {
+      Cache newCache = new Cache();
+
+      Cache oldCache = cacheRef.get();
+      // Добавляем постоянные классы
+      for (Map<String, JPClassMap> values : oldCache.maps.values()) {
+        for (JPClassMap map : values.values()) {
+          if (map.isImmutable()) {
+            newCache.maps.computeIfAbsent(map.getCode(), x -> new HashMap<>()).put(map.getStorage(), map);
+          }
         }
       }
-    }
-    // Добавляем динамические классы
-    for (JPClassMap map : list) {
-      Map<String, JPClassMap> storages = maps.computeIfAbsent(map.getCode(), x -> new HashMap<>());
-      if (storages.containsKey(map.getStorage())) {
-        continue;
+      // Добавляем динамические классы
+      for (JPClassMap map : list) {
+        Map<String, JPClassMap> storages = newCache.maps.computeIfAbsent(map.getCode(), x -> new HashMap<>());
+        if (storages.containsKey(map.getStorage())) {
+          continue;
+        }
+        storages.put(map.getStorage(), map);
       }
-      storages.put(map.getStorage(), map);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
+      }
     }
-    this.maps = maps;
   }
 
   /**
@@ -122,7 +139,7 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
    */
   @Override
   public JPClassMap get(@NonNull JPClass jpClass) {
-    Map<String, JPClassMap> storages = maps.get(jpClass.getCode());
+    Map<String, JPClassMap> storages = cacheRef.get().maps.get(jpClass.getCode());
     if (storages == null) {
       return null;
     }
@@ -135,21 +152,24 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
     return null;
   }
 
-  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.meta.events.JPMetaChangeEvent).CODE)")
-  public void handleJPMetaChangeEvent(JPSystemApplicationEvent event) {
-    dynamicLoad();
-  }
+  private class Cache {
+    private UUID uuid = UUID.randomUUID();
+    /**
+     * Описания привязки метаинформации к хранилищу
+     */
+    private Map<String, Map<String, JPClassMap>> maps = new ConcurrentHashMap<>();
 
-  @EventListener
-  public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-    dynamicLoad();
-  }
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Cache cache = (Cache) o;
+      return Objects.equals(uuid, cache.uuid);
+    }
 
-  private void dynamicLoad() {
-    if (dynamicLoader != null) {
-      dynamicLoader.load()
-          .collectList()
-          .subscribe(this::applyDynamicJPClassMaps);
+    @Override
+    public int hashCode() {
+      return Objects.hash(uuid);
     }
   }
 }

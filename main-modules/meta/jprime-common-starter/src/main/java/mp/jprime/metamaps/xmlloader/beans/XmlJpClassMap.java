@@ -6,6 +6,7 @@ public class XmlJpClassMap {
   private String code;
   private String storage;
   private String map;
+  private String schema;
   @JacksonXmlProperty(localName = "jpAttrMaps")
   private XmlJpAttrMaps jpAttrMaps;
 
@@ -41,12 +42,21 @@ public class XmlJpClassMap {
     this.map = map;
   }
 
+  public String getSchema() {
+    return schema;
+  }
+
+  public void setSchema(String schema) {
+    this.schema = schema;
+  }
+
   @Override
   public String toString() {
     return "XmlJpClassMap{" +
         "code='" + code + '\'' +
         ", storage='" + storage + '\'' +
         ", map='" + map + '\'' +
+        ", schema='" + schema + '\'' +
         ", jpAttrMaps=" + jpAttrMaps +
         '}';
   }

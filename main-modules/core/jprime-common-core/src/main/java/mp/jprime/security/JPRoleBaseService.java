@@ -11,7 +11,7 @@ import java.util.Collections;
 @Service
 public class JPRoleBaseService implements JPRoleService {
   private static final Collection<String> DEFAULT_ALLOW_ROLES = Collections.unmodifiableCollection(
-      Collections.singleton(mp.jprime.security.Role.AUTH_ACCESS)
+      Collections.singleton(Role.AUTH_ACCESS)
   );
 
   /**

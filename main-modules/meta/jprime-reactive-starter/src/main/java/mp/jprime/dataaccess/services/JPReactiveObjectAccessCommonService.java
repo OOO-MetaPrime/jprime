@@ -3,7 +3,9 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.dataaccess.JPReactiveObjectAccessService;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.security.AuthInfo;
@@ -34,7 +36,34 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkCreate(String classCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> isCreateCheck(classCode, auth));
+    return Mono.fromCallable(() -> isCreateCheck(classCode, null, auth));
+  }
+
+  /**
+   * Проверка доступа на создание из другого объекта
+   *
+   * @param classCode   Код метаописания
+   * @param refAttrCode Ссылочный атрибут
+   * @param value       Значение ссылочного атрибута
+   * @param auth        AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkCreate(String classCode, String refAttrCode, Comparable value, AuthInfo auth) {
+    return Mono.fromCallable(() -> isCreateCheck(classCode, JPMutableData.of(refAttrCode, value), auth));
+  }
+
+  /**
+   * Проверка доступа на создание
+   *
+   * @param classCode  Код метаописания
+   * @param createData Данные для создания
+   * @param auth       AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkCreate(String classCode, JPMutableData createData, AuthInfo auth) {
+    return Mono.fromCallable(() -> isCreateCheck(classCode, createData, auth));
   }
 
   /**
@@ -70,7 +99,20 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkUpdate(JPId id, AuthInfo auth) {
-    return checkUpdate(id, Boolean.FALSE, auth);
+    return checkUpdate(id, null, Boolean.FALSE, auth);
+  }
+
+  /**
+   * Проверка доступа на обновление
+   *
+   * @param id         Идентификатор объекта
+   * @param updateData Данные для обновления
+   * @param auth       AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkUpdate(JPId id, JPMutableData updateData, AuthInfo auth) {
+    return checkUpdate(id, updateData, Boolean.FALSE, auth);
   }
 
   /**
@@ -106,7 +148,20 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkUpdateExists(JPId id, AuthInfo auth) {
-    return checkUpdate(id, Boolean.TRUE, auth);
+    return checkUpdate(id, null, Boolean.TRUE, auth);
+  }
+
+  /**
+   * Проверка доступа на обновление
+   *
+   * @param id         Идентификатор объекта + наличие объекта
+   * @param updateData Данные для обновления
+   * @param auth       AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth) {
+    return checkUpdate(id, updateData, Boolean.TRUE, auth);
   }
 
 
@@ -123,7 +178,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
       return Mono.just(false);
     }
     // доступ к объекту
-    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE)) {
+    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       return getObject(id, jpClass, access, auth)
           .map(object -> securityManager.checkRead(object.getJpPackage(), auth.getRoles()))
           .defaultIfEmpty(false);
@@ -144,7 +199,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
       return Mono.just(false);
     }
     // доступ к объекту
-    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE)) {
+    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       return getObject(id, jpClass, access, auth)
           .map(object -> securityManager.checkDelete(object.getJpPackage(), auth.getRoles()))
           .defaultIfEmpty(false);
@@ -152,7 +207,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
     return Mono.just(true);
   }
 
-  private Mono<Boolean> checkUpdate(JPId id, boolean checkExists, AuthInfo auth) {
+  private Mono<Boolean> checkUpdate(JPId id, JPMutableData updateData, boolean checkExists, AuthInfo auth) {
     if (id == null || auth == null) {
       return Mono.just(false);
     }
@@ -164,13 +219,21 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
     if (!access.isAccess()) {
       return Mono.just(false);
     }
-    // доступ к объекту
-    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE)) {
-      return getObject(id, jpClass, access, auth)
-          .map(object -> securityManager.checkUpdate(object.getJpPackage(), auth.getRoles()))
-          .defaultIfEmpty(false);
+    Filter accessFilter = access.getFilter();
+
+    Mono<Boolean> result = Mono.just(true);
+    // проверки на значение
+    if (updateData != null && accessFilter != null) {
+      result = result.map(x -> x && checkData(accessFilter, updateData, auth));
     }
-    return Mono.just(true);
+    // доступ к объекту
+    if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || accessFilter != null) {
+      result = result.flatMap(x -> !x ? Mono.just(Boolean.FALSE) : getObject(id, jpClass, access, auth)
+          .map(object -> securityManager.checkUpdate(object.getJpPackage(), auth.getRoles()))
+          .defaultIfEmpty(false)
+      );
+    }
+    return result;
   }
 
   private Mono<JPObject> getObject(JPId id, JPClass jpClass, JPResourceAccess access, AuthInfo auth) {

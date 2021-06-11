@@ -4,8 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Класс описывающий исключительную ситуацаю, которая возникает в процессе работы
- * и будет передоваться в цепочку вызовов до тех пор, пока не будет обработана
+ * Класс описывающий исключительную ситуацию, которая возникает в процессе работы
+ * и будет передаваться в цепочку вызовов до тех пор, пока не будет обработана
  */
 @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 public class JPRuntimeException extends RuntimeException {

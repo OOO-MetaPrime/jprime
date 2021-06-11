@@ -5,68 +5,67 @@ import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.metamaps.JPAttrMap;
 import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsLoader;
+
 import mp.jprime.metamaps.beans.JPAttrMapBean;
 import mp.jprime.metamaps.beans.JPClassMapBean;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpAttrMap;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpAttrMaps;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpClassMap;
 import mp.jprime.metamaps.xmlloader.beans.XmlJpClassMaps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.FileNotFoundException;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.*;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Загрузка описание привязки меты к хранилищам
  */
 @Service
 public class JPMapsXmlLoader implements JPMapsLoader {
-  private static final Logger LOG = LoggerFactory.getLogger(JPMapsXmlLoader.class);
-  /**
-   * Папка с описанием привязки меты к хранилищам
-   */
-  public static final String RESOURCES_FOLDER = "metamaps/";
+  private final Collection<JPMapsXmlResources> resources;
 
-  /**
-   * Вычитывает описание привязки меты к хранилищам
-   *
-   * @return Список описания привязки меты к хранилищам
-   */
-  @Override
-  public Flux<JPClassMap> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public JPMapsXmlLoader(@Autowired(required = false) Collection<JPMapsXmlResources> resources) {
+    this.resources = resources;
   }
 
-  private void loadTo(FluxSink<JPClassMap> sink) {
-    URL url = null;
-    try {
-      url = ResourceUtils.getURL("classpath:" + JPMapsXmlLoader.RESOURCES_FOLDER);
-    } catch (FileNotFoundException e) {
-      LOG.debug(e.getMessage(), e);
+  /**
+   * Вычитывает метаописание
+   *
+   * @return Список метаописания
+   */
+  @Override
+  public Flux<Collection<JPClassMap>> load() {
+    return Mono.fromCallable(this::xmlLoad).flux();
+  }
+
+  private Collection<JPClassMap> xmlLoad() {
+    if (resources == null || resources.isEmpty()) {
+      return Collections.emptyList();
     }
-    if (url == null) {
-      return;
+    Collection<JPClassMap> result = new ArrayList<>();
+    for (JPMapsXmlResources resource : resources) {
+      result.addAll(xmlLoad(resource.getResources()));
+    }
+    return result;
+  }
+
+  private Collection<JPClassMap> xmlLoad(Collection<Resource> resources) {
+    if (resources == null || resources.isEmpty()) {
+      return Collections.emptyList();
     }
     try {
-      Path path = toPath(url);
-      if (path == null || !Files.exists(path)) {
-        return;
-      }
-      try (DirectoryStream<Path> stream = Files.newDirectoryStream(path)) {
-        for (Path entry : stream) {
-          XmlJpClassMaps xmlJpClassMaps = new XmlMapper().readValue(Files.newBufferedReader(entry), XmlJpClassMaps.class);
+      Collection<JPClassMap> result = new ArrayList<>();
+      for (Resource res : resources) {
+        try (InputStream is = res.getInputStream()) {
+          XmlJpClassMaps xmlJpClassMaps = new XmlMapper().readValue(is, XmlJpClassMaps.class);
           if (xmlJpClassMaps == null || xmlJpClassMaps.getJpClassMaps() == null) {
             continue;
           }
@@ -90,12 +89,14 @@ public class JPMapsXmlLoader implements JPMapsLoader {
                 .code(cls.getCode())
                 .storage(cls.getStorage())
                 .map(cls.getMap())
+                .schema(cls.getSchema())
                 .attrs(newAttrs)
                 .build();
-            sink.next(newCls);
+            result.add(newCls);
           }
         }
       }
+      return result;
     } catch (IOException e) {
       throw JPRuntimeException.wrapException(e);
     }

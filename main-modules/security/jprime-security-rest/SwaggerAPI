@@ -126,6 +126,50 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/access/v1/jpClasses/{classCode}/{attrCode}/{attrValue}':
+    get:
+      tags:
+      - object
+      summary: Получение прав доступа текущего пользователя к объектам класса при указанном значении
+      description: Получение прав доступа текущего пользователя к объектам класса при указанном значении
+      parameters:
+      - in: path
+        name: classCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код метаописания класса
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Кодовое имя атрибута класса
+      - in: path
+        name: attrValue
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Значение атрибута
+      responses:
+        '200':
+          description: get access settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpClassAccess'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
   '/access/v1/jpObjects/{pluralClassCode}/{objectId}':
     get:
       tags:
@@ -163,6 +207,86 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/access/v1/policySets':
+    get:
+      tags:
+      - list
+      summary: Получение списка описаний настроек доступа ABAC
+      description:
+        Описание имеющихся настроек доступа ABAC
+      responses:
+        '200':
+          description: Список всех настроек доступа ABAC
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpPolicySetList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/access/v1/policySets/{code}':
+    get:
+      tags:
+      - object
+      summary: Получение описание настроек доступа ABAC по коду
+      description:
+        Описание имеющихся настроек доступа ABAC по коду
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Код настроек доступа
+      responses:
+        '200':
+          description: Настройки, соответствующие коду
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpPolicySet'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/access/v1/policySets/search':
+    post:
+      tags:
+      - list
+      summary: Поиск списка описаний настроек доступа ABAC
+      description:
+        Поиск имеющихся настроек доступа ABAC
+        Возвращаются только политики, соответствующие запросу
+        В группах будут отсутствовать политки, не удовлетворяющие условиям поиска
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/jpPolicySetQuery'
+
+        description: object to add
+      responses:
+        '200':
+          description: Список настроек доступа, соответствующих запросу
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpPolicySetList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
 
 components:
   securitySchemes:
@@ -307,3 +431,240 @@ components:
           type: boolean
           description: Признак доступа на удаление
           format: boolean
+
+    jpPolicySetQuery:
+      type: object
+      description: Запрос на поиск ABAC
+      properties:
+        name:
+          type: string
+          description: Значение для поиска по имени
+        roles:
+          type: array
+          description: Список ролей для фильтрации
+          items:
+            type: string
+        jpClassCodes:
+          type: array
+          description: Список классов для фильтрации
+          items:
+            type: string
+        useCreate:
+          type: boolean
+          description: Поиск по созданию
+        useRead:
+          type: boolean
+          description: Поиск по чтению
+        useUpdate:
+          type: boolean
+          description: Поиск по изменению
+        useDelete:
+          type: boolean
+          description: Поиск по удалению
+        usePermit:
+          type: boolean
+          description: Поиск по настройкам на разрешение
+        useProhibition:
+          type: boolean
+          description: Поиск по настройкам на запрет
+        useEnviromentRules:
+          type: boolean
+          description: Поиск по наличию правил окружения
+
+    jpPolicySetList:
+      type: array
+      description: Список настроек ABAC
+      items:
+       $ref: '#/components/schemas/jpPolicySet'
+
+    jpPolicySet:
+      type: object
+      description: Настройки ABAC
+      properties:
+        code:
+          type: string
+          description: Код пакета
+          format: string
+        name:
+          type: string
+          description: Название правила
+          format: string
+        qName:
+          type: string
+          description: qName правила
+          format: string
+        target:
+          type: object
+          description: Настройки ролей доступа
+          items:
+            $ref: '#/components/schemas/target'
+        policies:
+          type: array
+          description: Настройки ролей доступа
+          items:
+            $ref: '#/components/schemas/policies'
+
+    target:
+      type: object
+      properties:
+        jpClasses:
+          type: array
+          description: Значение
+          items:
+            type: string
+            format: string
+
+    policies:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Название правила
+          format: string
+        qName:
+          type: string
+          description: QName правила
+          format: string
+        actions:
+          type: array
+          description: Действия
+          items:
+            type: string
+            format: string
+        subjectRules:
+          type: array
+          description: Правила для пользователя
+          items:
+            $ref: '#/components/schemas/subjectRules'
+        resourceRules:
+          type: array
+          description: Правила для объекта
+          items:
+            $ref: '#/components/schemas/resourceRules'
+        environmentRules:
+          type: array
+          description: Правила для окружения
+          items:
+            $ref: '#/components/schemas/environmentRules'
+
+    subjectRules:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Название правила
+          format: string
+        qName:
+          type: string
+          description: QName правила
+          format: string
+        effect:
+          type: string
+          description: Типы доступа (permit/prohibition)
+          format: string
+          example: permit
+        username:
+          type: object
+          description: Условие на логин
+          items:
+            $ref: '#/components/schemas/cond'
+        role:
+          type: object
+          description: Условие на роли
+          items:
+            $ref: '#/components/schemas/cond'
+        orgId:
+          type: object
+          description: Условие на организацию
+          items:
+            $ref: '#/components/schemas/cond'
+        depId:
+          type: object
+          description: Условие на подразделение
+          items:
+            $ref: '#/components/schemas/cond'
+
+    resourceRules:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Название правила
+          format: string
+        qName:
+          type: string
+          description: QName правила
+          format: string
+        effect:
+          type: string
+          description: Типы доступа (permit/prohibition)
+          format: string
+          example: permit
+        attrCode:
+          type: string
+          description: Кодовое имя атрибута
+          format: string
+        cond:
+          type: object
+          description: Условие на атрибут
+          items:
+            $ref: '#/components/schemas/cond'
+
+    environmentRules:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Название правила
+          format: string
+        qName:
+          type: string
+          description: QName правила
+          format: string
+        effect:
+          type: string
+          description: Типы доступа (permit/prohibition)
+          format: string
+          example: permit
+        daysOfWeek:
+          type: array
+          description: Условие на дни
+          items:
+            type: string
+            format: number
+        fromTime:
+          type: string
+          description: Время начала
+          format: date
+        toTime:
+          type: string
+          description: Время окончания
+          format: date
+        fromDateTime:
+          type: string
+          description: Дата-время начала
+          format: dateTime
+        toDateTime:
+          type: string
+          description: Дата-время окончания
+          format: dateTime
+        ip:
+          type: object
+          description: Условие на IP
+          items:
+            $ref: '#/components/schemas/cond'
+
+    cond:
+      type: object
+      description: Условие с массивом
+      properties:
+        cond:
+          type: string
+          description: Условия
+          format: string
+        values:
+          type: array
+          description: Значения
+          items:
+            type: string
+            format: string

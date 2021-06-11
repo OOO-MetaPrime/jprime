@@ -5,6 +5,7 @@ import mp.jprime.meta.JPAttr;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
  * Данные объекта
@@ -46,6 +47,15 @@ public final class JPData {
    */
   public Map<String, Object> toMap() {
     return new HashMap<>(data);
+  }
+
+  /**
+   * Реализация итератора
+   *
+   * @param action BiConsumer
+   */
+  public void forEach(BiConsumer<? super String, ? super Object> action) {
+    data.forEach(action);
   }
 
 

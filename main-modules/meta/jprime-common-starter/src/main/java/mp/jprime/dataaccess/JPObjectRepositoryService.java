@@ -186,4 +186,12 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   Long delete(JPDelete query);
+
+  /**
+   * Возвращает код хранилища для переданного {@code classCode}
+   *
+   * @param classCode код мета класса
+   * @return код хранилища
+   */
+  Optional<String> getStorageCode(String classCode);
 }

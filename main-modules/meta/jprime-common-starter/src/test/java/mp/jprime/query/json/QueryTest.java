@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration()
 public class QueryTest {
-  private static final JsonQuery query;
+  private static final JsonSelect query;
   /**
    * Заполнение Select на основе JSON-Query
    */
@@ -39,7 +39,7 @@ public class QueryTest {
   }
 
   static {
-    query = new JsonQuery();
+    query = new JsonSelect();
     query.setLimit(10);
     query.setOffset(0);
     query.setAttrs(Stream.of("attr1", "attr2", "attr3", "attr4").collect(Collectors.toList()));
@@ -68,7 +68,7 @@ public class QueryTest {
   public void testJsonConvertQuery() {
     String json = queryService.toString(query);
 
-    JsonQuery newQuery = queryService.getQuery(json);
+    JsonSelect newQuery = queryService.getQuery(json);
 
     assertNotNull(newQuery);
     assertNotNull(newQuery.getAttrs());

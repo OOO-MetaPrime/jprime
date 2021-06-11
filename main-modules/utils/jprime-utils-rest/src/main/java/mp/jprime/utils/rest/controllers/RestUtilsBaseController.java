@@ -1,5 +1,6 @@
 package mp.jprime.utils.rest.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.JPEnum;
 import mp.jprime.json.services.JPJsonMapper;
@@ -28,6 +29,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -135,15 +137,27 @@ public abstract class RestUtilsBaseController {
             Class inClass = mode.getInClass();
             JPUtilInParams inParams = null;
             if (inClass != null) {
+              ObjectMapper objectMapper = jpJsonMapper.getObjectMapper();
+
+              Map<String, Object> inputData = new HashMap<>(stringData.size());
+              for (Map.Entry<String, String> entry : stringData.entrySet()) {
+                String k = entry.getKey();
+                String v = entry.getValue();
+                if (v.startsWith("[") && v.endsWith("]")) {
+                  inputData.put(k, objectMapper.readValue(v, String[].class));
+                } else {
+                  inputData.put(k, v);
+                }
+              }
+
               inParams = (JPUtilInParams) jpJsonMapper.getObjectMapper().readValue(
-                  jpJsonMapper.getObjectMapper().writeValueAsString(stringData), inClass)
-              ;
+                  objectMapper.writeValueAsString(inputData), inClass
+              );
 
               BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(inParams);
               wrapper.setAutoGrowNestedPaths(true);
               wrapper.setPropertyValues(isData);
             }
-
             return Mono.zip(Mono.just(mode), Mono.justOrEmpty(inParams));
           } catch (Exception e) {
             LOG.error(e.getMessage(), e);

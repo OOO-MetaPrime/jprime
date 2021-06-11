@@ -124,6 +124,10 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
     if (jpClassCode == null) {
       return data;
     }
+    // Проставляем значение для связи
+    if (params.getRefAttrCode() != null && params.getRootId() != null) {
+      data.put(params.getRefAttrCode(), params.getRootId());
+    }
     Collection<JPObjectDefValue> vals = getDefValues(jpClassCode);
     if (vals != null && !vals.isEmpty()) {
       vals.forEach(x -> x.appendValues(data, params));

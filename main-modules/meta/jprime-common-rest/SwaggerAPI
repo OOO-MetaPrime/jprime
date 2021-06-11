@@ -1162,6 +1162,11 @@ components:
           format: string
           description: Кодовое имя класса объекта, из которого создаем (может быть не указан)
           example: spbCompany
+        refAttrCode:
+          type: string
+          format: string
+          description: Атрибут текущего класса, по которому строилась ссылка (может быть не указан)
+          example: org
         data:
           additionalProperties:
             type: string

@@ -8,7 +8,7 @@ import java.util.Collection;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonObjectLinkedData {
   private Collection<JsonObjectData> create = new ArrayList<>();
-  private Collection<JsonObjectData> update = new ArrayList<>();
+  private Collection<JsonUpdate> update = new ArrayList<>();
   private Collection<JsonObjectData> delete = new ArrayList<>();
 
   public Collection<JsonObjectData> getCreate() {
@@ -19,11 +19,11 @@ public class JsonObjectLinkedData {
     this.create = create;
   }
 
-  public Collection<JsonObjectData> getUpdate() {
+  public Collection<JsonUpdate> getUpdate() {
     return update;
   }
 
-  public void setUpdate(Collection<JsonObjectData> update) {
+  public void setUpdate(Collection<JsonUpdate> update) {
     this.update = update;
   }
 
@@ -39,7 +39,7 @@ public class JsonObjectLinkedData {
 
   }
 
-  public JsonObjectLinkedData(Collection<JsonObjectData> create, Collection<JsonObjectData> update, Collection<JsonObjectData> delete) {
+  public JsonObjectLinkedData(Collection<JsonObjectData> create, Collection<JsonUpdate> update, Collection<JsonObjectData> delete) {
     this.create = create;
     this.update = update;
     this.delete = delete;
