@@ -27,7 +27,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   private JPObjectRepositoryService repo;
   // Хранилище метаинформации
   private JPMetaStorage metaStorage;
-  // Логика вычисления значений по-умолчанию
+  // Логика вычисления значений по умолчанию
   private JPObjectDefValueService defValueService;
 
   @Autowired
@@ -107,6 +107,18 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   /**
    * Проверка доступа на чтение
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public boolean checkRead(String classCode, AuthInfo auth) {
+    return isReadCheck(classCode, auth);
+  }
+
+  /**
+   * Проверка доступа на чтение
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
@@ -119,6 +131,18 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   /**
    * Проверка доступа на удаление
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public boolean checkDelete(String classCode, AuthInfo auth) {
+    return isDeleteCheck(classCode, auth);
+  }
+
+  /**
+   * Проверка доступа на удаление
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
@@ -126,6 +150,18 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   @Override
   public boolean checkDelete(JPId id, AuthInfo auth) {
     return checkDelete(id, Boolean.FALSE, auth);
+  }
+
+  /**
+   * Проверка доступа на обновление
+   *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public boolean checkUpdate(String classCode, AuthInfo auth) {
+    return isUpdateCheck(classCode, auth);
   }
 
   /**

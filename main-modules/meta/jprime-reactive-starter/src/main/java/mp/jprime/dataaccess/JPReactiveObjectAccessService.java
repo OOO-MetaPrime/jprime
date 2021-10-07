@@ -42,6 +42,15 @@ public interface JPReactiveObjectAccessService {
   /**
    * Проверка доступа на чтение
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  Mono<Boolean> checkRead(String classCode, AuthInfo auth);
+
+  /**
+   * Проверка доступа на чтение
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
@@ -51,11 +60,29 @@ public interface JPReactiveObjectAccessService {
   /**
    * Проверка доступа на удаление
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  Mono<Boolean> checkDelete(String classCode, AuthInfo auth);
+
+  /**
+   * Проверка доступа на удаление
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
    */
   Mono<Boolean> checkDelete(JPId id, AuthInfo auth);
+
+  /**
+   * Проверка доступа на обновление
+   *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  Mono<Boolean> checkUpdate(String classCode, AuthInfo auth);
 
   /**
    * Проверка доступа на обновление

@@ -24,6 +24,14 @@ public interface JPMetaStorage {
   /**
    * Возвращает метаописание класса по коду
    *
+   * @param code Код класса
+   * @return Метаописание класса
+   * @throws mp.jprime.exceptions.JPClassNotFoundException если класс не найден
+   */
+  JPClass getJPClassByCodeOrThrow(String code);
+  /**
+   * Возвращает метаописание класса по коду
+   *
    * @param pluralCode Множественный код класса
    * @return Метаописание класса
    */

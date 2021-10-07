@@ -21,6 +21,8 @@ public class XmlJpAttr {
   private String virtualReference;
   private String virtualType;
   private XmlJpFile refJpFile;
+  private XmlJpSimpleFraction simpleFraction;
+  private XmlJpMoney money;
   @JacksonXmlProperty(localName = "jpProps")
   private XmlJpProps schemaProps;
 
@@ -152,6 +154,22 @@ public class XmlJpAttr {
     this.refJpFile = refJpFile;
   }
 
+  public XmlJpSimpleFraction getSimpleFraction() {
+    return simpleFraction;
+  }
+
+  public void setSimpleFraction(XmlJpSimpleFraction simpleFraction) {
+    this.simpleFraction = simpleFraction;
+  }
+
+  public XmlJpMoney getMoney() {
+    return money;
+  }
+
+  public void setMoney(XmlJpMoney money) {
+    this.money = money;
+  }
+
   public XmlJpProps getSchemaProps() {
     return schemaProps;
   }
@@ -175,7 +193,9 @@ public class XmlJpAttr {
         ", type='" + type + '\'' +
         ", refJpClass='" + refJpClass + '\'' +
         ", refJpAttr='" + refJpAttr + '\'' +
-        ", refJpFile='" + refJpFile + '\'' +
+        (refJpFile != null ? ", refJpFile='" + refJpFile + '\'' : "") +
+        (simpleFraction != null ? ", simpleFraction='" + simpleFraction + '\'' : "") +
+        (money != null ? ", money='" + money + '\'' : "") +
         ", virtualReference='" + virtualReference + '\'' +
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +

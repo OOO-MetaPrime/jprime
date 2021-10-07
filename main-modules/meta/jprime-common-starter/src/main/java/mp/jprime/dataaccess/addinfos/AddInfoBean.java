@@ -39,6 +39,17 @@ public final class AddInfoBean implements AddInfo {
   }
 
   /**
+   * Создать новый экземпляр AddInfo
+   *
+   * @param code Код
+   * @param info Информация
+   * @return Новый экземпляр AddInfo
+   */
+  public static AddInfo newInstance(String code, String info) {
+    return new AddInfoBean(code, info);
+  }
+
+  /**
    * Построитель AddInfoBean
    *
    * @return Builder

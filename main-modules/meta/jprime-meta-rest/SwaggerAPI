@@ -286,6 +286,23 @@ components:
                 "sizeAttr": "fileSize",
                 "dateAttr": "fileDate"
             }
+        simpleFraction:
+          type: object
+          description: Настройки простой дроби
+          items:
+            $ref: '#/components/schemas/jpSimpleFraction'
+          example: {
+                "integerAttr": "integerPart",
+                "denominatorAttr": "denominatorPart"
+            }
+        money:
+          type: object
+          description: Настройки денежного
+          items:
+            $ref: '#/components/schemas/jpMoney'
+          example: {
+                "currencyCode": "RUR"
+            }
         jpProps:
           type: array
           description: Список свойств псевдо-меты (json)
@@ -369,3 +386,26 @@ components:
           format: string
           description: Кодовое имя атрибута - Дата файла
           example: fileDate
+
+    jpSimpleFraction:
+      type: object
+      properties:
+        integerAttr:
+          type: string
+          format: string
+          description: Атрибут для хранения - Целая часть дроби
+          example: integerPart
+        denominatorAttr:
+          type: string
+          format: string
+          description: Атрибут для хранения - Знаменатель дроби
+          example: denominatorPart
+
+    jpMoney:
+      type: object
+      properties:
+        currencyCode:
+          type: string
+          format: string
+          description: Код валюты
+          example: RUR

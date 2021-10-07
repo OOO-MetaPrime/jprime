@@ -63,6 +63,30 @@ public abstract class JPObjectAccessBaseService {
     return true;
   }
 
+  protected boolean isReadCheck(String classCode, AuthInfo auth) {
+    if (classCode == null || auth == null) {
+      return false;
+    }
+    JPResourceAccess access = accessService.checkRead(classCode, auth);
+    return access.isAccess();
+  }
+
+  protected boolean isUpdateCheck(String classCode, AuthInfo auth) {
+    if (classCode == null || auth == null) {
+      return false;
+    }
+    JPResourceAccess access = accessService.checkUpdate(classCode, auth);
+    return access.isAccess();
+  }
+
+  protected boolean isDeleteCheck(String classCode, AuthInfo auth) {
+    if (classCode == null || auth == null) {
+      return false;
+    }
+    JPResourceAccess access = accessService.checkDelete(classCode, auth);
+    return access.isAccess();
+  }
+
   protected JPSelect toSelect(JPId id, JPClass jpClass, JPResourceAccess access, AuthInfo auth) {
     return JPSelect.from(id.getJpClass())
         .attr(jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) ? JPMeta.Attr.JPPACKAGE : jpClass.getPrimaryKeyAttr().getCode())

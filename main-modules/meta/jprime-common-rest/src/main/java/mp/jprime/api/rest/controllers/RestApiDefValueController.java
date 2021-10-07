@@ -30,7 +30,7 @@ public class RestApiDefValueController {
    */
   private QueryService queryService;
   /**
-   * Логика вычисления значений по-умолчанию
+   * Логика вычисления значений по умолчанию
    */
   private JPObjectDefValueService jpObjectDefValueService;
   /**

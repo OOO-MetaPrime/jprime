@@ -8,6 +8,10 @@ import java.util.Map;
  * Обобщенное системное событие
  */
 public final class JPCommonSystemEvent implements JPSystemEvent {
+  // Код инициатора события
+  private final String producer;
+  // Код слушателя, которому адресовано событие
+  private final String consumer;
   // Дата события
   private final LocalDateTime eventDate;
   // Код события
@@ -17,11 +21,23 @@ public final class JPCommonSystemEvent implements JPSystemEvent {
   // прочие данные
   private final Map<String, String> data;
 
-  private JPCommonSystemEvent(LocalDateTime eventDate, String eventCode, Boolean external, Map<String, String> data) {
+  private JPCommonSystemEvent(String producer, String consumer, LocalDateTime eventDate, String eventCode, Boolean external, Map<String, String> data) {
+    this.producer = producer;
+    this.consumer = consumer;
     this.eventDate = eventDate != null ? eventDate : LocalDateTime.now();
     this.eventCode = eventCode != null ? eventCode : "jpCommonSystemEvent";
     this.external = external != null ? external : false;
     this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : data);
+  }
+
+  @Override
+  public String getProducer() {
+    return producer;
+  }
+
+  @Override
+  public String getConsumer() {
+    return consumer;
   }
 
   @Override
@@ -57,6 +73,10 @@ public final class JPCommonSystemEvent implements JPSystemEvent {
    * Построитель JPCommonSystemEvent
    */
   public static final class Builder {
+    // Код инициатора события
+    private String producer;
+    // Код слушателя, которому адресовано событие
+    private String consumer;
     // Дата события
     private LocalDateTime eventDate;
     // Код события
@@ -73,8 +93,30 @@ public final class JPCommonSystemEvent implements JPSystemEvent {
      */
     public JPCommonSystemEvent build() {
       return new JPCommonSystemEvent(
-          eventDate, eventCode, external, data
+          producer, consumer, eventDate, eventCode, external, data
       );
+    }
+
+    /**
+     * Код инициатора события
+     *
+     * @param producer Код инициатора события
+     * @return Builder
+     */
+    public Builder producer(String producer) {
+      this.producer = producer;
+      return this;
+    }
+
+    /**
+     * Код слушателя, которому адресовано событие
+     *
+     * @param consumer Код слушателя, которому адресовано событие
+     * @return Builder
+     */
+    public Builder consumer(String consumer) {
+      this.consumer = consumer;
+      return this;
     }
 
     /**

@@ -6,7 +6,7 @@ import mp.jprime.events.systemevents.json.JsonJPSystemEvent;
 import org.springframework.stereotype.Service;
 
 /**
- * Конвертация JPSystemEvent <-> JsonJPSystemEvent
+ * Конвертация {@link JPSystemEvent} <-> {@link JsonJPSystemEvent}
  */
 @Service
 public final class JsonJPSystemEventConvertor {
@@ -16,6 +16,8 @@ public final class JsonJPSystemEventConvertor {
       return null;
     }
     return JPCommonSystemEvent.newBuilder()
+        .consumer(jsonEvent.getConsumer())
+        .producer(jsonEvent.getProducer())
         .eventDate(jsonEvent.getEventDate())
         .eventCode(jsonEvent.getEventCode())
         .external(jsonEvent.isExternal())
@@ -28,6 +30,8 @@ public final class JsonJPSystemEventConvertor {
       return null;
     }
     JsonJPSystemEvent jsonEvent = new JsonJPSystemEvent();
+    jsonEvent.setConsumer(event.getConsumer());
+    jsonEvent.setProducer(event.getProducer());
     jsonEvent.setEventDate(event.getEventDate());
     jsonEvent.setEventCode(event.getEventCode());
     jsonEvent.setExternal(event.isExternal());

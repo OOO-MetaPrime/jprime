@@ -3,10 +3,7 @@ package mp.jprime.meta.xmlloader.services;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.beans.PropertyType;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.meta.JPAttr;
-import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPMetaLoader;
-import mp.jprime.meta.JPProperty;
+import mp.jprime.meta.*;
 import mp.jprime.meta.beans.*;
 import mp.jprime.meta.xmlloader.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,9 +73,18 @@ public class JPMetaXmlLoader implements JPMetaLoader {
             }
             Collection<JPAttr> newAttrs = new ArrayList<>(attrs.length);
             for (XmlJpAttr attr : attrs) {
+              String code = attr.getCode();
               String name = attr.getName();
+              JPType type = JPType.getType(attr.getType());
+
               String descr = attr.getDescription();
               XmlJpFile jpFile = attr.getRefJpFile();
+              XmlJpSimpleFraction simpleFraction = attr.getSimpleFraction();
+              XmlJpMoney money = attr.getMoney();
+
+              if (type == null) {
+                continue;
+              }
 
               newAttrs.add(JPAttrBean.newBuilder()
                   .guid(attr.getGuid())
@@ -91,19 +97,23 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .name(name != null ? name : descr)
                   .shortName(attr.getShortName())
                   .description(descr)
-                  .code(attr.getCode())
+                  .code(code)
                   .jpClassCode(cls.getGuid())
+                  // Настройка ссылки класс+атрибут
                   .refJpClassCode(attr.getRefJpClass())
                   .refJpAttrCode(attr.getRefJpAttr())
+                  // Настройка виртуальной ссылки
                   .virtualReference(
                       JPVirtualPathBean.newInstance(
                           attr.getVirtualReference(), attr.getVirtualType()
                       )
                   )
+                  // Настройка файла
                   .refJpFile(
-                      jpFile == null || jpFile.getStorageCode() == null || jpFile.getStorageFilePath() == null ||
+                      type != JPType.FILE || jpFile == null ||
+                          jpFile.getStorageCode() == null || jpFile.getStorageFilePath() == null ||
                           jpFile.getStorageCode().isEmpty() || jpFile.getStorageFilePath().isEmpty() ? null :
-                          JPFileBean.newBuilder()
+                          JPFileBean.newBuilder(code)
                               .storageCode(jpFile.getStorageCode())
                               .storageFilePath(jpFile.getStorageFilePath())
                               .storageCodeAttrCode(jpFile.getStorageCodeAttrCode())
@@ -114,7 +124,25 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                               .fileDateAttrCode(jpFile.getFileDateAttrCode())
                               .build()
                   )
-                  .schemaProps(toJPProperty(attr.getSchemaProps()))
+                  // Настройка простой дроби
+                  .simpleFraction(
+                      type != JPType.SIMPLEFRACTION || simpleFraction == null ? null :
+                          JPSimpleFractionBean.newBuilder(code)
+                              .integerAttrCode(simpleFraction.getIntegerAttrCode())
+                              .denominatorAttrCode(simpleFraction.getDenominatorAttrCode())
+                              .build()
+                  )
+                  // Настройка денежного типа
+                  .money(
+                      type != JPType.MONEY || money == null ? null :
+                          JPMoneyBean.newBuilder(code)
+                              .currencyCode(money.getCurrencyCode())
+                              .build()
+                  )
+                  // Свойства псевдо-меты
+                  .schemaProps(
+                      toJPProperty(attr.getSchemaProps())
+                  )
                   .build());
             }
             String name = cls.getName();

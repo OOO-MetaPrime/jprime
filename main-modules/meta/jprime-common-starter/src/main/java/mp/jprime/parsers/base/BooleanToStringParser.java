@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class BooleanToStringParser implements TypeParser<Boolean, String> {
   /**
-   * Строкое значение, соответствующее ДА
+   * Строковое значение, соответствующее ДА
    */
   private static final String TRUE = "true";
   /**
-   * Строкое значение, соответствующее НЕТ
+   * Строковое значение, соответствующее НЕТ
    */
   private static final String FALSE = "false";
 

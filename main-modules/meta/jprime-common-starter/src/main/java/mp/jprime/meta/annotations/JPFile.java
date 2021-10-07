@@ -14,7 +14,7 @@ public @interface JPFile {
   /**
    * Атрибут для хранения - Код хранилища
    *
-   * @return Код хранилища
+   * @return Кодовое имя атрибута
    */
   String storageCodeAttrCode() default "";
 
@@ -28,35 +28,35 @@ public @interface JPFile {
   /**
    * Атрибут для хранения - Путь в хранилище
    *
-   * @return Путь в хранилище
+   * @return Кодовое имя атрибута
    */
   String storageFilePathAttrCode() default "";
 
   /**
    * Атрибут для хранения - Заголовок файла
    *
-   * @return Заголовок файла
+   * @return Кодовое имя атрибута
    */
   String fileTitleAttrCode() default "";
 
   /**
    * Атрибут для хранения -  Расширение файла
    *
-   * @return guid файла
+   * @return Кодовое имя атрибута
    */
   String fileExtAttrCode() default "";
 
   /**
    * Атрибут для хранения -  Размер файла
    *
-   * @return Размер файла
+   * @return Кодовое имя атрибута
    */
   String fileSizeAttrCode() default "";
 
   /**
    * Атрибут для хранения - Возвращает дату файла
    *
-   * @return Дата файла
+   * @return Кодовое имя атрибута
    */
   String fileDateAttrCode() default "";
 }

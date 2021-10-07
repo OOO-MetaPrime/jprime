@@ -105,6 +105,20 @@ public @interface JPAttr {
   JPFile refJpFile() default @JPFile(storageCode = "", storageFilePath = "");
 
   /**
+   * Настройки хранения простой дроби
+   *
+   * @return Настройки простой дроби
+   */
+  JPSimpleFraction simpleFraction() default @JPSimpleFraction(integerAttrCode = "", denominatorAttrCode = "");
+
+  /**
+   * Настройки хранения денежного типа
+   *
+   * @return Настройки денежного типа
+   */
+  JPMoney money() default @JPMoney(currency = "");
+
+  /**
    * Путь виртуальной ссылки
    *
    * @return Путь виртуальной ссылки

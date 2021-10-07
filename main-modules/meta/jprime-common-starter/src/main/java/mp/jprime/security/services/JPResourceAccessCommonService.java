@@ -19,7 +19,8 @@ import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Реализация JPResourceAccessService
@@ -211,78 +212,78 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     if (policies == null || policies.isEmpty()) {
       return null;
     }
-    // Признак использования фильтра (отключаем, если нет ограниченмя по атрибуту)
+    // Признак использования фильтра (отключаем, если нет ограничения по атрибуту)
     boolean hasFullPermit = false;
 
-    Map<String, Collection<CollectionCond<String>>> permitConds = new HashMap<>();
-    Map<String, Collection<CollectionCond<String>>> prohibitionConds = new HashMap<>();
+    Collection<Filter> permitFilters = new ArrayList<>();
+    Collection<Filter> prohibitionFilters = new ArrayList<>();
     for (Policy policy : policies) {
       if (policy.getResourceRules().isEmpty()) {
         hasFullPermit = true;
       } else {
+        Collection<Filter> allowFilters = new ArrayList<>();
+        Collection<Filter> disallowFilters = new ArrayList<>();
+
         for (ResourceRule rule : policy.getResourceRules()) {
-          if (rule.getEffect() == JPAccessType.PERMIT) {
-            permitConds
-                .computeIfAbsent(rule.getAttrCode(), v -> new ArrayList<>())
-                .add(rule.getCond());
+          Filter filter = getFilter(rule);
+          if (JPAccessType.PERMIT == rule.getEffect()) {
+            allowFilters.add(filter);
           } else {
-            prohibitionConds
-                .computeIfAbsent(rule.getAttrCode(), v -> new ArrayList<>())
-                .add(rule.getCond());
+            disallowFilters.add(filter);
           }
+        }
+
+        if (allowFilters.isEmpty()) {
+          prohibitionFilters.add(
+              Filter.and(disallowFilters)
+          );
+        } else {
+          allowFilters.addAll(disallowFilters);
+          permitFilters.add(
+              Filter.and(allowFilters)
+          );
         }
       }
     }
 
-    if (hasFullPermit && prohibitionConds.isEmpty()) {
+    if (hasFullPermit && prohibitionFilters.isEmpty()) {
       return null;
     }
 
-    Collection<Filter> filters = new ArrayList<>();
-    addFilter(JPAccessType.PROHIBITION, prohibitionConds, filters);
-    if (!hasFullPermit) {
-      addFilter(JPAccessType.PERMIT, permitConds, filters);
-    }
-    return filters.isEmpty() ? null : Filter.and(filters);
+    return Filter.and(
+        prohibitionFilters.isEmpty() ? null : Filter.and(prohibitionFilters),
+        permitFilters.isEmpty() || hasFullPermit ? null : Filter.or(permitFilters)
+    );
   }
 
-  private void addFilter(JPAccessType accessType,
-                         Map<String, Collection<CollectionCond<String>>> condsMap,
-                         Collection<Filter> filters) {
-    if (condsMap.isEmpty()) {
-      return;
+  private Filter getFilter(ResourceRule rule) {
+    JPAccessType accessType = rule.getEffect();
+    String attrCode = rule.getAttrCode();
+    CollectionCond<String> cond = rule.getCond();
+
+    Collection<String> inValues = null;
+    Collection<String> notInValues = null;
+    if (cond.getOper() == FilterOperation.IN) {
+      inValues = cond.getValue();
+    } else if (cond.getOper() == FilterOperation.NOTIN) {
+      notInValues = cond.getValue();
     }
-    for (Map.Entry<String, Collection<CollectionCond<String>>> entryAttrs : condsMap.entrySet()) {
-      String attrCode = entryAttrs.getKey();
-      Collection<CollectionCond<String>> conds = entryAttrs.getValue();
-      if (attrCode == null || attrCode.isEmpty() || conds == null || conds.isEmpty() || conds.contains(null)) {
-        continue;
+
+    if (JPAccessType.PERMIT == accessType) {
+      if (inValues != null && !inValues.isEmpty()) {
+        return Filter.attr(attrCode).in(inValues);
       }
-      Collection<String> inValues = new ArrayList<>();
-      Collection<String> notInValues = new ArrayList<>();
-      for (CollectionCond<String> cond : conds) {
-        Collection<String> v = cond.getValue();
-        if (v == null) {
-          continue;
-        }
-        if (cond.getOper() == FilterOperation.IN) {
-          inValues.addAll(v);
-        } else if (cond.getOper() == FilterOperation.NOTIN) {
-          notInValues.addAll(v);
-        }
+      if (notInValues != null && !notInValues.isEmpty()) {
+        return Filter.attr(attrCode).notIn(notInValues);
       }
-      filters.add(
-          JPAccessType.PERMIT == accessType ?
-              Filter.and(
-                  !inValues.isEmpty() ? Filter.attr(attrCode).in(inValues) : null,
-                  !notInValues.isEmpty() ? Filter.attr(attrCode).notIn(notInValues) : null
-              )
-              :
-              Filter.and(
-                  !inValues.isEmpty() ? Filter.attr(attrCode).notIn(inValues) : null,
-                  !notInValues.isEmpty() ? Filter.attr(attrCode).in(notInValues) : null
-              )
-      );
+    } else if (JPAccessType.PROHIBITION == accessType) {
+      if (inValues != null && !inValues.isEmpty()) {
+         return Filter.attr(attrCode).notIn(inValues);
+      }
+      if (notInValues != null && !notInValues.isEmpty()) {
+        return Filter.attr(attrCode).in(inValues);
+      }
     }
+    return null;
   }
 }

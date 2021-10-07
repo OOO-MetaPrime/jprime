@@ -1,5 +1,6 @@
 package mp.jprime.parsers;
 
+import mp.jprime.parsers.exceptions.JPParserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,11 +10,12 @@ import java.util.*;
  * Парсер типов
  */
 @Service
+@SuppressWarnings("rawtypes")
 public final class ParserService {
   /**
    * Все парсеры
    */
-  private Map<Class, Map<Class, TypeParser>> parsers = new HashMap<>();
+  private final Map<Class, Map<Class, TypeParser>> parsers = new HashMap<>();
 
   /**
    * Конструктор
@@ -29,17 +31,21 @@ public final class ParserService {
   }
 
   /**
-   * Возвращает парсер по приводимым типам
+   * Приводит значение к указанному типу
    *
    * @param to    Выходной тип
    * @param value Значение
-   * @return Парсер типов
+   * @return Значение
    */
+  @SuppressWarnings("unchecked")
   public <T> T parseTo(Class<T> to, Object value) {
-    if (value == null || to == null) {
+    if (value == null) {
       return null;
     }
-    if (value.getClass() == to) {
+    if (to == null) {
+      throw new IllegalArgumentException("Unset destination type <to> on call ParserService!");
+    }
+    if (to.isInstance(value)) {
       if (to == String.class) {
         value = ((String) value).trim();
       }
@@ -47,11 +53,11 @@ public final class ParserService {
     }
     Map<Class, TypeParser> map = parsers.get(value.getClass());
     if (map == null) {
-      return null;
+      throw new JPParserNotFoundException(String.format("Not found parser from {%s} to {%s} class", value.getClass(), to));
     }
     TypeParser parser = map.get(to);
     if (parser == null) {
-      return null;
+      throw new JPParserNotFoundException(String.format("Not found parser from {%s} to {%s} class", value.getClass(), to));
     }
     return (T) parser.parseObject(value);
   }

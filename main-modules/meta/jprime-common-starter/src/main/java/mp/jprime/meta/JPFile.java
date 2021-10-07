@@ -5,6 +5,13 @@ package mp.jprime.meta;
  */
 public interface JPFile {
   /**
+   * Код атрибута типа файл
+   *
+   * @return Код атрибута
+   */
+  String getFileAttrCode();
+
+  /**
    * Код хранилища
    *
    * @return Код хранилища

@@ -1,9 +1,6 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.meta.JPAttr;
-import mp.jprime.meta.JPFile;
-import mp.jprime.meta.JPProperty;
-import mp.jprime.meta.JPVirtualPath;
+import mp.jprime.meta.*;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -34,6 +31,8 @@ public final class JPAttrBean implements JPAttr {
   private final String refJpClassCode;
   private final String refJpAttrCode;
   private final JPFile refJpFile;
+  private final JPSimpleFraction simpleFraction;
+  private final JPMoney money;
   private final JPVirtualPath virtualReference;
   private final Collection<JPProperty> schemaProps;
 
@@ -41,7 +40,8 @@ public final class JPAttrBean implements JPAttr {
                      boolean mandatory,
                      String name, String shortName, String description,
                      String qName, String jpPackage, Collection<JPProperty> schemaProps,
-                     String refJpClassCode, String refJpAttrCode, JPFile refJpFile, JPVirtualPath virtualReference) {
+                     String refJpClassCode, String refJpAttrCode,
+                     JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money, JPVirtualPath virtualReference) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
@@ -54,6 +54,8 @@ public final class JPAttrBean implements JPAttr {
     this.refJpClassCode = refJpClassCode != null && !refJpClassCode.isEmpty() ? refJpClassCode : null;
     this.refJpAttrCode = refJpAttrCode != null && !refJpAttrCode.isEmpty() ? refJpAttrCode : null;
     this.refJpFile = refJpFile;
+    this.simpleFraction = simpleFraction;
+    this.money = money;
     this.virtualReference = virtualReference;
     this.schemaProps = schemaProps == null || schemaProps.isEmpty() ? null :
         Collections.unmodifiableCollection(schemaProps);
@@ -228,6 +230,26 @@ public final class JPAttrBean implements JPAttr {
   }
 
   /**
+   * Возвращает описание простой дроби
+   *
+   * @return Описание простой дроби
+   */
+  @Override
+  public JPSimpleFraction getSimpleFraction() {
+    return simpleFraction;
+  }
+
+  /**
+   * Возвращает описание денежного типа
+   *
+   * @return Описание денежного типа
+   */
+  @Override
+  public JPMoney getMoney() {
+    return money;
+  }
+
+  /**
    * Путь виртуальной ссылки
    *
    * @return Путь виртуальной ссылки
@@ -270,7 +292,9 @@ public final class JPAttrBean implements JPAttr {
         ", qName='" + qName + '\'' +
         ", refJpClassCode='" + refJpClassCode + '\'' +
         ", refJpAttrCode='" + refJpAttrCode + '\'' +
-        ", refJpFile='" + refJpFile + '\'' +
+        (refJpFile != null ? ", refJpFile='" + refJpFile + '\'' : "") +
+        (simpleFraction != null ? ", simpleFraction='" + simpleFraction + '\'' : "") +
+        (money != null ? ", money='" + money + '\'' : "") +
         ", virtualReference='" + virtualReference + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         '}';
@@ -295,6 +319,8 @@ public final class JPAttrBean implements JPAttr {
     private String refJpClassCode;
     private String refJpAttrCode;
     private JPFile refJpFile;
+    private JPSimpleFraction simpleFraction;
+    private JPMoney money;
     private JPVirtualPath virtualReference;
     private Collection<JPProperty> schemaProps;
 
@@ -309,7 +335,7 @@ public final class JPAttrBean implements JPAttr {
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage, schemaProps,
-          refJpClassCode, refJpAttrCode, refJpFile, virtualReference);
+          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, virtualReference);
     }
 
     /**
@@ -357,13 +383,35 @@ public final class JPAttrBean implements JPAttr {
     }
 
     /**
-     * астройки хранения файла
+     * Настройки хранения файла
      *
-     * @param refJpFile астройки хранения файла
+     * @param refJpFile Настройки хранения файла
      * @return Builder
      */
     public Builder refJpFile(JPFile refJpFile) {
       this.refJpFile = refJpFile;
+      return this;
+    }
+
+    /**
+     * Настройки простой дроби
+     *
+     * @param simpleFraction Настройки простой дроби
+     * @return Builder
+     */
+    public Builder simpleFraction(JPSimpleFraction simpleFraction) {
+      this.simpleFraction = simpleFraction;
+      return this;
+    }
+
+    /**
+     * Настройки денежного типа
+     *
+     * @param money Настройки денежного типа
+     * @return Builder
+     */
+    public Builder money(JPMoney money) {
+      this.money = money;
       return this;
     }
 

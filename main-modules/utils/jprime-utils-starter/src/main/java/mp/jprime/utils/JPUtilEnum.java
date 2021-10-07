@@ -14,7 +14,7 @@ public class JPUtilEnum extends JPEnumBase {
     return new Builder();
   }
 
-  public final static class Builder extends JPEnumBase.Builder<Builder> {
+  public final static class Builder extends mp.jprime.common.JPEnumBase.Builder<Builder> {
     private Builder() {
       super();
     }

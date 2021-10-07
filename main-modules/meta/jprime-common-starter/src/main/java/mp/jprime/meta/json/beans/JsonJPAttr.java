@@ -65,6 +65,14 @@ public class JsonJPAttr {
    */
   private JsonJPFile refJpFile;
   /**
+   * Настройки простой дроби
+   */
+  private JsonJPSimpleFraction simpleFraction;
+  /**
+   * Настройки денежного типа
+   */
+  private JsonJPMoney money;
+  /**
    * Схема свойств псевдо-меты
    */
   @JsonProperty(value = "jpProps")
@@ -76,7 +84,9 @@ public class JsonJPAttr {
 
   private JsonJPAttr(String guid, String code, String qName, String name, String shortName, String description,
                      String jpPackage, boolean identifier, boolean mandatory, String type, Integer length,
-                     String refJpClass, String refJpAttr, JsonJPFile refJpFile, Collection<JsonJPProperty> schemaProps) {
+                     String refJpClass, String refJpAttr,
+                     JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction, JsonJPMoney money,
+                     Collection<JsonJPProperty> schemaProps) {
     this.guid = guid;
     this.code = code;
     this.qName = qName;
@@ -91,6 +101,8 @@ public class JsonJPAttr {
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
     this.refJpFile = refJpFile;
+    this.simpleFraction = simpleFraction;
+    this.money = money;
     this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
   }
 
@@ -220,17 +232,31 @@ public class JsonJPAttr {
     return refJpFile;
   }
 
-  public Collection<JsonJPProperty> getSchemaProps() {
-    return schemaProps;
+  /**
+   * Настройки простой дроби
+   *
+   * @return Настройки простой дроби
+   */
+  public JsonJPSimpleFraction getSimpleFraction() {
+    return simpleFraction;
   }
 
   /**
-   * Схема свойств псевдо-меты
+   * Настройки денежного типа
    *
-   * @return список свойств псевдо-меты
+   * @return Денежный тип
    */
-  public void setSchemaProps(Collection<JsonJPProperty> schemaProps) {
-    this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
+  public JsonJPMoney getMoney() {
+    return money;
+  }
+
+  /**
+   * Список дополнительных свойств
+   *
+   * @return Дополнительные свойства
+   */
+  public Collection<JsonJPProperty> getSchemaProps() {
+    return schemaProps;
   }
 
   /**
@@ -260,6 +286,8 @@ public class JsonJPAttr {
     private String refJpAttr;
     private Integer length;
     private JsonJPFile refJpFile;
+    private JsonJPSimpleFraction simpleFraction;
+    private JsonJPMoney money;
     private Collection<JsonJPProperty> schemaProps;
 
     private Builder() {
@@ -348,6 +376,16 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder simpleFraction(JsonJPSimpleFraction simpleFraction) {
+      this.simpleFraction = simpleFraction;
+      return this;
+    }
+
+    public Builder money(JsonJPMoney money) {
+      this.money = money;
+      return this;
+    }
+
     public Builder schemaProps(Collection<JsonJPProperty> schemaProps) {
       this.schemaProps = schemaProps;
       return this;
@@ -355,7 +393,7 @@ public class JsonJPAttr {
 
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, length, refJpClass, refJpAttr, refJpFile, schemaProps);
+          type, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, schemaProps);
     }
   }
 }

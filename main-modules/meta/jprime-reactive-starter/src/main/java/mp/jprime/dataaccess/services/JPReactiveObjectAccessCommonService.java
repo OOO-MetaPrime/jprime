@@ -69,6 +69,18 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
   /**
    * Проверка доступа на чтение
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkRead(String classCode, AuthInfo auth) {
+    return Mono.fromCallable(() -> isReadCheck(classCode, auth));
+  }
+
+  /**
+   * Проверка доступа на чтение
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
@@ -81,6 +93,18 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
   /**
    * Проверка доступа на удаление
    *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkDelete(String classCode, AuthInfo auth) {
+    return Mono.fromCallable(() -> isDeleteCheck(classCode, auth));
+  }
+
+  /**
+   * Проверка доступа на удаление
+   *
    * @param id   Идентификатор объекта
    * @param auth AuthInfo
    * @return Да/Нет
@@ -88,6 +112,18 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
   @Override
   public Mono<Boolean> checkDelete(JPId id, AuthInfo auth) {
     return checkDelete(id, Boolean.FALSE, auth);
+  }
+
+  /**
+   * Проверка доступа на обновление
+   *
+   * @param classCode Код метаописания
+   * @param auth      AuthInfo
+   * @return Да/Нет
+   */
+  @Override
+  public Mono<Boolean> checkUpdate(String classCode, AuthInfo auth) {
+    return Mono.fromCallable(() -> isUpdateCheck(classCode, auth));
   }
 
   /**

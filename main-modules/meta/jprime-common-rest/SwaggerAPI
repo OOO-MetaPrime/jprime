@@ -223,8 +223,8 @@ paths:
     post:
       tags:
       - list
-      summary: Получение значений по-умолчанию
-      description: Значения по-умолчанию
+      summary: Получение значений по умолчанию
+      description: Значения по умолчанию
       parameters:
       - in: path
         name: pluralCode
@@ -241,7 +241,7 @@ paths:
         description: Параметры для вычисления
       responses:
         '200':
-          description: Значения по-умолчанию
+          description: Значения по умолчанию
           content:
             application/json:
               schema:
@@ -275,7 +275,7 @@ paths:
         description: Параметры для вычисления
       responses:
         '200':
-          description: Значения по-умолчанию
+          description: Значения по умолчанию
           content:
             application/json:
               schema:
@@ -1189,7 +1189,7 @@ components:
           additionalProperties:
             type: string
             example: 'attrValue'
-          description: Значения по-умолчанию для атрибутов
+          description: Значения по умолчанию для атрибутов
           example:
             userOwnerId: 9999999912
             citizenship: 643

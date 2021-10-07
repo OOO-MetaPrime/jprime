@@ -5,6 +5,7 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.enums.*;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.dataaccess.params.query.data.Entry;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -35,7 +36,7 @@ public class QueryService {
   }
 
   /**
-   * Максимальное количество в выборке по-умолчанию
+   * Максимальное количество в выборке по умолчанию
    */
   public static final int MAX_LIMIT = 50;
 
@@ -503,6 +504,10 @@ public class QueryService {
         Between b = (Between) v;
         Pair pair = b.getValue();
         cond = JsonCond.newAttrCond(attrName).between(new JsonBetweenCond(stringValue(pair.getFrom()), stringValue(pair.getTo())));
+      } else if (v.getOper() == FilterOperation.CONTAINS) {
+        Contains b = (Contains) v;
+        Entry entry = b.getValue();
+        cond = JsonCond.newAttrCond(attrName).contains(JsonContainsCond.from(stringValue(entry.getKey()), stringValue(entry.getValue())));
       }
     } else if (filter instanceof LinkFilter) {
       LinkFilter l = (LinkFilter) filter;
@@ -567,6 +572,7 @@ public class QueryService {
     Collection<JsonExpr> or = clear(exp.getOr());
     if (c != null) {
       JsonBetweenCond between = c.getBetween();
+      JsonContainsCond contains = c.getContains();
       // TODO сделать красиво
       if (c.getEq() != null) {
         return Filter.attr(c.getAttr()).eq(c.getEq());
@@ -598,6 +604,8 @@ public class QueryService {
         return Filter.attr(c.getAttr()).startWith(c.getStartsWith());
       } else if (between != null) {
         return Filter.attr(c.getAttr()).between(Pair.from(between.getFrom(), between.getTo()));
+      } else if (contains != null) {
+        return Filter.attr(c.getAttr()).contains(Entry.from(contains.getKey(), contains.getValue()));
       } else if (c.getExists() != null) {
         return Filter.attr(c.getAttr()).exists(toFilter(c.getExists()));
       } else if (c.getNotExists() != null) {
@@ -698,7 +706,7 @@ public class QueryService {
   }
 
   /**
-   * Создает запрос значений по-умолчанию
+   * Создает запрос значений по умолчанию
    *
    * @param json Строка запроса
    * @return Описание запроса

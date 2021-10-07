@@ -3,7 +3,6 @@ package mp.jprime.web.error;
 import mp.jprime.exceptions.CompositeException;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
-import mp.jprime.exceptions.JPSecurityException;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -32,9 +31,6 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     String message = null;
     if (error instanceof JPAppRuntimeException) {
       code = ((JPAppRuntimeException) error).getMessageCode();
-      message = error.getMessage();
-    } else if (error instanceof JPSecurityException) {
-      code = "security.forbidden";
       message = error.getMessage();
     } else if (error instanceof JPObjectNotFoundException) {
       JPObjectNotFoundException e = (JPObjectNotFoundException) error;

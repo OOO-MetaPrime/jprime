@@ -9,7 +9,7 @@ import java.util.Collections;
 /**
  * Описание свойства псевдо-меты
  */
-public class JPPropertyBean implements JPProperty {
+public final class JPPropertyBean implements JPProperty {
   private final String code;
   private final PropertyType type;
   private final Integer length;

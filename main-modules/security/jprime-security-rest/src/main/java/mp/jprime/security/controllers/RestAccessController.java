@@ -357,16 +357,16 @@ public class RestAccessController {
     JsonJPClassAccess.Builder builder = JsonJPClassAccess.newBuilder()
         .classCode(jpClass.getCode())
         .read(
-            securityManager.checkRead(jpClass.getJpPackage(), auth.getRoles())
+            objectAccessService.checkRead(jpClass.getCode(), auth)
         )
         .create(
             objectAccessService.checkCreate(jpClass.getCode(), refAttrCode, value, auth)
         )
         .update(
-            securityManager.checkUpdate(jpClass.getJpPackage(), auth.getRoles())
+            objectAccessService.checkUpdate(jpClass.getCode(), auth)
         )
         .delete(
-            securityManager.checkDelete(jpClass.getJpPackage(), auth.getRoles())
+            objectAccessService.checkDelete(jpClass.getCode(), auth)
         );
     // Доступ к атрибутам
     jpClass.getAttrs().stream()

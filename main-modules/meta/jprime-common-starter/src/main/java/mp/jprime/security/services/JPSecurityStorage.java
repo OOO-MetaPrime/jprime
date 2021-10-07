@@ -66,4 +66,13 @@ public interface JPSecurityStorage {
    * @return Да/Нет
    */
   boolean checkCreate(String packageCode, Collection<String> roles);
+
+  /**
+   * Проверка доступа (CREATE/UPDATE/DELETE)
+   *
+   * @param packageCode Код пакета
+   * @param roles       Роли
+   * @return Да/Нет
+   */
+  boolean checkModify(String packageCode, Collection<String> roles);
 }

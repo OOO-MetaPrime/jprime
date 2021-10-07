@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.params.query;
 
+import mp.jprime.dataaccess.params.query.data.Entry;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.meta.JPAttr;
@@ -509,6 +510,16 @@ public abstract class Filter {
      */
     public Between between(Pair value) {
       return new Between(attrCode, value);
+    }
+
+    /**
+     * Содержит
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public Contains contains(Entry value) {
+      return new Contains(attrCode, value);
     }
   }
 }

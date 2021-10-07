@@ -3,7 +3,10 @@ package mp.jprime.api.rest.controllers;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.params.*;
+import mp.jprime.dataaccess.params.JPCreate;
+import mp.jprime.dataaccess.params.JPDelete;
+import mp.jprime.dataaccess.params.JPSelect;
+import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
@@ -15,6 +18,7 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.requesthistory.services.RequestHistoryPublisher;
 import mp.jprime.rest.v1.Controllers;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
@@ -58,6 +62,10 @@ public class RestApiJsonCRUDController {
    * Обработчик JWT
    */
   private JWTService jwtService;
+  /**
+   * Работа с отправкой Истории запросов
+   */
+  private RequestHistoryPublisher historyPublisher;
 
   @Value("${jprime.query.queryTimeout:}")
   private Integer queryTimeout;
@@ -92,6 +100,11 @@ public class RestApiJsonCRUDController {
   @Autowired
   private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
+  }
+
+  @Autowired(required = false)
+  private void setHistoryPublisher(RequestHistoryPublisher historyPublisher) {
+    this.historyPublisher = historyPublisher;
   }
 
   /**
@@ -172,6 +185,9 @@ public class RestApiJsonCRUDController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    if (historyPublisher != null) {
+      historyPublisher.sendSearch(jpClass.getCode(), query, authInfo, swe);
+    }
     JPSelect.Builder builder;
     try {
       builder = queryService.getSelect(jpClass.getCode(), query, authInfo)
@@ -340,6 +356,9 @@ public class RestApiJsonCRUDController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
+    if (historyPublisher != null) {
+      historyPublisher.sendFind(jpClass.getCode(), objectId, auth, swe);
+    }
 
     JPSelect jpSelect = JPSelect
         .from(jpClass)

@@ -2,10 +2,10 @@ package mp.jprime.events.systemevents.services;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
-import mp.jprime.events.systemevents.json.services.JsonJPSystemEventConvertor;
-import mp.jprime.json.services.JPKafkaJsonMapper;
 import mp.jprime.events.systemevents.JPSystemEvent;
 import mp.jprime.events.systemevents.json.JsonJPSystemEvent;
+import mp.jprime.events.systemevents.json.services.JsonJPSystemEventConvertor;
+import mp.jprime.json.services.JPKafkaJsonMapper;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;

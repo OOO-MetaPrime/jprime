@@ -7,9 +7,9 @@ import java.util.Collection;
  */
 public interface JPObjectAddInfo {
   /**
-   * Дополняет значения по-умолчанию
+   * Дополняет сведения об объекте
    *
-   * @param params Параметры для вычисления значений по-умолчанию
+   * @param params Параметры для вычисления сведений об объекте
    */
   Collection<AddInfo> getAddInfo(JPObjectAddInfoParams params);
 }

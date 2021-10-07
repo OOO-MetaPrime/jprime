@@ -1,6 +1,9 @@
 package mp.jprime.parsers;
 
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.lang.JPJsonNode;
+import mp.jprime.lang.JPJsonString;
+import mp.jprime.lang.JPXmlString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,16 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.UUID;
 
 import static mp.jprime.formats.DateFormat.ISO8601;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -21,9 +32,23 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration()
 class ParserServiceTest {
+  private static final String TEST_DATE_FORMAT = "yyyy-MM-dd";
+  private static final String TEST_DATE_TIME_FORMAT = TEST_DATE_FORMAT + " HH:mm:ss.SSS";
+  private static final String TEST_DATE = "2021-07-21";
+  private static final String TEST_TIME = "10:06:40.023";
+  private static final String TEST_DATE_TIME = TEST_DATE + " " + TEST_TIME;
+  private static final String TEST_DATE_TIME_S = TEST_DATE + "T" + TEST_TIME + "+0300";
+  private static final String TEST_JSON = "{\"code\":1}";
+  private static final String TEST_XML = "<employees>" +
+      "   <employee id=\"101\">" +
+      "        <name>Uncle Bob</name>" +
+      "       <title>Author</title>" +
+      "   </employee>" +
+      "</employees>";
+
   @Lazy(value = false)
   @Configuration
-  @ComponentScan(value = {"mp.jprime.parsers"})
+  @ComponentScan(value = {"mp.jprime.parsers", "mp.jprime.json.services"})
   public static class Config {
   }
 
@@ -55,7 +80,14 @@ class ParserServiceTest {
   void testStringToBoolean() {
     String in = "1";
     Object out = parserService.parseTo(Boolean.class, in);
-    assertEquals(true, out);
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testStringToBooleanFalse() {
+    String in = "f3dsd";
+    Object out = parserService.parseTo(Boolean.class, in);
+    assertEquals(Boolean.FALSE, out);
   }
 
   @Test
@@ -81,9 +113,8 @@ class ParserServiceTest {
 
   @Test
   void testStringToDate() throws Exception {
-    String in = "2012-04-09T20:00:00.000+0000";
-    Object out = parserService.parseTo(Date.class, in);
-    assertEquals(new SimpleDateFormat(ISO8601).parse(in), out);
+    Object out = parserService.parseTo(Date.class, TEST_DATE_TIME_S);
+    assertEquals(new SimpleDateFormat(ISO8601).parse(TEST_DATE_TIME_S), out);
   }
 
   @Test
@@ -101,6 +132,13 @@ class ParserServiceTest {
   }
 
   @Test
+  void testLongToLong() {
+    Long in = 1L;
+    Object out = parserService.parseTo(Long.class, in);
+    assertEquals(1L, out);
+  }
+
+  @Test
   void testBigIntegerToLong() {
     BigInteger in = new BigInteger("1");
     Object out = parserService.parseTo(Long.class, in);
@@ -115,10 +153,38 @@ class ParserServiceTest {
   }
 
   @Test
+  void testLongToDouble() {
+    Long in = 1L;
+    Object out = parserService.parseTo(Double.class, in);
+    assertEquals(1d, out);
+  }
+
+  @Test
   void testBigIntegerToInteger() {
     BigInteger in = new BigInteger("1");
     Object out = parserService.parseTo(Integer.class, in);
     assertEquals(1, out);
+  }
+
+  @Test
+  void testBigIntegerToBigInteger() {
+    BigInteger in = new BigInteger("1");
+    Object out = parserService.parseTo(BigInteger.class, in);
+    assertEquals(new BigInteger("1"), out);
+  }
+
+  @Test
+  void testBigDecimalToDouble() {
+    BigDecimal in = new BigDecimal("1");
+    Object out = parserService.parseTo(Double.class, in);
+    assertEquals(1.0, out);
+  }
+
+  @Test
+  void testDoubleToBigDecimal() {
+    Double in = 1d;
+    Object out = parserService.parseTo(BigDecimal.class, in);
+    assertEquals(new BigDecimal(1d), out);
   }
 
   @Test
@@ -135,6 +201,7 @@ class ParserServiceTest {
     assertEquals(new BigInteger("1"), out);
   }
 
+  @Test
   void testIntegerToBigDecimal() {
     Integer in = 1;
     Object out = parserService.parseTo(BigDecimal.class, in);
@@ -174,6 +241,13 @@ class ParserServiceTest {
     Double in = 1d;
     Object out = parserService.parseTo(Integer.class, in);
     assertEquals(1, out);
+  }
+
+  @Test
+  void testDoubleToLong() {
+    Double in = 1d;
+    Object out = parserService.parseTo(Long.class, in);
+    assertEquals(1L, out);
   }
 
   @Test
@@ -251,9 +325,199 @@ class ParserServiceTest {
     Integer in = 0;
     Object out = parserService.parseTo(Boolean.class, in);
     assertEquals(Boolean.FALSE, out);
-
     in = 1;
     out = parserService.parseTo(Boolean.class, in);
     assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testBooleanToBoolean() {
+    Boolean in = true;
+    Object out = parserService.parseTo(Boolean.class, in);
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testDateToLocalDate() throws ParseException {
+    Date in = new SimpleDateFormat(TEST_DATE_FORMAT).parse(TEST_DATE);
+    LocalDate out = parserService.parseTo(LocalDate.class, in);
+    assertEquals(LocalDate.parse(TEST_DATE), out);
+  }
+
+  @Test
+  void testDateToSqlDate() throws ParseException {
+    Date in = new SimpleDateFormat(TEST_DATE_FORMAT).parse(TEST_DATE);
+    java.sql.Date out = parserService.parseTo(java.sql.Date.class, in);
+    assertEquals(java.sql.Date.valueOf(TEST_DATE), out);
+  }
+
+  @Test
+  void testDateToTimestamp() throws ParseException {
+    Date in = new SimpleDateFormat(TEST_DATE_FORMAT).parse(TEST_DATE);
+    Object out = parserService.parseTo(Timestamp.class, in);
+    assertEquals(new Timestamp(in.getTime()), out);
+  }
+
+  @Test
+  void testJPIdToBigInteger() {
+    JPId in = JPId.get("", 1);
+    Object out = parserService.parseTo(BigInteger.class, in);
+    assertEquals(new BigInteger("1"), out);
+  }
+
+  @Test
+  void testJPIdToDouble() {
+    JPId in = JPId.get("", 1d);
+    Object out = parserService.parseTo(Double.class, in);
+    assertEquals(1d, out);
+  }
+
+  @Test
+  void testJPIdToFloat() {
+    JPId in = JPId.get("", 1f);
+    Object out = parserService.parseTo(Float.class, in);
+    assertEquals(1f, out);
+  }
+
+  @Test
+  void testJPIdToIntegerParser() {
+    JPId in = JPId.get("", 1);
+    Object out = parserService.parseTo(Integer.class, in);
+    assertEquals(1, out);
+  }
+
+  @Test
+  void testJPIdToLong() {
+    JPId in = JPId.get("", 1L);
+    Object out = parserService.parseTo(Long.class, in);
+    assertEquals(1L, out);
+  }
+
+  @Test
+  void testJsonStringToString() {
+    JPJsonString in = JPJsonString.from(TEST_JSON);
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(TEST_JSON, out);
+  }
+
+  @Test
+  void testLocalDateToDate() {
+    LocalDate in = LocalDate.parse(TEST_DATE);
+    Date out = parserService.parseTo(Date.class, in);
+    assertEquals(Date.from(in.atStartOfDay(ZoneId.systemDefault()).toInstant()), out);
+  }
+
+  @Test
+  void testLocalDateToLocalDateTime() {
+    LocalDateTime in = LocalDateTime.parse(TEST_DATE_TIME_S, DateTimeFormatter.ofPattern(ISO8601));
+    Object out = parserService.parseTo(LocalDateTime.class, in);
+    assertEquals(LocalDateTime.parse(TEST_DATE_TIME_S, DateTimeFormatter.ofPattern(ISO8601)), out);
+  }
+
+  @Test
+  void testLocalDateToString() {
+    LocalDate in = LocalDate.parse(TEST_DATE);
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(TEST_DATE, out);
+  }
+
+  @Test
+  void testLocalTimeToString() {
+    LocalTime in = LocalTime.parse(TEST_TIME);
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(TEST_TIME, out);
+  }
+
+  @Test
+  void testSqlDateToDate() throws ParseException {
+    java.sql.Date in = java.sql.Date.valueOf(TEST_DATE);
+    Object out = parserService.parseTo(Date.class, in);
+    assertEquals(new SimpleDateFormat(TEST_DATE_FORMAT).parse(TEST_DATE), out);
+  }
+
+  @Test
+  void testSqlDateToLocalDate() {
+    java.sql.Date in = java.sql.Date.valueOf(TEST_DATE);
+    Object out = parserService.parseTo(LocalDate.class, in);
+    assertEquals(LocalDate.parse(TEST_DATE), out);
+  }
+
+  @Test
+  void testSqlDateToLocalDateTime() {
+    java.sql.Date in = java.sql.Date.valueOf(TEST_DATE);
+    Object out = parserService.parseTo(LocalDateTime.class, in);
+    assertEquals(LocalDate.parse(TEST_DATE, DateTimeFormatter.ofPattern(TEST_DATE_FORMAT)).atStartOfDay(), out);
+  }
+
+  @Test
+  void testSqlDateToTimestamp() {
+    java.sql.Date in = java.sql.Date.valueOf(TEST_DATE);
+    Object out = parserService.parseTo(Timestamp.class, in);
+    assertEquals(new Timestamp(in.getTime()), out);
+  }
+
+  @Test
+  void testStringToJsonString() {
+    JPJsonString out = parserService.parseTo(JPJsonString.class, TEST_JSON);
+    assertEquals(JPJsonString.from(TEST_JSON).toString(), out.toString());
+  }
+
+  @Test
+  void testStringToLocalDate() {
+    Object out = parserService.parseTo(LocalDate.class, TEST_DATE);
+    assertEquals(LocalDate.parse(TEST_DATE), out);
+  }
+
+  @Test
+  void testStringToLocalDateTime() {
+    Object out = parserService.parseTo(LocalDateTime.class, TEST_DATE_TIME_S);
+    assertEquals(LocalDateTime.parse(TEST_DATE_TIME_S, DateTimeFormatter.ofPattern(ISO8601)), out);
+  }
+
+  @Test
+  void testStringToLocalTime() {
+    Object out = parserService.parseTo(LocalTime.class, TEST_TIME);
+    assertEquals(LocalTime.parse(TEST_TIME), out);
+  }
+
+  @Test
+  void testStringToUUID() {
+    String in = "f219326c-4a9a-4b17-84c0-ddd135fe7da9";
+    Object out = parserService.parseTo(UUID.class, in);
+    assertEquals(UUID.fromString(in), out);
+  }
+
+  @Test
+  void testUUIDToString() {
+    UUID in = UUID.fromString("f219326c-4a9a-4b17-84c0-ddd135fe7da9");
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(in.toString(), out);
+  }
+
+  @Test
+  void testTimestampToDate() throws ParseException {
+    Timestamp in = Timestamp.valueOf(TEST_DATE_TIME);
+    Object out = parserService.parseTo(Date.class, in);
+    assertEquals(new SimpleDateFormat(TEST_DATE_TIME_FORMAT).parse(TEST_DATE_TIME), out);
+  }
+
+  @Test
+  void testXmlStringToString() {
+    JPXmlString in = JPXmlString.from(TEST_XML);
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(in.toString(), out);
+  }
+
+  @Test
+  void testStringToXmlString() {
+    Object out = parserService.parseTo(JPXmlString.class, TEST_XML);
+    assertEquals(JPXmlString.from(TEST_XML).toString(), out.toString());
+  }
+
+  @Test
+  void testJpJsonNodeToString() {
+    Object in = parserService.parseTo(JPJsonNode.class, TEST_JSON);
+    Object out = parserService.parseTo(String.class, in);
+    assertEquals(out, TEST_JSON);
   }
 }

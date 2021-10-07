@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.beans;
 
+import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.meta.JPAttr;
 
 import java.util.HashMap;
@@ -8,7 +9,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-public final class JPMutableData {
+public final class JPMutableData implements JPAttrData {
   private final Map<String, Object> dataMap;
 
   /**
@@ -20,16 +21,6 @@ public final class JPMutableData {
     this.dataMap = dataMap != null ? new HashMap<>(dataMap) : new HashMap<>();
   }
 
-
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
-  public <T> T get(JPAttr attr) {
-    return (T) dataMap.get(attr.getCode());
-  }
-
   /**
    * Возвращает данные
    *
@@ -37,6 +28,16 @@ public final class JPMutableData {
    */
   public <T> T get(String attr) {
     return (T) dataMap.get(attr);
+  }
+
+  /**
+   * Признак отсутствия данных
+   *
+   * @return Да/Нет
+   */
+  @Override
+  public boolean isEmpty() {
+    return dataMap.isEmpty();
   }
 
   /**
@@ -62,16 +63,7 @@ public final class JPMutableData {
    *
    * @return Да/Нет
    */
-  public boolean containsKey(JPAttr attr) {
-    return dataMap.containsKey(attr.getCode());
-  }
-
-  /**
-   * Возвращает признак наличия данных
-   *
-   * @return Да/Нет
-   */
-  public boolean containsKey(String attr) {
+  public boolean containsAttr(String attr) {
     return dataMap.containsKey(attr);
   }
 

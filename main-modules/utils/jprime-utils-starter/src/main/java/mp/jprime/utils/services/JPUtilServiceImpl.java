@@ -43,7 +43,7 @@ import java.util.stream.Stream;
 public final class JPUtilServiceImpl implements JPUtilService {
   private static final Logger LOG = LoggerFactory.getLogger(JPUtilServiceImpl.class);
   /**
-   * Режим проверки доступности по-умолчанию
+   * Режим проверки доступности по умолчанию
    */
   public static final String CHECK_MODE = "check";
 
@@ -331,7 +331,7 @@ public final class JPUtilServiceImpl implements JPUtilService {
               Class[] inClasses = x.allInClasses;
               String resultType = x.resultType;
 
-              // По-умолчанию метод check, если не переопределен отрабатывает корректно
+              // По умолчанию метод check, если не переопределен отрабатывает корректно
               if (methodName == null && CHECK_MODE.equals(modeCode)) {
                 return Mono.just(JPUtilMessageOutParams.newBuilder().build());
               }

@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /*
- * Модель данных ответа со значениями по-умолчанию
+ * Модель данных ответа со значениями по умолчанию
  */
 @JsonPropertyOrder({
     "classCode",
@@ -68,9 +68,9 @@ public class JsonDefValueResult {
 
 
     /**
-     * Результаты значений по-умолчанию
+     * Результаты значений по умолчанию
      *
-     * @param data Результаты значений по-умолчанию
+     * @param data Результаты значений по умолчанию
      * @return Builder
      */
     public Builder data(Map<String, Object> data) {

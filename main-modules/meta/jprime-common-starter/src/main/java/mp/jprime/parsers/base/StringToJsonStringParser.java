@@ -1,7 +1,7 @@
 package mp.jprime.parsers.base;
 
 
-import mp.jprime.lang.JsonString;
+import mp.jprime.lang.JPJsonString;
 import mp.jprime.parsers.TypeParser;
 import org.springframework.stereotype.Service;
 
@@ -9,15 +9,15 @@ import org.springframework.stereotype.Service;
  * String -> JsonString
  */
 @Service
-public class StringToJsonStringParser implements TypeParser<String, JsonString> {
+public class StringToJsonStringParser implements TypeParser<String, JPJsonString> {
   /**
    * Форматирование значения
    *
    * @param value Данные во входном формате
    * @return Данные в выходном формате
    */
-  public JsonString parse(String value) {
-    return value == null || value.isEmpty() ? null : JsonString.from(value);
+  public JPJsonString parse(String value) {
+    return value == null || value.isEmpty() ? null : JPJsonString.from(value);
   }
 
   /**
@@ -34,7 +34,7 @@ public class StringToJsonStringParser implements TypeParser<String, JsonString> 
    *
    * @return Входной формат
    */
-  public Class<JsonString> getOutputType() {
-    return JsonString.class;
+  public Class<JPJsonString> getOutputType() {
+    return JPJsonString.class;
   }
 }

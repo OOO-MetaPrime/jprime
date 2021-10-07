@@ -7,6 +7,10 @@ import mp.jprime.meta.JPFile;
  */
 public final class JPFileBean implements JPFile {
   /**
+   * Код атрибута типа файл
+   */
+  private final String fileAttrCode;
+  /**
    * Код хранилища
    */
   private final String storageCode;
@@ -46,9 +50,10 @@ public final class JPFileBean implements JPFile {
    */
   private final String fileDateAttrCode;
 
-  private JPFileBean(String storageCode, String storageFilePath,
-                     String storageCodeAttrCode, String storageFilePathAttrCode,
+  private JPFileBean(String fileAttrCode,
+                     String storageCode, String storageFilePath, String storageCodeAttrCode, String storageFilePathAttrCode,
                      String fileTitleAttrCode, String fileExtAttrCode, String fileSizeAttrCode, String fileDateAttrCode) {
+    this.fileAttrCode = fileAttrCode;
     this.storageCode = storageCode;
     this.storageFilePath = storageFilePath;
     this.storageCodeAttrCode = storageCodeAttrCode;
@@ -57,6 +62,16 @@ public final class JPFileBean implements JPFile {
     this.fileExtAttrCode = fileExtAttrCode;
     this.fileSizeAttrCode = fileSizeAttrCode;
     this.fileDateAttrCode = fileDateAttrCode;
+  }
+
+  /**
+   * Код атрибута типа файл
+   *
+   * @return Код атрибута
+   */
+  @Override
+  public String getFileAttrCode() {
+    return fileAttrCode;
   }
 
   /**
@@ -144,14 +159,15 @@ public final class JPFileBean implements JPFile {
    *
    * @return Builder
    */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static Builder newBuilder(String fileAttrCode) {
+    return new Builder(fileAttrCode);
   }
 
   /**
    * Построитель JPFileBean
    */
   public static final class Builder {
+    private String fileAttrCode;
     private String storageCode;
     private String storageFilePath;
     private String storageCodeAttrCode;
@@ -161,7 +177,8 @@ public final class JPFileBean implements JPFile {
     private String fileSizeAttrCode;
     private String fileDateAttrCode;
 
-    private Builder() {
+    private Builder(String fileAttrCode) {
+      this.fileAttrCode = fileAttrCode;
     }
 
     /**
@@ -170,8 +187,8 @@ public final class JPFileBean implements JPFile {
      * @return JPFileBean
      */
     public JPFileBean build() {
-      return new JPFileBean(storageCode, storageFilePath,
-          storageCodeAttrCode, storageFilePathAttrCode,
+      return new JPFileBean(fileAttrCode,
+          storageCode, storageFilePath, storageCodeAttrCode, storageFilePathAttrCode,
           fileTitleAttrCode, fileExtAttrCode, fileSizeAttrCode, fileDateAttrCode);
     }
 

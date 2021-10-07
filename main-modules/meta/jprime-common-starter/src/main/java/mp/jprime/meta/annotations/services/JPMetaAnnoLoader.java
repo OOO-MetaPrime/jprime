@@ -5,10 +5,7 @@ import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.meta.JPMetaLoader;
 import mp.jprime.meta.JPProperty;
-import mp.jprime.meta.annotations.JPAttr;
-import mp.jprime.meta.annotations.JPClass;
-import mp.jprime.meta.annotations.JPFile;
-import mp.jprime.meta.annotations.JPPropertySchema;
+import mp.jprime.meta.annotations.*;
 import mp.jprime.meta.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -59,11 +56,16 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
       }
       Collection<mp.jprime.meta.JPAttr> newAttrs = new ArrayList<>(attrs.length);
       for (JPAttr attr : attrs) {
+        String code = attr.code();
+        JPType type = attr.type();
         JPFile jpFile = attr.refJpFile();
+        JPSimpleFraction simpleFraction = attr.simpleFraction();
+        JPMoney money = attr.money();
+
         Map<String, JPPropertySchema> schemas = getSchemas(attr.schemaProps());
         newAttrs.add(JPAttrBean.newBuilder()
             .guid(attr.guid())
-            .type(attr.type().getCode())
+            .type(type.getCode())
             .length(attr.length())
             .identifier(attr.identifier())
             .mandatory(attr.mandatory())
@@ -72,19 +74,22 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .name(attr.name())
             .shortName(attr.shortName())
             .description(attr.description())
-            .code(attr.code())
+            .code(code)
             .jpClassCode(cls.guid())
+            // Настройка ссылки класс+атрибут
             .refJpClassCode(attr.refJpClass())
             .refJpAttrCode(attr.refJpAttr())
+            // Настройка виртуальной ссылки
             .virtualReference(
                 JPVirtualPathBean.newInstance(
                     attr.virtualReference(),
                     !JPType.NONE.getCode().equals(attr.virtualType().getCode()) ? attr.virtualType() : null
                 )
             )
+            // Настройка файла
             .refJpFile(
-                jpFile.storageCode().isEmpty() || jpFile.storageFilePath().isEmpty() ? null :
-                    JPFileBean.newBuilder()
+                type != JPType.FILE || jpFile.storageCode().isEmpty() || jpFile.storageFilePath().isEmpty() ? null :
+                    JPFileBean.newBuilder(code)
                         .storageCode(jpFile.storageCode())
                         .storageFilePath(jpFile.storageFilePath())
                         .storageCodeAttrCode(jpFile.storageCodeAttrCode())
@@ -95,7 +100,25 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
                         .fileDateAttrCode(jpFile.fileDateAttrCode())
                         .build()
             )
-            .schemaProps(toJPProperty(attr.jpProps(), schemas))
+            // Настройка простой дроби
+            .simpleFraction(
+                type != JPType.SIMPLEFRACTION ? null :
+                    JPSimpleFractionBean.newBuilder(code)
+                        .integerAttrCode(simpleFraction.integerAttrCode())
+                        .denominatorAttrCode(simpleFraction.denominatorAttrCode())
+                        .build()
+            )
+            // Настройка денежного типа
+            .money(
+                type != JPType.MONEY ? null :
+                    JPMoneyBean.newBuilder(code)
+                        .currencyCode(money.currency())
+                        .build()
+            )
+            // Свойства псевдо-меты
+            .schemaProps(
+                toJPProperty(attr.jpProps(), schemas)
+            )
             .build()
         );
       }

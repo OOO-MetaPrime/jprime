@@ -7,4 +7,5 @@
 | jprime-actuator | Модуль мониторинга состояния сервиса 
 | jprime-common-core | Содержит глобальные константы и API для межсервисного взаимодействия
 | jprime-eureka-client | Модуль подключения клиентов к eureka 
-| jprime-monitoring-core | Модуль мониторинга состояния приложения  
+| jprime-fonts | Модуль содержащий шрифты
+| jprime-monitoring-core | Модуль мониторинга состояния приложения

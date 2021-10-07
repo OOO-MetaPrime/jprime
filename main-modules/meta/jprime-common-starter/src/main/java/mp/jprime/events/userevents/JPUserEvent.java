@@ -9,6 +9,13 @@ import java.time.LocalDateTime;
  */
 public interface JPUserEvent<T> {
   /**
+   * Признак "призрачного события". Оно не попадает в хранилище и не отображается в глобальном меню "событий"
+   *
+   * @return Да/Нет
+   */
+  boolean isGhost();
+
+  /**
    * Гуид события
    *
    * @return Гуид события

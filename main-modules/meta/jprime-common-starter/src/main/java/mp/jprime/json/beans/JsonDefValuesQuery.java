@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Модель запрос на значения по-умолчанию
+ * Модель запрос на значения по умолчанию
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonDefValuesQuery {

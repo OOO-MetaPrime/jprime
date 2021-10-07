@@ -22,7 +22,7 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   private Map<String, Collection<JPClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPClassHandler> uniHandlers = new ArrayList<>();
   /**
-   * Логика вычисления значений по-умолчанию
+   * Логика вычисления значений по умолчанию
    */
   private JPObjectDefValueService jpObjectDefValueService;
 

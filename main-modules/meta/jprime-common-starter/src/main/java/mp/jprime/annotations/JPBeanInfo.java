@@ -15,10 +15,10 @@ import java.lang.annotation.Target;
 @Service
 public @interface JPBeanInfo {
   /**
-   * Список атрибутов по-умолчанию
+   * Список атрибутов по умолчанию
    * Используется при автоматическом получении дополнительных атрибутов ссылочнных классов
    *
-   * @return список атрибутов по-умолчанию
+   * @return список атрибутов по умолчанию
    */
   String[] defaultJpAttrCollection() default {};
 }

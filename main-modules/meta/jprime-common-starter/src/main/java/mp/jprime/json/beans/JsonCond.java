@@ -1,6 +1,7 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -8,6 +9,7 @@ import java.util.Collection;
 import java.util.Date;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonCond {
   // Кодовое имя атрибута
   private String attr;
@@ -21,6 +23,7 @@ public class JsonCond {
   private String lt;
   private String lte;
   private JsonBetweenCond between;
+  private JsonContainsCond contains;
   private String startsWith;
   private String like;
   private String fuzzyLike;
@@ -116,6 +119,10 @@ public class JsonCond {
 
   public JsonBetweenCond getBetween() {
     return between;
+  }
+
+  public JsonContainsCond getContains() {
+    return contains;
   }
 
   public String getStartsWith() {
@@ -280,6 +287,11 @@ public class JsonCond {
 
   public JsonCond between(JsonBetweenCond between) {
     this.between = between;
+    return this;
+  }
+
+  public JsonCond contains(JsonContainsCond contains) {
+    this.contains = contains;
     return this;
   }
 

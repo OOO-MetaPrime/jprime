@@ -1,6 +1,5 @@
 package mp.jprime.dataaccess.addinfos;
 
-import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import org.springframework.beans.factory.annotation.Autowired;

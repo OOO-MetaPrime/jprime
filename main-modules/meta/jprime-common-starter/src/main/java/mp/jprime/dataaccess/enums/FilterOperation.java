@@ -17,6 +17,10 @@ public enum FilterOperation {
    */
   EQ("EQ"),
   /**
+   * Содержит
+   */
+  CONTAINS("CONTAINS"),
+  /**
    * Не равно
    */
   NEQ("NEQ"),

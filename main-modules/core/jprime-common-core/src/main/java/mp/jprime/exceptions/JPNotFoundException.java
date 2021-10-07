@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Данные не найдены
  */
-@ResponseStatus(HttpStatus.BAD_REQUEST)
+@ResponseStatus(HttpStatus.NOT_FOUND)
 public class JPNotFoundException extends JPAppRuntimeException {
   /**
    * Конструктор

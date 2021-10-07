@@ -43,10 +43,10 @@ public interface JPBeanService {
   JPObject newInstance(JPClass jpClass, JPData jpData, JPLinkedData jpLinkedData);
 
   /**
-   * Возвращает список атрибутов по-умолчанию
+   * Возвращает список атрибутов  о-умолчанию
    *
    * @param jpClass Кодовое имя метаописания класса
-   * @return Список атрибутов по-умолчанию
+   * @return Список атрибутов по умолчанию
    */
   Collection<String> getDefaultJpAttrs(String jpClass);
 }

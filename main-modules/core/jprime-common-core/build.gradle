@@ -7,6 +7,8 @@ dependencies {
   api('com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.2')
   api('com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.12.2')
 
+  api('org.javamoney.moneta:moneta-core:1.4.2')
+
   api('org.springframework.boot:spring-boot-starter-aop')
   api('org.springframework.boot:spring-boot-starter-log4j2')
   api('org.springframework.boot:spring-boot-starter-webflux')

@@ -12,7 +12,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -22,11 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 @Lazy(value = false)
 public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   /**
-   * Описания настроек безопаности
+   * Описания настроек бeзoпacнocти
    */
   private Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
   /**
-   * Динамическая загрузка настроек безопаности
+   * Динамическая загрузка настроек бeзoпacнocти
    */
   private JPSecurityDynamicLoader dynamicLoader;
 
@@ -151,6 +154,21 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   public boolean checkCreate(String packageCode, Collection<String> roles) {
     JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
     return sett == null || sett.checkCreate(roles);
+  }
+
+  /**
+   * Проверка доступа (CREATE/UPDATE/DELETE)
+   *
+   * @param packageCode Код пакета
+   * @param roles       Роли
+   * @return Да/Нет
+   */
+  @Override
+  public boolean checkModify(String packageCode, Collection<String> roles) {
+    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
+    return sett == null || (
+        sett.checkCreate(roles) && sett.checkDelete(roles) && sett.checkUpdate(roles)
+    );
   }
 
   /**

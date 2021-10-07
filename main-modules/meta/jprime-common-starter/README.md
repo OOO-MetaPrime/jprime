@@ -26,23 +26,27 @@
 | date | LocalDate | Дата | 
 | datetime | LocalDateTime | Полная дата (без учета часового пояса) | 
 | double | Double | Вещественное (64 бита) | 
-| file | - | Файл |
+| file | String | Файл |
 | float | Float | Вещественное (32 бита) |
 | integer | Integer | Целочисленное (32 бита) |
-| long | Long | Целочисленное (64 бита) | 
+| json | String | JSON |
+| long | Long | Целочисленное (64 бита) |
+| money | JPMoney | Денежное |
+| simpleFraction | JPSimpleFraction | Простая дробь |  
 | string | String | Строка | 
 | timestamp | LocalDateTime | Полная дата (c учетом часового пояса) |
 | time | LocalTime | Время |
-| uuid | UUID | Глобальный идентификатор |  
-| virtualReference | - | Виртуальная ссылка |
+| uuid | UUID | Глобальный идентификатор |
+| xml | String | XML-элемент |    
+| virtualReference | - | Виртуальное значение |
 
-### Виртуальная ссылка
+### Виртуальное значение
 
 | Код  | Java тип     | Описание  |
 | -----| ------------- | ------------------ | 
 | virtualReference | - | Глобальный идентификатор |
 
-Виртуальная ссылка позволяет отобразить значение связанного объекта, как свойство текущего объекта
+Виртуальное значение позволяет отобразить значение связанного объекта, как свойство текущего объекта
 Для построения виртуальной ссылки необходима прямая ссылка на класс, свойство которого хотим виртуализировать
 
 Для полноценной работы виртуальной ссылки необходимо также указать `virtualReference` (путь виртуальной ссылки) +
@@ -64,7 +68,7 @@
 | ouid | Идентификатор |
 | name | Название |
 | director | Ссылка на sprWorker.ouid |
-| directorFIO | Виртуальная ссылка на sprWorker.fio |
+| directorFIO | Виртуальное значение на sprWorker.fio |
 
 , где
 
@@ -78,11 +82,29 @@
 | -----| ------------- | ------------------ | 
 | uuid | java.util.UUID | Глобальный идентификатор |
 
-### Прямая ссылка (Nx1)
+### Денежное
 
-Прямая ссылка не реализуется отдельным типом, а расширяет свойства атрибута полями `refJpClass` и `refJpAttr`
-Тип атрибута указывается один из простых (строка, целочисленное и т.д.), важно, что тип поля соответствовал типу атрибута класса, 
-указанного в настройках  `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя атрибута соответственно)
+Физически в атрибуте типа `денежное` хранится размер, но для полноценной работы атрибута необходимо корректное заполнение `money` свойства
+,где
+
+| Код  | Описание  | Обязательное |
+| -----| --------- | ---------------- |  
+| currencyCode | Код валюты | + |
+
+
+пример через xml
+```
+      <jpAttr>
+        <guid>69269c0d-e8a6-49bc-aebe-f71e4242640c</guid>
+        <code>moneyAttr</code>
+        <type>money</type>
+        <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
+        <description>Деньги</description>
+        <money>
+          <currencyCode>RUR</currencyCode>
+        </money>
+      </jpAttr>
+```
 
 ### Обратная ссылка
 
@@ -95,6 +117,38 @@
 
 Для полноценной работы обратной ссылки необходимо указать `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя атрибута соответственно),
 где указанный `refJpAttr` - является прямой ссылкой на идентификатор текущего класса 
+
+### Простая дробь 
+
+Физически в атрибуте типа `простая дробь` хранится числетель, а для полноценной работы атрибута необходимо корректное заполнение `simpleFraction` свойства
+,где
+
+| Код  | Описание  | Обязательное |
+| -----| --------- | ---------------- |  
+| integerAttrCode | Кодовое имя атрибута для хранения целого значения | опционально |
+| denominatorAttrCode | Кодовое имя атрибута для хранения знаменателя | опционально |
+
+
+пример через xml
+```
+      <jpAttr>
+        <guid>69269c0d-e8a6-49bc-aebe-f71e4142640c</guid>
+        <code>simpleFract</code>
+        <type>simpleFraction</type>
+        <qName>jpClass.className1.PersonalCard.simpleFract</qName>
+        <description>Доля</description>
+        <simpleFraction>
+          <integerAttrCode>integerAttr</integerAttrCode>
+          <denominatorAttrCode>denominatorAttr</denominatorAttrCode>
+        </simpleFraction>
+      </jpAttr>
+```
+
+### Прямая ссылка (Nx1)
+
+Прямая ссылка не реализуется отдельным типом, а расширяет свойства атрибута полями `refJpClass` и `refJpAttr`
+Тип атрибута указывается один из простых (строка, целочисленное и т.д.), важно, что тип поля соответствовал типу атрибута класса, 
+указанного в настройках  `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя атрибута соответственно)
 
 ### Строка
 
@@ -135,7 +189,6 @@
 ```
 
 
-
 ## Преобразование java типов
 
 Для преобразовавания T1 в T2 разных классов рекомендуется использовать `mp.jprime.parsers.ParserService` 
@@ -158,6 +211,26 @@
 ```
 
 Само преобразование описывается наследником от `mp.jprime.parsers.TypeParser`. Причем справочник может расширятся, как в коде JPrime, так и в прикладном коде 
+
+## Преобразование значений по типу атрибута
+
+Для преобразовавания к значению, соответствующему типу атрибута, рекомендуется использовать `mp.jprime.attrparsers.AttrParserService` 
+
+```
+  private AttrParserService attrParserService;
+
+  @Autowired
+  private void setPAttrParserService(AttrParserService attrParserService) {
+    this.attrParserService = attrParserService;
+  }
+  ...
+  
+  private LocalDate getDate(JPAttr attr, JPAttrData data) {
+    return attrParserService.parseTo(attr, data);
+  }
+```
+
+Само преобразование описывается наследником от `mp.jprime.attrparsers.AttrTypeParser`. Причем справочник может расширятся, как в коде JPrime, так и в прикладном коде 
 
 ## Метаописание
 
@@ -195,7 +268,9 @@
 | type | Тип атрибута |
 | refJpClass | Кодовое имя класса, на который ссылается |
 | refJpAttr | Кодовое имя атрибута ссылочного класса |
-| refJpClass | Кодовое имя класса, на который ссылается |
+| refJpFile | Описание файлового атрибута |
+| simpleFraction | Описание простой дроби |
+| money | Описание денежного типа |
 | virtualReference | Путь виртуальной ссылки |
 | virtualType | Тип виртуальной ссылки |
 | length | Длина (для строковых полей, в том числе для строковых виртуальных) |
@@ -947,7 +1022,7 @@ public class UsersBean extends JPObject {
 * `mp.jprime.dataaccess.validators.JPReactiveClassValidator` для реактивного кода
 
 
-Вызов валидатора происходит перед всеми остальными действиями и по-умолчанию производится перед открытием транзации (если она не была принудительно открыта ранее)
+Вызов валидатора происходит перед всеми остальными действиями и по умолчанию производится перед открытием транзации (если она не была принудительно открыта ранее)
 
 ### Реализация валидатора на примере jprime.dataaccess.validators.JPClassValidator
 
@@ -996,9 +1071,9 @@ public class ContactValidator extends JPClassValidatorBase {
   }
 ```
 
-## Расчет значений по-умолчанию
+## Расчет значений по умолчанию
 
-В JPrime есть возможность рассчитать значения по-умолчанию с помощью `mp.jprime.dataaccess.defvalues.JPObjectDefValue`
+В JPrime есть возможность рассчитать значения по умолчанию с помощью `mp.jprime.dataaccess.defvalues.JPObjectDefValue`
 
 ### Реализация расчета
 

@@ -114,6 +114,20 @@ public interface JPAttr {
   JPFile getRefJpFile();
 
   /**
+   * Возвращает описание простой дроби
+   *
+   * @return Описание простой дроби
+   */
+  JPSimpleFraction getSimpleFraction();
+
+  /**
+   * Возвращает описание денежного типа
+   *
+   * @return Описание денежного типа
+   */
+  JPMoney getMoney();
+
+  /**
    * Описание виртуальной ссылки
    *
    * @return Описание виртуальной ссылки

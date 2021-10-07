@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
 
 /**
- * Базовая реализация хендлера
+ * Базовая реализация валидатора
  */
 public abstract class JPClassValidatorBase implements JPClassValidator {
   /**

@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.security.AuthInfo;
 
 /**
- * Параметры для вычисления значений по-умолчанию
+ * Параметры для вычисления значений по умолчанию
  */
 public interface JPObjectDefValueParams {
   /**

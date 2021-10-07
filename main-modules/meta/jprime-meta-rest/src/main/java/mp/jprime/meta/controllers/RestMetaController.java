@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
@@ -94,13 +95,20 @@ public class RestMetaController {
             .getAttrs()
             .stream()
             .map(this::toJson)
+            .filter(Objects::nonNull)
             .collect(Collectors.toList())
         )
         .build();
   }
 
   private JsonJPAttr toJson(JPAttr jpAttr) {
+    JPType type = jpAttr.getValueType();
     JPFile jpFile = jpAttr.getRefJpFile();
+    JPSimpleFraction simpleFraction = jpAttr.getSimpleFraction();
+    JPMoney money = jpAttr.getMoney();
+    if (type == null) {
+      return null;
+    }
     return JsonJPAttr.newBuilder()
         .code(jpAttr.getCode())
         .guid(jpAttr.getGuid())
@@ -111,19 +119,40 @@ public class RestMetaController {
         .jpPackage(jpAttr.getJpPackage())
         .identifier(jpAttr.isIdentifier())
         .mandatory(jpAttr.isMandatory())
-        .type(jpAttr.getValueType().getCode())
+        .type(type.getCode())
+        .length(jpAttr.getLength())
+        // Настройка ссылки класс+атрибут
         .refJpClass(jpAttr.getRefJpClassCode())
         .refJpAttr(jpAttr.getRefJpAttrCode())
-        .length(jpAttr.getLength())
+        // Настройка файла
         .refJpFile(
-            jpFile == null || jpAttr.getType() != JPType.FILE ? null : JsonJPFile.newBuilder()
-                .titleAttr(jpFile.getFileTitleAttrCode())
-                .extAttr(jpFile.getFileExtAttrCode())
-                .sizeAttr(jpFile.getFileSizeAttrCode())
-                .dateAttr(jpFile.getFileDateAttrCode())
-                .build()
+            type != JPType.FILE || jpFile == null ? null :
+                JsonJPFile.newBuilder()
+                    .titleAttr(jpFile.getFileTitleAttrCode())
+                    .extAttr(jpFile.getFileExtAttrCode())
+                    .sizeAttr(jpFile.getFileSizeAttrCode())
+                    .dateAttr(jpFile.getFileDateAttrCode())
+                    .build()
         )
-        .schemaProps(toJsonJPProperty(jpAttr.getSchemaProps()))
+        // Настройка простой дроби
+        .simpleFraction(
+            type != JPType.SIMPLEFRACTION || simpleFraction == null ? null :
+                JsonJPSimpleFraction.newBuilder()
+                    .integerAttr(simpleFraction.getIntegerAttrCode())
+                    .denominatorAttr(simpleFraction.getDenominatorAttrCode())
+                    .build()
+        )
+        // Настройка денежного типа
+        .money(
+            type != JPType.MONEY || money == null ? null :
+                JsonJPMoney.newBuilder()
+                    .currencyCode(money.getCurrencyCode())
+                    .build()
+        )
+        // Свойства псевдо-меты
+        .schemaProps(
+            toJsonJPProperty(jpAttr.getSchemaProps())
+        )
         .build();
   }
 

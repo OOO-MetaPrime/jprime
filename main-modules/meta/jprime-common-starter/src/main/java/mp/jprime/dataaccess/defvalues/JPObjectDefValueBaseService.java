@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 /**
- * Логика вычисления значений по-умолчанию
+ * Логика вычисления значений по умолчанию
  */
 @Service
 public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPClassesLinkFilter<JPObjectDefValue> {
@@ -85,10 +85,10 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
   }
 
   /**
-   * Список обработчиков значений по-умолчанию
+   * Список обработчиков значений по умолчанию
    *
    * @param jpClassCode Кодовое имя класса
-   * @return Список обработчиков значений по-умолчанию
+   * @return Список обработчиков значений по умолчанию
    */
   private Collection<JPObjectDefValue> getDefValues(String jpClassCode) {
     if (jpObjectDefValues.containsKey(jpClassCode)) {
@@ -103,10 +103,10 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
   }
 
   /**
-   * Возвращает значения по-умолчанию
+   * Возвращает значения по умолчанию
    *
-   * @param jpClassCode Кодовое имя класса объекта для расчета значений по-умолчанию
-   * @param params      Параметры для вычисления значений по-умолчанию
+   * @param jpClassCode Кодовое имя класса объекта для расчета значений по умолчанию
+   * @param params      Параметры для вычисления значений по умолчанию
    */
   @Override
   public JPMutableData getDefValues(String jpClassCode, JPObjectDefValueParams params) {
@@ -125,7 +125,11 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
       return data;
     }
     // Проставляем значение для связи
-    if (params.getRefAttrCode() != null && params.getRootId() != null) {
+    JPAttr refAttr = params.getRefAttrCode() != null ? jpClass.getAttr(params.getRefAttrCode()) : null;
+    if (params.getRootId() != null &&
+        refAttr != null &&
+        refAttr.getRefJpClassCode() != null &&
+        refAttr.getRefJpClassCode().equals(params.getRootJpClassCode())) {
       data.put(params.getRefAttrCode(), params.getRootId());
     }
     Collection<JPObjectDefValue> vals = getDefValues(jpClassCode);

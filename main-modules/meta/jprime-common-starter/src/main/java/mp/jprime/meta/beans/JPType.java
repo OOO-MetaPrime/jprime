@@ -1,5 +1,6 @@
 package mp.jprime.meta.beans;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -54,9 +55,17 @@ public enum JPType {
    */
   LONG("long", "Целочисленное (64 бита)", Long.class),
   /**
+   * Денежное
+   */
+  MONEY("money", "Денежное", BigDecimal.class),
+  /**
    * Пустой тип
    */
   NONE("none", "Не определен", null),
+  /**
+   * Простая дробь
+   */
+  SIMPLEFRACTION("simpleFraction", "Простая дробь", Integer.class),
   /**
    * Строка
    */
@@ -78,9 +87,9 @@ public enum JPType {
    */
   XML("xml", "XML-элемент", String.class),
   /**
-   * Виртуальная ссылка
+   * Виртуальное значение
    */
-  VIRTUALREFERENCE("virtualReference", "Виртуальная ссылка", null);
+  VIRTUALREFERENCE("virtualReference", "Виртуальное значение", null);
 
   /**
    * Код типа
@@ -109,6 +118,15 @@ public enum JPType {
    */
   public String getCode() {
     return code;
+  }
+
+  /**
+   * Возвращает код
+   *
+   * @return Код
+   */
+  public static String getCode(JPType type) {
+    return type == null ? null : type.getCode();
   }
 
   /**

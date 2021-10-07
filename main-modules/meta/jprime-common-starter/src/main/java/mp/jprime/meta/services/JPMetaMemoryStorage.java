@@ -1,5 +1,6 @@
 package mp.jprime.meta.services;
 
+import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaDynamicLoader;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
@@ -153,6 +155,18 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
   @Override
   public JPClass getJPClassByCode(String code) {
     return code == null ? null : cacheRef.get().codeJpClassMap.get(code);
+  }
+
+  @Override
+  public JPClass getJPClassByCodeOrThrow(String code) {
+    if (!StringUtils.hasText(code)) {
+      throw new JPClassNotFoundException();
+    }
+    JPClass jpClass = cacheRef.get().codeJpClassMap.get(code);
+    if (jpClass == null) {
+      throw new JPClassNotFoundException(code);
+    }
+    return jpClass;
   }
 
   /**

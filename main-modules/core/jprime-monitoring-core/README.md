@@ -6,7 +6,7 @@
 
 ### Мониторинг памяти JVM
 
-Сравнивает выделенную и используемую память приложению периодически, согласно cron-настройке `jprime.monitoring.jvm.memory.checkTimeout`. По-умолчанию, каждую минуту
+Сравнивает выделенную и используемую память приложению периодически, согласно cron-настройке `jprime.monitoring.jvm.memory.checkTimeout`. По умолчанию, каждую минуту
  
 При превышении используемой памяти `jprime.monitoring.jvm.memory.alarmPercents` (90) % от выделенного пишет в лог
 предупреждения с кодами `jvm.nonheap.memory.limit.warning` и `jvm.heap.memory.limit.warning` 

@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.lang.XmlString;
+import mp.jprime.lang.JPXmlString;
 import mp.jprime.parsers.TypeParser;
 import org.springframework.stereotype.Service;
 
@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
  * String -> XmlString
  */
 @Service
-public class StringToXmlStringParser implements TypeParser<String, XmlString> {
+public class StringToXmlStringParser implements TypeParser<String, JPXmlString> {
   /**
    * Форматирование значения
    *
    * @param value Данные во входном формате
    * @return Данные в выходном формате
    */
-  public XmlString parse(String value) {
-    return value == null || value.isEmpty() ? null : XmlString.from(value);
+  public JPXmlString parse(String value) {
+    return value == null || value.isEmpty() ? null : JPXmlString.from(value);
   }
 
   /**
@@ -33,7 +33,7 @@ public class StringToXmlStringParser implements TypeParser<String, XmlString> {
    *
    * @return Входной формат
    */
-  public Class<XmlString> getOutputType() {
-    return XmlString.class;
+  public Class<JPXmlString> getOutputType() {
+    return JPXmlString.class;
   }
 }

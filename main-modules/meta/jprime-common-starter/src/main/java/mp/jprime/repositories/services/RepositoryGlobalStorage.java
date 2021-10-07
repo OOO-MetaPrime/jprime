@@ -41,14 +41,10 @@ public final class RepositoryGlobalStorage implements RepositoryStorage<JPStorag
   /**
    * Размещает метаописание в хранилище
    */
-  private RepositoryGlobalStorage(@Autowired(required = false) Collection<RepositoryLoader> loaders) {
+  private RepositoryGlobalStorage(@Autowired(required = false) Collection<RepositoryLoader<? extends JPStorage>> loaders) {
     if (loaders != null) {
-      for (RepositoryLoader loader : loaders) {
-        Collection<JPStorage> storages = loader.getStorages();
-        if (storages == null) {
-          continue;
-        }
-        storages.forEach(x -> this.storages.put(x.getCode(), x));
+      for (RepositoryLoader<? extends JPStorage> loader : loaders) {
+        loader.getStorages().forEach(x -> this.storages.put(x.getCode(), x));
       }
     }
   }

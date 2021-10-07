@@ -8,6 +8,20 @@ import java.util.Map;
  */
 public interface JPSystemEvent {
   /**
+   * Код инициатора события
+   *
+   * @return Код инициатора события
+   */
+  String getProducer();
+
+  /**
+   * Код слушателя, которому адресовано событие (опционально)
+   *
+   * @return Код слушателя
+   */
+  String getConsumer();
+
+  /**
    * Дата события
    *
    * @return Дата события

@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.beans;
 
-import mp.jprime.meta.JPAttr;
+import mp.jprime.dataaccess.JPAttrData;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,7 +10,9 @@ import java.util.function.BiConsumer;
 /**
  * Данные объекта
  */
-public final class JPData {
+public final class JPData implements JPAttrData {
+  private final static JPData EMPTY = new JPData(null);
+
   private final Map<String, Object> data;
 
   /**
@@ -19,7 +21,18 @@ public final class JPData {
    * @param data Данные объекта
    */
   private JPData(Map<String, Object> data) {
-    this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : data);
+    this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : new HashMap<>(data));
+  }
+
+
+  /**
+   * Возвращает признак наличия данных
+   *
+   * @return Да/Нет
+   */
+  @Override
+  public boolean containsAttr(String attr) {
+    return data.containsKey(attr);
   }
 
   /**
@@ -27,17 +40,19 @@ public final class JPData {
    *
    * @return Данные
    */
-  public Object get(JPAttr attr) {
-    return data.get(attr.getCode());
+  @Override
+  public <T> T get(String attr) {
+    return (T) data.get(attr);
   }
 
   /**
-   * Возвращает данные
+   * Признак отсутствия данных
    *
-   * @return Данные
+   * @return Да/Нет
    */
-  public Object get(String attr) {
-    return data.get(attr);
+  @Override
+  public boolean isEmpty() {
+    return data.isEmpty();
   }
 
   /**
@@ -65,7 +80,7 @@ public final class JPData {
    * @return JPData
    */
   public static JPData empty() {
-    return new JPData(null);
+    return EMPTY;
   }
 
   /**

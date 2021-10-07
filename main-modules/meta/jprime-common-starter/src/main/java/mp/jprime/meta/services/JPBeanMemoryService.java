@@ -102,10 +102,10 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
   }
 
   /**
-   * Возвращает список атрибутов по-умолчанию
+   * Возвращает список атрибутов по умолчанию
    *
    * @param jpClass Кодовое имя метаописания класса
-   * @return Список атрибутов по-умолчанию
+   * @return Список атрибутов по умолчанию
    */
   public Collection<String> getDefaultJpAttrs(String jpClass) {
     return jpClass != null ? defaultJpAttrCollections.get(jpClass) : null;

@@ -1,6 +1,5 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.common.JPClassAttr;
 import mp.jprime.meta.JPVirtualPath;
 
 /**
@@ -69,7 +68,7 @@ public final class JPVirtualPathBean implements JPVirtualPath {
    * Путь виртуальной ссылки
    *
    * @param attrsPath Путь виртуальной ссылки
-   * @param attrType Код типа атрибута на который ссылаемся
+   * @param attrType  Код типа атрибута на который ссылаемся
    * @return JPVirtualPathBean
    */
   public static JPVirtualPath newInstance(String[] attrsPath, JPType attrType) {
@@ -86,7 +85,7 @@ public final class JPVirtualPathBean implements JPVirtualPath {
    * Путь виртуальной ссылки
    *
    * @param virtualReference Путь виртуальной ссылки
-   * @param attrType Код типа атрибута на который ссылаемся
+   * @param virtualType      Код типа атрибута на который ссылаемся
    * @return JPVirtualPathBean
    */
   public static JPVirtualPath newInstance(String virtualReference, String virtualType) {

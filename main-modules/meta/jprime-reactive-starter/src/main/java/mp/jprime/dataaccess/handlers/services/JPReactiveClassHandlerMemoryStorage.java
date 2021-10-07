@@ -27,7 +27,7 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
   private Map<String, Collection<JPReactiveClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPReactiveClassHandler> uniHandlers = new ArrayList<>();
   /**
-   * Логика вычисления значений по-умолчанию
+   * Логика вычисления значений по умолчанию
    */
   private JPObjectDefValueService jpObjectDefValueService;
 

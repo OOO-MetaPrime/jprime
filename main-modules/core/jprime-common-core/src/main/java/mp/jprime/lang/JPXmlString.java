@@ -1,9 +1,9 @@
 package mp.jprime.lang;
 
 /**
- * JSON
+ * XML
  */
-public class JsonString implements Comparable<JsonString> {
+public final class JPXmlString implements Comparable<JPXmlString> {
   private final String s;
 
   /**
@@ -11,7 +11,7 @@ public class JsonString implements Comparable<JsonString> {
    *
    * @param s Строка
    */
-  private JsonString(String s) {
+  private JPXmlString(String s) {
     this.s = s;
   }
 
@@ -21,8 +21,8 @@ public class JsonString implements Comparable<JsonString> {
    * @param s Строка
    * @return JsonString
    */
-  public static JsonString from(String s) {
-    return new JsonString(s);
+  public static JPXmlString from(String s) {
+    return new JPXmlString(s);
   }
 
   /**
@@ -35,7 +35,7 @@ public class JsonString implements Comparable<JsonString> {
   }
 
   @Override
-  public int compareTo(JsonString o) {
+  public int compareTo(JPXmlString o) {
     if (s == null) {
       return -1;
     }

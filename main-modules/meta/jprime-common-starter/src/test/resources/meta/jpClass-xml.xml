@@ -40,6 +40,27 @@
           <fileDateAttrCode>attr7</fileDateAttrCode>
         </refJpFile>
       </jpAttr>
+      <jpAttr>
+        <guid>69269c0d-e8a6-49bc-aebe-f71e4142640c</guid>
+        <code>simpleFract</code>
+        <type>simpleFraction</type>
+        <qName>jpClass.className1.PersonalCard.simpleFract</qName>
+        <description>Доля</description>
+        <simpleFraction>
+          <integerAttrCode>integerAttr</integerAttrCode>
+          <denominatorAttrCode>denominatorAttr</denominatorAttrCode>
+        </simpleFraction>
+      </jpAttr>
+      <jpAttr>
+        <guid>69269c0d-e8a6-49bc-aebe-f71e4242640c</guid>
+        <code>moneyAttr</code>
+        <type>money</type>
+        <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
+        <description>Деньги</description>
+        <money>
+          <currencyCode>RUR</currencyCode>
+        </money>
+      </jpAttr>
 		</jpAttrs>
 	</jpClass>
 </jpClasses>

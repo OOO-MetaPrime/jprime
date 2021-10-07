@@ -6,7 +6,7 @@ package mp.jprime.metamaps.beans;
 public enum JPCase {
   UPPER("upper", "Верхний регистр"),
   LOWER("lower", "Нижний регистр"),
-  ANY("any", "Произвольный (по-умолчанию)");
+  ANY("any", "Произвольный (по умолчанию)");
 
   /**
    * Код типа

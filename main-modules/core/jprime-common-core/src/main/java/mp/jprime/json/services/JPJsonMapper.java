@@ -10,12 +10,19 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import mp.jprime.formats.DateFormat;
-import mp.jprime.lang.JsonString;
-import mp.jprime.lang.XmlString;
+import mp.jprime.json.beans.JsonMoney;
+import mp.jprime.json.beans.JsonSimpleFraction;
+import mp.jprime.lang.JPMoney;
+import mp.jprime.lang.JPSimpleFraction;
+import mp.jprime.lang.JPJsonString;
+import mp.jprime.lang.JPXmlString;
+
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -38,7 +45,7 @@ public class JPJsonMapper {
         // Подключаем javaTime
         .registerModule(
             new JavaTimeModule()
-                 // String to LocalDateTime
+                // String to LocalDateTime
                 .addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(
                     new DateTimeFormatterBuilder()
                         .parseCaseInsensitive()
@@ -59,26 +66,50 @@ public class JPJsonMapper {
                         .toFormatter()
                 ))
                 // String to JsonString
-                .addDeserializer(JsonString.class, new StdDeserializer<JsonString>(JsonString.class) {
+                .addDeserializer(JPJsonString.class, new StdDeserializer<JPJsonString>(JPJsonString.class) {
                   @Override
-                  public JsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                    return JsonString.from(p.getCodec().readTree(p).toString());
+                  public JPJsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    return JPJsonString.from(p.getCodec().readTree(p).toString());
                   }
                 })
                 // String to XmlString
-                .addDeserializer(XmlString.class, new StdDeserializer<XmlString>(XmlString.class) {
+                .addDeserializer(JPXmlString.class, new StdDeserializer<JPXmlString>(JPXmlString.class) {
                   @Override
-                  public XmlString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-                    return XmlString.from(p.getCodec().readTree(p).toString());
+                  public JPXmlString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    return JPXmlString.from(p.getCodec().readTree(p).toString());
+                  }
+                })
+                // String to JPSimpleFraction
+                .addDeserializer(JPSimpleFraction.class, new StdDeserializer<JPSimpleFraction>(JPSimpleFraction.class) {
+                  @Override
+                  public JPSimpleFraction deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    JsonSimpleFraction fraction = ctxt.readValue(p, JsonSimpleFraction.class);
+                    return JPSimpleFraction.of(fraction.getPositive(), fraction.getInteger(), fraction.getNumerator(), fraction.getDenominator());
+                  }
+                })
+                // String to Money
+                .addDeserializer(JPMoney.class, new StdDeserializer<JPMoney>(JPMoney.class) {
+                  @Override
+                  public JPMoney deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    JsonMoney money = ctxt.readValue(p, JsonMoney.class);
+                    return JPMoney.of(money.getValue(), money.getCurrencyCode());
+                  }
+                })
+                // String to BigDecimal
+                .addDeserializer(BigDecimal.class, new StdDeserializer<BigDecimal>(BigDecimal.class) {
+                  @Override
+                  public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    String s = p.getValueAsString();
+                    return StringUtils.hasText(s) ? new BigDecimal(s) : null;
                   }
                 })
                 // LocalDateTime to String
                 .addSerializer(LocalDateTime.class,
                     new JsonSerializer<LocalDateTime>() {
                       @Override
-                      public void serialize(LocalDateTime localDateTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                      public void serialize(LocalDateTime localDateTime, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                         ZonedDateTime zdt = ZonedDateTime.of(localDateTime, TimeZone.getDefault().toZoneId());
-                        jsonGenerator.writeString(DateFormat.LOCAL_DATETIME_FORMAT.format(zdt));
+                        jGen.writeString(DateFormat.LOCAL_DATETIME_FORMAT.format(zdt));
                       }
                     }
                 )
@@ -86,8 +117,8 @@ public class JPJsonMapper {
                 .addSerializer(LocalTime.class,
                     new JsonSerializer<LocalTime>() {
                       @Override
-                      public void serialize(LocalTime localTime, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                        jsonGenerator.writeString(DateFormat.LOCAL_TIME_FORMAT.format(localTime));
+                      public void serialize(LocalTime localTime, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeString(DateFormat.LOCAL_TIME_FORMAT.format(localTime));
                       }
                     }
                 )
@@ -95,26 +126,58 @@ public class JPJsonMapper {
                 .addSerializer(LocalDate.class,
                     new JsonSerializer<LocalDate>() {
                       @Override
-                      public void serialize(LocalDate LocalDate, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                        jsonGenerator.writeString(DateFormat.LOCAL_DATE_FORMAT.format(LocalDate));
+                      public void serialize(LocalDate LocalDate, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeString(DateFormat.LOCAL_DATE_FORMAT.format(LocalDate));
                       }
                     }
                 )
                 // JsonString to String
-                .addSerializer(JsonString.class,
-                    new JsonSerializer<JsonString>() {
+                .addSerializer(JPJsonString.class,
+                    new JsonSerializer<JPJsonString>() {
                       @Override
-                      public void serialize(JsonString v, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                        jsonGenerator.writeString(v.toString());
+                      public void serialize(JPJsonString v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeString(v.toString());
                       }
                     }
                 )
                 // XmlString to String
-                .addSerializer(XmlString.class,
-                    new JsonSerializer<XmlString>() {
+                .addSerializer(JPXmlString.class,
+                    new JsonSerializer<JPXmlString>() {
                       @Override
-                      public void serialize(XmlString v, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                        jsonGenerator.writeString(v.toString());
+                      public void serialize(JPXmlString v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeString(v.toString());
+                      }
+                    })
+                // JPSimpleFraction to String
+                .addSerializer(JPSimpleFraction.class,
+                    new JsonSerializer<JPSimpleFraction>() {
+                      @Override
+                      public void serialize(JPSimpleFraction v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        JsonSimpleFraction json = new JsonSimpleFraction();
+                        json.setPositive(v.isPositive());
+                        json.setInteger(v.getInteger());
+                        json.setNumerator(v.getNumerator());
+                        json.setDenominator(v.getDenominator());
+                        jGen.writeObject(json);
+                      }
+                    })
+                // Money to String
+                .addSerializer(JPMoney.class,
+                    new JsonSerializer<JPMoney>() {
+                      @Override
+                      public void serialize(JPMoney v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        JsonMoney json = new JsonMoney();
+                        json.setValue(v.getNumberStripped());
+                        json.setCurrencyCode(v.getCurrencyCode());
+                        jGen.writeObject(json);
+                      }
+                    })
+                // BigDecimal to String
+                .addSerializer(BigDecimal.class,
+                    new JsonSerializer<BigDecimal>() {
+                      @Override
+                      public void serialize(BigDecimal v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeNumber(v.setScale(2, BigDecimal.ROUND_HALF_UP));
                       }
                     })
         )
