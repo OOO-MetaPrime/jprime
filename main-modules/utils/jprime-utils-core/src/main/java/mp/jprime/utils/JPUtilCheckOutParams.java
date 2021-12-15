@@ -1,5 +1,6 @@
 package mp.jprime.utils;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import mp.jprime.utils.annotations.JPUtilResultType;
@@ -19,7 +20,12 @@ public class JPUtilCheckOutParams extends BaseJPUtilOutParams<Void> {
    */
   private final boolean denied;
 
-  private JPUtilCheckOutParams(String description, String qName, boolean changeData, String confirm, boolean denied) {
+  @JsonCreator
+  public JPUtilCheckOutParams(@JsonProperty("description") String description,
+                              @JsonProperty("qName") String qName,
+                              @JsonProperty("changeData") boolean changeData,
+                              @JsonProperty("confirm") String confirm,
+                              @JsonProperty("denied") boolean denied)  {
     super(description, qName, changeData);
     this.confirm = confirm;
     this.denied = denied;

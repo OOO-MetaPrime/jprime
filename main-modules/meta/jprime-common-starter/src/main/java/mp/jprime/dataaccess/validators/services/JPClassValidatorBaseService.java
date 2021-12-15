@@ -7,6 +7,7 @@ import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.dataaccess.validators.JPClassValidator;
 import mp.jprime.dataaccess.validators.JPClassValidatorService;
+import mp.jprime.dataaccess.validators.JPClassValidatorServiceAware;
 import mp.jprime.exceptions.JPRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,17 @@ import java.util.*;
  */
 @Service
 public final class JPClassValidatorBaseService implements JPClassValidatorService, JPClassesLinkFilter<JPClassValidator> {
+
+  /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPClassValidatorServiceAware> awares) {
+    for (JPClassValidatorServiceAware aware : awares) {
+      aware.setJpClassValidatorService(this);
+    }
+  }
+
   private Map<String, Collection<JPClassValidator>> jpClassValidators = new HashMap<>();
 
   /**

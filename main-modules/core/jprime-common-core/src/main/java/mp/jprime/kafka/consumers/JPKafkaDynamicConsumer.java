@@ -8,6 +8,11 @@ package mp.jprime.kafka.consumers;
  */
 public interface JPKafkaDynamicConsumer<K, V> {
   /**
+   * Признак автозапуска
+   */
+  boolean isAutoStart();
+
+  /**
    * Запускает слушателя
    */
   void start();

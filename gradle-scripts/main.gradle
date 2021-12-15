@@ -1,0 +1,6 @@
+task buildWithoutUi(type: GradleBuild, description: 'Сборка проекта без повторной сборки ui', group: 'build') {
+  setTasks(Arrays.asList('build'))
+  def properties = new HashMap<>(gradle.startParameter.projectProperties)
+  properties.put('ignoreUI', "true")
+  startParameter.projectProperties = properties
+}

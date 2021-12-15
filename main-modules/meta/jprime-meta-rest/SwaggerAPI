@@ -225,6 +225,10 @@ components:
           format: string
           description: Тип атрибута
           example: string
+        updatable:
+          type: boolean
+          description: Признак обновляемости значения атрибута
+          example: true
         guid:
           type: string
           format: string

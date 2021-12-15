@@ -25,6 +25,16 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
   }
 
   /**
+   * Возвращает объект и блокирует его на время транзации
+   *
+   * @param query Параметры для выборки
+   * @return Объект
+   */
+  default JPObject getObjectAndLock(JPSelect query) {
+    return getObject(query);
+  }
+
+  /**
    * Возвращает optional результата запроса
    *
    * @param select Параметры для выборки
@@ -59,6 +69,16 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
    * @return Список объектов
    */
   <T extends JPObject> Collection<T> getList(JPSelect query);
+
+  /**
+   * Возвращает список объектов и блокирует на время транзации
+   *
+   * @param query Параметры для выборки
+   * @return Список объектов
+   */
+  default <T extends JPObject> Collection<T> getListAndLock(JPSelect query) {
+    return getList(query);
+  }
 
   /**
    * Создает объект

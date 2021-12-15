@@ -71,13 +71,13 @@ public class RestMetaController {
   }
 
   @ResponseBody
-  @GetMapping(value = "/attrTypes",
+  @GetMapping(value = "attrTypes",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Flux<JsonType> getAttrTypes() {
     return Flux.fromArray(JPType.values())
         .filter(x -> x != JPType.NONE)
-        .map(x -> new JsonType(x.getCode(), x.getTitle()));
+        .map(JsonType::from);
   }
 
   private JsonJPClass toJson(JPClass jpClass) {
@@ -120,6 +120,7 @@ public class RestMetaController {
         .identifier(jpAttr.isIdentifier())
         .mandatory(jpAttr.isMandatory())
         .type(type.getCode())
+        .updatable(jpAttr.isUpdatable())
         .length(jpAttr.getLength())
         // Настройка ссылки класс+атрибут
         .refJpClass(jpAttr.getRefJpClassCode())

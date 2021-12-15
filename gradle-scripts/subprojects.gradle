@@ -1,0 +1,49 @@
+apply plugin: 'idea'
+
+subprojects {
+  apply plugin: 'java-library'
+  apply plugin: 'org.springframework.boot'
+  apply plugin: 'io.spring.dependency-management'
+
+  tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+  }
+
+  repositories {
+    mavenCentral()
+    maven { url "https://repo.spring.io/release" }
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+    maven {
+      url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts"
+      allowInsecureProtocol = true
+    }
+    maven { url "https://repo.cuba-platform.com/content/groups/work/" }
+  }
+
+  dependencyManagement {
+    imports {
+      mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring.versions.springCloudVersion.get()}"
+    }
+  }
+
+  configurations {
+    all*.exclude module: 'spring-boot-starter-logging'
+    all*.exclude module: 'slf4j-log4j12'
+  }
+
+  test {
+    failFast(true)
+    useJUnitPlatform {
+      excludeTags 'manualTests'
+      if (System.properties['test.profile'] == 'unit') {
+        excludeTags 'integrationTests'
+      }
+    }
+  }
+}
+
+wrapper {
+  gradleVersion = "7.3"
+}

@@ -1,0 +1,13 @@
+[versions]
+# Spring
+springBootVersion = "2.6.1"
+springCloudVersion = "2021.0.0"
+dependencyManagement = "1.0.11.RELEASE"
+springBootAdminStarterServer = "2.5.4"
+
+[libraries]
+boot-admin-starter-server = { module = "de.codecentric:spring-boot-admin-starter-server", version.ref = "springBootAdminStarterServer"}
+
+[plugins]
+boot = { id = "org.springframework.boot", version.ref="springBootVersion" }
+dependency-management = { id = "io.spring.dependency-management", version.ref= "dependencyManagement" }

@@ -47,7 +47,7 @@ public final class JPClassBean implements JPClass {
 
     // Ключевой атрибут
     JPAttr primaryKeyAttr = null;
-    Map<String, JPAttr> attrMap = new HashMap<>();
+    Map<String, JPAttr> attrMap = new LinkedHashMap<>();
     for (JPAttr attr : attrs) {
       attrMap.put(attr.getCode(), attr);
       if (attr.isIdentifier()) {

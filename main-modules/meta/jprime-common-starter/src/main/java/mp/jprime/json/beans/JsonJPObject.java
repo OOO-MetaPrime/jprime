@@ -27,7 +27,8 @@ import java.util.stream.Collectors;
     "title",
     "data",
     "linkedData",
-    "links"
+    "links",
+    "access"
 })
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,6 +38,7 @@ public class JsonJPObject {
   private Map<String, Object> data;
   private Map<String, JsonJPObject> linkedData;
   private Collection<JsonLink> links = new ArrayList<>();
+  private JsonChangeAccess access;
 
   public JsonJPObject() {
 
@@ -47,14 +49,18 @@ public class JsonJPObject {
    *
    * @param metaStorage MetaStorage
    * @param jpObject    JPObject
+   * @param access      JsonAccess
    * @param baseUrl     String
    * @param restMapping String
    */
-  private JsonJPObject(JPMetaStorage metaStorage, JPObject jpObject, String baseUrl, String restMapping) {
+  private JsonJPObject(JPMetaStorage metaStorage, JPObject jpObject,
+                       JsonChangeAccess access,
+                       String baseUrl, String restMapping, boolean addLinks) {
     JPId jpId = jpObject != null ? jpObject.getJpId() : null;
     this.id = jpId != null ? jpId.getId() : null;
     this.data = jpObject != null ? jpObject.getData().toMap() : null;
     this.classCode = jpObject != null ? jpObject.getJpClassCode() : null;
+    this.access = access;
 
     JPLinkedData linkedData = jpObject != null ? jpObject.getLinkedData() : null;
     if (linkedData != null) {
@@ -65,7 +71,7 @@ public class JsonJPObject {
           .collect(
               Collectors.toMap(
                   Map.Entry::getKey,
-                  e -> new JsonJPObject(metaStorage, e.getValue(), baseUrl, null)
+                  e -> new JsonJPObject(metaStorage, e.getValue(), null, baseUrl, null, addLinks)
               )
           );
     } else {
@@ -76,66 +82,68 @@ public class JsonJPObject {
       return;
     }
     String sId = String.valueOf(jpObject.getJpId().getId());
-    // Сам объект
-    this.links.add(JsonLink.newBuilder()
-        .rel("self")
-        .baseUrl(baseUrl)
-        .restMapping(restMapping)
-        .classPluralCode(cls.getPluralCode())
-        .block(sId)
-        .build());
-    // Все его ссылочные
-    this.links.addAll(cls.getAttrs()
-        .stream()
-        .filter(x -> x.getRefJpClassCode() != null)
-        .map(x -> {
-          JsonLink.Builder builder = JsonLink.newBuilder()
-              .rel(x.getCode())
-              .baseUrl(baseUrl)
-              .restMapping(restMapping);
+    if (addLinks) {
+      // Сам объект
+      this.links.add(JsonLink.newBuilder()
+          .rel("self")
+          .baseUrl(baseUrl)
+          .restMapping(restMapping)
+          .classPluralCode(cls.getPluralCode())
+          .block(sId)
+          .build());
+      // Все его ссылочные
+      this.links.addAll(cls.getAttrs()
+          .stream()
+          .filter(x -> x.getRefJpClassCode() != null)
+          .map(x -> {
+            JsonLink.Builder builder = JsonLink.newBuilder()
+                .rel(x.getCode())
+                .baseUrl(baseUrl)
+                .restMapping(restMapping);
 
-          JPClass refClass = metaStorage.getJPClassByCode(x.getRefJpClassCode());
-          if (refClass == null) {
-            return null;
-          }
-          JPAttr refAttr = refClass.getAttr(x.getRefJpAttrCode());
-          if (refAttr == null) {
-            return null;
-          }
-          if (x.getType() == JPType.BACKREFERENCE) {
-            builder
-                .classPluralCode(cls.getPluralCode())
-                .block(sId)
-                .block(x.getCode())
-                .refClassCode(refClass.getCode())
-                .refClassPluralCode(refClass.getPluralCode());
-          } else if (!refAttr.isIdentifier()) {
-            Object val = jpObject.getData().get(x);
-            if (val == null) {
+            JPClass refClass = metaStorage.getJPClassByCode(x.getRefJpClassCode());
+            if (refClass == null) {
               return null;
             }
-            builder
-                .classPluralCode(cls.getPluralCode())
-                .block(sId)
-                .block(x.getCode())
-                .block(String.valueOf(val))
-                .refClassCode(refClass.getCode())
-                .refClassPluralCode(refClass.getPluralCode());
-          } else {
-            Object val = jpObject.getData().get(x);
-            if (val == null) {
+            JPAttr refAttr = refClass.getAttr(x.getRefJpAttrCode());
+            if (refAttr == null) {
               return null;
             }
-            builder
-                .classPluralCode(refClass.getPluralCode())
-                .block(String.valueOf(val))
-                .refClassCode(refClass.getCode())
-                .refClassPluralCode(refClass.getPluralCode());
-          }
-          return builder.build();
-        })
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList()));
+            if (x.getType() == JPType.BACKREFERENCE) {
+              builder
+                  .classPluralCode(cls.getPluralCode())
+                  .block(sId)
+                  .block(x.getCode())
+                  .refClassCode(refClass.getCode())
+                  .refClassPluralCode(refClass.getPluralCode());
+            } else if (!refAttr.isIdentifier()) {
+              Object val = jpObject.getData().get(x);
+              if (val == null) {
+                return null;
+              }
+              builder
+                  .classPluralCode(cls.getPluralCode())
+                  .block(sId)
+                  .block(x.getCode())
+                  .block(String.valueOf(val))
+                  .refClassCode(refClass.getCode())
+                  .refClassPluralCode(refClass.getPluralCode());
+            } else {
+              Object val = jpObject.getData().get(x);
+              if (val == null) {
+                return null;
+              }
+              builder
+                  .classPluralCode(refClass.getPluralCode())
+                  .block(String.valueOf(val))
+                  .refClassCode(refClass.getCode())
+                  .refClassPluralCode(refClass.getPluralCode());
+            }
+            return builder.build();
+          })
+          .filter(Objects::nonNull)
+          .collect(Collectors.toList()));
+    }
   }
 
   @JsonProperty("id")
@@ -168,8 +176,13 @@ public class JsonJPObject {
     return links;
   }
 
+  @JsonProperty("access")
+  public JsonChangeAccess getAccess() {
+    return access;
+  }
+
   /**
-   * Построитель JsonJPObject
+   * Построитель {@link JsonJPObject}
    *
    * @return Builder
    */
@@ -178,13 +191,15 @@ public class JsonJPObject {
   }
 
   /**
-   * Построитель JsonJPObject
+   * Построитель {@link JsonJPObject}
    */
   public static final class Builder {
     private JPMetaStorage metaStorage;
     private JPObject jpObject;
     private String baseUrl;
     private String restMapping;
+    private boolean addLinks = false;
+    private JsonChangeAccess access;
 
     private Builder() {
     }
@@ -234,12 +249,34 @@ public class JsonJPObject {
     }
 
     /**
-     * Создаем JsonJPObject
+     * addLinks
      *
-     * @return JsonJPObject
+     * @param addLinks признак добавления блока links (по умолчанию - {@code false})
+     * @return Builder
+     */
+    public Builder addLinks(boolean addLinks) {
+      this.addLinks = addLinks;
+      return this;
+    }
+
+    /**
+     * Настройки доступа к текущему объекту
+     *
+     * @param access JsonAccess
+     * @return Builder
+     */
+    public Builder access(JsonChangeAccess access) {
+      this.access = access;
+      return this;
+    }
+
+    /**
+     * Создаем {@link JsonJPObject}
+     *
+     * @return {@link JsonJPObject}
      */
     public JsonJPObject build() {
-      return new JsonJPObject(metaStorage, jpObject, baseUrl, restMapping);
+      return new JsonJPObject(metaStorage, jpObject, access, baseUrl, restMapping, addLinks);
     }
   }
 }

@@ -54,6 +54,16 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
   }
 
   /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPResourceAccessServiceAware> awares) {
+    for (JPResourceAccessServiceAware aware : awares) {
+      aware.setJpResourceAccessService(this);
+    }
+  }
+
+  /**
    * Проверка доступа на чтение
    *
    * @param classCode Код метаописания

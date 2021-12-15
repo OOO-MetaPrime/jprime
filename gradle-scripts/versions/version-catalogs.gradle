@@ -1,0 +1,28 @@
+dependencyResolutionManagement {
+  versionCatalogs {
+    auth {
+      from(files("auth.toml"))
+    }
+    commons {
+      from(files("commons.toml"))
+    }
+    crypto {
+      from(files("crypto.toml"))
+    }
+    libs {
+      from(files("libs.toml"))
+    }
+    loggers {
+      from(files("loggers.toml"))
+    }
+    reports {
+      from(files("reports.toml"))
+    }
+    spring {
+      from(files("spring.toml"))
+    }
+    storages {
+      from(files("storages.toml"))
+    }
+  }
+}

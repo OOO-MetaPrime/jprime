@@ -1,10 +1,8 @@
 package mp.jprime.utils.services;
 
+import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.security.AuthInfo;
-import mp.jprime.utils.JPUtil;
-import mp.jprime.utils.JPUtilInParams;
-import mp.jprime.utils.JPUtilMode;
-import mp.jprime.utils.JPUtilOutParams;
+import mp.jprime.utils.*;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -15,6 +13,11 @@ import java.util.Collection;
  * Сервис работы с утилитами
  */
 public interface JPUtilService {
+  /**
+   * Режим проверки доступности по умолчанию
+   */
+  String CHECK_MODE = "check";
+
   /**
    * Возвращает список всех кодовых имен утилит
    *
@@ -93,6 +96,33 @@ public interface JPUtilService {
    * @return Исходящие параметры
    */
   Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo);
+
+  /**
+   * Выполняет метод утилиты
+   *
+   * @param utilCode   Код утилиты
+   * @param methodCode Код метода
+   * @param in         Входящие параметры
+   * @param swe        ServerWebExchange
+   * @param authInfo   Данные авторизации
+   * @return Исходящие параметры
+   */
+  default Mono<JPUtilCheckOutParams> check(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo) {
+    return apply(utilCode, methodCode, in, swe, authInfo)
+        .cast(JPUtilCheckOutParams.class)
+        .onErrorResume(JPRuntimeException.class, e -> Mono.just(JPUtilCheckOutParams.newBuilder()
+            .denied(true)
+            .qName(e.getMessageCode())
+            .description(e.getMessage())
+            .build()
+        ))
+        .onErrorResume(e -> Mono.just(JPUtilCheckOutParams.newBuilder()
+            .denied(true)
+            .qName(e.getMessage())
+            .description(e.getMessage())
+            .build()
+        ));
+  }
 
   /**
    * Выполняет метод утилиты

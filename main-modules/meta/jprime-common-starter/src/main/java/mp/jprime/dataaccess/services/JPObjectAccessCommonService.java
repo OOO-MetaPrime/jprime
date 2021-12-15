@@ -1,13 +1,12 @@
 package mp.jprime.dataaccess.services;
 
-import mp.jprime.dataaccess.JPObjectAccessService;
-import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.*;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
+import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
@@ -18,11 +17,13 @@ import mp.jprime.security.services.JPResourceAccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
+
 /**
  * Реализация проверки доступа к объекту
  */
 @Service
-public class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService {
+public class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService, JPObjectRepositoryServiceAware, JPObjectDefValueServiceAware {
   // Интерфейс создания/изменения объекта
   private JPObjectRepositoryService repo;
   // Хранилище метаинформации
@@ -30,8 +31,8 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   // Логика вычисления значений по умолчанию
   private JPObjectDefValueService defValueService;
 
-  @Autowired
-  private void setRepo(JPObjectRepositoryService repo) {
+  @Override
+  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
     this.repo = repo;
   }
 
@@ -40,9 +41,19 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     this.metaStorage = metaStorage;
   }
 
-  @Autowired
-  private void setDefValueService(JPObjectDefValueService defValueService) {
+  @Override
+  public void setJPObjectDefValuesService(JPObjectDefValueService defValueService) {
     this.defValueService = defValueService;
+  }
+
+  /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPObjectAccessServiceAware> awares) {
+    for (JPObjectAccessServiceAware aware : awares) {
+      aware.setJpObjectAccessService(this);
+    }
   }
 
   /**

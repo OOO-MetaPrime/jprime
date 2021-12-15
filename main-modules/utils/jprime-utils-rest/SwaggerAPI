@@ -8,12 +8,6 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
-security:
-- password:
-  - read
-tags:
-- name: action
-  description: Запуск утилиты
 
 paths:
   /utils/v1/{utilCode}/mode/{modeCode}:
@@ -53,6 +47,32 @@ paths:
                 description: json запрос, соответствующий формату утилиты
                 type: string
                 format: json
+        400:
+          description: Bad request.
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/batchCheck:
+    post:
+      tags:
+      - action
+      description: Массовый чек утилит
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/batchCheckRequest'
+
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/batchCheckResponse'
         400:
           description: Bad request.
         401:
@@ -269,6 +289,82 @@ components:
           description: json для фильтрации объектов
           type: object
           example: {"cond": {"attr": "companyId", "eq": "12"}}
+
+    batchCheckRequest:
+      type: object
+      properties:
+        rootObjectClassCode:
+          type: string
+          description: кодовое имя метакласса корневого объекта
+        rootObjectId:
+          type: string
+          description: идентификатор корневого объекта
+        ids:
+          type: array
+          description: Идентификаторы проверяемых объектов
+          items:
+            type: object
+            properties:
+              objectClassCode:
+                type: string
+                description: Кодовое имя метаописания класса
+              objectIds:
+                type: array
+                description: Идентификатор объекта
+                items:
+                  type: string
+        utils:
+          type: array
+          description: Коды проверяемых утилит
+          items:
+            type: string
+
+    batchCheckResponse:
+      type: object
+      properties:
+        resultType:
+          type: string
+          description: Тип ответа, всегда batchCheck
+          example: batchCheck
+        result:
+          type: array
+          description: Результат проверки
+          items:
+            properties:
+              objectClassCode:
+                type: string
+                description: Кодовое имя метаописания класса
+              objectId:
+                type: string
+                description: Идентификатор объекта
+              utilCode:
+                type: string
+                description: Код проверяемой утилиты
+              resultType:
+                type: object
+                properties:
+                  description:
+                    type: string
+                    description: описание
+                  changeData:
+                    type: boolean
+                    description: флаг, изменились ли данные
+                    example: false
+                  resultType:
+                    type: string
+                    description: тип результата
+                    example: check
+                  qName:
+                    type: string
+                    description: qName ответа
+                  denied:
+                    type: boolean
+                    description: Признак запрета запуска утилиты
+                    example: false
+                  confirm:
+                    type: string
+                    description: Сообщение пользователю перед запуском утилиты
+
 
 # Added by API Auto Mocking Plugin
 servers:

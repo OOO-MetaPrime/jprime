@@ -500,6 +500,28 @@ public class QueryService {
         cond = JsonCond.newAttrCond(attrName).fuzzyLike(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.FUZZYORDERLIKE) {
         cond = JsonCond.newAttrCond(attrName).fuzzyOrderLike(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.STARTSWITH) {
+        cond = JsonCond.newAttrCond(attrName).startsWith(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.NOTSTARTSWITH) {
+        cond = JsonCond.newAttrCond(attrName).notStartsWith(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.CONTAINSRANGE) {
+        cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.OVERLAPSRANGE) {
+        cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.CONTAINSEL) {
+        cond = JsonCond.newAttrCond(attrName).gte(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.EQRANGE) {
+        cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.GTRANGE) {
+        cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.GTERANGE) {
+        cond = JsonCond.newAttrCond(attrName).gte(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.NEQRANGE) {
+        cond = JsonCond.newAttrCond(attrName).neq(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.LTRANGE) {
+        cond = JsonCond.newAttrCond(attrName).lt(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.LTERANGE) {
+        cond = JsonCond.newAttrCond(attrName).lte(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.BETWEEN) {
         Between b = (Between) v;
         Pair pair = b.getValue();
@@ -602,6 +624,8 @@ public class QueryService {
         return Filter.attr(c.getAttr()).fuzzyOrderLike(c.getFuzzyOrderLike());
       } else if (c.getStartsWith() != null) {
         return Filter.attr(c.getAttr()).startWith(c.getStartsWith());
+      } else if (c.getNotStartsWith() != null) {
+        return Filter.attr(c.getAttr()).notStartWith(c.getNotStartsWith());
       } else if (between != null) {
         return Filter.attr(c.getAttr()).between(Pair.from(between.getFrom(), between.getTo()));
       } else if (contains != null) {
@@ -646,6 +670,24 @@ public class QueryService {
         return Filter.attr(c.getAttr()).gtDay(c.getGtDay());
       } else if (c.getGteDay() != null) {
         return Filter.attr(c.getAttr()).gteDay(c.getGteDay());
+      } else if (c.getContainsEl() != null) {
+        return Filter.attr(c.getAttr()).containsEl(c.getContainsEl());
+      } else if (c.getContainsRange() != null) {
+        return Filter.attr(c.getAttr()).containsRange(c.getContainsRange());
+      } else if (c.getOverlapsRange() != null) {
+        return Filter.attr(c.getAttr()).overlapsRange(c.getOverlapsRange());
+      } else if (c.getEqRange() != null) {
+        return Filter.attr(c.getAttr()).eqRange(c.getEqRange());
+      } else if (c.getGtRange() != null) {
+        return Filter.attr(c.getAttr()).gtRange(c.getGtRange());
+      } else if (c.getGteRange() != null) {
+        return Filter.attr(c.getAttr()).gteRange(c.getGteRange());
+      } else if (c.getNeqRange() != null) {
+        return Filter.attr(c.getAttr()).neqRange(c.getNeqRange());
+      } else if (c.getLtRange() != null) {
+        return Filter.attr(c.getAttr()).ltRange(c.getLtRange());
+      } else if (c.getLteRange() != null) {
+        return Filter.attr(c.getAttr()).lteRange(c.getLteRange());
       } else if (c.getFeature() != null) {
         if (c.getCheckDay() != null) {
           return Filter.feature(c.getFeature()).check(c.getCheckDay());

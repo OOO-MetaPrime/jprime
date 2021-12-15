@@ -25,6 +25,7 @@ public class JsonCond {
   private JsonBetweenCond between;
   private JsonContainsCond contains;
   private String startsWith;
+  private String notStartsWith;
   private String like;
   private String fuzzyLike;
   private String fuzzyOrderLike;
@@ -32,6 +33,16 @@ public class JsonCond {
   private Collection<String> notIn;
   private JsonExpr exists;
   private JsonExpr notExists;
+  // Условия на диапазоны
+  private String containsEl;
+  private JsonRange<Object> containsRange;
+  private JsonRange<Object> overlapsRange;
+  private JsonRange<Object> eqRange;
+  private JsonRange<Object> neqRange;
+  private JsonRange<Object> gtRange;
+  private JsonRange<Object> gteRange;
+  private JsonRange<Object> ltRange;
+  private JsonRange<Object> lteRange;
   // Условия на дату
   private Integer eqYear;
   private Integer neqYear;
@@ -127,6 +138,10 @@ public class JsonCond {
 
   public String getStartsWith() {
     return startsWith;
+  }
+
+  public String getNotStartsWith() {
+    return notStartsWith;
   }
 
   public String getLike() {
@@ -245,6 +260,42 @@ public class JsonCond {
     return lteDay;
   }
 
+  public String getContainsEl() {
+    return containsEl;
+  }
+
+  public JsonRange<Object> getContainsRange() {
+    return containsRange;
+  }
+
+  public JsonRange<Object> getOverlapsRange() {
+    return overlapsRange;
+  }
+
+  public JsonRange<Object> getEqRange() {
+    return eqRange;
+  }
+
+  public JsonRange<Object> getNeqRange() {
+    return neqRange;
+  }
+
+  public JsonRange<Object> getGtRange() {
+    return gtRange;
+  }
+
+  public JsonRange<Object> getGteRange() {
+    return gteRange;
+  }
+
+  public JsonRange<Object> getLtRange() {
+    return ltRange;
+  }
+
+  public JsonRange<Object> getLteRange() {
+    return lteRange;
+  }
+
   public JsonCond isNull(Boolean aNull) {
     isNull = aNull;
     return this;
@@ -315,6 +366,11 @@ public class JsonCond {
     return this;
   }
 
+  public JsonCond notStartsWith(String notStartsWith) {
+    this.notStartsWith = notStartsWith;
+    return this;
+  }
+
   public JsonCond in(Collection<String> in) {
     this.in = in;
     return this;
@@ -322,6 +378,51 @@ public class JsonCond {
 
   public JsonCond notIn(Collection<String> notIn) {
     this.notIn = notIn;
+    return this;
+  }
+
+  public JsonCond containsEl(String containsEl) {
+    this.containsEl = containsEl;
+    return this;
+  }
+
+  public JsonCond containsRange(JsonRange<Object> containsRange) {
+    this.containsRange = containsRange;
+    return this;
+  }
+
+  public JsonCond overlapsRange(JsonRange<Object> overlapsRange) {
+    this.overlapsRange = overlapsRange;
+    return this;
+  }
+
+  public JsonCond eqRange(JsonRange<Object> eqRange) {
+    this.eqRange = eqRange;
+    return this;
+  }
+
+  public JsonCond neqRange(JsonRange<Object> neqRange) {
+    this.neqRange = neqRange;
+    return this;
+  }
+
+  public JsonCond gtRange(JsonRange<Object> gtRange) {
+    this.gtRange = gtRange;
+    return this;
+  }
+
+  public JsonCond gteRange(JsonRange<Object> gteRange) {
+    this.gteRange = gteRange;
+    return this;
+  }
+
+  public JsonCond ltRange(JsonRange<Object> ltRange) {
+    this.ltRange = ltRange;
+    return this;
+  }
+
+  public JsonCond lteRange(JsonRange<Object> lteRange) {
+    this.lteRange = lteRange;
     return this;
   }
 

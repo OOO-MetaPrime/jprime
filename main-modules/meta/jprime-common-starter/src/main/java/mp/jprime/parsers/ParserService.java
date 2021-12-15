@@ -1,10 +1,13 @@
 package mp.jprime.parsers;
 
+import mp.jprime.parsers.exceptions.JPParseException;
 import mp.jprime.parsers.exceptions.JPParserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Парсер типов
@@ -18,7 +21,17 @@ public final class ParserService {
   private final Map<Class, Map<Class, TypeParser>> parsers = new HashMap<>();
 
   /**
-   * Конструктор
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<ParserServiceAware> awares) {
+    for (ParserServiceAware aware : awares) {
+      aware.setParserService(this);
+    }
+  }
+
+  /**
+   * Кеширование парсеров
    */
   @Autowired(required = false)
   private void setParsers(Collection<TypeParser> parsers) {
@@ -59,7 +72,11 @@ public final class ParserService {
     if (parser == null) {
       throw new JPParserNotFoundException(String.format("Not found parser from {%s} to {%s} class", value.getClass(), to));
     }
-    return (T) parser.parseObject(value);
+    try {
+      return (T) parser.parseObject(value);
+    } catch (Exception e) {
+      throw new JPParseException("parser.service", e.getMessage());
+    }
   }
 
   /**

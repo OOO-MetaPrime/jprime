@@ -32,7 +32,7 @@ tags:
   description: run utils
 
 paths:
-  '/api/v1/{pluralCode}/{objectId}':
+  '/api/v1/{code}/{objectId}':
     get:
       tags:
       - object
@@ -40,7 +40,7 @@ paths:
       description: получние объекта класса
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -78,7 +78,7 @@ paths:
         delete object
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -103,7 +103,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/search':
+  '/api/v1/{code}/search':
     post:
       tags:
       - list
@@ -111,7 +111,7 @@ paths:
       description: Отображение списка объектов по указанным условиям
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -137,7 +137,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/search/{attrCode}/{attrValue}':
+  '/api/v1/{code}/search/{attrCode}/{attrValue}':
     post:
       tags:
       - list
@@ -145,7 +145,7 @@ paths:
       description: Отображение списка объектов по указанным условиям
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -185,7 +185,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/aggregate':
+  '/api/v1/{code}/aggregate':
     post:
       tags:
       - list
@@ -193,7 +193,7 @@ paths:
       description: Вычисление агрегаций
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -219,7 +219,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/defvalue':
+  '/api/v1/{code}/defvalue':
     post:
       tags:
       - list
@@ -227,7 +227,7 @@ paths:
       description: Значения по умолчанию
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -253,7 +253,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/addinfo':
+  '/api/v1/{code}/addinfo':
     post:
       tags:
       - list
@@ -261,7 +261,7 @@ paths:
       description: Позволяет получить текстовое описание об объекте
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -287,7 +287,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/{objectId}/{attrCode}/{attrValue}':
+  '/api/v1/{code}/{objectId}/{attrCode}/{attrValue}':
     post:
       tags:
       - list
@@ -296,7 +296,7 @@ paths:
         you can search for available objects in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -350,7 +350,7 @@ paths:
         you can search for available objects in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -391,7 +391,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}/{objectId}/{attrCode}':
+  '/api/v1/{code}/{objectId}/{attrCode}':
     post:
       tags:
       - list
@@ -401,7 +401,7 @@ paths:
         you can search for available objects in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -448,7 +448,7 @@ paths:
         you can search for available objects in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -482,7 +482,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/api/v1/{pluralCode}':
+  '/api/v1/{code}':
     get:
       tags:
       - list
@@ -492,7 +492,7 @@ paths:
         you can search for available objects in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -536,7 +536,7 @@ paths:
       description: update an object in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -584,7 +584,7 @@ paths:
       description: Adds an object in the system
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -621,13 +621,13 @@ paths:
         '409':
           description: an existing item already exists
 
-  '/api/v1/{pluralCode}/{objectId}/file/{attrCode}/{bearer}':
+  '/api/v1/{code}/{objectId}/file/{attrCode}/{bearer}':
     get:
       summary: скачивание файла
       description: получние файла
       parameters:
       - in: path
-        name: pluralCode
+        name: code
         required: true
         schema:
           type: string
@@ -876,26 +876,36 @@ components:
           type: integer
           format: integer
           example: 10
+          description: Смещение выборки
         limit:
           type: integer
           format: integer
           example: 50
+          description: Ограничение на количество получаемых объектов
         totalCount:
           type: boolean
           format: boolean
           example: true
+          description: Признак подсчет общего количества объектов
+        access:
+          type: boolean
+          format: boolean
+          example: false
+          description: Признак расчета доступа для каждого объекта
         attrs:
           type: array
           items:
             type: string
           example:
               ["attr1", "attr2","attr3" ,"attr4"]
+          description: Список запрашиваемых атрибутов
         filter:
           type: object
           items:
             $ref: '#/components/schemas/expression'
           example:
               {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
+          description: Условие ограничения выборки
         orders:
           type: array
           items:
@@ -903,6 +913,7 @@ components:
           example:
           - asc: "attr1"
           - desc: "attr2"
+          description: Настройка сортировки выборки
 
     objectList:
       type: object
@@ -912,21 +923,25 @@ components:
           format: int32
           minimum: 0
           example: 0
+          description: Смещение выборки
         limit:
           type: integer
           format: int32
           minimum: 0
           example: 50
+          description: Ограничение на количество получаемых объектов
         objectsCount:
           type: integer
           format: int32
           minimum: 0
           example: 2
+          description: Количество объектов в выборке
         totalCount:
           type: integer
           format: int32
           minimum: 0
           example: 2
+          description: Общее количество объектов
         classCode:
           type: string
           format: string
@@ -942,8 +957,6 @@ components:
           example:
           - id: id1
             classCode : personCard
-            title: Иванов Иван Иванович 1984.01.12
-            ts: '2016-08-29T09:12:33.001Z'
             data:
               sex: M
               address: Спб
@@ -954,8 +967,6 @@ components:
               path: 'api/v1/personCards/id1'
           - id: id2
             classCode : personCard
-            title: Петров Петр Петрович 1950.12.29
-            ts: '2016-08-29T09:12:23.011Z'
             data:
               sex: M
               address: Мск
@@ -1014,18 +1025,14 @@ components:
           type: string
           format: string
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
+          description: Идентификатор объекта
         classCode:
           type: string
           format: string
           example: personalCard
-        title:
-          type: string
-          example: Иванов Иван Иванович 1984.01.12
-        ts:
-          type: string
-          format: int32
-          example: '2016-08-29T09:12:33.001Z'
+          description: Кодовое имя класса объекта
         data:
+          description: Данные объекта
           additionalProperties:
             type: string
             example: 'attrValue'
@@ -1033,18 +1040,36 @@ components:
             sex: M
             address: Мск
             citezenships: 1
+        access:
+          type: object
+          items:
+            $ref: '#/components/schemas/changeAccess'
         linkedData:
+          description: Данные ссылочных объектов
           additionalProperties:
             $ref: '#/components/schemas/objectInfo'
           example:
             sex: {"id":"1", "name":"M"}
         links:
+          description: RESTFul ссылки
           type: array
           items:
             $ref: '#/components/schemas/linkInfo'
           example:
           - rel: self
             href : 'http://192.168.1.87:8095/api/v1/personalCards/9990030490'
+
+    changeAccess:
+      type: object
+      properties:
+        update:
+          type: boolean
+          example: true
+          description: Права на изменение объекта
+        delete:
+          type: boolean
+          example: false
+          description: Права на удаление объекта
 
     objectData:
       type: object

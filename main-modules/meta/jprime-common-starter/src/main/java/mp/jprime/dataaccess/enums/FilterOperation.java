@@ -49,6 +49,10 @@ public enum FilterOperation {
    */
   STARTSWITH("STARTSWITH"),
   /**
+   * Не начинается С
+   */
+  NOTSTARTSWITH("NOTSTARTSWITH"),
+  /**
    * Содержит
    */
   EXISTS("EXISTS"),
@@ -147,7 +151,43 @@ public enum FilterOperation {
   /**
    * Меньше или равно в днях
    */
-  LTE_DAY("LTE_DAY");
+  LTE_DAY("LTE_DAY"),
+  /**
+   * Этот диапазон содержит элемент
+   */
+  CONTAINSEL("CONTAINSEL"),
+  /**
+   * Этот диапазон содержит диапазон
+   */
+  CONTAINSRANGE("CONTAINSRANGE"),
+  /**
+   * Этот диапазон содержится в диапазон
+   */
+  OVERLAPSRANGE("OVERLAPSRANGE"),
+  /**
+   * Равно
+   */
+  EQRANGE("EQRANGE"),
+  /**
+   * Не равно
+   */
+  NEQRANGE("NEQRANGE"),
+  /**
+   * Больше
+   */
+  GTRANGE("GTRANGE"),
+  /**
+   * Больше или равно
+   */
+  GTERANGE("GTERANGE"),
+  /**
+   * Меньше
+   */
+  LTRANGE("LTRANGE"),
+  /**
+   * Меньше или равно
+   */
+  LTERANGE("LTERANGE");
 
   private String code;
 

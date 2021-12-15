@@ -1,0 +1,26 @@
+task buildOffline(type: GradleBuild, description: 'Сборка проекта без интернета', group: 'build offline') {
+  setTasks(Arrays.asList('build'))
+  Map<String, String> properties = ['offline': "true"]
+  properties += gradle.startParameter.projectProperties
+  startParameter.projectProperties = properties
+  startParameter.offline = true
+}
+
+task zipMavenLocal(type: Zip, description: 'Упаковка зависимостей', group: 'build offline') {
+  archiveName 'dependencies.zip'
+  from   "${rootProject.projectDir}/../projects-modules/dependencies"
+  include 'dependencies/**/*'
+  destinationDirectory = file('.')
+}
+
+task cacheToMavenLocal(type: Copy, description: 'Подготовка всех зависимостей для сборки без интернета', group: 'build offline') {
+  from new File(gradle.gradleUserHomeDir, 'caches/modules-2/files-2.1')
+  into "${rootProject.projectDir}/../projects-modules/dependencies"
+  eachFile {
+    List<String> parts = it.path.split('/')
+    it.path = parts[0].replace('.','/') + '/' + parts[1] + '/' + parts[2] + '/' + parts[4]
+  }
+  includeEmptyDirs false
+}
+
+cacheToMavenLocal.finalizedBy zipMavenLocal

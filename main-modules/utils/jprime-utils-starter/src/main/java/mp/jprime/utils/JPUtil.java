@@ -1,14 +1,29 @@
 package mp.jprime.utils;
 
+import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.annotations.JPUtilLink;
+import mp.jprime.utils.annotations.JPUtilModeLink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Mono;
 
 /**
  * Интерфейс утилиты
  */
 public interface JPUtil {
   Logger LOG = LoggerFactory.getLogger(JPUtil.class);
+
+  @JPUtilModeLink(code = "check",
+      title = "Проверка запуска",
+      outClass = JPUtilCheckOutParams.class
+  )
+  default Mono<JPUtilCheckOutParams> check(JPUtilCheckInParams in, AuthInfo authInfo) {
+    return Mono.just(JPUtilCheckOutParams.newBuilder()
+        .denied(false)
+        .description("Запуск разрешен")
+        .build()
+    );
+  }
 
   /**
    * Возвращает название утилиты

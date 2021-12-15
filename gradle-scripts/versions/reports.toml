@@ -1,0 +1,26 @@
+# Отчёты
+[versions]
+jasperreportsFontsLiberationVersion = "2.1.2"
+jasperreportsFontsVersion = "6.16.0"
+jasperreportsVersion = "6.16.0"
+yargVersion = "2.2.15"
+dynamicreportsCoreVersion = "6.12.0"
+itextVersion = "2.1.7"
+jsonSimpleVersion = "1.1.1"
+olap4JVersion = "1.2.0"
+poiVersion = "4.1.2"
+
+[libraries]
+jasperreports = { module="net.sf.jasperreports:jasperreports", version.ref="jasperreportsVersion" }
+jasperreports-fonts = { module="net.sf.jasperreports:jasperreports-fonts", version.ref="jasperreportsFontsVersion" }
+jasperreports-fonts-liberation = { module="com.mpobjects.jasperreports.font:jasperreports-fonts-liberation", version.ref="jasperreportsFontsLiberationVersion" }
+dynamicreports-core = { module="net.sourceforge.dynamicreports:dynamicreports-core", version.ref="dynamicreportsCoreVersion" }
+itext = { module="com.lowagie:itext", version.ref="itextVersion" }
+json-simple = { module="com.googlecode.json-simple:json-simple", version.ref="jsonSimpleVersion" }
+yarg = { module="com.haulmont.yarg:yarg", version.ref="yargVersion" }
+olap4j = { module="org.olap4j:olap4j", version.ref="olap4JVersion" }
+poi = { module="org.apache.poi:poi", version.ref="poiVersion" }
+poi-ooxml = { module="org.apache.poi:poi-ooxml", version.ref="poiVersion" }
+
+[bundles]
+jasperreports-v1 = ['jasperreports', 'jasperreports-fonts', 'jasperreports-fonts-liberation']

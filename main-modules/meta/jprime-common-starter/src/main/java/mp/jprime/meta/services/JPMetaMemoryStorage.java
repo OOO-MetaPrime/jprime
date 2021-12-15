@@ -170,14 +170,37 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
   }
 
   /**
-   * Возвращает метаописание класса по коду
+   * Возвращает метаописание класса по множественному коду
    *
    * @param pluralCode Множественный код класса
    * @return Метаописание класса
+   * @deprecated Отказ от множественного кодового имени. Рекомендуется использовать обычное кодовое имя
    */
+  @Deprecated
   @Override
   public JPClass getJPClassByPluralCode(String pluralCode) {
     return pluralCode == null ? null : cacheRef.get().pluralCodeJpClassMap.get(pluralCode);
+  }
+
+  /**
+   * Возвращает метаописание класса по множественному или простому коду
+   *
+   * @param code Код класса
+   * @return Метаописание класса
+   * @deprecated Отказ от множественного кодового имени. Рекомендуется использовать обычное кодовое имя
+   */
+  @Deprecated
+  @Override
+  public JPClass getJPClassByCodeOrPluralCode(String code) {
+    if (code == null) {
+      return null;
+    }
+    Cache cache = cacheRef.get();
+    JPClass jpClass = cache.pluralCodeJpClassMap.get(code);
+    if (jpClass == null) {
+      jpClass = cache.codeJpClassMap.get(code);
+    }
+    return jpClass;
   }
 
   private class Cache {

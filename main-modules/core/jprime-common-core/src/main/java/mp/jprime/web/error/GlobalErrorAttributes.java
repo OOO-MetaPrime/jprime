@@ -3,6 +3,7 @@ package mp.jprime.web.error;
 import mp.jprime.exceptions.CompositeException;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
+import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -15,8 +16,8 @@ import java.util.stream.Collectors;
 @Component
 public class GlobalErrorAttributes extends DefaultErrorAttributes {
   @Override
-  public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
-    Map<String, Object> map = super.getErrorAttributes(request, includeStackTrace);
+  public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
+    Map<String, Object> map = super.getErrorAttributes(request, options);
     Throwable error = getError(request);
     if (error instanceof CompositeException) {
       map.put("details", ((CompositeException) error).getExceptions().stream().map(x -> fill((Exception) x)).collect(Collectors.toList()));

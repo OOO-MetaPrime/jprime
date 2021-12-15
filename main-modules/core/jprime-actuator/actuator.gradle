@@ -7,65 +7,64 @@ ext {
   BUILD_DATE_TITLE = 'Build-Date'
 }
 
-static def getDate(String format) {
-  return LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(format)
+static String getDate(String format) {
+  LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(format).toString()
 }
 
-def getSubmoduleHash() {
+String getSubmoduleHash() {
   def stdout = new ByteArrayOutputStream()
   exec {
     commandLine 'git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD'
     standardOutput = stdout
   }
-  String hash = stdout.toString().trim()
-  return hash;
+  stdout.toString().trim()
 }
 
-def getRootHash() {
+String getRootHash() {
   def stdout = new ByteArrayOutputStream()
   exec {
     commandLine 'git', 'rev-parse', '--short', 'HEAD'
     standardOutput = stdout
   }
-  return stdout.toString().trim()
+  stdout.toString().trim()
 }
 
-String getSubmoduleName(String line) {
-  String submodule = "";
-  if (line.contains('\'')) {
-    submodule = line.substring(line.indexOf('\'') + 1, line.lastIndexOf('\''))
+static String getSubmoduleName(String line) {
+  String submodule = null
+  if (line.contains(/'/)) {
+    submodule = line[line.indexOf(/'/) + 1..line.lastIndexOf(/'/) - 1]
     if (submodule.contains('/')) {
-      submodule = submodule.substring(submodule.lastIndexOf('/') + 1)
+      submodule = submodule[submodule.lastIndexOf('/') + 1..submodule.length() - 1]
     }
   }
-  if (submodule.isEmpty()) {
-    throw new RuntimeException("Submodule status parsing error: unexpected result from command line");
+  if (!submodule) {
+    throw new RuntimeException("Submodule status parsing error: unexpected result from command line")
   }
-  return submodule;
+  submodule
 }
 
 ext.common = [
-  getManifestAttrs: { ->
-    Map<String, GString> attrs = new HashMap<>();
-    attrs.put(PROJECT_VERSION_TITLE, "${getRootHash()}");
-    attrs.put(BUILD_DATE_TITLE, "${getDate('yyyy.MM.dd HH:mm:ss')}");
-    return attrs;
-  },
-  getSubmodulesVersion: { ->
-      Map<String, GString> attrs = new HashMap<>();
-      String subs = getSubmoduleHash();
-      String[] lines = subs.split("\n");
-      String submodule = null;
+    getManifestAttrs    : { ->
+      [
+          (PROJECT_VERSION_TITLE): getRootHash(),
+          (BUILD_DATE_TITLE)     : getDate('yyyy.MM.dd HH:mm:ss')
+      ]
+    },
+    getSubmodulesVersion: { ->
+      Map<String, String> attrs = [:]
+      String subs = getSubmoduleHash()
+      String[] lines = subs.split("\n")
+      String submodule = null
       for (String line : lines) {
         if (line.startsWith("Entering")) {
-          submodule = getSubmoduleName(line);
-        } else if (submodule != null) {
-          attrs.put(submodule, "${line}");
-          submodule = null;
+          submodule = getSubmoduleName(line)
+        } else if (submodule) {
+          attrs += [(submodule): line]
+          submodule = null
         } else {
-          throw new RuntimeException("Submodule status parsing error: unexpected result from command line");
+          throw new RuntimeException("Submodule status parsing error: unexpected result from command line")
         }
       }
-      return attrs;
+      attrs
     }
 ]

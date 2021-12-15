@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.params.query;
 import mp.jprime.dataaccess.params.query.data.Entry;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
+import mp.jprime.dataaccess.params.query.filters.range.*;
 import mp.jprime.meta.JPAttr;
 
 import java.time.LocalDate;
@@ -413,6 +414,16 @@ public abstract class Filter {
     }
 
     /**
+     * Не начинается С
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public NotStartsWith notStartWith(Object value) {
+      return new NotStartsWith(attrCode, value);
+    }
+
+    /**
      * Существует
      *
      * @param value Значение внутренних объектов
@@ -521,5 +532,96 @@ public abstract class Filter {
     public Contains contains(Entry value) {
       return new Contains(attrCode, value);
     }
+
+    /**
+     * Диапазон содержит диапазон
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public ContainsRange containsRange(Object value) {
+      return new ContainsRange(attrCode, value);
+    }
+
+    /**
+     * Диапазон содержит элемент
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public ContainsEl containsEl(Object value) {
+      return new ContainsEl(attrCode, value);
+    }
+
+    /**
+     * Этот диапазон содержится в диапазон
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public OverlapsRange overlapsRange(Object value) {
+      return new OverlapsRange(attrCode, value);
+    }
+
+    /**
+     * Равно
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public EQRange eqRange(Object value) {
+      return new EQRange(attrCode, value);
+    }
+
+    /**
+     * Не равно
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public NEQRange neqRange(Object value) {
+      return new NEQRange(attrCode, value);
+    }
+
+    /**
+     * Больше или равно
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public GTERange gteRange(Object value) {
+      return new GTERange(attrCode, value);
+    }
+
+    /**
+     * Больше
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public GTRange gtRange(Object value) {
+      return new GTRange(attrCode, value);
+    }
+
+    /**
+     * Меньше или равно
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public LTERange lteRange(Object value) {
+      return new LTERange(attrCode, value);
+    }
+
+    /**
+     * Меньше
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public LTRange ltRange(Object value) {
+      return new LTRange(attrCode, value);
+    }
+
   }
 }

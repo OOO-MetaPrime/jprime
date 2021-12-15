@@ -1,30 +1,15 @@
 package mp.jprime.kafka.consumers;
 
-import mp.jprime.exceptions.JPRuntimeException;
-import org.apache.kafka.clients.admin.AdminClient;
-import org.apache.kafka.clients.admin.AdminClientConfig;
-import org.apache.kafka.clients.admin.ListTopicsOptions;
-import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
-import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.listener.ConsumerRecordRecoverer;
-import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
 import org.springframework.kafka.listener.ErrorHandler;
+import org.springframework.kafka.listener.MessageListener;
 import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.backoff.FixedBackOff;
 
-import javax.annotation.PostConstruct;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Сервис формирования динамических слушателей по паттерну Dead Letter Queue
@@ -32,79 +17,31 @@ import java.util.regex.Pattern;
  * @param <K> тип ключа события
  * @param <V> тип значения события
  */
-public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDynamicConsumerBaseService<K, V> {
+public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V, ErrorHandler> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerService.class);
-  private static final String TOPIC_NUMBER_DELIMITER = "-";
-  private static final FixedBackOff NO_RETRY_BACK_OFF = new FixedBackOff(0, 1);
-  private static final long NO_TIME_INTERVAL = 0L;
-  private static final Collection<Long> DEFAULT_POLL_INTERVALS = Collections.singletonList(NO_TIME_INTERVAL);
-  private static final int DEFAULT_MAX_POLL_INTERVAL = 300_000;
 
-  @Value("${jprime.kafka.dead-letter-consumers.poll-interval:60000}")
-  private long defaultInterval;
-
-  @Value("${jprime.kafka.dead-letter-consumers.infinite:false}")
-  private boolean infiniteDefaultListeners;
-
-  @PostConstruct
-  private void init() {
-    Collection<Long> pollIntervals = getPollIntervals();
-    if (CollectionUtils.isEmpty(pollIntervals)) {
-      LOG.warn("Not specified poll settings for listener's cascade of topic \"{}\"", getTopic());
-      pollIntervals = DEFAULT_POLL_INTERVALS;
-    }
-    int i = 0;
-    for (Long pollInterval : pollIntervals) {
-      boolean first = i == 0;
-      boolean last = i == pollIntervals.size() - 1;
-      //Если слушатель - единственный в каскаде, то он восстанавливает события в свой же топик
-      String previousRecoveryTopic = first && last ? getTopic() : getTopic(i - 1);
-      //Если это последний слушатель каскада, то он восстанавливает события в recoveryTopic предыдущего слушателя
-      ErrorHandler errorHandler = last ?
-          getErrorHandler(previousRecoveryTopic) : getErrorHandler(getTopic(i));
-      ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, pollInterval);
-      //Если это первый слушатель, то он слушает основной топик,
-      //Иначе слушает recoveryTopic предыдущего слушателя
-      String topic = first ? getTopic() : previousRecoveryTopic;
-      register(factory, topic);
-      i++;
-    }
-    initDefaultListeners();
+  /**
+   * Регистрирует слушателя
+   *
+   * @param kafkaListenerContainerFactory фабрика слушателей
+   * @param topic                         топик
+   * @param autoStart                     признак автозапуска слушателя
+   */
+  @Override
+  protected void register(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory, String topic, boolean autoStart) {
+    JPKafkaDynamicConsumer<K, V> consumer = JPKafkaDynamicBaseConsumer
+        .builder(getMessageListener())
+        .topic(topic)
+        .kafkaListenerContainerFactory(kafkaListenerContainerFactory)
+        .autoStart(autoStart)
+        .build();
+    register(consumer, topic);
   }
 
-  private void initDefaultListeners() {
-    getAllKafkaTopics().stream()
-        .filter(this::matchTopic)
-        .filter(topic -> !exists(topic))
-        .forEach(topic -> {
-          LOG.warn(
-              "Topic \"{}\" has no listeners, default will be created with settings: interval={}, infinite={}",
-              topic, defaultInterval, infiniteDefaultListeners
-          );
-          ErrorHandler errorHandler = infiniteDefaultListeners ? getErrorHandler(topic) : getErrorHandler(getTopic());
-          ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, defaultInterval);
-          register(factory, topic);
-        });
-  }
-
-  private Collection<String> getAllKafkaTopics() {
-    Map<String, Object> props = new HashMap<>();
-    props.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, getBootstrapAddress());
-    ListTopicsOptions listTopicsOptions = new ListTopicsOptions();
-    listTopicsOptions.listInternal(true);
-    try (AdminClient adminClient = AdminClient.create(props)) {
-      return adminClient.listTopics(listTopicsOptions).names().get();
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
-  }
-
-  private boolean matchTopic(String topic) {
-    String regex = "^(" + getTopic() + TOPIC_NUMBER_DELIMITER + ")[\\d+]";
-    Pattern pattern = Pattern.compile(regex);
-    Matcher matcher = pattern.matcher(topic);
-    return matcher.matches();
-  }
+  /**
+   * Логика обработки события слушателем
+   */
+  protected abstract MessageListener<K, V> getMessageListener();
 
   /**
    * Получает обработчик ошибок, восстанавливающий обработанные с ошибкой события в переданный топик
@@ -112,73 +49,19 @@ public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDyna
    * @param recoveryTopic топик для необработанных событий
    * @return {@link ErrorHandler обработчик ошибок}
    */
-  private ErrorHandler getErrorHandler(String recoveryTopic) {
+  @Override
+  protected ErrorHandler getErrorHandler(String recoveryTopic) {
     ConsumerRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
-    return new SeekToCurrentErrorHandler(recoverer, NO_RETRY_BACK_OFF);
+    return new SeekToCurrentErrorHandler(recoverer, NO_RETRY_BACK_OFF); //TODO: заменить Deprecated
   }
 
-  private ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(ErrorHandler errorHandler, long pollInterval) {
+  @Override
+  protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(ErrorHandler errorHandler, long pollInterval) {
     Map<String, Object> consumersProps = getConsumersProps(pollInterval);
     ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(consumersProps, pollInterval);
     factory.setErrorHandler(errorHandler);
     factory.setMissingTopicsFatal(false);
     return factory;
-  }
-
-  /**
-   * Дополнительные свойства фабрики слушателей
-   */
-  private Map<String, Object> getConsumersProps(long pollInterval) {
-    Map<String, Object> additionalProps = new HashMap<>();
-    additionalProps.put(ConsumerConfig.MAX_POLL_INTERVAL_MS_CONFIG, getMaxPollInterval(pollInterval));
-    return additionalProps;
-  }
-
-  private Integer getMaxPollInterval(long pollInterval) {
-    Integer maxPollInterval = DEFAULT_MAX_POLL_INTERVAL;
-    if (pollInterval > DEFAULT_MAX_POLL_INTERVAL) {
-      //Добавляем к интервалу опроса топика дополнительное время на обработку события
-      long interval = pollInterval + DEFAULT_MAX_POLL_INTERVAL;
-      if (interval >= Integer.MAX_VALUE) {
-        maxPollInterval = Integer.MAX_VALUE;
-      } else {
-        maxPollInterval = (int) interval;
-      }
-    }
-    return maxPollInterval;
-  }
-
-  /**
-   * Возвращает логику восстановления событий в случае ошибки их обработки
-   *
-   * @param template      шаблон продюсера восстановления
-   * @param recoveryTopic топик, куда будут публиковаться восстановленные события
-   */
-  protected ConsumerRecordRecoverer getRecoverer(KafkaOperations<K, V> template, String recoveryTopic) {
-    return new DeadLetterPublishingRecoverer(
-        template,
-        (consumerRecord, e) -> {
-          LOG.debug("Recover record={} into topic={}, partition={}", consumerRecord.value(), recoveryTopic, consumerRecord.partition());
-          return new TopicPartition(recoveryTopic, consumerRecord.partition());
-        }
-    );
-  }
-
-  /**
-   * Шаблон продюсера для восстановления событий
-   */
-  protected abstract KafkaOperations<K, V> getKafkaTemplate();
-
-  /**
-   * Интервалы опроса топиков каскада (мс)
-   */
-  protected abstract Collection<Long> getPollIntervals();
-
-  /**
-   * Формирует имя очередного топика восстановления
-   */
-  private String getTopic(int number) {
-    return getTopic() + TOPIC_NUMBER_DELIMITER + number;
   }
 
 }

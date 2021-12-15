@@ -3,8 +3,9 @@ package mp.jprime.dataaccess.handlers.services;
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
-import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
+import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
+import mp.jprime.dataaccess.handlers.JPClassHandlerStorageAware;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -12,7 +13,10 @@ import mp.jprime.exceptions.JPRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Логика вызова CRUD-хендлеров
@@ -25,6 +29,16 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
    * Логика вычисления значений по умолчанию
    */
   private JPObjectDefValueService jpObjectDefValueService;
+
+  /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPClassHandlerStorageAware> awares) {
+    for (JPClassHandlerStorageAware aware : awares) {
+      aware.setJPClassHandlerStorage(this);
+    }
+  }
 
   @Autowired
   private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {

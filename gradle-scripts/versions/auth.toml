@@ -1,0 +1,13 @@
+# Jwt
+[versions]
+jjwtApiVersion = "0.10.5"
+jjwtImplVersion = "0.10.5"
+jjwtJacksonVersion = "0.10.5"
+
+[libraries]
+jjwt-api = { module="io.jsonwebtoken:jjwt-api", version.ref="jjwtApiVersion" }
+jjwt-impl = { module="io.jsonwebtoken:jjwt-impl", version.ref="jjwtImplVersion" }
+jjwt-jackson = { module="io.jsonwebtoken:jjwt-jackson", version.ref="jjwtJacksonVersion" }
+
+[bundles]
+jjwt-v1 = ['jjwt-api', 'jjwt-impl', 'jjwt-jackson']

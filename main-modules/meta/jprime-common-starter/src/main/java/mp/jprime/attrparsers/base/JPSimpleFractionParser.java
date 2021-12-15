@@ -146,11 +146,16 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
       return;
     }
 
-    int sign = attrValue.isPositive() ? 1 : -1;
-
     mp.jprime.meta.JPSimpleFraction fraction = jpAttr.getSimpleFraction();
     String intAttr = fraction != null ? fraction.getIntegerAttrCode() : null;
     String denomAttr = fraction != null ? fraction.getDenominatorAttrCode() : null;
+    if (attrValue == null) {
+      data.put(jpAttr, null);
+      data.put(intAttr, null);
+      data.put(denomAttr, null);
+      return;
+    }
+    int sign = attrValue.isPositive() ? 1 : -1;
     if (intAttr != null) {
       data.put(intAttr, sign * attrValue.getInteger());
       data.put(jpAttr, attrValue.getNumerator());

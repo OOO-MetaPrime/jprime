@@ -49,6 +49,10 @@ public class JsonJPAttr {
    */
   private String type;
   /**
+   * Признак обновляемости значения атрибута
+   */
+  private boolean updatable;
+  /**
    * Длина (для строковых полей)
    */
   private Integer length;
@@ -83,7 +87,7 @@ public class JsonJPAttr {
   }
 
   private JsonJPAttr(String guid, String code, String qName, String name, String shortName, String description,
-                     String jpPackage, boolean identifier, boolean mandatory, String type, Integer length,
+                     String jpPackage, boolean identifier, boolean mandatory, String type, boolean updatable, Integer length,
                      String refJpClass, String refJpAttr,
                      JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction, JsonJPMoney money,
                      Collection<JsonJPProperty> schemaProps) {
@@ -97,6 +101,7 @@ public class JsonJPAttr {
     this.identifier = identifier;
     this.mandatory = mandatory;
     this.type = type;
+    this.updatable = updatable;
     this.length = length;
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
@@ -197,6 +202,15 @@ public class JsonJPAttr {
   }
 
   /**
+   * Признак обновляемости значения атрибута
+   *
+   * @return Да/Нет
+   */
+  public boolean isUpdatable() {
+    return updatable;
+  }
+
+  /**
    * Длина (для строковых полей)
    *
    * @return Длина (для строковых полей)
@@ -282,6 +296,7 @@ public class JsonJPAttr {
     private boolean identifier;
     private boolean mandatory;
     private String type;
+    private boolean updatable = true;
     private String refJpClass;
     private String refJpAttr;
     private Integer length;
@@ -356,6 +371,11 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder updatable(boolean updatable) {
+      this.updatable = updatable;
+      return this;
+    }
+
     public Builder length(Integer length) {
       this.length = length;
       return this;
@@ -393,7 +413,7 @@ public class JsonJPAttr {
 
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, schemaProps);
+          type, updatable, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, schemaProps);
     }
   }
 }

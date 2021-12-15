@@ -65,13 +65,13 @@ public class RestApiAddInfoController {
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/addinfo", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/{code}/addinfo", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonAddInfo> getAddInfo(ServerWebExchange swe,
-                                      @PathVariable("pluralCode") String pluralCode,
+                                      @PathVariable("code") String code,
                                       @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
+    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

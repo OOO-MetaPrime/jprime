@@ -1,0 +1,22 @@
+[versions]
+# jackson
+jacksonAnnotationsVersion = "2.13.0"
+jacksonDataformatXmlVersion = "2.13.0"
+jacksonDatatypeJsr310Version = "2.13.0"
+# java-generator
+javapoetVersion = "1.13.0"
+# file-converter
+jodconverterLocalVersion = "4.4.2"
+# http-parser
+nioMultipartParserVersion = "1.1.0"
+
+[libraries]
+jackson-annotations = { module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonAnnotationsVersion" }
+jackson-dataformat-xml = { module="com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref="jacksonDataformatXmlVersion" }
+jackson-datatype-jsr310 = { module="com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref="jacksonDatatypeJsr310Version" }
+javapoet = { module="com.squareup:javapoet", version.ref="javapoetVersion" }
+jodconverter-local = { module="org.jodconverter:jodconverter-local", version.ref="jodconverterLocalVersion" }
+nio-multipart-parser = { module="org.synchronoss.cloud:nio-multipart-parser", version.ref="nioMultipartParserVersion" }
+
+[bundles]
+jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310']

@@ -51,6 +51,16 @@ public interface JPAttr {
   JPType getType();
 
   /**
+   * Признак обновляемости значения атрибута
+   *
+   * @return Да/Нет
+   */
+  default boolean isUpdatable() {
+    JPType type = getType();
+    return type != JPType.VIRTUALREFERENCE && type != JPType.NONE;
+  }
+
+  /**
    * Возвращает длину
    *
    * @return Длина

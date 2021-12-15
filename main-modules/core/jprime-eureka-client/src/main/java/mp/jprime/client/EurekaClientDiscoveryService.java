@@ -5,8 +5,11 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.function.Function;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Predicate;
 
 /**
  * Логика получение данных зарегистрированных сервисов
@@ -31,15 +34,14 @@ public class EurekaClientDiscoveryService implements ClientDiscoveryService {
    * @return Список сервисов
    */
   @Override
-  public Collection<ServiceInstance> getServices(Function<ServiceInstance, Boolean> func) {
+  public Collection<ServiceInstance> getServices(Predicate<ServiceInstance> func) {
     Collection<ServiceInstance> uris = new ArrayList<>();
     List<String> serviceIds = discoveryClient.getServices();
     for (String serviceId : serviceIds) {
       List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceId);
       if (serviceInstances != null && !serviceInstances.isEmpty()) {
         ServiceInstance serviceInstance = serviceInstances.get(new Random().nextInt(serviceInstances.size()));
-        Boolean res = func.apply(serviceInstance);
-        if (res != null && res) {
+        if (func.test(serviceInstance)) {
           uris.add(serviceInstance);
         }
       }
@@ -54,15 +56,14 @@ public class EurekaClientDiscoveryService implements ClientDiscoveryService {
    * @return Экземпляр сервиса
    */
   @Override
-  public ServiceInstance getService(Function<ServiceInstance, Boolean> func) {
+  public ServiceInstance getService(Predicate<ServiceInstance> func) {
     List<String> serviceIds = discoveryClient.getServices();
     for (String serviceId : serviceIds) {
       List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceId);
       if (serviceInstances != null && !serviceInstances.isEmpty()) {
         ServiceInstance serviceInstance = serviceInstances.get(new Random().nextInt(serviceInstances.size()));
 
-        Boolean res = func.apply(serviceInstance);
-        if (res != null && res) {
+        if (func.test(serviceInstance)) {
           return serviceInstance;
         }
       }

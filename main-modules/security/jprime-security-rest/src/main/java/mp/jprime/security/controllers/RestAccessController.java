@@ -2,6 +2,7 @@ package mp.jprime.security.controllers;
 
 import mp.jprime.dataaccess.JPAction;
 import mp.jprime.dataaccess.JPObjectAccessService;
+import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.conds.CollectionCond;
 import mp.jprime.meta.JPClass;
@@ -12,12 +13,10 @@ import mp.jprime.security.abac.*;
 import mp.jprime.security.abac.json.beans.*;
 import mp.jprime.security.abac.services.JPAbacStorage;
 import mp.jprime.security.beans.JPAccessType;
-import mp.jprime.security.json.beans.JsonJPClassAccess;
-import mp.jprime.security.json.beans.JsonJPObjectAccess;
-import mp.jprime.security.json.beans.JsonSecurityAccess;
-import mp.jprime.security.json.beans.JsonSecurityPackage;
+import mp.jprime.security.json.beans.*;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.security.services.JPSecurityStorage;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -35,7 +34,7 @@ import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("access/v1")
-public class RestAccessController {
+public class RestAccessController implements JPObjectAccessServiceAware {
   /**
    * Хранилище метаинформации
    */
@@ -77,25 +76,42 @@ public class RestAccessController {
     this.jwtService = jwtService;
   }
 
-  @Autowired
-  private void setObjectAccessService(JPObjectAccessService objectAccessService) {
+  @Override
+  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
   }
 
   @ResponseBody
-  @GetMapping(value = "jpObjects/{pluralCode}/{objectId}",
+  @GetMapping(value = "jpObjects/{code}/{objectId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPObjectAccess> getObjectAccess(ServerWebExchange swe,
-                                                  @PathVariable("pluralCode") String pluralCode,
+                                                  @PathVariable("code") String code,
                                                   @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
-    if (jpClass == null || jpClass.isInner() || objectId == null || objectId.isEmpty()) {
-      return Mono.empty();
-    }
+    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    return getAccessList(Collections.singletonList(objectId), jpClass, authInfo)
+        .map(accessList -> accessList.iterator().next());
+  }
 
-    return Mono.just(toJPObjectAccessModel(jpClass, objectId, authInfo));
+  @ResponseBody
+  @PostMapping(value = "jpObjects/batchCheck",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  public Mono<JsonJPObjectAccessList> getObjectAccess(ServerWebExchange swe,
+                                                      @RequestBody JsonJPObjectAccessBatchQuery batchQuery) {
+    AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    return Flux.fromIterable(batchQuery.getIds())
+        .flatMap(query -> {
+          JPClass jpClass = metaStorage.getJPClassByCode(query.getObjectClassCode());
+          return getAccessList(query.getObjectIds(), jpClass, authInfo);
+        })
+        .reduce(
+            JsonJPObjectAccessList.builder(),
+            JsonJPObjectAccessList.Builder::withAccessList
+        )
+        .map(JsonJPObjectAccessList.Builder::build)
+        .switchIfEmpty(Mono.just(new JsonJPObjectAccessList()));
   }
 
   @ResponseBody
@@ -221,6 +237,18 @@ public class RestAccessController {
         });
   }
 
+  private Mono<Collection<JsonJPObjectAccess>> getAccessList(Collection<String> objectIds, JPClass jpClass, AuthInfo authInfo) {
+    if (jpClass == null || jpClass.isInner() || CollectionUtils.isEmpty(objectIds)) {
+      return Mono.empty();
+    } else {
+      return Mono.just(
+          objectIds.stream()
+              .map(id -> toJPObjectAccessModel(jpClass, id, authInfo))
+              .collect(Collectors.toList())
+      );
+    }
+  }
+
   private JsonJPObjectAccess toJPObjectAccessModel(JPClass jpClass, String objectId, AuthInfo auth) {
     JsonJPObjectAccess.Builder builder = JsonJPObjectAccess.newBuilder()
         .objectClassCode(jpClass.getCode())
@@ -241,7 +269,7 @@ public class RestAccessController {
     jpClass.getAttrs().stream()
         .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
         .forEach(
-            attr -> builder.attrEdit(attr.getCode(), securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
+            attr -> builder.attrEdit(attr.getCode(), attr.isUpdatable() && securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
         );
     return builder.build();
   }
@@ -349,11 +377,11 @@ public class RestAccessController {
     ).collect(Collectors.toList());
   }
 
-  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass,  AuthInfo auth) {
+  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass, AuthInfo auth) {
     return toJPClassAccessModel(jpClass, null, null, auth);
   }
 
-  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass,  String refAttrCode, Comparable value,  AuthInfo auth) {
+  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass, String refAttrCode, Comparable value, AuthInfo auth) {
     JsonJPClassAccess.Builder builder = JsonJPClassAccess.newBuilder()
         .classCode(jpClass.getCode())
         .read(

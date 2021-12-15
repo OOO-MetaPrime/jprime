@@ -1,5 +1,9 @@
 package mp.jprime.meta.beans;
 
+import mp.jprime.lang.JPDateRange;
+import mp.jprime.lang.JPDateTimeRange;
+import mp.jprime.lang.JPIntegerRange;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
@@ -27,6 +31,10 @@ public enum JPType {
    */
   DATE("date", "Дата", LocalDate.class),
   /**
+   * Диапазон дат
+   */
+  DATERANGE("daterange", "Диапазон дат", JPDateRange.class),
+  /**
    * Полная дата (без учета часового пояса)
    */
   DATETIME("datetime", "Полная дата (без учета часового пояса)", LocalDateTime.class),
@@ -46,6 +54,10 @@ public enum JPType {
    * Целочисленное (32 бита)
    */
   INT("integer", "Целочисленное (32 бита)", Integer.class),
+  /**
+   * Диапазон целочисленный (32 бита)
+   */
+  INTRANGE("int4range", "Диапазон целочисленный (32 бита)", JPIntegerRange.class),
   /**
    * JSONa
    */
@@ -79,6 +91,10 @@ public enum JPType {
    */
   TIME("time", "Время", LocalTime.class),
   /**
+   * Диапазон полных дат
+   */
+  TSRANGE("tsrange", "Диапазон дат со временем", JPDateTimeRange.class),
+  /**
    * Глобальный идентификатор
    */
   UUID("uuid", "Глобальный идентификатор", java.util.UUID.class),
@@ -90,6 +106,7 @@ public enum JPType {
    * Виртуальное значение
    */
   VIRTUALREFERENCE("virtualReference", "Виртуальное значение", null);
+
 
   /**
    * Код типа
@@ -116,35 +133,8 @@ public enum JPType {
    *
    * @return Код
    */
-  public String getCode() {
-    return code;
-  }
-
-  /**
-   * Возвращает код
-   *
-   * @return Код
-   */
   public static String getCode(JPType type) {
     return type == null ? null : type.getCode();
-  }
-
-  /**
-   * Возвращает java-класс
-   *
-   * @return Java-класс
-   */
-  public Class getJavaClass() {
-    return javaClass;
-  }
-
-  /**
-   * Название типа
-   *
-   * @return Название типа
-   */
-  public String getTitle() {
-    return title;
   }
 
   /**
@@ -182,5 +172,32 @@ public enum JPType {
       }
     }
     return null;
+  }
+
+  /**
+   * Возвращает код
+   *
+   * @return Код
+   */
+  public String getCode() {
+    return code;
+  }
+
+  /**
+   * Возвращает java-класс
+   *
+   * @return Java-класс
+   */
+  public Class getJavaClass() {
+    return javaClass;
+  }
+
+  /**
+   * Название типа
+   *
+   * @return Название типа
+   */
+  public String getTitle() {
+    return title;
   }
 }

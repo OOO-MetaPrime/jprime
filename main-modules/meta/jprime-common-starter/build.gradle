@@ -2,9 +2,9 @@ dependencies {
   api project(':jprime-common-core')
 
   api('org.springframework.security:spring-security-core')
-  api('org.apache.tika:tika-core:1.25')
-  api('org.synchronoss.cloud:nio-multipart-parser:1.1.0')
-  api('org.apache.commons:commons-collections4:4.4')
+  api(commons.tika.core)
+  api(libs.nio.multipart.parser)
+  api(commons.collections4)
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')
   testImplementation('io.projectreactor:reactor-test')

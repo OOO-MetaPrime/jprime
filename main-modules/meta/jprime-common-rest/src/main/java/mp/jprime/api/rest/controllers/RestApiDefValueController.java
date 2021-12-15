@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
+import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonDefValueResult;
 import mp.jprime.json.beans.JsonDefValuesQuery;
@@ -24,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiDefValueController {
+public class RestApiDefValueController implements JPObjectDefValueServiceAware {
   /**
    * Заполнение запросов на основе JSON
    */
@@ -50,8 +51,8 @@ public class RestApiDefValueController {
     this.queryService = queryService;
   }
 
-  @Autowired
-  private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
+  @Override
+  public void setJPObjectDefValuesService(JPObjectDefValueService jpObjectDefValueService) {
     this.jpObjectDefValueService = jpObjectDefValueService;
   }
 
@@ -66,13 +67,13 @@ public class RestApiDefValueController {
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/defvalue", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/{code}/defvalue", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonDefValueResult> getDefValue(ServerWebExchange swe,
-                                              @PathVariable("pluralCode") String pluralCode,
+                                              @PathVariable("code") String code,
                                               @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
+    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

@@ -1,16 +1,18 @@
 package mp.jprime.dataaccess.checkers.filters;
 
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
+import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.templatevalues.JPTemplateValueService;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.security.AuthInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T> {
+public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T>, JPDataCheckServiceAware, ParserServiceAware {
   // Сервис проверки данных указанному условию
   private JPDataCheckService jpDataCheckService;
   // Парсер типов
@@ -18,13 +20,13 @@ public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T
   // Сервис получения шаблонных значения
   private JPTemplateValueService jpTemplateValueService;
 
-  @Autowired
-  private void setJpDataCheckService(JPDataCheckService jpDataCheckService) {
+  @Override
+  public void setJpDataCheckService(JPDataCheckService jpDataCheckService) {
     this.jpDataCheckService = jpDataCheckService;
   }
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  @Override
+  public void setParserService(ParserService parserService) {
     this.parserService = parserService;
   }
 

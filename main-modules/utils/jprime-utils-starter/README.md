@@ -27,7 +27,7 @@
       title = "Проверка",
       outClass = Out.class
   )
-  public Mono<Out> check(PersId in, AuthInfo authInfo) {
+  public Mono<Out> check(JPUtilCheckInParams in, AuthInfo authInfo) {
     check(in.getId(), authInfo);
     return new Out();
   }
@@ -71,12 +71,12 @@
 
 ### Метод check
 
-С помощью этого метода можно управлять предварительной проверкой возможности запуска утилиты. Для этого:
+С помощью этого метода можно управлять предварительной проверкой возможности запуска утилиты. Для запрета запуска:
 * метод должен бросить любое исключение (не рекомендуется)
 * вернуть `JPUtilCheckOutParams` c `denied == true` (рекомендовано)
 
 Если в утилите нет метода, помеченного `code = "check"`, то по умолчанию код c `mode/check` отработает с 200 кодом
-и пустым результатом
+и результатом `denied: false`
 
 ### Входные параметры
 

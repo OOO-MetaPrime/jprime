@@ -12,4 +12,8 @@ public class Role {
    * Данные: Администратор прикладных данных
    */
   public final static String ADMIN = "ADMIN";
+  /**
+   * Конфигурирование: настройка экспорта/импорта данных
+   */
+  public final static String IMEX_ADMIN = "IMEX_ADMIN";
 }

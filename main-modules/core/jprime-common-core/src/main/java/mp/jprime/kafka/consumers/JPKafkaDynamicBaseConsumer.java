@@ -18,6 +18,7 @@ public class JPKafkaDynamicBaseConsumer<K, V> implements JPKafkaDynamicConsumer<
 
   private final String topic;
   private final MessageListenerContainer messageListenerContainer;
+  private final boolean autoStart;
 
   private JPKafkaDynamicBaseConsumer(String topic, KafkaListenerContainerFactory<?> kafkaListenerContainerFactory,
                                      MessageListener<K, V> messageListener, boolean autoStart) {
@@ -26,9 +27,7 @@ public class JPKafkaDynamicBaseConsumer<K, V> implements JPKafkaDynamicConsumer<
     Assert.notNull(messageListener, "messageListener must be not null");
     this.topic = topic;
     this.messageListenerContainer = getListenerContainer(kafkaListenerContainerFactory, messageListener, autoStart);
-    if (autoStart) {
-      start();
-    }
+    this.autoStart = autoStart;
   }
 
   private MessageListenerContainer getListenerContainer(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory,
@@ -37,6 +36,14 @@ public class JPKafkaDynamicBaseConsumer<K, V> implements JPKafkaDynamicConsumer<
     listenerContainer.setupMessageListener(messageListener);
     listenerContainer.setAutoStartup(autoStart);
     return listenerContainer;
+  }
+
+  /**
+   * Признак автозапуска
+   */
+  @Override
+  public boolean isAutoStart() {
+    return autoStart;
   }
 
   /**
@@ -100,15 +107,19 @@ public class JPKafkaDynamicBaseConsumer<K, V> implements JPKafkaDynamicConsumer<
     return topic;
   }
 
-  public static <K, V> Builder<K, V> builder() {
-    return new Builder<>();
+  public static <K, V> Builder<K, V> builder(MessageListener<K, V> messageListener) {
+    return new Builder<>(messageListener);
   }
 
   public static final class Builder<K, V> {
     private KafkaListenerContainerFactory<?> kafkaListenerContainerFactory;
     private String topic;
-    private MessageListener<K, V> messageListener;
+    private final MessageListener<K, V> messageListener;
     private boolean autoStart = true;
+
+    public Builder(MessageListener<K, V> messageListener) {
+      this.messageListener = messageListener;
+    }
 
     public Builder<K, V> kafkaListenerContainerFactory(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory) {
       this.kafkaListenerContainerFactory = kafkaListenerContainerFactory;
@@ -117,11 +128,6 @@ public class JPKafkaDynamicBaseConsumer<K, V> implements JPKafkaDynamicConsumer<
 
     public Builder<K, V> topic(String topic) {
       this.topic = topic;
-      return this;
-    }
-
-    public Builder<K, V> messageListener(MessageListener<K, V> messageListener) {
-      this.messageListener = messageListener;
       return this;
     }
 

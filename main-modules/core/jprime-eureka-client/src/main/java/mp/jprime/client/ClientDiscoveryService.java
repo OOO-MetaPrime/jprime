@@ -3,7 +3,7 @@ package mp.jprime.client;
 import org.springframework.cloud.client.ServiceInstance;
 
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Логика получение данных зарегистрированных сервисов
@@ -15,7 +15,7 @@ public interface ClientDiscoveryService {
    * @param func Условие
    * @return Список сервисов
    */
-  Collection<ServiceInstance> getServices(Function<ServiceInstance, Boolean> func);
+  Collection<ServiceInstance> getServices(Predicate<ServiceInstance> func);
 
   /**
    * Возвращает случайный сервис по указанному условию
@@ -23,7 +23,7 @@ public interface ClientDiscoveryService {
    * @param func Условие
    * @return Экземпляр сервиса
    */
-  ServiceInstance getService(Function<ServiceInstance, Boolean> func);
+  ServiceInstance getService(Predicate<ServiceInstance> func);
 
   /**
    * Возвращает список сервисов по указанному имени

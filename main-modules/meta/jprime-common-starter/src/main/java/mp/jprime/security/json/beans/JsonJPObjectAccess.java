@@ -1,5 +1,6 @@
 package mp.jprime.security.json.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
@@ -18,6 +19,7 @@ import java.util.Map;
     "delete",
     "editAttrs",
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class JsonJPObjectAccess {
   private String objectClassCode;
   private String objectId;
@@ -74,7 +76,7 @@ public final class JsonJPObjectAccess {
   }
 
   /**
-   * Построитель JPClassAccess
+   * Построитель {@link JsonJPObjectAccess}
    *
    * @return Builder
    */
@@ -83,7 +85,7 @@ public final class JsonJPObjectAccess {
   }
 
   /**
-   * Построитель JPClassAccess
+   * Построитель {@link JsonJPObjectAccess}
    */
   public static final class Builder {
     private String objectClassCode;
@@ -99,9 +101,9 @@ public final class JsonJPObjectAccess {
     }
 
     /**
-     * Создаем JPClassAccess
+     * Создаем {@link JsonJPObjectAccess}
      *
-     * @return JPClassAccess
+     * @return {@link JsonJPObjectAccess}
      */
     public JsonJPObjectAccess build() {
       return new JsonJPObjectAccess(objectClassCode, objectId, read, create, update, delete, editAttrs);

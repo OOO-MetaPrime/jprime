@@ -1,0 +1,53 @@
+ext {
+  dockerImageDir = "${rootProject.projectDir}/../projects-modules/docker-images/"
+}
+
+ext.common = [
+    pullDocker            : { image ->
+      exec {
+        commandLine 'docker', 'pull', image
+      }
+    },
+    saveDockerTar         : { tarName, image ->
+      exec {
+        commandLine 'docker', 'save', '-o', dockerImageDir + tarName, image
+      }
+    },
+    buildDocker           : { String name, String context, String... params ->
+      exec {
+        Collection<String> command = new ArrayList<>(Arrays.asList('docker', 'build', '-t', name))
+        if (params != null && params.length > 0) {
+          command.addAll(params)
+        }
+        command.add(context)
+        commandLine command
+      }
+    },
+    buildDockerWithJarFile: { name, jarFile ->
+      common.buildDocker(name, '.', '--build-arg', 'JAR_FILE=' + jarFile)
+    }
+]
+
+void loadDocker(String tar) {
+  exec {
+    commandLine 'docker', 'load', '-i', dockerImageDir + tar
+  }
+}
+
+task dockerImages(group: "build offline") {
+  doFirst {
+    mkdir dockerImageDir
+  }
+}
+
+task dockerLoad() {
+  doFirst {
+    String[] tars = fileTree(dockerImageDir).filter { it.isFile() && it.getName().endsWith('tar') }.files.name
+    for (String tar : tars) {
+      loadDocker(tar)
+    }
+  }
+}
+
+task buildLocalDockers(group: 'build offline', dependsOn: 'dockerLoad') {
+}

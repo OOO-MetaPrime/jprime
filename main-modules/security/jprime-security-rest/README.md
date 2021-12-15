@@ -335,7 +335,6 @@ REST-методы публикации настроек доступа на чт
 }
 ```
 
-
 ### 9 Поиск политик доступа ABAC 
 
 ``POST /access/v1/policySets/search``
@@ -375,20 +374,82 @@ REST-методы публикации настроек доступа на чт
 | useProhibition | Поиск по настройкам на запрет
 | useEnviromentRules | Поиск по наличию правил окружения
 
-* ответ 
+* ответ
 
 ```json
 [
   {
-      "code": "8ffc9a11-6b78-44c5-b940-5d6bc4319e65",
-      "name": "Группа политик esrnOrgDepartment",
-      "qName": "jpPolicySet.esrnOrgDepartment",
-      "target": {
-          "jpClasses": [
-              "esrnOrgDepartment"
-          ]
-      },
-      "policies": [
-      ...  
+    "code": "8ffc9a11-6b78-44c5-b940-5d6bc4319e65",
+    "name": "Группа политик esrnOrgDepartment",
+    "qName": "jpPolicySet.esrnOrgDepartment",
+    "target": {
+      "jpClasses": [
+        "esrnOrgDepartment"
+      ]
+    },
+    "policies": [
+      ...
+    ]
+  }
 ]
 ```
+
+### 10 Массовое получение настроек доступа к определенным объектам
+
+``POST /access/v1/policySets/search``
+
+* роль AUTH_ACCESS
+
+* запрос вида:
+
+```json
+{
+  "ids": [
+    {
+      "objectClassCode": "studentsNeat",
+      "objectIds": [
+        "56",
+        "57"
+      ]
+    },
+    ...
+  ]
+}
+```
+
+* ответ:
+
+```json
+{
+  "accessList": [
+    {
+      "objectClassCode": <classCode>,
+      "objectId": <objectId>,
+      "read": true,
+      "create": false,
+      "update": false,
+      "delete": false,
+      "editAttrs": {
+        "<attrCode1>": true,
+        "<attrCode2>": true,
+        "<attrCode3>": false
+      },
+      ...
+    }
+  ]
+}
+```
+
+| Параметр     | Описание
+| ------------- | ------------------ 
+| accessList | Список настроек доступа
+| objectClassCode | Кодовое имя класса объекта
+| objectId | Идентификатор объекта
+| read | Признак доступа на чтение объекта
+| create | Признак доступа на создание объекта
+| update | Признак доступа на обновление объекта
+| delete | Признак доступа на удаление объекта
+| editAttrs | Список атрибутов, доступных для редактирования
+
+`Список атрибутов, доступных для редактирования` содержит кодовое имя атрибута и признак возможности `редактирования`.
+Если кодового имени атрибута в `editAttrs` нет. то `просмотр` атрибута `запрещен` 

@@ -207,6 +207,34 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/access/v1/jpObjects/batchCheck':
+    post:
+      tags:
+      - object
+      summary: Массовое получение настроек доступа текущего пользователя к указанным объектам
+      description: Массовое получение настроек доступа текущего пользователя к указанным объектам
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/jpObjectAccessBatchQuery'
+      responses:
+        '200':
+          description: get access settings
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/jpObjectAccessList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
   '/access/v1/policySets':
     get:
       tags:
@@ -668,3 +696,38 @@ components:
           items:
             type: string
             format: string
+
+    jpObjectAccessList:
+      type: object
+      description: Доступ к объектам текущим пользователем
+      properties:
+        accessList:
+          type: array
+          description: Список настроек доступа к объектам текущим пользователем
+          items:
+            $ref: '#/components/schemas/jpObjectAccess'
+
+    jpObjectAccessBatchQuery:
+      type: object
+      description: Запрос массовой проверки доступа к указанным объектам текущим пользователем
+      properties:
+        ids:
+          type: array
+          description: Список объектов для проверки доступа
+          items:
+            $ref: '#/components/schemas/jpObjectAccessQuery'
+
+    jpObjectAccessQuery:
+      type: object
+      description: Запрос массовой проверки доступа текущим пользователем к указанным объектам определенного класса
+      properties:
+        objectClassCode:
+          type: string
+          description: Код класса
+          example: studentsNeat
+        objectIds:
+          type: array
+          description: Идентификаторы объектов
+          items:
+            type: string
+            example: ["123"]

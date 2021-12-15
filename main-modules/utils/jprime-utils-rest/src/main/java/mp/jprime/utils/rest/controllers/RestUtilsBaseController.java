@@ -13,6 +13,7 @@ import mp.jprime.streams.services.UploadInputStreamService;
 import mp.jprime.utils.*;
 import mp.jprime.utils.exceptions.JPUtilNotFoundException;
 import mp.jprime.utils.services.JPUtilService;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanWrapper;
@@ -28,7 +29,10 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
+import reactor.util.function.Tuple4;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -49,6 +53,9 @@ public abstract class RestUtilsBaseController {
    * Работа с UploadInputStream
    */
   protected UploadInputStreamService uploadInputStreamService;
+  /**
+   * Базовый класс JSON-обработчиков
+   */
   protected JPJsonMapper jpJsonMapper;
 
   @Autowired
@@ -69,6 +76,70 @@ public abstract class RestUtilsBaseController {
   @Autowired
   private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
     this.uploadInputStreamService = uploadInputStreamService;
+  }
+
+  @ResponseBody
+  @PostMapping(value = "/batchCheck",
+      consumes = {APPLICATION_JSON_VALUE, APPLICATION_FORM_URLENCODED_VALUE},
+      produces = APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<JPUtilBatchCheckOutParams> batchCheck(ServerWebExchange swe,
+                                                    @RequestBody String query) {
+    AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    return Mono.just(authInfo)
+        .flatMapMany(x -> {
+          try {
+            JPUtilBatchCheckInParams inParams = jpJsonMapper.getObjectMapper().readValue(query, JPUtilBatchCheckInParams.class);
+            Collection<JPUtilBatchCheckInParams.CheckIds> checkIds = inParams.getIds();
+            Collection<String> utils = inParams.getUtils();
+            if (checkIds == null || checkIds.isEmpty() || utils == null || utils.isEmpty()) {
+              return Flux.empty();
+            }
+            String rootObjectClassCode = inParams.getRootObjectClassCode();
+            String rootObjectId = inParams.getRootObjectId();
+
+            Collection<Mono<Tuple4<String, String, String, JPUtilCheckOutParams>>> p = new ArrayList<>();
+
+            for (JPUtilBatchCheckInParams.CheckIds checkId : checkIds) {
+              String objectClassCode = checkId.getObjectClassCode();
+              Collection<String> ids = checkId.getObjectIds();
+              if (StringUtils.isBlank(objectClassCode) || ids == null || ids.isEmpty()) {
+                continue;
+              }
+              ids.forEach(id ->
+                  utils.forEach(utilCode ->
+                      p.add(
+                          Mono.zip(
+                              Mono.just(objectClassCode),
+                              Mono.just(id),
+                              Mono.just(utilCode),
+                              jpUtilService.check(
+                                  utilCode,
+                                  JPUtilService.CHECK_MODE,
+                                  JPUtilCheckInParams.newBuilder()
+                                      .rootObjectClassCode(rootObjectClassCode)
+                                      .rootObjectId(rootObjectId)
+                                      .objectClassCode(objectClassCode)
+                                      .objectId(id)
+                                      .build(),
+                                  swe,
+                                  authInfo
+                              )
+                          )
+                      )
+                  )
+              );
+            }
+            return Flux.merge(p);
+          } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            throw new JPParseException("utils.params.badFormat", "Неверный формат данных");
+          }
+        })
+        .reduce(JPUtilBatchCheckOutParams.newBuilder(), (builder, next) -> builder.add(next.getT1(), next.getT2(), next.getT3(), next.getT4()))
+        .map(JPUtilBatchCheckOutParams.Builder::build)
+        .switchIfEmpty(Mono.just(JPUtilBatchCheckOutParams.newBuilder().build()));
   }
 
   @ResponseBody

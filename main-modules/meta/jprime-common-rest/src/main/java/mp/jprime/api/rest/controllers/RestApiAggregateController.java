@@ -1,6 +1,7 @@
 package mp.jprime.api.rest.controllers;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiAggregateController {
+public class RestApiAggregateController implements JPObjectRepositoryServiceAware {
   /**
    * Заполнение запросов на основе JSON
    */
@@ -48,8 +49,8 @@ public class RestApiAggregateController {
     this.queryService = queryService;
   }
 
-  @Autowired
-  private void setRepo(JPObjectRepositoryService repo) {
+  @Override
+  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
     this.repo = repo;
   }
 
@@ -64,13 +65,13 @@ public class RestApiAggregateController {
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}/aggregate", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PostMapping(value = "/{code}/aggregate", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonAggregateResult> getAggregate(ServerWebExchange swe,
-                                                @PathVariable("pluralCode") String pluralCode,
+                                                @PathVariable("code") String code,
                                                 @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByPluralCode(pluralCode);
+    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

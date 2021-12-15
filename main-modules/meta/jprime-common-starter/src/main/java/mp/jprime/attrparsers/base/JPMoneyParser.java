@@ -146,6 +146,6 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
     if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.MONEY) {
       return;
     }
-    data.put(jpAttr, attrValue.getNumberStripped());
+    data.put(jpAttr, attrValue == null ? null : attrValue.getNumberStripped());
   }
 }

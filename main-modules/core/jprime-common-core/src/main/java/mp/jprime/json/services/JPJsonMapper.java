@@ -10,13 +10,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import mp.jprime.formats.DateFormat;
-import mp.jprime.json.beans.JsonMoney;
-import mp.jprime.json.beans.JsonSimpleFraction;
-import mp.jprime.lang.JPMoney;
-import mp.jprime.lang.JPSimpleFraction;
-import mp.jprime.lang.JPJsonString;
-import mp.jprime.lang.JPXmlString;
-
+import mp.jprime.json.beans.*;
+import mp.jprime.lang.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -95,12 +90,43 @@ public class JPJsonMapper {
                     return JPMoney.of(money.getValue(), money.getCurrencyCode());
                   }
                 })
+                // String to IntegerRange
+                .addDeserializer(JPIntegerRange.class, new StdDeserializer<JPIntegerRange>(JPIntegerRange.class) {
+                  @Override
+                  public JPIntegerRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    JsonIntegerRange range = ctxt.readValue(p, JsonIntegerRange.class);
+                    return JPIntegerRange.create(range.getLower(), range.getUpper(), range.isCloseLower(), range.isCloseUpper());
+                  }
+                })
+                // String to DateRange
+                .addDeserializer(JPDateRange.class, new StdDeserializer<JPDateRange>(JPDateRange.class) {
+                  @Override
+                  public JPDateRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    JsonDateRange range = ctxt.readValue(p, JsonDateRange.class);
+                    return JPDateRange.create(range.getLower(), range.getUpper(), range.isCloseLower(), range.isCloseUpper());
+                  }
+                })
+                // String to DateTimeRange
+                .addDeserializer(JPDateTimeRange.class, new StdDeserializer<JPDateTimeRange>(JPDateTimeRange.class) {
+                  @Override
+                  public JPDateTimeRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    JsonDateTimeRange range = ctxt.readValue(p, JsonDateTimeRange.class);
+                    return JPDateTimeRange.create(range.getLower(), range.getUpper(), range.isCloseLower(), range.isCloseUpper());
+                  }
+                })
                 // String to BigDecimal
                 .addDeserializer(BigDecimal.class, new StdDeserializer<BigDecimal>(BigDecimal.class) {
                   @Override
                   public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     String s = p.getValueAsString();
                     return StringUtils.hasText(s) ? new BigDecimal(s) : null;
+                  }
+                })
+                // JsonNode to JPJsonNode
+                .addDeserializer(JPJsonNode.class, new StdDeserializer<JPJsonNode>(JPJsonNode.class) {
+                  @Override
+                  public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+                    return JPJsonNode.from(p.getCodec().readTree(p));
                   }
                 })
                 // LocalDateTime to String
@@ -172,6 +198,45 @@ public class JPJsonMapper {
                         jGen.writeObject(json);
                       }
                     })
+                // IntegerRange to String
+                .addSerializer(JPIntegerRange.class,
+                    new JsonSerializer<JPIntegerRange>() {
+                      @Override
+                      public void serialize(JPIntegerRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        JsonIntegerRange json = new JsonIntegerRange();
+                        json.setLower(v.lower());
+                        json.setUpper(v.upper());
+                        json.setCloseLower(v.isLowerBoundClosed());
+                        json.setCloseUpper(v.isUpperBoundClosed());
+                        jGen.writeObject(json);
+                      }
+                    })
+                // DateRange to String
+                .addSerializer(JPDateRange.class,
+                    new JsonSerializer<JPDateRange>() {
+                      @Override
+                      public void serialize(JPDateRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        JsonDateRange json = new JsonDateRange();
+                        json.setLower(v.lower());
+                        json.setUpper(v.upper());
+                        json.setCloseLower(v.isLowerBoundClosed());
+                        json.setCloseUpper(v.isUpperBoundClosed());
+                        jGen.writeObject(json);
+                      }
+                    })
+                // DateTimeRange to String
+                .addSerializer(JPDateTimeRange.class,
+                    new JsonSerializer<JPDateTimeRange>() {
+                      @Override
+                      public void serialize(JPDateTimeRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        JsonDateTimeRange json = new JsonDateTimeRange();
+                        json.setLower(v.lower());
+                        json.setUpper(v.upper());
+                        json.setCloseLower(v.isLowerBoundClosed());
+                        json.setCloseUpper(v.isUpperBoundClosed());
+                        jGen.writeObject(json);
+                      }
+                    })
                 // BigDecimal to String
                 .addSerializer(BigDecimal.class,
                     new JsonSerializer<BigDecimal>() {
@@ -180,6 +245,15 @@ public class JPJsonMapper {
                         jGen.writeNumber(v.setScale(2, BigDecimal.ROUND_HALF_UP));
                       }
                     })
+                // JPJsonNode to JsonNode
+                .addSerializer(JPJsonNode.class,
+                    new JsonSerializer<JPJsonNode>() {
+                      @Override
+                      public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        jGen.writeObject(jpJsonNode.toJsonNode());
+                      }
+                    }
+                )
         )
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
         // Игнорируем пустые значения

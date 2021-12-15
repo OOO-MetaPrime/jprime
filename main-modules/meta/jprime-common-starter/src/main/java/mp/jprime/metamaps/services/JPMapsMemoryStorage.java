@@ -152,6 +152,17 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
     return null;
   }
 
+  /**
+   * Возвращает все описания привязки метаинформации к хранилищу
+   *
+   * @param jpClass метакласс
+   * @return описания привязки метаинформации к хранилищу
+   */
+  @Override
+  public Collection<JPClassMap> getAll(@NonNull JPClass jpClass) {
+    return cacheRef.get().maps.get(jpClass.getCode()).values();
+  }
+
   private class Cache {
     private UUID uuid = UUID.randomUUID();
     /**

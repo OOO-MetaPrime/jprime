@@ -1,0 +1,69 @@
+String SPRING_PROFILE = 'SPRING_PROFILE'
+String DISTRIB_PROFILE = 'distrib'
+String DEFAULT_PROFILE = 'default'
+String SPRING_PROFILE_LOCATION = 'SPRING_PROFILE_LOCATION'
+String APPLICATION_DISTRIB_LOCATION = 'application-distrib'
+String APPLICATION_DEFAULT_LOCATION = 'application'
+String JPRIME_DISTRIB = 'jprime-distrib'
+String JPRIME_DEFAULT = 'jprime'
+
+/**
+ * Чтение свойств проекта из файла
+ *
+ * @return Прочитанные свойства
+ */
+private Properties getProps(String propertiesFileName) {
+  Properties props = [:]
+
+  File file = file("${rootProject.projectDir}/services-settings/${propertiesFileName}.properties")
+  if (file.exists()) {
+    file.withInputStream {
+      props.load(it)
+    }
+  }
+  return props
+}
+
+task copyDistrib(type: Copy, description: "Подготовка application-distrib.yml", group: "configure") {
+  Properties props = [
+      (SPRING_PROFILE)         : DISTRIB_PROFILE,
+      (SPRING_PROFILE_LOCATION): APPLICATION_DISTRIB_LOCATION
+  ]
+  props += getProps(JPRIME_DISTRIB)
+
+  from("${project.projectDir}/src/main/resources/application.yml")
+  into("${project.buildDir}/resources/main/")
+  rename { String fileName ->
+    fileName.replace(".", "-distrib.")
+  }
+  filteringCharset = 'UTF-8'
+  filesMatching("**/application.yml") {
+    props.forEach { key, value ->
+      filter {
+        line -> line.replaceAll(/\$\{${key}(:.*)?}/, value as String)
+      }
+    }
+  }
+}
+
+task copyDefault(type: Copy, description: "Подготовка application.yml", group: "configure") {
+  Properties props = [
+      (SPRING_PROFILE)         : DEFAULT_PROFILE,
+      (SPRING_PROFILE_LOCATION): APPLICATION_DEFAULT_LOCATION
+  ]
+  props += getProps(JPRIME_DEFAULT)
+
+  filteringCharset = 'UTF-8'
+  from("${project.projectDir}/src/main/resources/application.yml")
+  into("${project.buildDir}/resources/main/")
+  filesMatching("**/application.yml") {
+    props.forEach { key, value ->
+      filter {
+        line -> line.replaceAll(/\$\{${key}(:.*)?}/, value as String)
+      }
+    }
+  }
+}
+
+copyDefault.dependsOn copyDistrib
+processResources.finalizedBy { copyDefault }

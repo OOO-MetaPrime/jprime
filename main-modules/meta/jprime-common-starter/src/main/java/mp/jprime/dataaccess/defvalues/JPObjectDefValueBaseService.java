@@ -15,7 +15,10 @@ import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Логика вычисления значений по умолчанию
@@ -29,6 +32,16 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
   private JPMetaStorage metaStorage;
   // Хранилище настроек безопасности
   private JPSecurityStorage securityManager;
+
+  /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPObjectDefValueServiceAware> awares) {
+    for (JPObjectDefValueServiceAware aware : awares) {
+      aware.setJPObjectDefValuesService(this);
+    }
+  }
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {

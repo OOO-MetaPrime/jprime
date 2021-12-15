@@ -1,0 +1,12 @@
+[versions]
+disruptorVersion = "3.4.4"
+kafkaLog4JAppenderVersion = "2.7.0"
+log4JCoreVersion = "2.15.0"
+
+[libraries]
+disruptor = { module="com.lmax:disruptor", version.ref="disruptorVersion" }
+kafka-log4j-appender = { module="org.apache.kafka:kafka-log4j-appender", version.ref="kafkaLog4JAppenderVersion" }
+log4j-core = { module="org.apache.logging.log4j:log4j-core", version.ref="log4JCoreVersion" }
+
+[bundles]
+v1 = ['disruptor', 'kafka-log4j-appender']

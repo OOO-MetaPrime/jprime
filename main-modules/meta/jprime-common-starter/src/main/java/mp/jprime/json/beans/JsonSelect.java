@@ -2,7 +2,6 @@ package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.*;
 
@@ -12,20 +11,39 @@ import java.util.*;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonSelect {
-  @JsonProperty
+  /**
+   * Ограничение на количество получаемых объектов
+   */
   private Integer limit;
-  @JsonProperty
+  /**
+   * Смещение выборки
+   */
   private Integer offset;
-  @JsonProperty
+  /**
+   * Признак подсчет общего количества объектов
+   */
   private boolean totalCount;
-  @JsonProperty
+  /**
+   * Признак расчета доступа для каждого объекта
+   */
+  private boolean access;
+  /**
+   * Список запрашиваемых атрибутов
+   */
   private Collection<String> attrs;
-  @JsonProperty
+  /**
+   * Список запрашиваемых атрибутов для ссылочных классов
+   */
   private Map<String, String> linkAttrs = new HashMap<>();
-  @JsonProperty
+  /**
+   * Условие ограничения выборки
+   */
   private JsonExpr filter;
-  @JsonProperty
+  /**
+   * Настройка сортировки выборки
+   */
   private List<JsonOrder> orders = new ArrayList<>();
+
 
   public void setLimit(Integer limit) {
     this.limit = limit;
@@ -49,6 +67,14 @@ public class JsonSelect {
 
   public void setTotalCount(boolean totalCount) {
     this.totalCount = totalCount;
+  }
+
+  public boolean isAccess() {
+    return access;
+  }
+
+  public void setAccess(boolean access) {
+    this.access = access;
   }
 
   public Collection<String> getAttrs() {

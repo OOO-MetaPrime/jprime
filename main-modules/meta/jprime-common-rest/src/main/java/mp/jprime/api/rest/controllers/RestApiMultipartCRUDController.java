@@ -1,9 +1,11 @@
 package mp.jprime.api.rest.controllers;
 
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.params.*;
+import mp.jprime.dataaccess.params.JPCreate;
+import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
@@ -22,7 +24,10 @@ import mp.jprime.streams.services.UploadInputStreamService;
 import mp.jprime.web.services.ServerWebExchangeService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -41,7 +46,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiMultipartCRUDController extends DownloadFileRestController {
+public class RestApiMultipartCRUDController extends DownloadFileRestController implements JPReactiveObjectRepositoryServiceAware {
   /**
    * Поле в multipart запросе, содержащее json с данными для создания/удаления
    */
@@ -80,6 +85,12 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
    */
   private UploadInputStreamService uploadInputStreamService;
 
+  /**
+   * Признак добавления блока links
+   */
+  @Value("${jprime.api.addLinks:false}")
+  private boolean addLinks;
+
   @Autowired
   private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
     this.uploadInputStreamService = uploadInputStreamService;
@@ -90,8 +101,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
     this.queryService = queryService;
   }
 
-  @Autowired
-  private void setRepo(JPReactiveObjectRepositoryService repo) {
+  @Override
+  public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
     this.repo = repo;
   }
 
@@ -120,15 +131,15 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
     this.jpFileUploader = jpFileUploader;
   }
 
-  @GetMapping(value = "/{pluralCode}/{objectId}/file/{attrCode}/{bearer}")
+  @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{bearer}")
   @ResponseStatus(HttpStatus.OK)
   public Mono<Void> downloadFile(ServerWebExchange swe,
-                                 @PathVariable("pluralCode") String pluralCode,
+                                 @PathVariable("code") String code,
                                  @PathVariable("objectId") String objectId,
                                  @PathVariable("attrCode") String attrCode,
                                  @PathVariable("bearer") String bearer,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByPluralCode(pluralCode))
+    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner()) {
@@ -145,16 +156,16 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
         );
   }
 
-  @GetMapping(value = "/{pluralCode}/search/file/{attrCode}/{linkCode}/{linkValue}/{bearer}")
+  @GetMapping(value = "/{code}/search/file/{attrCode}/{linkCode}/{linkValue}/{bearer}")
   @ResponseStatus(HttpStatus.OK)
   public Mono<Void> downloadFilesZip(ServerWebExchange swe,
-                                     @PathVariable("pluralCode") String pluralCode,
+                                     @PathVariable("code") String code,
                                      @PathVariable("attrCode") String attrCode,
                                      @PathVariable("linkCode") String linkCode,
                                      @PathVariable("linkValue") String linkValue,
                                      @PathVariable("bearer") String bearer,
                                      @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByPluralCode(pluralCode))
+    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null || jpClass.isInner()) {
@@ -173,15 +184,15 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
   }
 
   @ResponseBody
-  @PostMapping(value = "/{pluralCode}",
+  @PostMapping(value = "/{code}",
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
-                                         @PathVariable("pluralCode") String pluralCode,
+                                         @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByPluralCode(pluralCode))
+    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (jpClass == null || jpClass.isInner()) {
@@ -250,20 +261,21 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
                 .jpObject(x)
                 .baseUrl(sweService.getBaseUrl(swe))
                 .restMapping(Controllers.API_MAPPING)
+                .addLinks(addLinks)
                 .build())
         );
   }
 
   @ResponseBody
-  @PutMapping(value = "/{pluralCode}",
+  @PutMapping(value = "/{code}",
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
-                                         @PathVariable("pluralCode") String pluralCode,
+                                         @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByPluralCode(pluralCode))
+    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (jpClass == null || jpClass.isInner()) {
@@ -335,6 +347,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
                 .jpObject(x)
                 .baseUrl(sweService.getBaseUrl(swe))
                 .restMapping(Controllers.API_MAPPING)
+                .addLinks(addLinks)
                 .build())
         );
   }

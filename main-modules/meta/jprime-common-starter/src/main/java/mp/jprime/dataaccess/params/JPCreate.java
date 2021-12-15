@@ -50,7 +50,7 @@ public class JPCreate extends JPSave {
   }
 
   /**
-   * Построитель JPCreate
+   * Построитель {@link JPCreate}
    *
    * @param jpClass Мета класс
    * @return Builder

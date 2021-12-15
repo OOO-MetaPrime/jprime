@@ -1,5 +1,5 @@
 dependencies {
-  api project(":jprime-common-starter")
+  api project(":jprime-utils-core")
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')
 }

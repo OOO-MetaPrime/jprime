@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPReactiveObjectRepository;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -48,6 +49,16 @@ public class JPReactiveObjectRepositoryBaseService implements JPReactiveObjectRe
    * Обработчики типов
    */
   private Map<Class, JPReactiveObjectRepository> repoMap = new ConcurrentHashMap<>();
+
+  /**
+   * Указание ссылок
+   */
+  @Autowired(required = false)
+  private void setAwares(Collection<JPReactiveObjectRepositoryServiceAware> awares) {
+    for (JPReactiveObjectRepositoryServiceAware aware : awares) {
+      aware.setJpReactiveObjectRepositoryService(this);
+    }
+  }
 
   /**
    * Считываем аннотации

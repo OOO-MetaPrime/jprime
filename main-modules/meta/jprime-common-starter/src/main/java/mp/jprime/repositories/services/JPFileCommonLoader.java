@@ -1,6 +1,7 @@
 package mp.jprime.repositories.services;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -30,7 +31,7 @@ import java.util.stream.Collectors;
  * Базовая реализация JPFileLoader
  */
 @Service
-public class JPFileCommonLoader implements JPFileLoader {
+public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServiceAware {
   /**
    * Интерфейс создания / обновления объекта
    */
@@ -44,8 +45,8 @@ public class JPFileCommonLoader implements JPFileLoader {
    */
   private RepositoryStorage repositoryStorage;
 
-  @Autowired
-  private void setRepo(JPObjectRepositoryService repo) {
+  @Override
+  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
     this.repo = repo;
   }
 

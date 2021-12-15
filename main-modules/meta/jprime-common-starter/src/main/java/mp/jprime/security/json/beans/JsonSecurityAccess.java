@@ -1,5 +1,6 @@
 package mp.jprime.security.json.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
@@ -14,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "update",
     "delete"
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonSecurityAccess {
   private String guid;
   private String type;

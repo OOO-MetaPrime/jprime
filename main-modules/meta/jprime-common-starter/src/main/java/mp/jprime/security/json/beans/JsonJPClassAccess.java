@@ -1,5 +1,6 @@
 package mp.jprime.security.json.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
@@ -16,6 +17,7 @@ import java.util.Map;
     "delete",
     "editAttrs",
 })
+@JsonIgnoreProperties(ignoreUnknown = true)
 public final class JsonJPClassAccess {
   private String classCode;
   private boolean read;

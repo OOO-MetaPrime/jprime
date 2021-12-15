@@ -1,0 +1,6 @@
+repositories {
+  maven {
+    url '../projects-modules/dependencies/'
+  }
+  gradlePluginPortal()
+}

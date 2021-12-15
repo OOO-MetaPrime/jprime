@@ -1,0 +1,22 @@
+# Commons
+[versions]
+commonsCodecVersion = "1.15"
+commonsCollections4Version = "4.4"
+commonsIoVersion = "2.11.0"
+commonsLang3Version = "3.12.0"
+commonsValidatorVersion = "1.7"
+monetaCoreVersion = "1.4.2"
+tikaCoreVersion = "1.25"
+guavaVersion = "31.0.1-jre"
+fasterxmlUuidVersion = "4.0.1"
+
+[libraries]
+codec = { module="commons-codec:commons-codec", version.ref="commonsCodecVersion" }
+io = { module="commons-io:commons-io", version.ref="commonsIoVersion" }
+collections4 = { module="org.apache.commons:commons-collections4", version.ref="commonsCollections4Version" }
+lang3 = { module="org.apache.commons:commons-lang3", version.ref="commonsLang3Version" }
+validator = { module="commons-validator:commons-validator", version.ref="commonsValidatorVersion" }
+moneta-core = { module="org.javamoney.moneta:moneta-core", version.ref="monetaCoreVersion" }
+tika-core = { module="org.apache.tika:tika-core", version.ref="tikaCoreVersion" }
+guava = { module="com.google.guava:guava", version.ref="guavaVersion" }
+fasterxml-uuid = { module="com.fasterxml.uuid:java-uuid-generator", version.ref="fasterxmlUuidVersion" }

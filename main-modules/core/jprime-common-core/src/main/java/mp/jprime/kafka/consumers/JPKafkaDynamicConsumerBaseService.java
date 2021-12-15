@@ -6,11 +6,12 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.MessageListener;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
 
   private static final int DEFAULT_MAX_POLL_RECORDS = 1;
   private static final String DEFAULT_AUTO_OFFSET_RESET = "earliest";
+  private static final int DEFAULT_CONSUMER_CONCURRENCY = 1;
 
   private final Map<String, JPKafkaDynamicConsumer<K, V>> consumers = new ConcurrentHashMap<>();
 
@@ -95,6 +97,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(Map<String, Object> props, long pollInterval) {
     ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(props);
     factory.getContainerProperties().setIdleBetweenPolls(pollInterval);
+    factory.setConcurrency(getConsumerConcurrency());
     return factory;
   }
 
@@ -105,18 +108,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
    * @param topic                         топик
    * @param autoStart                     признак автозапуска слушателя
    */
-  protected void register(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory, String topic, boolean autoStart) {
-    JPKafkaDynamicBaseConsumer.Builder<K, V> builder = JPKafkaDynamicBaseConsumer.builder();
-    JPKafkaDynamicConsumer<K, V> consumer = builder
-        .topic(topic)
-        .kafkaListenerContainerFactory(kafkaListenerContainerFactory)
-        .messageListener(getMessageListener())
-        .autoStart(autoStart)
-        .build();
-    if (consumers.putIfAbsent(topic, consumer) != null) {
-      throw new JPRuntimeException("jprime.kafka.dynamicListener.duplicate", "Duplicate listener for topic \"" + topic + '\"');
-    }
-  }
+  protected abstract void register(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory, String topic, boolean autoStart);
 
   /**
    * Регистрирует слушателя
@@ -126,6 +118,19 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
    */
   protected void register(KafkaListenerContainerFactory<?> kafkaListenerContainerFactory, String topic) {
     register(kafkaListenerContainerFactory, topic, true);
+  }
+
+  protected void register(JPKafkaDynamicConsumer<K, V> consumer, String topic) {
+    if (consumers.putIfAbsent(topic, consumer) != null) {
+      throw new JPRuntimeException("jprime.kafka.dynamicListener.duplicate", "Duplicate listener for topic \"" + topic + '\"');
+    }
+  }
+
+  @EventListener
+  public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+    consumers.values().stream()
+        .filter(JPKafkaDynamicConsumer::isAutoStart)
+        .forEach(JPKafkaDynamicConsumer::start);
   }
 
   /**
@@ -185,11 +190,6 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   }
 
   /**
-   * Логика обработки события слушателем
-   */
-  protected abstract MessageListener<K, V> getMessageListener();
-
-  /**
    * Идентификатор слушателя
    */
   protected abstract String getGroupId();
@@ -208,4 +208,10 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
 
   protected abstract Class<? extends Deserializer<V>> getValueDeserializer();
 
+  /**
+   * Количество параллельных слушателей топика
+   */
+  protected int getConsumerConcurrency() {
+    return DEFAULT_CONSUMER_CONCURRENCY;
+  }
 }

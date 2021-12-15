@@ -1,4 +1,5 @@
 rootProject.name = 'JPrime'
+enableFeaturePreview('VERSION_CATALOGS')
 
 def moduleDirs = ['main-modules', 'services', 'project-modules', 'ui-modules']
 def projectDirs = [:]
@@ -25,3 +26,5 @@ rootProject.children.each {project ->
     assert dir.isDirectory()
   }
 }
+
+apply from: 'gradle-scripts/versions/version-catalogs.gradle'

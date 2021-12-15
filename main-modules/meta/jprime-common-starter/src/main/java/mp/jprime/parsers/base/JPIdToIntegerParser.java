@@ -2,21 +2,22 @@ package mp.jprime.parsers.base;
 
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.TypeParser;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  * JPId -> Integer
  */
 @Service
-public class JPIdToIntegerParser implements TypeParser<JPId, Integer> {
+public class JPIdToIntegerParser implements TypeParser<JPId, Integer>, ParserServiceAware {
   private ParserService service;
 
-  @Autowired
-  private void setService(ParserService service) {
+  @Override
+  public void setParserService(ParserService service) {
     this.service = service;
   }
+
   /**
    * Форматирование значения
    *

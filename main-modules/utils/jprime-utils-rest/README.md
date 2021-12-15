@@ -269,3 +269,84 @@ REST-методы работы утилит
 | inParams | Список входных параметров
 | resultType | Тип исходящих параметров
 | outCustomParams | Список кастомных исходящих параметров
+
+### 6. Массовый чек утилит
+
+``POST utils/v1/batchCheck``
+
+* запрос
+
+```json
+{
+    "rootObjectClassCode": null,
+    "rootObjectId": null,
+    "ids": [
+      {
+          "objectClassCode": "universityNeat", 
+          "objectIds": [2]
+      }
+    ],
+    "utils": [
+      "test1", "test5", "test6", "test2", "test7"
+    ]
+}
+```
+
+| Параметр     | Описание
+| ------------- | ------------------ 
+| rootObjectClassCode | кодовое имя метакласса корневого объекта
+| rootObjectId | идентификатор корневого объекта
+| ids | Идентификаторы проверяемых объектов
+| objectClassCode | Кодовое имя метаописания класса
+| objectIds | Идентификатор объекта
+| utils | Коды проверяемых утилит
+
+* ответ
+
+```json
+{
+    "result": [
+        {
+            "objectClassCode": "universityNeat",
+            "objectId": "2",
+            "utilCode": "test1",
+            "result": {
+                "description": "Запуск разрешен",
+                "changeData": false,
+                "denied": false,
+                "resultType": "check",
+                "confirm": null,
+                "qName": null
+            }
+        },
+        {
+            "objectClassCode": "universityNeat",
+            "objectId": "2",
+            "utilCode": "test5",
+            "result": {
+                "description": "Запуск закрыт",
+                "changeData": false,
+                "denied": true,
+                "resultType": "check",
+                "confirm": null,
+                "qName": "utils.test5.denied"
+            }
+        }
+    ],
+    "resultType": "batchCheck"
+}
+```
+
+| Параметр     | Описание
+| ------------- | ------------------ 
+| resultType | Тип ответа, всегда batchCheck
+| objectClassCode | Кодовое имя метаописания класса
+| objectIds | Идентификатор объекта
+| utilCode | Код проверяемой утилиты
+| result | Результат проверки
+| result.description | Сообщение проверки
+| result.qName | Код сообщения проверки
+| result.changeData | false 
+| result.denied | Признак запрета запуска утилиты
+| result.resultType | Тип ответа, всегда check
+| result.confirm | Сообщение пользователю перед запуском утилиты 

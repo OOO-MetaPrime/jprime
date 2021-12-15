@@ -40,12 +40,8 @@ import java.util.stream.Stream;
  * Сервис работы с утилитами
  */
 @Service
-public final class JPUtilServiceImpl implements JPUtilService {
-  private static final Logger LOG = LoggerFactory.getLogger(JPUtilServiceImpl.class);
-  /**
-   * Режим проверки доступности по умолчанию
-   */
-  public static final String CHECK_MODE = "check";
+public final class JPUtilCommonService implements JPUtilService {
+  private static final Logger LOG = LoggerFactory.getLogger(JPUtilCommonService.class);
 
   private Map<String, UtilInfo> jpUtils = new HashMap<>();
   private Map<String, UtilInfo> jpUniUtils = new HashMap<>();
@@ -68,7 +64,7 @@ public final class JPUtilServiceImpl implements JPUtilService {
   /**
    * Считываем аннотации
    */
-  private JPUtilServiceImpl(@Autowired(required = false) Collection<JPUtil> utils) {
+  private JPUtilCommonService(@Autowired(required = false) Collection<JPUtil> utils) {
     if (utils == null) {
       return;
     }
@@ -105,11 +101,11 @@ public final class JPUtilServiceImpl implements JPUtilService {
               resultType,
               isUni,
               utilJpClasses,
-              !StringUtils.isEmpty(anno.jpPackage()) ? anno.jpPackage() : util.getJpPackage(),
+              !StringUtils.hasText(anno.jpPackage()) ? anno.jpPackage() : util.getJpPackage(),
               anno.authRoles().length > 0 ? anno.authRoles() : util.getAuthRoles(),
               anno
           );
-          utilInfo.modes.put(anno.code(), info);
+          utilInfo.modes.putIfAbsent(anno.code(), info);
         }
         // Добавляем болванку шага check
         utilInfo.modes.putIfAbsent(CHECK_MODE, new ModeInfo(util, isUni, utilJpClasses, util.getJpPackage(), util.getAuthRoles()));
@@ -333,7 +329,7 @@ public final class JPUtilServiceImpl implements JPUtilService {
 
               // По умолчанию метод check, если не переопределен отрабатывает корректно
               if (methodName == null && CHECK_MODE.equals(modeCode)) {
-                return Mono.just(JPUtilMessageOutParams.newBuilder().build());
+                return Mono.just(JPUtilCheckOutParams.newBuilder().build());
               }
               if (methodName == null || inClasses == null || inClasses.length == 0 || resultType == null) {
                 return Mono.error(new JPUtilModeNotFoundException(utilCode, modeCode));

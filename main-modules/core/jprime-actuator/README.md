@@ -21,11 +21,9 @@
   apply from: "${rootProject.project(':jprime-actuator').projectDir}\\actuator.gradle"
   doFirst {
     manifest {
-      Map<String, GString> attrs = common.getManifestAttrs()
-      attributes(attrs)
+      attributes += common.getManifestAttrs()
       // При наличии подмодулей:
-      Map<String, GString> submodulesVersion = common.getSubmodulesVersion()
-      attributes(submodulesVersion, "${SUBMODULES_SECTION_NAME}")
+      attributes(common.getSubmodulesVersion(), SUBMODULES_SECTION_NAME)
     }
   }
 ```

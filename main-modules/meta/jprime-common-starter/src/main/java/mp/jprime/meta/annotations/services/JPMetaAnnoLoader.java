@@ -46,7 +46,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
     }
     Collection<mp.jprime.meta.JPClass> result = new ArrayList<>();
     for (JPMeta meta : metas) {
-      JPClass cls = meta.getClass().getAnnotation(mp.jprime.meta.annotations.JPClass.class);
+      JPClass cls = meta.getClass().getAnnotation(JPClass.class);
       if (cls == null) {
         continue;
       }

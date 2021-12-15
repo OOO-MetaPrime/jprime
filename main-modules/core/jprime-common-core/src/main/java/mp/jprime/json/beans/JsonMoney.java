@@ -11,9 +11,13 @@ import java.math.BigDecimal;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonMoney {
-  // Размер
+  /**
+   * Размер
+   */
   private BigDecimal value;
-  // Валюта
+  /**
+   * Валюта
+   */
   private String currencyCode;
 
   public BigDecimal getValue() {

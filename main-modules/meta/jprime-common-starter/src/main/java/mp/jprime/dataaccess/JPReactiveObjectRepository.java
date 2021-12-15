@@ -22,6 +22,16 @@ public interface JPReactiveObjectRepository {
   }
 
   /**
+   * Возвращает объект и блокирует его на время транзации
+   *
+   * @param query Параметры для выборки
+   * @return Объект
+   */
+  default Mono<JPObject> getAsyncObjectAndLock(JPSelect query) {
+    return getAsyncObject(query);
+  }
+
+  /**
    * Возвращает количество объектов, удовлетворяющих выборке
    *
    * @param query Параметры для выборки
@@ -36,6 +46,16 @@ public interface JPReactiveObjectRepository {
    * @return Список объектов
    */
   Flux<JPObject> getAsyncList(JPSelect query);
+
+  /**
+   * Возвращает список объектов и блокирует на время транзации
+   *
+   * @param query Параметры для выборки
+   * @return Список объектов
+   */
+  default Flux<JPObject> getAsyncListAndLock(JPSelect query) {
+    return getAsyncList(query);
+  }
 
   /**
    * Создает объект

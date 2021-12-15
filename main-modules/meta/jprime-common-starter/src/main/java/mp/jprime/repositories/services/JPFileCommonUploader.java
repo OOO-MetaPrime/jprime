@@ -1,6 +1,7 @@
 package mp.jprime.repositories.services;
 
 import mp.jprime.dataaccess.JPObjectAccessService;
+import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -29,7 +30,7 @@ import java.util.function.BiFunction;
  * Базовая реализация JPFileUploader
  */
 @Service
-public class JPFileCommonUploader implements JPFileUploader {
+public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServiceAware {
   /**
    * API для работы с хранилищами
    */
@@ -53,8 +54,8 @@ public class JPFileCommonUploader implements JPFileUploader {
     this.metaStorage = metaStorage;
   }
 
-  @Autowired
-  private void setObjectAccessService(JPObjectAccessService objectAccessService) {
+  @Override
+  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
   }
 

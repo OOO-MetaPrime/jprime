@@ -1,0 +1,15 @@
+subprojects {
+  repositories {
+    maven {
+      url "${rootProject.rootDir}/../projects-modules/dependencies/"
+      metadataSources {
+        mavenPom()
+        artifact()
+      }
+    }
+  }
+}
+
+apply from: "${rootProject.rootDir}/jprime/gradle-scripts/subprojects.gradle"
+apply from: "${rootProject.rootDir}/jprime/gradle-scripts/dockers.gradle"
+apply from: "${rootProject.rootDir}/jprime/gradle-scripts/offline-build.gradle"

@@ -11,13 +11,14 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
 import mp.jprime.security.services.JPResourceAccessService;
+import mp.jprime.security.services.JPResourceAccessServiceAware;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Базовая логика проверки доступа к объекту
  */
-public abstract class JPObjectAccessBaseService {
+public abstract class JPObjectAccessBaseService implements JPResourceAccessServiceAware {
   // Проверка доступа
   protected JPResourceAccessService accessService;
   // Хранилище настроек RBAC
@@ -27,8 +28,8 @@ public abstract class JPObjectAccessBaseService {
   // Сервис проверки данных указанному условию
   private JPDataCheckService dataCheckService;
 
-  @Autowired
-  private void setAccessService(JPResourceAccessService accessService) {
+  @Override
+  public void setJpResourceAccessService(JPResourceAccessService accessService) {
     this.accessService = accessService;
   }
 
