@@ -762,6 +762,20 @@ public class QueryService {
   }
 
   /**
+   * Создает запрос на пополнение значений
+   *
+   * @param json Строка запроса
+   * @return Описание запроса
+   */
+  public JsonApplyValuesQuery getApplyValuesQuery(String json) {
+    try {
+      return jpJsonMapper.getObjectMapper().readValue(json, JsonApplyValuesQuery.class);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  /**
    * Создает описание данных
    *
    * @param json Строка запроса

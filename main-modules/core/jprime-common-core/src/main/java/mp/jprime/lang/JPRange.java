@@ -78,7 +78,7 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
     if (!(o instanceof JPRange)) return false;
     JPRange<?> range = (JPRange<?>) o;
     if (!Objects.equals(clazz, range.clazz)) return false;
-    return this.toNormalizedString().equals(range.toNormalizedString());
+    return this.toString().equals(range.toString());
   }
 
   @Override
@@ -94,7 +94,7 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
     if (o.asString() == null) {
       return 1;
     }
-    return this.toNormalizedString().equals(o.toNormalizedString()) ? 0 : 1;
+    return this.toString().equals(o.toString()) ? 0 : 1;
   }
 
   @Override
@@ -237,8 +237,4 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
   public Class<Object> getClazz() {
     return Object.class;
   }
-
-  abstract public JPRange<T> normalized();
-
-  abstract public String toNormalizedString();
 }

@@ -16,7 +16,7 @@ public interface AuthInfo extends ConnectionInfo {
   /**
    * Возвращает организацию пользователя
    *
-   * @return организацию пользователя
+   * @return организация пользователя
    */
   String getOrgId();
 

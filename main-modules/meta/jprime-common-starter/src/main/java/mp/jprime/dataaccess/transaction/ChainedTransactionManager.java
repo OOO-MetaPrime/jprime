@@ -22,7 +22,8 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
 
   private static final ThreadLocal<TransactionInfo> TRANSACTION_INFO_THREAD_LOCAL = new NamedThreadLocal<>("Current transaction");
 
-  private final List<PlatformTransactionManager> transactionManagers = new ArrayList<>();
+  private final LinkedHashMap<String, PlatformTransactionManager> transactionManagerMap = new LinkedHashMap<>();
+  private final Set<PlatformTransactionManager> transactionManagers = new LinkedHashSet<>();
   private final List<PlatformTransactionManager> reverseTransactionManagers = new ArrayList<>();
 
   private TransactionEventManager transactionEventManager;
@@ -38,12 +39,13 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
 
   @Autowired
   private void setRepositoryGlobalStorage(RepositoryGlobalStorage repositoryStorage) {
-    repositoryStorage.getStorages()
-        .stream()
-        .map(JPStorage::getTransactionManager)
-        .filter(x -> x instanceof PlatformTransactionManager)
-        .map(x -> (PlatformTransactionManager) x)
-        .forEach(transactionManagers::add);
+    for (JPStorage storage : repositoryStorage.getStorages()) {
+      TransactionManager tm = storage.getTransactionManager();
+      if (tm instanceof PlatformTransactionManager) {
+        transactionManagers.add((PlatformTransactionManager) tm);
+        transactionManagerMap.put(storage.getCode(), (PlatformTransactionManager) tm);
+      }
+    }
     reverseTransactionManagers.addAll(transactionManagers);
     Collections.reverse(reverseTransactionManagers);
   }
@@ -54,19 +56,46 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
   }
 
   /*
-   * (non-Javadoc)
+   * При открытии транзанции сразу резервируются соединения во всех зарегистрированных хранилищах
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    */
   public MultiTransactionStatus getTransactionStatus() throws TransactionException {
-    return getTransaction(TransactionDefinition.withDefaults());
+    return getTransaction(TransactionDefinition.withDefaults(), (String[]) null);
   }
 
   /*
-   * (non-Javadoc)
+   * При открытии транзанции сразу резервируются соединения в указанных хранилищах
+   * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
+   * @param dbCode Коды хранилищ для распределенной транзанции
+   */
+  public MultiTransactionStatus getTransactionStatus(String... dbCode) throws TransactionException {
+    return getTransaction(TransactionDefinition.withDefaults(), dbCode);
+  }
+
+  /*
+   * При открытии транзанции сразу резервируются соединения во всех зарегистрированных хранилищах
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    */
   public MultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
-    MultiTransactionStatus mts = new MultiTransactionStatus(transactionManagers.get(0));
+    return getTransaction(definition, (String[]) null);
+  }
+
+  /*
+   * При открытии транзанции сразу резервируются соединения в указанных хранилищах (или всех, если dbCode = null)
+   * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
+   * @param dbCode Коды хранилищ для распределенной транзанции
+   */
+  public MultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition, String... dbCode) throws TransactionException {
+    // Определяем список хранилищ для транзакционности
+    Set<PlatformTransactionManager> managers = new LinkedHashSet<>();
+    Collection<String> codes = dbCode != null && dbCode.length > 0 ? Arrays.asList(dbCode) : null;
+    for (Map.Entry<String, PlatformTransactionManager> entry : transactionManagerMap.entrySet()) {
+      if (codes != null && !codes.contains(entry.getKey())) {
+        continue;
+      }
+      managers.add(entry.getValue());
+    }
+    MultiTransactionStatus mts = new MultiTransactionStatus(managers.iterator().next());
     if (definition == null) {
       return mts;
     }
@@ -75,7 +104,8 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
       mts.setPrimaryTransaction();
     }
     try {
-      for (PlatformTransactionManager ptm : transactionManagers) {
+      // Открываем соединения
+      for (PlatformTransactionManager ptm : managers) {
         mts.registerTransactionManager(definition, ptm);
       }
       if (mts.isPrimaryTransaction()) {
@@ -177,11 +207,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
   }
 
   private PlatformTransactionManager getLastTransactionManager() {
-    return transactionManagers.get(lastTransactionManagerIndex());
-  }
-
-  private int lastTransactionManagerIndex() {
-    return transactionManagers.size() - 1;
+    return reverseTransactionManagers.get(0);
   }
 
   private void setTransaction() {

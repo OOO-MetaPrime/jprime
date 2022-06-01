@@ -12,7 +12,7 @@ import java.util.Arrays;
 public class XmlJpClasses {
   @JacksonXmlProperty(localName = "jpClass")
   @JacksonXmlElementWrapper(useWrapping = false)
-  private XmlJpClass[] jpClasses;
+  private mp.jprime.meta.xmlloader.beans.XmlJpClass[] jpClasses;
 
   public XmlJpClass[] getJpClasses() {
     return jpClasses;

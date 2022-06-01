@@ -9,5 +9,5 @@ public interface JPObjectDefValueServiceAware {
    *
    * @param defValueService {@link JPObjectDefValueService}
    */
-  void setJPObjectDefValuesService(JPObjectDefValueService defValueService);
+  void setJPObjectDefValueService(JPObjectDefValueService defValueService);
 }

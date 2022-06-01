@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.*;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.beans.JPObjectAccess;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
@@ -11,13 +12,18 @@ import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
+import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.parsers.ParserService;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Реализация проверки доступа к объекту
@@ -28,6 +34,8 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   private JPObjectRepositoryService repo;
   // Хранилище метаинформации
   private JPMetaStorage metaStorage;
+  // Парсер типов
+  private ParserService parserService;
   // Логика вычисления значений по умолчанию
   private JPObjectDefValueService defValueService;
 
@@ -41,8 +49,13 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     this.metaStorage = metaStorage;
   }
 
+  @Autowired
+  private void setParserService(ParserService parserService) {
+    this.parserService = parserService;
+  }
+
   @Override
-  public void setJPObjectDefValuesService(JPObjectDefValueService defValueService) {
+  public void setJPObjectDefValueService(JPObjectDefValueService defValueService) {
     this.defValueService = defValueService;
   }
 
@@ -324,5 +337,137 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     return repo.getObject(
         toSelect(id, jpClass, access, auth)
     );
+  }
+
+  private Collection<JPObject> getObjects(JPClass jpClass, Collection<? extends Comparable> keys, JPResourceAccess access, AuthInfo auth) {
+    return repo.getList(
+        toSelect(keys, jpClass, access, auth)
+    );
+  }
+
+  /**
+   * Массовая проверка объектов на доступ
+   *
+   * @param jpClass Класс объектов
+   * @param keys    Список id
+   * @param auth    AuthInfo
+   * @return Список доступов к объектам
+   */
+  @Override
+  public Collection<JPObjectAccess> objectsAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
+    keys = keys.stream().map(id -> cast(jpClass, id)).collect(Collectors.toList());
+    boolean create = checkCreate(jpClass.getCode(), auth);
+    Collection<? extends Comparable> read = fillReadAccess(jpClass, keys, auth);
+    Collection<? extends Comparable> update = fillUpdateAccess(jpClass, keys, auth);
+    Collection<? extends Comparable> delete = fillDeleteAccess(jpClass, keys, auth);
+
+    return keys.stream()
+        .map(
+            id -> JPObjectAccess.newBuilder()
+                .id(id)
+                .jpClass(jpClass.getCode())
+                .create(create)
+                .read(read.contains(id))
+                .update(update.contains(id))
+                .delete(delete.contains(id))
+                .build()
+        )
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Массовая проверка объектов на доступ
+   *
+   * @param jpClass Класс объектов
+   * @param keys    Список id
+   * @param auth    AuthInfo
+   * @return Список доступов к объектам
+   */
+  @Override
+  public Collection<JPObjectAccess> objectsChangeAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
+    keys = keys.stream().map(id -> cast(jpClass, id)).collect(Collectors.toList());
+    Collection<? extends Comparable> update = fillUpdateAccess(jpClass, keys, auth);
+    Collection<? extends Comparable> delete = fillDeleteAccess(jpClass, keys, auth);
+
+    return keys.stream()
+        .map(id -> JPObjectAccess.newBuilder()
+            .id(id)
+            .jpClass(jpClass.getCode())
+            .update(update.contains(id))
+            .delete(delete.contains(id))
+            .build()
+        )
+        .collect(Collectors.toList());
+  }
+
+  private Comparable cast(JPClass jpClass, Comparable id) {
+    JPAttr pkAttr = jpClass != null ? jpClass.getPrimaryKeyAttr() : null;
+    if (pkAttr == null) {
+      return id;
+    }
+    JPType valueType = pkAttr.getValueType();
+    Class valueClass = valueType != null ? valueType.getJavaClass() : null;
+    if (valueClass == null) {
+      return id;
+    }
+    return (Comparable) parserService.parseTo(valueClass, id);
+  }
+
+  private Collection<? extends Comparable> fillUpdateAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
+    if (auth == null || jpClass == null) {
+      return Collections.EMPTY_LIST;
+    }
+    JPResourceAccess access = accessService.checkUpdate(jpClass.getCode(), auth);
+    if (!access.isAccess()) {
+      return Collections.EMPTY_LIST;
+    }
+    Filter accessFilter = access.getFilter();
+    // доступ к объекту
+    if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || accessFilter != null) {
+      return getObjects(jpClass, keys, access, auth)
+          .stream()
+          .filter(object -> securityManager.checkUpdate(object.getJpPackage(), auth.getRoles()))
+          .map(object -> object.getJpId().getId())
+          .collect(Collectors.toList());
+    }
+    return new ArrayList<>(keys);
+  }
+
+  private Collection<Comparable> fillDeleteAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
+    if (auth == null || jpClass == null) {
+      return Collections.EMPTY_LIST;
+    }
+    JPResourceAccess access = accessService.checkDelete(jpClass.getCode(), auth);
+    if (!access.isAccess()) {
+      return Collections.EMPTY_LIST;
+    }
+    // доступ к объекту
+    if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
+      return getObjects(jpClass, keys, access, auth)
+          .stream()
+          .filter(object -> securityManager.checkDelete(object.getJpPackage(), auth.getRoles()))
+          .map(object -> object.getJpId().getId())
+          .collect(Collectors.toList());
+    }
+    return new ArrayList<>(keys);
+  }
+
+  private Collection<Comparable> fillReadAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
+    if (auth == null || jpClass == null) {
+      return Collections.EMPTY_LIST;
+    }
+    JPResourceAccess access = accessService.checkRead(jpClass.getCode(), auth);
+    if (!access.isAccess()) {
+      return Collections.EMPTY_LIST;
+    }
+    // доступ к объекту
+    if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
+      return getObjects(jpClass, keys, access, auth)
+          .stream()
+          .filter(object -> securityManager.checkRead(object.getJpPackage(), auth.getRoles()))
+          .map(object -> object.getJpId().getId())
+          .collect(Collectors.toList());
+    }
+    return new ArrayList<>(keys);
   }
 }

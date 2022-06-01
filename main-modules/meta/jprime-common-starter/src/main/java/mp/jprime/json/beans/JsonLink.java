@@ -19,8 +19,7 @@ import java.util.List;
     "media",
     "title",
     "path",
-    "refClassCode",
-    "refClassPluralCode"
+    "refClassCode"
 })
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -38,10 +37,6 @@ public class JsonLink {
    * refClassCode
    */
   private String refClassCode;
-  /**
-   * refClassPluralCode
-   */
-  private String refClassPluralCode;
   /**
    * Relative Path
    */
@@ -97,12 +92,6 @@ public class JsonLink {
     return refClassCode;
   }
 
-  @JsonProperty("refClassPluralCode")
-  public String getRefClassPluralCode() {
-    return refClassPluralCode;
-  }
-
-
   /**
    * Конструктор
    */
@@ -117,14 +106,12 @@ public class JsonLink {
    * @param href               Absolute URI
    * @param path               Relative Path
    * @param refClassCode       ref JPClass code
-   * @param refClassPluralCode ref JPClass plural code
    */
-  private JsonLink(String rel, String href, String path, String refClassCode, String refClassPluralCode) {
+  private JsonLink(String rel, String href, String path, String refClassCode) {
     this.rel = rel;
     this.href = href;
     this.path = path;
     this.refClassCode = refClassCode;
-    this.refClassPluralCode = refClassPluralCode;
   }
 
   /**
@@ -132,8 +119,8 @@ public class JsonLink {
    *
    * @return Builder
    */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static JsonLink.Builder newBuilder() {
+    return new JsonLink.Builder();
   }
 
   /**
@@ -145,7 +132,6 @@ public class JsonLink {
     private String restMapping;
     private String classPluralCode;
     private String refClassCode;
-    private String refClassPluralCode;
     private List<String> blocks = new ArrayList<>();
 
 
@@ -197,17 +183,6 @@ public class JsonLink {
     }
 
     /**
-     * refClassCode
-     *
-     * @param refClassPluralCode refClassPluralCode
-     * @return Builder
-     */
-    public Builder refClassPluralCode(String refClassPluralCode) {
-      this.refClassPluralCode = refClassPluralCode;
-      return this;
-    }
-
-    /**
      * classPluralCode
      *
      * @param classPluralCode classPluralCode
@@ -241,7 +216,7 @@ public class JsonLink {
       String path = restMapping + "/" + classPluralCode + "/" + sBlocks;
       return new JsonLink(rel,
           (baseUrl != null ? baseUrl : "") + "/" + path,
-          path, refClassCode, refClassPluralCode);
+          path, refClassCode);
     }
   }
 }

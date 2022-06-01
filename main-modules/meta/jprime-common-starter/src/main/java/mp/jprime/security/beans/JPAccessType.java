@@ -14,7 +14,7 @@ public enum JPAccessType {
   PROHIBITION("prohibition");
 
 
-  private String code;
+  private final String code;
 
   JPAccessType(String code) {
     this.code = code;

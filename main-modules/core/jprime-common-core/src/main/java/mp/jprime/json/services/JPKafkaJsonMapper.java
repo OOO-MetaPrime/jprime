@@ -3,7 +3,9 @@ package mp.jprime.json.services;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import mp.jprime.exceptions.JPRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,5 +25,16 @@ public class JPKafkaJsonMapper {
 
   public ObjectMapper getObjectMapper() {
     return KAFKA_OBJECT_MAPPER;
+  }
+
+  public String toString(Object object) {
+    if (object == null) {
+      return null;
+    }
+    try {
+      return getObjectMapper().writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      throw JPRuntimeException.wrapException(e);
+    }
   }
 }

@@ -10,8 +10,8 @@ public enum Event implements mp.jprime.log.Event {
   UTIL_RUN("util_run", true);
 
 
-  private String code;
-  private boolean success;
+  private final String code;
+  private final boolean success;
 
   Event(String code, boolean success) {
     this.code = code;

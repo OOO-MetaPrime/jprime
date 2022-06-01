@@ -41,7 +41,7 @@ public enum JPType {
   /**
    * Вещественное (64 бита)
    */
-  DOUBLE("double", "Вещественное (64 бита)", Double.class),
+  DOUBLE("double", "Вещественное (64 бита)", BigDecimal.class),
   /**
    * Файл
    */
@@ -49,7 +49,7 @@ public enum JPType {
   /**
    * Вещественное (32 бита)
    */
-  FLOAT("float", "Вещественное (32 бита)", Float.class),
+  FLOAT("float", "Вещественное (32 бита)", BigDecimal.class),
   /**
    * Целочисленное (32 бита)
    */

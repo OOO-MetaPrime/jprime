@@ -114,8 +114,7 @@ public class JsonJPObject {
                   .classPluralCode(cls.getPluralCode())
                   .block(sId)
                   .block(x.getCode())
-                  .refClassCode(refClass.getCode())
-                  .refClassPluralCode(refClass.getPluralCode());
+                  .refClassCode(refClass.getCode());
             } else if (!refAttr.isIdentifier()) {
               Object val = jpObject.getData().get(x);
               if (val == null) {
@@ -126,8 +125,7 @@ public class JsonJPObject {
                   .block(sId)
                   .block(x.getCode())
                   .block(String.valueOf(val))
-                  .refClassCode(refClass.getCode())
-                  .refClassPluralCode(refClass.getPluralCode());
+                  .refClassCode(refClass.getCode());
             } else {
               Object val = jpObject.getData().get(x);
               if (val == null) {
@@ -136,8 +134,7 @@ public class JsonJPObject {
               builder
                   .classPluralCode(refClass.getPluralCode())
                   .block(String.valueOf(val))
-                  .refClassCode(refClass.getCode())
-                  .refClassPluralCode(refClass.getPluralCode());
+                  .refClassCode(refClass.getCode());
             }
             return builder.build();
           })

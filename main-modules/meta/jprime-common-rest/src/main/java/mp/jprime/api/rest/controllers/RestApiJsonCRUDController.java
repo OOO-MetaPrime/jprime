@@ -2,6 +2,7 @@ package mp.jprime.api.rest.controllers;
 
 import mp.jprime.dataaccess.*;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPObjectAccess;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPSelect;
@@ -36,7 +37,10 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1")
@@ -142,36 +146,56 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     JPSelect s = builder.build();
 
     JPClass jpClass = metaStorage.getJPClassByCode(s.getJpClass());
+
     return Mono.zip(
-        // Общее количество
-        s.isTotalCount() ? repo.getAsyncTotalCount(s) : Mono.just(0L),
-        // Выборка
-        repo.getAsyncList(s)
-            .map(x -> JsonJPObject.newBuilder()
-                .jpObject(x)
-                .metaStorage(metaStorage)
-                .baseUrl(sweService.getBaseUrl(swe))
-                .restMapping(Controllers.API_MAPPING)
-                .addLinks(addLinks)
-                .access(!access ? null : JsonChangeAccess.newBuilder()
-                    .update(
-                        objectAccessService.checkUpdate(x.getJpId(), auth)
-                    )
-                    .delete(
-                        objectAccessService.checkDelete(x.getJpId(), auth)
-                    )
-                    .build())
+            // Общее количество
+            s.isTotalCount() ? repo.getAsyncTotalCount(s) : Mono.just(0L),
+            // Выборка
+            repo.getAsyncList(s)
+                .collectList()
+                .map(list ->
+                    {
+                      Map<Comparable, JPObjectAccess> mapAccess = access ?
+                          objectAccessService
+                              .objectsChangeAccess(jpClass,
+                                  list.stream().map(o -> o.getJpId().getId()).collect(Collectors.toList()),
+                                  auth)
+                              .stream()
+                              .collect(Collectors.toMap(JPObjectAccess::getId, j -> j))
+                          : Collections.emptyMap();
+
+                      return list.stream()
+                          .map((x -> JsonJPObject.newBuilder()
+                                  .jpObject(x)
+                                  .metaStorage(metaStorage)
+                                  .baseUrl(sweService.getBaseUrl(swe))
+                                  .restMapping(Controllers.API_MAPPING)
+                                  .addLinks(addLinks)
+                                  .access(!access ? null : JsonChangeAccess.newBuilder()
+                                      .update(
+                                          mapAccess.get(x.getJpId().getId()).isUpdate()
+                                      )
+                                      .delete(
+                                          mapAccess.get(x.getJpId().getId()).isDelete()
+                                      )
+                                      .build()
+                                  )
+                                  .build()
+                              )
+                          )
+                          .collect(Collectors.toList());
+                    }
+                )
+            ,
+            // Создаем результат
+            (x, y) -> JsonJPObjectList.newBuilder()
+                .limit(s.getLimit())
+                .offset(s.getOffset())
+                .classCode(jpClass.getCode())
+                .pluralCode(jpClass.getPluralCode())
+                .objects(y)
+                .totalCount(x)
                 .build())
-            .collectList(),
-        // Создаем результат
-        (x, y) -> JsonJPObjectList.newBuilder()
-            .limit(s.getLimit())
-            .offset(s.getOffset())
-            .classCode(jpClass.getCode())
-            .pluralCode(jpClass.getPluralCode())
-            .objects(y)
-            .totalCount(x)
-            .build())
         // Ошибка
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
@@ -216,9 +240,12 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     if (historyPublisher != null) {
       historyPublisher.sendSearch(jpClass.getCode(), query, auth, swe);
     }
-    JsonSelect jsonSelect = queryService.getQuery(query);
+
     JPSelect.Builder builder;
+    boolean access;
     try {
+      JsonSelect jsonSelect = queryService.getQuery(query);
+      access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
           .timeout(queryTimeout)
           .source(Source.USER);
@@ -228,7 +255,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder, jsonSelect != null && jsonSelect.isAccess(), swe, auth);
+    return getListResult(builder, access, swe, auth);
   }
 
   @ResponseBody
@@ -247,9 +274,11 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
 
-    JsonSelect jsonSelect = queryService.getQuery(query);
     JPSelect.Builder builder;
+    boolean access;
     try {
+      JsonSelect jsonSelect = queryService.getQuery(query);
+      access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
           .andWhere(Filter.attr(attrCode).eq(attrValue))
           .timeout(queryTimeout)
@@ -260,7 +289,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder, jsonSelect != null && jsonSelect.isAccess(), swe, auth);
+    return getListResult(builder, access, swe, auth);
   }
 
   @ResponseBody
@@ -298,9 +327,11 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
 
-    JsonSelect jsonSelect = queryService.getQuery(query);
     JPSelect.Builder builder;
+    boolean access;
     try {
+      JsonSelect jsonSelect = queryService.getQuery(query);
+      access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpAttr.getRefJpClassCode(), jsonSelect, auth)
           .andWhere(Filter.attr(jpAttr.getRefJpAttrCode()).eq(attrValue))
           .timeout(queryTimeout)
@@ -311,7 +342,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     if (builder.isOrderByEmpty()) {
       builder.orderByDesc(refClass.getPrimaryKeyAttr());
     }
-    return getListResult(builder, jsonSelect != null && jsonSelect.isAccess(), swe, auth);
+    return getListResult(builder, access, swe, auth);
   }
 
   @ResponseBody
@@ -349,21 +380,27 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                 return Mono.just(key).cast(Object.class);
               } else {
                 return repo.getAsyncObject(
-                    JPSelect.from(jpClass.getCode())
-                        .attr(targetAttr.getCode())
-                        .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(key))
-                        .build()
-                )
+                        JPSelect.from(jpClass.getCode())
+                            .attr(targetAttr.getCode())
+                            .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(key))
+                            .build()
+                    )
                     .filter(Objects::nonNull)
-                    .map(o -> o.getAttrValue(targetAttr.getCode()));
+                    .flatMap(o -> {
+                      Object attrValue = o.getAttrValue(targetAttr.getCode());
+                      return attrValue == null ? Mono.empty() : Mono.just(attrValue);
+                    });
               }
             }
         )
         .flatMap(key -> {
           AuthInfo auth = jwtService.getAuthInfo(swe);
-          JsonSelect jsonSelect = queryService.getQuery(query);
+
           JPSelect.Builder builder;
+          boolean access;
           try {
+            JsonSelect jsonSelect = queryService.getQuery(query);
+            access = jsonSelect != null && jsonSelect.isAccess();
             builder = queryService.getSelect(refJpClass.getCode(), jsonSelect, auth)
                 .andWhere(Filter.attr(refJpAttr.getCode()).eq(key))
                 .timeout(queryTimeout)
@@ -374,7 +411,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
           if (builder.isOrderByEmpty()) {
             builder.orderByDesc(refJpClass.getPrimaryKeyAttr());
           }
-          return getListResult(builder, jsonSelect != null && jsonSelect.isAccess(), swe, auth);
+          return getListResult(builder, access, swe, auth);
         });
   }
 

@@ -45,7 +45,7 @@ paths:
         schema:
           type: string
           format: string
-        description: Множественный код метаописания
+        description: код метаописания
       - in: path
         name: objectId
         required: true
@@ -198,7 +198,7 @@ paths:
         schema:
           type: string
           format: string
-        description: Множественный код метакласса
+        description: код метакласса
       requestBody:
         content:
           application/json:
@@ -232,7 +232,7 @@ paths:
         schema:
           type: string
           format: string
-        description: Множественный код метакласса
+        description: код метакласса
       requestBody:
         content:
           application/json:
@@ -253,6 +253,39 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/api/v1/{code}/applyvalue':
+    post:
+      tags:
+      - list
+      summary: Позволяет дополнить значения на основании имеющихся.
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: код метакласса
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/applyvalueRequest'
+        description: Параметры для вычисления
+      responses:
+        '200':
+          description: Дополненые значения
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/applyvalueResponse'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
   '/api/v1/{code}/addinfo':
     post:
       tags:
@@ -266,7 +299,7 @@ paths:
         schema:
           type: string
           format: string
-        description: Множественный код метакласса
+        description: код метакласса
       requestBody:
         content:
           application/json:
@@ -632,7 +665,7 @@ paths:
         schema:
           type: string
           format: string
-        description: Множественный код метаописания
+        description: код метаописания
       - in: path
         name: objectId
         required: true
@@ -1013,10 +1046,6 @@ components:
           type: string
           format: string
           description: кодовое имя класса, на который ссылается атрибут
-        refClassPluralCode:
-          type: string
-          format: string
-          description: множественное кодовое имя класса, на который ссылается атрибут
 
     objectInfo:
       type: object
@@ -1186,7 +1215,7 @@ components:
           type: string
           format: string
           description: Кодовое имя класса объекта, из которого создаем (может быть не указан)
-          example: spbCompany
+          example: mpCompany
         refAttrCode:
           type: string
           format: string
@@ -1209,7 +1238,7 @@ components:
           type: string
           format: string
           description: Кодовое имя класса
-          example: spbDoc
+          example: mpDoc
         data:
           additionalProperties:
             type: string
@@ -1217,6 +1246,54 @@ components:
           description: Значения по умолчанию для атрибутов
           example:
             userOwnerId: 9999999912
+            citizenship: 643
+            status: 1
+
+    applyvalueRequest:
+      type: object
+      properties:
+        id:
+          type: object
+          description: Идентификатор объекта
+          example: 15
+        classCode:
+          type: string
+          format: string
+          description: Кодовое имя класса объекта
+          example: universityNeat
+        attrs:
+          type: array
+          description: Список атрибутов, значения которых изменились
+          items:
+            type: string
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          description: Имеющиеся значения атрибутов
+          example:
+            a1: 1
+            a2: 2
+
+    applyvalueResponse:
+      type: object
+      properties:
+        id:
+          type: object
+          description: Идентификатор объекта
+          example: 15
+        classCode:
+          type: string
+          format: string
+          description: Кодовое имя класса объекта
+          example: universityNeat
+        data:
+          additionalProperties:
+            type: string
+            example: 'attrValue'
+          description: Дополненные значения атрибутов
+          example:
+            phone: 911
             citizenship: 643
             status: 1
 

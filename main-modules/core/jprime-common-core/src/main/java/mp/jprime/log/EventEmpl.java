@@ -6,8 +6,8 @@ package mp.jprime.log;
 public enum EventEmpl implements Event {
   TEST("test", true);
 
-  private String code;
-  private boolean success;
+  private final String code;
+  private final boolean success;
 
   EventEmpl(String code, boolean success) {
     this.code = code;

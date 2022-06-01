@@ -13,12 +13,6 @@ subprojects {
   repositories {
     mavenCentral()
     maven { url "https://repo.spring.io/release" }
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
-    maven {
-      url "http://jaspersoft.artifactoryonline.com/jaspersoft/third-party-ce-artifacts"
-      allowInsecureProtocol = true
-    }
     maven { url "https://repo.cuba-platform.com/content/groups/work/" }
   }
 
@@ -26,6 +20,14 @@ subprojects {
     imports {
       mavenBom "org.springframework.cloud:spring-cloud-dependencies:${spring.versions.springCloudVersion.get()}"
     }
+  }
+
+  dependencies {
+    api enforcedPlatform (storages.r2dbc.pool)
+    api enforcedPlatform (storages.r2dbc.proxy)
+    api enforcedPlatform (storages.r2dbc.spi)
+    api enforcedPlatform (storages.r2dbc.spi.parent)
+    api enforcedPlatform (storages.r2dbc.postgresql)
   }
 
   configurations {
@@ -37,7 +39,7 @@ subprojects {
     failFast(true)
     useJUnitPlatform {
       excludeTags 'manualTests'
-      if (System.properties['test.profile'] == 'unit') {
+      if (System.properties['testProfile'] == 'unit') {
         excludeTags 'integrationTests'
       }
     }
@@ -45,5 +47,5 @@ subprojects {
 }
 
 wrapper {
-  gradleVersion = "7.3"
+  gradleVersion = "7.4.2"
 }

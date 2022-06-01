@@ -11,11 +11,11 @@ public abstract class JPBaseStorage implements JPStorage {
   /**
    * Кодовое имя
    */
-  private String code;
+  private final String code;
   /**
    * Название
    */
-  private String title;
+  private final String title;
 
   /**
    * Кодовое имя

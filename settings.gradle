@@ -1,5 +1,4 @@
 rootProject.name = 'JPrime'
-enableFeaturePreview('VERSION_CATALOGS')
 
 def moduleDirs = ['main-modules', 'services', 'project-modules', 'ui-modules']
 def projectDirs = [:]

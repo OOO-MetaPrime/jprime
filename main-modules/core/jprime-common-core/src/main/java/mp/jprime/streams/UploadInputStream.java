@@ -22,12 +22,13 @@ public class UploadInputStream implements AutoCloseable {
     this.name = null;
   }
 
-  public void collectInputStream(InputStream is) {
+  public UploadInputStream collectInputStream(InputStream is) {
     if (this.is == null) {
       this.is = is;
     } else {
       this.is = new SequenceInputStream(this.is, is);
     }
+    return this;
   }
 
   public InputStream getInputStream() {

@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Нарушена уникальность
  */
-@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+@ResponseStatus(HttpStatus.BAD_REQUEST)
 public class JPUniqueException extends JPRuntimeException {
   public JPUniqueException() {
     super("query.unique.duplicateError", "Нарушена уникальность значений");

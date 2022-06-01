@@ -6,7 +6,7 @@
 Рекомендуется при сборке диструбутивов или у заказчика
 
 ```
-  gradlew clean build --parallel --stacktrace  --daemon -Dtest.profile=unit
+  gradlew clean build --parallel --stacktrace  --daemon -DtestProfile=unit
 ```
 
 ## Запуск всех тестов
@@ -23,7 +23,7 @@
 * помечены _мануальные_ (имеющие смысл только при ручном запуске) тесты тэгом `@Tag("manualTests")`
 * _юнит тесты_ - без тэга
 * _мануальные тесты_ отключены при билде всегда
-* для отключения _интеграционных_ передать при сборке `-Dtest.profile=unit`
+* для отключения _интеграционных_ передать при сборке `-DtestProfile=unit`
 * в корневые `build.gradle` проектов добавлять соответствующий блок:
 
 ```groovy
@@ -33,7 +33,7 @@ subprojects {
     failFast(true)
     useJUnitPlatform {
       excludeTags 'manualTests'
-      if (System.properties['test.profile'] == 'unit') {
+      if (System.properties['testProfile'] == 'unit') {
         excludeTags 'integrationTests'
       }
     }

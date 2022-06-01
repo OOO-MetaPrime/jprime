@@ -17,14 +17,6 @@ public class JsonRange<T> {
    * Верхняя граница
    */
   private T upper;
-  /**
-   * Нижняя граница закрыта
-   */
-  private boolean closeLower = Boolean.TRUE;
-  /**
-   * Верхняя граница закрыта
-   */
-  private boolean closeUpper = Boolean.TRUE;
 
   public T getLower() {
     return lower;
@@ -40,21 +32,5 @@ public class JsonRange<T> {
 
   public void setUpper(T upper) {
     this.upper = upper;
-  }
-
-  public boolean isCloseLower() {
-    return closeLower;
-  }
-
-  public void setCloseLower(boolean closeLower) {
-    this.closeLower = closeLower;
-  }
-
-  public boolean isCloseUpper() {
-    return closeUpper;
-  }
-
-  public void setCloseUpper(boolean closeUpper) {
-    this.closeUpper = closeUpper;
   }
 }

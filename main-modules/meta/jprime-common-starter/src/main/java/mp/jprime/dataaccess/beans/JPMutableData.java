@@ -9,13 +9,16 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+/**
+ * Изменяемые данные
+ */
 public final class JPMutableData implements JPAttrData {
   private final Map<String, Object> dataMap;
 
   /**
    * Конструктор
    *
-   * @param dataMap Данные объекта
+   * @param dataMap Данные
    */
   private JPMutableData(Map<String, Object> dataMap) {
     this.dataMap = dataMap != null ? new HashMap<>(dataMap) : new HashMap<>();

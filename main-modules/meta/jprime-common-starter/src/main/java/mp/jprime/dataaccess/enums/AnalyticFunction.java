@@ -13,7 +13,7 @@ public enum AnalyticFunction {
    */
   NOTEXISTS("NOTEXISTS");
 
-  private String code;
+  private final String code;
 
   AnalyticFunction(String code) {
     this.code = code;

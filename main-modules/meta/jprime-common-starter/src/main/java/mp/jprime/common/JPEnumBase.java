@@ -33,7 +33,7 @@ public class JPEnumBase implements JPEnum {
     return new Builder<>();
   }
 
-  protected static class Builder<T extends Builder> {
+  protected static class Builder<T extends JPEnumBase.Builder> {
     protected Object value;
     protected String description;
     protected String qName;

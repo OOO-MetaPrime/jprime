@@ -3,6 +3,7 @@ package mp.jprime.web.error;
 import mp.jprime.exceptions.CompositeException;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
+import mp.jprime.exceptions.JPWrongVersionException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -30,17 +31,25 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
   private Map<String, Object> fill(Exception error) {
     String code = null;
     String message = null;
+    Map<String, Object> result = new HashMap<>();
     if (error instanceof JPAppRuntimeException) {
       code = ((JPAppRuntimeException) error).getMessageCode();
       message = error.getMessage();
+      if (error instanceof JPWrongVersionException) {
+        fillJPWrongVersionAttrs((JPWrongVersionException) error, result);
+      }
     } else if (error instanceof JPObjectNotFoundException) {
       JPObjectNotFoundException e = (JPObjectNotFoundException) error;
       code = e.getMessageCode();
       message = error.getMessage();
     }
-    Map<String, Object> result = new HashMap<>(2);
     result.put("code", code != null ? code : "server.error");
     result.put("message", message);
     return result;
+  }
+
+  private void fillJPWrongVersionAttrs(JPWrongVersionException error, Map<String, Object> result) {
+    result.put("updatedUserDescription", error.getUpdatedUserDescription());
+    result.put("updatedUserLogin", error.getUpdatedUserLogin());
   }
 }

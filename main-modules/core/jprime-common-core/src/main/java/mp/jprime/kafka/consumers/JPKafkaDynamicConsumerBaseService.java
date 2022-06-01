@@ -24,11 +24,13 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <K> тип ключа события
  * @param <V> тип значения события
  */
-public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
+public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafkaManagedConsumerService {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDynamicConsumerBaseService.class);
 
   private static final int DEFAULT_MAX_POLL_RECORDS = 1;
-  private static final String DEFAULT_AUTO_OFFSET_RESET = "earliest";
+  private static final int DEFAULT_MAX_POLL_INTERVAL = 300_000;
+  private static final String EARLIEST_AUTO_OFFSET_RESET = "earliest";
+  private static final String LATEST_AUTO_OFFSET_RESET = "latest";
   private static final int DEFAULT_CONSUMER_CONCURRENCY = 1;
 
   private final Map<String, JPKafkaDynamicConsumer<K, V>> consumers = new ConcurrentHashMap<>();
@@ -36,10 +38,10 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   /**
    * Настройка оффсета слушателя
    * <p>
-   * По умолчанию - {@link #DEFAULT_AUTO_OFFSET_RESET "earliest"}
+   * По умолчанию - {@link #EARLIEST_AUTO_OFFSET_RESET "earliest"}
    */
   protected static String getAutoOffsetReset() {
-    return DEFAULT_AUTO_OFFSET_RESET;
+    return EARLIEST_AUTO_OFFSET_RESET;
   }
 
   /**
@@ -136,6 +138,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   /**
    * Запускает слушателя топика или бросает исключение, если слушатель не найден
    */
+  @Override
   public void start(String topic) {
     getOrThrow(topic).start();
   }
@@ -143,6 +146,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   /**
    * Останавливает слушателя топика или бросает исключение, если слушатель не найден
    */
+  @Override
   public void stop(String topic) {
     getOrThrow(topic).stop();
   }
@@ -150,6 +154,7 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   /**
    * Ставит на паузу слушателя топика или бросает исключение, если слушатель не найден
    */
+  @Override
   public void pause(String topic) {
     getOrThrow(topic).pause();
   }
@@ -157,8 +162,41 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   /**
    * Снимает с паузы слушателя топика или бросает исключение, если слушатель не найден
    */
+  @Override
   public void resume(String topic) {
     getOrThrow(topic).resume();
+  }
+
+  /**
+   * Запускает всех неактивных слушателей
+   */
+  @Override
+  public void start() {
+    consumers.values().forEach(JPKafkaDynamicConsumer::start);
+  }
+
+  /**
+   * Останавливает всех активных слушателей
+   */
+  @Override
+  public void stop() {
+    consumers.values().forEach(JPKafkaDynamicConsumer::stop);
+  }
+
+  /**
+   * Ставит на паузу всех активных слушателей
+   */
+  @Override
+  public void pause() {
+    consumers.values().forEach(JPKafkaDynamicConsumer::pause);
+  }
+
+  /**
+   * Снимает с паузы всех приостановленных слушателей
+   */
+  @Override
+  public void resume() {
+    consumers.values().forEach(JPKafkaDynamicConsumer::resume);
   }
 
   private JPKafkaDynamicConsumer<K, V> getOrThrow(String topic) {
@@ -190,22 +228,30 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   }
 
   /**
+   * Максимальная задержка между вызовами poll() слушателем
+   */
+  protected int getMaxPollInterval() {
+    return DEFAULT_MAX_POLL_INTERVAL;
+  }
+
+  /**
    * Идентификатор слушателя
    */
   protected abstract String getGroupId();
-
-  /**
-   * Топик
-   */
-  protected abstract String getTopic();
 
   /**
    * Адрес кафки
    */
   protected abstract String getBootstrapAddress();
 
+  /**
+   * Конвертер ключа события
+   */
   protected abstract Class<? extends Deserializer<K>> getKeyDeserializer();
 
+  /**
+   * Конвертер значения события
+   */
   protected abstract Class<? extends Deserializer<V>> getValueDeserializer();
 
   /**
@@ -214,4 +260,5 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> {
   protected int getConsumerConcurrency() {
     return DEFAULT_CONSUMER_CONCURRENCY;
   }
+
 }

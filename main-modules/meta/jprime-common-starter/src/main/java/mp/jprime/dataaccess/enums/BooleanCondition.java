@@ -13,7 +13,7 @@ public enum BooleanCondition {
    */
   OR("OR");
 
-  private String code;
+  private final String code;
 
   BooleanCondition(String code) {
     this.code = code;

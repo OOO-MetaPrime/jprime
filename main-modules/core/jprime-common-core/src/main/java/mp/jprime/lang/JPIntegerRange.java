@@ -27,76 +27,6 @@ public final class JPIntegerRange extends JPRange<Integer> {
   }
 
   /**
-   * Создание с двух сторон открытого диапазона.
-   *
-   * <pre>{@code
-   *     (a, b) = {x | a < x < b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPIntegerRange open(Integer lower, Integer upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPIntegerRange(lower, upper, LOWER_EXCLUSIVE | UPPER_EXCLUSIVE);
-  }
-
-  /**
-   * Создание открытого слева и закрытого справа диапазона.
-   *
-   * <pre>{@code
-   *     (a, b] = {x | a < x <= b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPIntegerRange openClosed(Integer lower, Integer upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPIntegerRange(lower, upper, LOWER_EXCLUSIVE | UPPER_INCLUSIVE);
-  }
-
-  /**
-   * Создание закрытого слева и открытого справа диапазона.
-   *
-   * <pre>{@code
-   *     [a, b) = {x | a <= x < b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPIntegerRange closedOpen(Integer lower, Integer upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPIntegerRange(lower, upper, LOWER_INCLUSIVE | UPPER_EXCLUSIVE);
-  }
-
-  /**
-   * Создание слева открытого, справа неограниченного диапазона.
-   *
-   * <pre>{@code
-   *     (a, +∞) = {x | x > a}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPIntegerRange openInfinite(Integer lower) {
-    Objects.requireNonNull(lower);
-    return new JPIntegerRange(lower, null, LOWER_EXCLUSIVE | UPPER_INFINITE);
-  }
-
-  /**
    * Создание слева закрытого, справа неограниченного диапазона
    *
    * <pre>{@code
@@ -110,22 +40,6 @@ public final class JPIntegerRange extends JPRange<Integer> {
   public static JPIntegerRange closedInfinite(Integer lower) {
     Objects.requireNonNull(lower);
     return new JPIntegerRange(lower, null, LOWER_INCLUSIVE | UPPER_INFINITE);
-  }
-
-  /**
-   * Создание слева неограниченного, справа открытого диапазона.
-   *
-   * <pre>{@code
-   *     (-∞, b) = {x | x < b}
-   * }</pre>
-   *
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPIntegerRange infiniteOpen(Integer upper) {
-    Objects.requireNonNull(upper);
-    return new JPIntegerRange(null, upper, UPPER_EXCLUSIVE | LOWER_INFINITE);
   }
 
   /**
@@ -161,16 +75,13 @@ public final class JPIntegerRange extends JPRange<Integer> {
   /**
    * Создание {@code Integer} диапазона из переданных значений
    *
-   * @param lower      нижняя граница
-   * @param upper      верхняя граница
-   * @param lowerClose - признак вхождения нижней границы
-   * @param upperClose - признак вхождения верхней границы
+   * @param lower нижняя граница
+   * @param upper верхняя граница
    * @return The range of {@code Integer}s.
    * @throws NumberFormatException when one of the bounds are invalid.
    */
-  public static JPIntegerRange create(Integer lower, Integer upper, boolean lowerClose, boolean upperClose) {
-    int mask = lowerClose ? LOWER_INCLUSIVE : LOWER_EXCLUSIVE;
-    mask |= upperClose ? UPPER_INCLUSIVE : UPPER_EXCLUSIVE;
+  public static JPIntegerRange create(Integer lower, Integer upper) {
+    int mask = LOWER_INCLUSIVE | UPPER_INCLUSIVE;
     if (lower == null) {
       mask |= LOWER_INFINITE;
     }
@@ -186,24 +97,5 @@ public final class JPIntegerRange extends JPRange<Integer> {
         null,
         LOWER_INFINITE | UPPER_INFINITE
     );
-  }
-
-  @Override
-  public JPIntegerRange normalized() {
-    return JPIntegerRange.create(((mask & LOWER_INCLUSIVE) != LOWER_INCLUSIVE && lower != null) ? lower + 1 : lower,
-        (mask & UPPER_INCLUSIVE) != UPPER_INCLUSIVE && upper != null ? upper - 1 : upper, true, true);
-  }
-
-  @Override
-  public String toNormalizedString() {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append('[')
-        .append(hasLowerBound() ? hasMask(LOWER_INCLUSIVE) ? lower.toString() : ((Integer) (lower + 1)).toString() : "")
-        .append(",")
-        .append(hasUpperBound() ? hasMask(UPPER_INCLUSIVE) ? upper.toString() : ((Integer) (upper - 1)).toString() : "")
-        .append(']');
-
-    return sb.toString();
   }
 }

@@ -5,153 +5,13 @@ package mp.jprime.dataaccess.enums;
  */
 public enum FilterOperation {
   /**
-   * Не указано значение
-   */
-  ISNULL("ISNULL"),
-  /**
-   * Указано значение
-   */
-  ISNOTNULL("ISNOTNULL"),
-  /**
-   * Равно
-   */
-  EQ("EQ"),
-  /**
-   * Содержит
-   */
-  CONTAINS("CONTAINS"),
-  /**
-   * Не равно
-   */
-  NEQ("NEQ"),
-  /**
-   * Больше
-   */
-  GT("GT"),
-  /**
-   * Больше или равно
-   */
-  GTE("GTE"),
-  /**
-   * Меньше
-   */
-  LT("LT"),
-  /**
-   * Меньше или равно
-   */
-  LTE("LTE"),
-  /**
    * Между
    */
   BETWEEN("BETWEEN"),
   /**
-   * Начинается С
-   */
-  STARTSWITH("STARTSWITH"),
-  /**
-   * Не начинается С
-   */
-  NOTSTARTSWITH("NOTSTARTSWITH"),
-  /**
    * Содержит
    */
-  EXISTS("EXISTS"),
-  /**
-   * Не содержит
-   */
-  NOTEXISTS("NOTEXISTS"),
-  /**
-   * Содержит
-   */
-  LIKE("LIKE"),
-  /**
-   * Нечеткий поиск
-   */
-  FUZZYLIKE("FUZZYLIKE"),
-  /**
-   * Нечеткий поиск c учетом порядка лексем
-   */
-  FUZZYORDERLIKE("FUZZYORDERLIKE"),
-  /**
-   * В указанном списке
-   */
-  IN("IN"),
-  /**
-   * Не в указанном списке
-   */
-  NOTIN("NOTIN"),
-  /**
-   * Равно в годах
-   */
-  EQ_YEAR("EQ_YEAR"),
-  /**
-   * Не равно в годах
-   */
-  NEQ_YEAR("NEQ_YEAR"),
-  /**
-   * Больше в годах
-   */
-  GT_YEAR("GT_YEAR"),
-  /**
-   * Больше или равно в годах
-   */
-  GTE_YEAR("GTE_YEAR"),
-  /**
-   * Меньше в годах
-   */
-  LT_YEAR("LT_YEAR"),
-  /**
-   * Меньше или равно в годах
-   */
-  LTE_YEAR("LTE_YEAR"),
-  /**
-   * Равно в месяцах
-   */
-  EQ_MONTH("EQ_MONTH"),
-  /**
-   * Не равно в месяцах
-   */
-  NEQ_MONTH("NEQ_MONTH"),
-  /**
-   * Больше в месяцах
-   */
-  GT_MONTH("GT_MONTH"),
-  /**
-   * Больше или равно в месяцах
-   */
-  GTE_MONTH("GTE_MONTH"),
-  /**
-   * Меньше в месяцах
-   */
-  LT_MONTH("LT_MONTH"),
-  /**
-   * Меньше или равно в месяцах
-   */
-  LTE_MONTH("LTE_MONTH"),
-  /**
-   * Равно в днях
-   */
-  EQ_DAY("EQ_DAY"),
-  /**
-   * Не равно в днях
-   */
-  NEQ_DAY("NEQ_DAY"),
-  /**
-   * Больше в днях
-   */
-  GT_DAY("GT_DAY"),
-  /**
-   * Больше или равно в днях
-   */
-  GTE_DAY("GTE_DAY"),
-  /**
-   * Меньше в днях
-   */
-  LT_DAY("LT_DAY"),
-  /**
-   * Меньше или равно в днях
-   */
-  LTE_DAY("LTE_DAY"),
+  CONTAINS("CONTAINS"),
   /**
    * Этот диапазон содержит элемент
    */
@@ -161,35 +21,179 @@ public enum FilterOperation {
    */
   CONTAINSRANGE("CONTAINSRANGE"),
   /**
-   * Этот диапазон содержится в диапазон
+   * Равно
    */
-  OVERLAPSRANGE("OVERLAPSRANGE"),
+  EQ("EQ"),
   /**
    * Равно
    */
   EQRANGE("EQRANGE"),
   /**
-   * Не равно
+   * Равно в днях
    */
-  NEQRANGE("NEQRANGE"),
+  EQ_DAY("EQ_DAY"),
+  /**
+   * Равно в месяцах
+   */
+  EQ_MONTH("EQ_MONTH"),
+  /**
+   * Равно в годах
+   */
+  EQ_YEAR("EQ_YEAR"),
+  /**
+   * Содержит
+   */
+  EXISTS("EXISTS"),
+  /**
+   * Нечеткий поиск
+   */
+  FUZZYLIKE("FUZZYLIKE"),
+  /**
+   * Нечеткий поиск c учетом порядка лексем
+   */
+  FUZZYORDERLIKE("FUZZYORDERLIKE"),
+  /**
+   * Нечеткий поиск(без преобразования)
+   */
+  FUZZYQUERY("FUZZYQUERY"),
+  /**
+   * Больше
+   */
+  GT("GT"),
   /**
    * Больше
    */
   GTRANGE("GTRANGE"),
   /**
+   * Больше в днях
+   */
+  GT_DAY("GT_DAY"),
+  /**
+   * Больше в месяцах
+   */
+  GT_MONTH("GT_MONTH"),
+  /**
+   * Больше в годах
+   */
+  GT_YEAR("GT_YEAR"),
+  /**
+   * Больше или равно
+   */
+  GTE("GTE"),
+  /**
    * Больше или равно
    */
   GTERANGE("GTERANGE"),
+  /**
+   * Больше или равно в днях
+   */
+  GTE_DAY("GTE_DAY"),
+  /**
+   * Больше или равно в месяцах
+   */
+  GTE_MONTH("GTE_MONTH"),
+  /**
+   * Больше или равно в годах
+   */
+  GTE_YEAR("GTE_YEAR"),
+  /**
+   * В указанном списке
+   */
+  IN("IN"),
+  /**
+   * Указано значение
+   */
+  ISNOTNULL("ISNOTNULL"),
+  /**
+   * Не указано значение
+   */
+  ISNULL("ISNULL"),
+  /**
+   * Содержит
+   */
+  LIKE("LIKE"),
+  /**
+   * Меньше
+   */
+  LT("LT"),
   /**
    * Меньше
    */
   LTRANGE("LTRANGE"),
   /**
+   * Меньше в днях
+   */
+  LT_DAY("LT_DAY"),
+  /**
+   * Меньше в месяцах
+   */
+  LT_MONTH("LT_MONTH"),
+  /**
+   * Меньше в годах
+   */
+  LT_YEAR("LT_YEAR"),
+  /**
    * Меньше или равно
    */
-  LTERANGE("LTERANGE");
+  LTE("LTE"),
+  /**
+   * Меньше или равно
+   */
+  LTERANGE("LTERANGE"),
+  /**
+   * Меньше или равно в днях
+   */
+  LTE_DAY("LTE_DAY"),
+  /**
+   * Меньше или равно в месяцах
+   */
+  LTE_MONTH("LTE_MONTH"),
+  /**
+   * Меньше или равно в годах
+   */
+  LTE_YEAR("LTE_YEAR"),
+  /**
+   * Не равно
+   */
+  NEQ("NEQ"),
+  /**
+   * Не равно
+   */
+  NEQRANGE("NEQRANGE"),
+  /**
+   * Не равно в днях
+   */
+  NEQ_DAY("NEQ_DAY"),
+  /**
+   * Не равно в месяцах
+   */
+  NEQ_MONTH("NEQ_MONTH"),
+  /**
+   * Не равно в годах
+   */
+  NEQ_YEAR("NEQ_YEAR"),
+  /**
+   * Не содержит
+   */
+  NOTEXISTS("NOTEXISTS"),
+  /**
+   * Не в указанном списке
+   */
+  NOTIN("NOTIN"),
+  /**
+   * Не начинается С
+   */
+  NOTSTARTSWITH("NOTSTARTSWITH"),
+  /**
+   * Этот диапазон содержится в диапазон
+   */
+  OVERLAPSRANGE("OVERLAPSRANGE"),
+  /**
+   * Начинается С
+   */
+  STARTSWITH("STARTSWITH");
 
-  private String code;
+  private final String code;
 
   FilterOperation(String code) {
     this.code = code;

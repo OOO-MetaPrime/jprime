@@ -29,76 +29,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
   }
 
   /**
-   * Создание с двух сторон открытого диапазона.
-   *
-   * <pre>{@code
-   *     (a, b) = {x | a < x < b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPDateRange open(LocalDate lower, LocalDate upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPDateRange(lower, upper, LOWER_EXCLUSIVE | UPPER_EXCLUSIVE);
-  }
-
-  /**
-   * Создание открытого слева и закрытого справа диапазона.
-   *
-   * <pre>{@code
-   *     (a, b] = {x | a < x <= b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPDateRange openClosed(LocalDate lower, LocalDate upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPDateRange(lower, upper, LOWER_EXCLUSIVE | UPPER_INCLUSIVE);
-  }
-
-  /**
-   * Создание закрытого слева и открытого справа диапазона.
-   *
-   * <pre>{@code
-   *     [a, b) = {x | a <= x < b}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPDateRange closedOpen(LocalDate lower, LocalDate upper) {
-    Objects.requireNonNull(lower);
-    Objects.requireNonNull(upper);
-    return new JPDateRange(lower, upper, LOWER_INCLUSIVE | UPPER_EXCLUSIVE);
-  }
-
-  /**
-   * Создание слева открытого, справа неограниченного диапазона.
-   *
-   * <pre>{@code
-   *     (a, +∞) = {x | x > a}
-   * }</pre>
-   *
-   * @param lower The lower bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPDateRange openInfinite(LocalDate lower) {
-    Objects.requireNonNull(lower);
-    return new JPDateRange(lower, null, LOWER_EXCLUSIVE | UPPER_INFINITE);
-  }
-
-  /**
    * Создание слева закрытого, справа неограниченного диапазона
    *
    * <pre>{@code
@@ -112,22 +42,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
   public static JPDateRange closedInfinite(LocalDate lower) {
     Objects.requireNonNull(lower);
     return new JPDateRange(lower, null, LOWER_INCLUSIVE | UPPER_INFINITE);
-  }
-
-  /**
-   * Создание слева неограниченного, справа открытого диапазона.
-   *
-   * <pre>{@code
-   *     (-∞, b) = {x | x < b}
-   * }</pre>
-   *
-   * @param upper The upper bound, never null.
-   * @return The range.
-   */
-  @SuppressWarnings("unchecked")
-  public static JPDateRange infiniteOpen(LocalDate upper) {
-    Objects.requireNonNull(upper);
-    return new JPDateRange(null, upper, UPPER_EXCLUSIVE | LOWER_INFINITE);
   }
 
   /**
@@ -163,16 +77,13 @@ public final class JPDateRange extends JPRange<LocalDate> {
   /**
    * Создание {@code LocalDate} диапазона из переданных значений
    *
-   * @param lower      нижняя граница
-   * @param upper      верхняя граница
-   * @param lowerClose - признак вхождения нижней границы
-   * @param upperClose - признак вхождения верхней границы
+   * @param lower нижняя граница
+   * @param upper верхняя граница
    * @return The range of {@code LocalDate}s.
    * @throws DateTimeParseException when one of the bounds are invalid.
    */
-  public static JPDateRange create(LocalDate lower, LocalDate upper, boolean lowerClose, boolean upperClose) {
-    int mask = lowerClose ? LOWER_INCLUSIVE : LOWER_EXCLUSIVE;
-    mask |= upperClose ? UPPER_INCLUSIVE : UPPER_EXCLUSIVE;
+  public static JPDateRange create(LocalDate lower, LocalDate upper) {
+    int mask = LOWER_INCLUSIVE | UPPER_INCLUSIVE;
     if (lower == null) {
       mask |= LOWER_INFINITE;
     }
@@ -188,22 +99,5 @@ public final class JPDateRange extends JPRange<LocalDate> {
         null,
         LOWER_INFINITE | UPPER_INFINITE
     );
-  }
-
-  public JPDateRange normalized() {
-    return JPDateRange.create(((mask & LOWER_INCLUSIVE) != LOWER_INCLUSIVE && lower != null) ? lower.plusDays(1) : lower,
-        (mask & UPPER_INCLUSIVE) != UPPER_INCLUSIVE && upper != null ? upper.minusDays(1) : upper, true, true);
-  }
-
-  public String toNormalizedString() {
-    StringBuilder sb = new StringBuilder();
-
-    sb.append('[')
-        .append(hasLowerBound() ? hasMask(LOWER_INCLUSIVE) ? lower.toString() : (lower.plusDays(1)).toString() : "")
-        .append(",")
-        .append(hasUpperBound() ? hasMask(UPPER_INCLUSIVE) ? upper.toString() : (upper.minusDays(1)).toString() : "")
-        .append(']');
-
-    return sb.toString();
   }
 }

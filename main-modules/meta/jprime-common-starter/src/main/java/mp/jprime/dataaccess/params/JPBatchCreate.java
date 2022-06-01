@@ -13,8 +13,8 @@ import java.util.Map;
 public class JPBatchCreate extends JPBatchSave {
   private final String jpClass;
 
-  public JPBatchCreate(Collection<Map<String, Object>> data, Source source, AuthInfo auth, String jpClass) {
-    super(data, source, auth);
+  private JPBatchCreate(Collection<Map<String, Object>> data, boolean onConflictDoNothing, Source source, AuthInfo auth, String jpClass) {
+    super(data, onConflictDoNothing, source, auth);
     this.jpClass = jpClass;
   }
 
@@ -59,7 +59,7 @@ public class JPBatchCreate extends JPBatchSave {
      */
     @Override
     public JPBatchCreate build() {
-      return new JPBatchCreate(allData, source, auth, jpClass);
+      return new JPBatchCreate(allData, onConflictDoNothing, source, auth, jpClass);
     }
 
     /**

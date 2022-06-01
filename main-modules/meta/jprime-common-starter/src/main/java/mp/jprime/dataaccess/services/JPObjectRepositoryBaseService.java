@@ -164,7 +164,7 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
   }
 
   @Override
-  public <T extends JPObject> Collection<T> getList(JPSelect select) {
+  public Collection<JPObject> getList(JPSelect select) {
     return getRepository(select.getJpClass()).getList(select);
   }
 

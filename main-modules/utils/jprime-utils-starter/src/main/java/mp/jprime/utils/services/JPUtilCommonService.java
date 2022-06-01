@@ -336,8 +336,8 @@ public final class JPUtilCommonService implements JPUtilService {
               }
               String subject = authInfo.getUsername();
               try {
-                String s = jpJsonMapper.getObjectMapper().writeValueAsString(in);
                 if (!CHECK_MODE.equals(modeCode) && x.isActionLog()) { // не логируем чеки
+                  String s = jpJsonMapper.getObjectMapper().writeValueAsString(in);
                   appLogger.debug(Event.UTIL_RUN, subject, utilCode + "/mode/" + modeCode, s, authInfo);
                 }
 

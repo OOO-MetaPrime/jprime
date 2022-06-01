@@ -77,7 +77,7 @@ public interface JPObjectRepositoryService {
    * @param select Параметры для выборки
    * @return Список объектов
    */
-  <T extends JPObject> Collection<T> getList(JPSelect select);
+  Collection<JPObject> getList(JPSelect select);
 
   /**
    * Возвращает результаты агрегации

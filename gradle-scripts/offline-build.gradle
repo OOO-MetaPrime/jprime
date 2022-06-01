@@ -8,9 +8,9 @@ task buildOffline(type: GradleBuild, description: 'Сборка проекта �
 
 task zipMavenLocal(type: Zip, description: 'Упаковка зависимостей', group: 'build offline') {
   archiveName 'dependencies.zip'
-  from   "${rootProject.projectDir}/../projects-modules/dependencies"
+  from   "${rootProject.projectDir}/../projects-modules"
   include 'dependencies/**/*'
-  destinationDirectory = file('.')
+  destinationDirectory = file("${rootProject.projectDir}/../projects-modules")
 }
 
 task cacheToMavenLocal(type: Copy, description: 'Подготовка всех зависимостей для сборки без интернета', group: 'build offline') {

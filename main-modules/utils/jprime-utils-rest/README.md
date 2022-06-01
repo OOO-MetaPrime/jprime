@@ -19,9 +19,9 @@ REST-методы работы утилит
 
 ``POST /utils/v1/<код утилиты>/mode/<код шага утилиты>``
 
-Входные и выходные параметры произвольный REST, который сериализуется, десериализуется в параметры метода
+#### Пример c REST запросом
 
-#### Пример
+Входные и выходные параметры произвольный REST, который сериализуется, десериализуется в параметры метода
 
 ``POST /utils/v1/hello/mode/response``
 
@@ -31,6 +31,28 @@ REST-методы работы утилит
 {
     "request": "hello"
 }
+```
+
+* ответ
+
+```json
+{
+    "changeData": false,
+    "response": "Thanx for hello",
+    "resultType": "custom"
+}
+```
+
+#### Пример c multipart/form-data запросом
+
+``POST /utils/v1/hello/mode/response``
+
+* запрос
+
+```multipart/form-data
+
+"file": <binary>,
+"request": "hello"
 ```
 
 * ответ

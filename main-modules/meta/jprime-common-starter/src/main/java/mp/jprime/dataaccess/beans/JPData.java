@@ -8,20 +8,36 @@ import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
- * Данные объекта
+ * Неизменяемые данные
  */
 public final class JPData implements JPAttrData {
-  private final static JPData EMPTY = new JPData(null);
+  private final static JPData EMPTY = new JPData();
 
   private final Map<String, Object> data;
 
   /**
    * Конструктор
+   */
+  private JPData() {
+    this.data = Collections.emptyMap();
+  }
+
+  /**
+   * Конструктор
    *
-   * @param data Данные объекта
+   * @param data Данные
    */
   private JPData(Map<String, Object> data) {
-    this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : new HashMap<>(data));
+    this.data = data == null ? Collections.emptyMap() : Collections.unmodifiableMap(new HashMap<>(data));
+  }
+
+  /**
+   * Конструктор
+   *
+   * @param data Данные
+   */
+  private JPData(JPMutableData data) {
+    this.data = data == null ? Collections.emptyMap() : Collections.unmodifiableMap(data.toMap());
   }
 
 
@@ -96,6 +112,16 @@ public final class JPData implements JPAttrData {
   /**
    * Построитель JPData
    *
+   * @param data JPMutableData
+   * @return JPData
+   */
+  public static JPData of(JPMutableData data) {
+    return new JPData(data);
+  }
+
+  /**
+   * Построитель JPData
+   *
    * @return Builder
    */
   public static Builder newBuilder() {
@@ -123,9 +149,9 @@ public final class JPData implements JPAttrData {
 
 
     /**
-     * Данные объекта
+     * Данные
      *
-     * @param data Данные объекта
+     * @param data Данные
      * @return Builder
      */
     public Builder data(Map<String, Object> data) {

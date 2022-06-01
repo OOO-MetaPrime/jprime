@@ -13,8 +13,8 @@ public enum Event implements mp.jprime.log.Event {
    */
   JVM_NONHEAP_MEMORY_LIMIT_WARNINIG("jvm.nonheap.memory.limit.warning", true);
 
-  private String code;
-  private boolean success;
+  private final String code;
+  private final boolean success;
 
   Event(String code, boolean success) {
     this.code = code;

@@ -20,6 +20,7 @@ public class DoubleToStringParser implements TypeParser<Double, String> {
     DecimalFormatSymbols dfs = new DecimalFormatSymbols();
     dfs.setDecimalSeparator('.');
     df.setGroupingUsed(false);
+    df.setMaximumFractionDigits(Integer.MAX_VALUE);
     df.setDecimalFormatSymbols(dfs);
     return df;
   }

@@ -92,7 +92,10 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
       }
       cache.classes.add(cls);
       cache.codeJpClassMap.put(cls.getCode(), cls);
-      cache.pluralCodeJpClassMap.put(cls.getPluralCode(), cls);
+      String pluralCode = cls.getPluralCode();
+      if (StringUtils.hasText(pluralCode)) {
+        cache.pluralCodeJpClassMap.put(pluralCode, cls);
+      }
     }
   }
 
@@ -114,7 +117,10 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
         if (cls.isImmutable()) {
           newCache.classes.add(cls);
           newCache.codeJpClassMap.put(cls.getCode(), cls);
-          newCache.pluralCodeJpClassMap.put(cls.getPluralCode(), cls);
+          String pluralCode = cls.getPluralCode();
+          if (StringUtils.hasText(pluralCode)) {
+            newCache.pluralCodeJpClassMap.put(pluralCode, cls);
+          }
         }
       }
       // Добавляем динамические настройки
@@ -125,7 +131,10 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
         }
         newCache.classes.add(cls);
         newCache.codeJpClassMap.put(code, cls);
-        newCache.pluralCodeJpClassMap.put(cls.getPluralCode(), cls);
+        String pluralCode = cls.getPluralCode();
+        if (StringUtils.hasText(pluralCode)) {
+          newCache.pluralCodeJpClassMap.put(pluralCode, cls);
+        }
       }
       // Подменяем кеш после инициализации
       if (cacheRef.compareAndSet(oldCache, newCache)) {
@@ -196,9 +205,9 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
       return null;
     }
     Cache cache = cacheRef.get();
-    JPClass jpClass = cache.pluralCodeJpClassMap.get(code);
+    JPClass jpClass = cache.codeJpClassMap.get(code);
     if (jpClass == null) {
-      jpClass = cache.codeJpClassMap.get(code);
+      jpClass = cache.pluralCodeJpClassMap.get(code);
     }
     return jpClass;
   }

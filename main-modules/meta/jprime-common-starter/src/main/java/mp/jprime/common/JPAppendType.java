@@ -24,7 +24,7 @@ public enum JPAppendType {
   /**
    * Код типа утилиты
    */
-  private String code;
+  private final String code;
 
   JPAppendType(String code) {
     this.code = code;

@@ -4,7 +4,6 @@
 	<jpClass>
 		<guid>92566524-c57b-4656-be9b-4357bc56ea08</guid>
 		<code>personalCard</code>
-		<pluralCode>personalCards</pluralCode>
 		<qName>jpClass.className1.PersonalCard</qName>
 		<description>Личное дело содержит сведения, предоставляемые гражданином в процессе обращения в ОСЗН; сведения, поступающие из внешних организаций; сведения, формируемые непосредственно в ОСЗН</description>
 		<jpAttrs>
@@ -18,7 +17,7 @@
 			</jpAttr>
 			<jpAttr>
 				<guid>120a6804-b77c-4047-941f-0be44e41cb65</guid>
-				<code>birthDate</code>				
+				<code>birthDate</code>
 				<type>date</type>
 				<qName>jpClass.className1.PersonalCard.birthDate</qName>
 				<description>Дата рождения гражданина</description>

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Service
 public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<JPObject> {
   private Map<String, JPObject> jpBeans = new HashMap<>();
-  private Map<String, Collection<String>> defaultJpAttrCollections = new HashMap<>();
+  private final Map<String, Collection<String>> defaultJpAttrCollections = new HashMap<>();
 
   /**
    * Считываем аннотации

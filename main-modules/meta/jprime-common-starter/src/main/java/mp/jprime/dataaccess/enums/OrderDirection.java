@@ -13,7 +13,7 @@ public enum OrderDirection {
    */
   DESC("DESC");
 
-  private String code;
+  private final String code;
 
   OrderDirection(String code) {
     this.code = code;

@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class XmlJpClassMaps {
   @JacksonXmlProperty(localName = "jpClassMap")
   @JacksonXmlElementWrapper(useWrapping = false)
-  private XmlJpClassMap[] jpClassMaps;
+  private mp.jprime.metamaps.xmlloader.beans.XmlJpClassMap[] jpClassMaps;
 
   public XmlJpClassMap[] getJpClassMaps() {
     return jpClassMaps;

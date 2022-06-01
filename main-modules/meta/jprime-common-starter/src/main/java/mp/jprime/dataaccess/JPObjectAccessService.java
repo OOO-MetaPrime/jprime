@@ -2,7 +2,11 @@ package mp.jprime.dataaccess;
 
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.dataaccess.beans.JPObjectAccess;
+import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
+
+import java.util.Collection;
 
 /**
  * Интерфейс проверки доступа к объекту
@@ -138,4 +142,24 @@ public interface JPObjectAccessService {
    * @return Да/Нет
    */
   boolean checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth);
+
+  /**
+   * Массовая проверка объектов на доступ
+   *
+   * @param jpClass Класс объектов
+   * @param keys    Список id
+   * @param auth    AuthInfo
+   * @return Список доступов к объектам
+   */
+  Collection<JPObjectAccess> objectsAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth);
+
+  /**
+   * Массовая проверка объектов на изменение
+   *
+   * @param jpClass Класс объектов
+   * @param keys    Список id
+   * @param auth    AuthInfo
+   * @return Список доступов к объектам
+   */
+  Collection<JPObjectAccess> objectsChangeAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth);
 }

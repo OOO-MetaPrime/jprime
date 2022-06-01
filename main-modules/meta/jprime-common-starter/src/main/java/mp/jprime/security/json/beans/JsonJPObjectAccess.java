@@ -202,5 +202,16 @@ public final class JsonJPObjectAccess {
     public Builder attrEdit(String attrCode, boolean isEdit) {
       return attrAccess(attrCode, Boolean.TRUE, isEdit);
     }
+
+    /**
+     * Настройки доступа к атрибуту
+     *
+     * @param editAttrs доступы к атрибуту
+     * @return Builder
+     */
+    public Builder attrEdit(Map<String, Boolean> editAttrs) {
+      this.editAttrs.putAll(editAttrs);
+      return this;
+    }
   }
 }

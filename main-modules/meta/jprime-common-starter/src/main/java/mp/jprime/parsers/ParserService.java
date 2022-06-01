@@ -60,7 +60,8 @@ public final class ParserService {
     }
     if (to.isInstance(value)) {
       if (to == String.class) {
-        value = ((String) value).trim();
+        String s = ((String) value).trim();
+        value = s.length() == 0 ? null : s;
       }
       return (T) value;
     }

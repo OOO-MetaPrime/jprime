@@ -9,6 +9,9 @@ dependencyResolutionManagement {
     crypto {
       from(files("crypto.toml"))
     }
+    groovy {
+      from(files("groovy.toml"))
+    }
     libs {
       from(files("libs.toml"))
     }

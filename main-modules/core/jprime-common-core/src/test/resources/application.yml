@@ -1,0 +1,9 @@
+jprime:
+  test:
+    kafka:
+      kafkaServers: 172.16.1.171:9092
+      producers:
+        kafkaTopic: mp-test-event-test
+      consumers:
+        kafkaTopic: mp-test-event-test
+        groupId: mp-test-server-group-id

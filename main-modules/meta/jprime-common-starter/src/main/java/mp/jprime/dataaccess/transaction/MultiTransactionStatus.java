@@ -48,7 +48,7 @@ class MultiTransactionStatus implements TransactionStatus {
 
   void commit(PlatformTransactionManager transactionManager) {
     TransactionStatus status = getTransactionStatus(transactionManager);
-    if (!status.isCompleted()) {
+    if (status != null && !status.isCompleted()) {
       transactionManager.commit(status);
     }
   }
@@ -60,7 +60,7 @@ class MultiTransactionStatus implements TransactionStatus {
    */
   void rollback(PlatformTransactionManager transactionManager) {
     TransactionStatus status = getTransactionStatus(transactionManager);
-    if (!status.isCompleted()) {
+    if (status != null && !status.isCompleted()) {
       transactionManager.rollback(status);
     }
   }

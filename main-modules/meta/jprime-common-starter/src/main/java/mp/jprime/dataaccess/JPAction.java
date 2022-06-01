@@ -22,7 +22,7 @@ public enum JPAction {
   DELETE("delete");
 
 
-  private String code;
+  private final String code;
 
   JPAction(String code) {
     this.code = code;

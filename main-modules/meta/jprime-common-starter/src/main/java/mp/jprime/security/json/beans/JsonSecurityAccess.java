@@ -29,8 +29,10 @@ public class JsonSecurityAccess {
 
   }
 
-  private JsonSecurityAccess(String guid, String type, String role,
-                             boolean read, boolean create, boolean update, boolean delete) {
+  private JsonSecurityAccess(
+      String guid, String type, String role,
+      boolean read, boolean create, boolean update, boolean delete
+  ) {
     this.guid = guid;
     this.type = type;
     this.role = role;

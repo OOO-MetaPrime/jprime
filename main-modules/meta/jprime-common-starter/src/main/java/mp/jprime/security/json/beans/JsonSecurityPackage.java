@@ -29,8 +29,10 @@ public final class JsonSecurityPackage {
 
   }
 
-  private JsonSecurityPackage(String guid, String code, String name, String description, String qName,
-                              Collection<JsonSecurityAccess> accesses) {
+  private JsonSecurityPackage(
+      String guid, String code, String name, String description, String qName,
+      Collection<JsonSecurityAccess> accesses
+  ) {
     this.guid = guid;
     this.code = code;
     this.name = name;

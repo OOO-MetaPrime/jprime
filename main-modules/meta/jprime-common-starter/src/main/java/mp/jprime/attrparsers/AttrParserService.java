@@ -62,7 +62,7 @@ public final class AttrParserService {
       return;
     }
     AttrTypeParser parser = parsers.get(jpAttr.getValueType());
-    if (parser != null) {
+    if (parser != null && attrValue != null && parser.getOutputType() == attrValue.getClass()) {
       parser.fill(jpAttr, attrValue, data);
     } else if (!data.containsAttr(jpAttr)) {
       // Если парсера нет, приводим значение "as is"

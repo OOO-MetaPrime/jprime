@@ -42,13 +42,19 @@ public class StringToJPIntegerRange implements TypeParser<String, JPIntegerRange
 
     if (!(lowerStr.length() == 0 || lowerStr.endsWith(JPRange.INFINITY))) {
       lower = Integer.parseInt(lowerStr);
+      if (!lowerClose) {
+        lower++;
+      }
     }
 
     if (!(upperStr.length() == 0 || upperStr.endsWith(JPRange.INFINITY))) {
       upper = Integer.parseInt(upperStr);
+      if (!upperClose) {
+        upper--;
+      }
     }
 
-    return JPIntegerRange.create(lower, upper, lowerClose, upperClose);
+    return JPIntegerRange.create(lower, upper);
   }
 
   /**

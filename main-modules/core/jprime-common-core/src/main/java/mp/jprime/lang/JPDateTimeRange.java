@@ -202,14 +202,4 @@ public final class JPDateTimeRange extends JPRange<LocalDateTime> {
 
     return sb.toString();
   }
-
-  @Override
-  public JPDateTimeRange normalized() {
-    return this;
-  }
-
-  @Override
-  public String toNormalizedString() {
-    return toString();
-  }
 }

@@ -5,8 +5,7 @@ import mp.jprime.security.annotations.JPPackage;
 import mp.jprime.security.annotations.JPPackages;
 import mp.jprime.security.beans.JPAccessType;
 
-import static mp.jprime.security.Role.ADMIN;
-import static mp.jprime.security.Role.AUTH_ACCESS;
+import static mp.jprime.security.Role.*;
 
 @JPPackages(
     {
@@ -102,6 +101,21 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
             }
         ),
         @JPPackage(
+            code = BaseAccess.FEATURES_ADMIN_ACCESS,
+            description = "Полный доступ для роли FEATURES_ADMIN",
+            name = "Полный доступ для роли FEATURES_ADMIN",
+            access = {
+                @JPAccess(
+                    type = JPAccessType.PERMIT,
+                    role = FEATURES_ADMIN,
+                    read = true,
+                    create = true,
+                    update = true,
+                    delete = true
+                )
+            }
+        ),
+        @JPPackage(
             code = BaseAccess.COMMON_ACCESS,
             description = "Полный доступ для любой роли",
             name = "Полный доступ для любой роли",
@@ -180,6 +194,10 @@ public class BaseAccess implements JPSecuritySettings {
    * Полный доступ для роли ADMIN
    */
   public final static String ADMIN_ACCESS = "adminAccess";
+  /**
+   * Полный доступ для роли FEATURES_ADMIN
+   */
+  public final static String FEATURES_ADMIN_ACCESS = "featuresAdminAccess";
   /**
    * Полный доступ для любой роли
    */

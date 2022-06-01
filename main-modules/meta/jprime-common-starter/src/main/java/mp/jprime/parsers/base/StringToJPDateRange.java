@@ -45,13 +45,19 @@ public class StringToJPDateRange implements TypeParser<String, JPDateRange> {
 
     if (!(lowerStr.length() == 0 || lowerStr.endsWith(JPRange.INFINITY))) {
       lower = LocalDate.parse(lowerStr, DateFormat.LOCAL_DATE_FORMAT);
+      if (!lowerClose) {
+        lower = lower.plusDays(1);
+      }
     }
 
     if (!(upperStr.length() == 0 || upperStr.endsWith(JPRange.INFINITY))) {
       upper = LocalDate.parse(upperStr, DateFormat.LOCAL_DATE_FORMAT);
+      if (!upperClose) {
+        upper = upper.minusDays(1);
+      }
     }
 
-    return JPDateRange.create(lower, upper, lowerClose, upperClose);
+    return JPDateRange.create(lower, upper);
   }
 
   /**

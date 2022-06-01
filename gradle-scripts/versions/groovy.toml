@@ -1,0 +1,11 @@
+# Groovy
+[versions]
+groovyAllVersion = "3.0.9"
+groovySandboxVersion = "1.19"
+
+[libraries]
+groovy-all = { module="org.codehaus.groovy:groovy-all", version.ref="groovyAllVersion" }
+groovy-sandbox = { module="org.kohsuke:groovy-sandbox", version.ref="groovySandboxVersion" }
+
+[bundles]
+groovy-v1 = ['groovy-all','groovy-sandbox']

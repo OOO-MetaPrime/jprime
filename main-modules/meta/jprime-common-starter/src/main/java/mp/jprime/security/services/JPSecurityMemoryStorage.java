@@ -25,22 +25,18 @@ import java.util.concurrent.ConcurrentHashMap;
 @Lazy(value = false)
 public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   /**
-   * Описания настроек бeзoпacнocти
+   * Описания настроек безопасности
    */
   private Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
   /**
-   * Динамическая загрузка настроек бeзoпacнocти
+   * Динамическая загрузка настроек безопасности
    */
   private JPSecurityDynamicLoader dynamicLoader;
 
   /**
    * Считываем настройки доступа
    */
-  private JPSecurityMemoryStorage(@Autowired JPSecurityAnnoLoader annoLoader,
-                                  @Autowired JPSecurityXmlLoader xmlLoader,
-                                  @Autowired(required = false) JPSecurityDynamicLoader dLoader) {
-    this.dynamicLoader = dLoader;
-
+  private JPSecurityMemoryStorage(@Autowired JPSecurityAnnoLoader annoLoader, @Autowired JPSecurityXmlLoader xmlLoader) {
     Collection<Flux<JPSecurityPackage>> p = new ArrayList<>();
     p.add(annoLoader.load());
     p.add(xmlLoader.load());

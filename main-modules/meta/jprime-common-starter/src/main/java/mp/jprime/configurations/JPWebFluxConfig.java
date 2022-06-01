@@ -1,5 +1,6 @@
 package mp.jprime.configurations;
 
+import mp.jprime.web.JPWebClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +22,7 @@ import org.synchronoss.cloud.nio.multipart.DefaultPartBodyStreamStorageFactory;
 @Configuration
 @Lazy(value = false)
 public class JPWebFluxConfig extends WebFluxConfigurationSupport {
-  private Logger LOG = LoggerFactory.getLogger(JPWebFluxConfig.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JPWebFluxConfig.class);
   private Jackson2JsonEncoder encoder;
   private Jackson2JsonDecoder decoder;
 
@@ -39,9 +40,11 @@ public class JPWebFluxConfig extends WebFluxConfigurationSupport {
   public void configureHttpMessageCodecs(ServerCodecConfigurer configurer) {
     SynchronossPartHttpMessageReader reader = new SynchronossPartHttpMessageReader();
     configurer.customCodecs().register(reader);
-    configurer.defaultCodecs().jackson2JsonEncoder(encoder);
-    configurer.defaultCodecs().jackson2JsonDecoder(decoder);
-    configurer.defaultCodecs().multipartReader(new MultipartHttpMessageReader(reader));
+    ServerCodecConfigurer.ServerDefaultCodecs codecs = configurer.defaultCodecs();
+    codecs.jackson2JsonEncoder(encoder);
+    codecs.jackson2JsonDecoder(decoder);
+    codecs.maxInMemorySize(JPWebClient.MAX_IN_MEMORY_SIZE);
+    codecs.multipartReader(new MultipartHttpMessageReader(reader));
   }
 
   @Override

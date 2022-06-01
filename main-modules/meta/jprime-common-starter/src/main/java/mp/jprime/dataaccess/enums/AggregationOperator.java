@@ -29,7 +29,7 @@ public enum AggregationOperator {
    */
   COUNT_DISTINCT("COUNT_DISTINCT");
 
-  private String code;
+  private final String code;
 
   /**
    * Код

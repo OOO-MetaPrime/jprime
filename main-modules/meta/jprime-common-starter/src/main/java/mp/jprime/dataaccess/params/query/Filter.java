@@ -459,7 +459,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public FuzzyLike fuzzyLike(Object value) {
+    public FuzzyLike fuzzyLike(String value) {
       return new FuzzyLike(attrCode, value);
     }
 
@@ -469,8 +469,18 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public FuzzyOrderLike fuzzyOrderLike(Object value) {
+    public FuzzyOrderLike fuzzyOrderLike(String value) {
       return new FuzzyOrderLike(attrCode, value);
+    }
+
+    /**
+     * Нечеткий поиск без преобразования
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public FuzzyQuery fuzzyQuery(String value) {
+      return new FuzzyQuery(attrCode, value);
     }
 
     /**

@@ -3,12 +3,14 @@ package mp.jprime.json.services;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.formats.DateFormat;
 import mp.jprime.json.beans.*;
 import mp.jprime.lang.*;
@@ -18,6 +20,7 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -33,6 +36,15 @@ import java.util.TimeZone;
  */
 @Service
 public class JPJsonMapper {
+  public final static long MAX_SAFE_INTEGER = sun.misc.DoubleConsts.SIGNIF_BIT_MASK * 2 + 1;
+  public final static long MIN_SAFE_INTEGER = -1 * MAX_SAFE_INTEGER;
+
+  public final static BigDecimal MAX_SAFE_BIGDECIMAL = BigDecimal.valueOf(MAX_SAFE_INTEGER);
+  public final static BigDecimal MIN_SAFE_BIGDECIMAL =  BigDecimal.valueOf(MIN_SAFE_INTEGER);
+
+  public final static BigInteger MAX_SAFE_BIGINTEGER = BigInteger.valueOf(MAX_SAFE_INTEGER);
+  public final static BigInteger MIN_SAFE_BIGINTEGER =  BigInteger.valueOf(MIN_SAFE_INTEGER);
+
   private final ObjectMapper OBJECT_MAPPER;
 
   public JPJsonMapper() {
@@ -95,7 +107,7 @@ public class JPJsonMapper {
                   @Override
                   public JPIntegerRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     JsonIntegerRange range = ctxt.readValue(p, JsonIntegerRange.class);
-                    return JPIntegerRange.create(range.getLower(), range.getUpper(), range.isCloseLower(), range.isCloseUpper());
+                    return JPIntegerRange.create(range.getLower(), range.getUpper());
                   }
                 })
                 // String to DateRange
@@ -103,7 +115,7 @@ public class JPJsonMapper {
                   @Override
                   public JPDateRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
                     JsonDateRange range = ctxt.readValue(p, JsonDateRange.class);
-                    return JPDateRange.create(range.getLower(), range.getUpper(), range.isCloseLower(), range.isCloseUpper());
+                    return JPDateRange.create(range.getLower(), range.getUpper());
                   }
                 })
                 // String to DateTimeRange
@@ -206,8 +218,6 @@ public class JPJsonMapper {
                         JsonIntegerRange json = new JsonIntegerRange();
                         json.setLower(v.lower());
                         json.setUpper(v.upper());
-                        json.setCloseLower(v.isLowerBoundClosed());
-                        json.setCloseUpper(v.isUpperBoundClosed());
                         jGen.writeObject(json);
                       }
                     })
@@ -219,8 +229,6 @@ public class JPJsonMapper {
                         JsonDateRange json = new JsonDateRange();
                         json.setLower(v.lower());
                         json.setUpper(v.upper());
-                        json.setCloseLower(v.isLowerBoundClosed());
-                        json.setCloseUpper(v.isUpperBoundClosed());
                         jGen.writeObject(json);
                       }
                     })
@@ -242,7 +250,36 @@ public class JPJsonMapper {
                     new JsonSerializer<BigDecimal>() {
                       @Override
                       public void serialize(BigDecimal v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
-                        jGen.writeNumber(v.setScale(2, BigDecimal.ROUND_HALF_UP));
+                        // При длине > 16 символов браузер игнорирует другие цифры
+                        if (v.precision() > 16 || v.compareTo(MIN_SAFE_BIGDECIMAL) < 0 || v.compareTo(MAX_SAFE_BIGDECIMAL) > 0) {
+                          jGen.writeString(v.toString());
+                        } else {
+                          jGen.writeNumber(v);
+                        }
+                      }
+                    })
+                // Long to String
+                .addSerializer(Long.class,
+                    new JsonSerializer<Long>() {
+                      @Override
+                      public void serialize(Long v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        if (v < MIN_SAFE_INTEGER || v > MAX_SAFE_INTEGER) {
+                          jGen.writeString(v.toString());
+                        } else {
+                          jGen.writeNumber(v);
+                        }
+                      }
+                    })
+                // BigInteger to String
+                .addSerializer(BigInteger.class,
+                    new JsonSerializer<BigInteger>() {
+                      @Override
+                      public void serialize(BigInteger v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                        if (v.compareTo(MIN_SAFE_BIGINTEGER) < 0 || v.compareTo(MAX_SAFE_BIGINTEGER) > 0) {
+                          jGen.writeString(v.toString());
+                        } else {
+                          jGen.writeNumber(v);
+                        }
                       }
                     })
                 // JPJsonNode to JsonNode
@@ -256,6 +293,7 @@ public class JPJsonMapper {
                 )
         )
         .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+        .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
         // Игнорируем пустые значения
         .setSerializationInclusion(JsonInclude.Include.NON_NULL)
         // Игнорируем переносы строк и прочие служебные символы
@@ -268,5 +306,16 @@ public class JPJsonMapper {
 
   public ObjectMapper getObjectMapper() {
     return OBJECT_MAPPER;
+  }
+
+  public String toString(Object object) {
+    if (object == null) {
+      return null;
+    }
+    try {
+      return getObjectMapper().writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      throw JPRuntimeException.wrapException(e);
+    }
   }
 }

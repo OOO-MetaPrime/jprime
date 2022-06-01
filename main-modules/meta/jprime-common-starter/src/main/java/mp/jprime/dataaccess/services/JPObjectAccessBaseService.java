@@ -15,6 +15,8 @@ import mp.jprime.security.services.JPResourceAccessServiceAware;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.Collection;
+
 /**
  * Базовая логика проверки доступа к объекту
  */
@@ -94,6 +96,19 @@ public abstract class JPObjectAccessBaseService implements JPResourceAccessServi
         .where(
             getFilter(
                 Filter.attr(jpClass.getPrimaryKeyAttr()).eq(id.getId()),
+                access
+            )
+        )
+        .auth(auth)
+        .build();
+  }
+
+  protected JPSelect toSelect(Collection<? extends Comparable> keys, JPClass jpClass, JPResourceAccess access, AuthInfo auth) {
+    return JPSelect.from(jpClass)
+        .attr(jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) ? JPMeta.Attr.JPPACKAGE : jpClass.getPrimaryKeyAttr().getCode())
+        .where(
+            getFilter(
+                Filter.attr(jpClass.getPrimaryKeyAttr()).in(keys),
                 access
             )
         )

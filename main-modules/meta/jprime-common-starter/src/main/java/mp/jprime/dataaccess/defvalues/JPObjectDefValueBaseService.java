@@ -39,7 +39,7 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
   @Autowired(required = false)
   private void setAwares(Collection<JPObjectDefValueServiceAware> awares) {
     for (JPObjectDefValueServiceAware aware : awares) {
-      aware.setJPObjectDefValuesService(this);
+      aware.setJPObjectDefValueService(this);
     }
   }
 
@@ -104,10 +104,11 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
    * @return Список обработчиков значений по умолчанию
    */
   private Collection<JPObjectDefValue> getDefValues(String jpClassCode) {
-    if (jpObjectDefValues.containsKey(jpClassCode)) {
-      return jpObjectDefValues.get(jpClassCode);
+    Collection<JPObjectDefValue> result = jpObjectDefValues.get(jpClassCode);
+    if (result != null && !result.isEmpty()) {
+      return result;
     } else if (!uniDefValues.isEmpty()) {
-      Collection<JPObjectDefValue> result = new ArrayList<>(uniDefValues);
+      result = new ArrayList<>(uniDefValues);
       jpObjectDefValues.put(jpClassCode, result);
       return result;
     } else {
@@ -149,7 +150,7 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
     if (vals != null && !vals.isEmpty()) {
       vals.forEach(x -> x.appendValues(data, params));
     }
-    if (params.getSource() == Source.USER && authInfo != null) {
+    if (!data.isEmpty() && params.getSource() == Source.USER && authInfo != null) {
       Collection<String> removes = new ArrayList<>();
       for (Map.Entry<String, Object> entry : data.entrySet()) {
         String key = entry.getKey();

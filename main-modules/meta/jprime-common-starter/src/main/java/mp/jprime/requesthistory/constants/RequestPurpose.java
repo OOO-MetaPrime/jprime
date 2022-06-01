@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 public enum RequestPurpose {
   FIND("find", "Поиск по ключу"),
-  SEARCH("search", "Поиск");
+  SEARCH("search", "Просмотр списка");
 
   private final String code;
   private final String title;

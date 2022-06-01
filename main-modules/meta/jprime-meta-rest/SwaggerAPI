@@ -161,17 +161,17 @@ components:
           type: string
           format: string
           description: Кодовое имя
-          example: spbCompany
+          example: mpCompany
         pluralCode:
           type: string
           format: string
           description: Множественный код кодового имени
-          example: spbCompanies
+          example: mpCompanies
         qName:
           type: string
           format: string
           description: Полный код класса
-          example: 'spb.spbCompany'
+          example: 'mp.mpCompany'
         name:
           type: string
           format: string

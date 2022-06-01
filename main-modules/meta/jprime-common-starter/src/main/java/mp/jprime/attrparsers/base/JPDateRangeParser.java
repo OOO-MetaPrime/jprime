@@ -100,9 +100,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
         );
         result = JPDateRange.create(
             json.getLower(),
-            json.getUpper(),
-            json.isCloseLower(),
-            json.isCloseUpper()
+            json.getUpper()
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
@@ -119,9 +117,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
         );
         result = JPDateRange.create(
             json.getLower(),
-            json.getUpper(),
-            json.isCloseLower(),
-            json.isCloseUpper()
+            json.getUpper()
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);

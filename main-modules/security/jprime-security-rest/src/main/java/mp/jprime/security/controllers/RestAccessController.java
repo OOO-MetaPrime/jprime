@@ -3,8 +3,8 @@ package mp.jprime.security.controllers;
 import mp.jprime.dataaccess.JPAction;
 import mp.jprime.dataaccess.JPObjectAccessService;
 import mp.jprime.dataaccess.JPObjectAccessServiceAware;
-import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.conds.CollectionCond;
+import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
@@ -29,6 +29,7 @@ import reactor.core.publisher.Mono;
 import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -242,36 +243,32 @@ public class RestAccessController implements JPObjectAccessServiceAware {
       return Mono.empty();
     } else {
       return Mono.just(
-          objectIds.stream()
-              .map(id -> toJPObjectAccessModel(jpClass, id, authInfo))
-              .collect(Collectors.toList())
+          toJPObjectAccessModel(objectIds, jpClass, authInfo)
       );
     }
   }
 
-  private JsonJPObjectAccess toJPObjectAccessModel(JPClass jpClass, String objectId, AuthInfo auth) {
-    JsonJPObjectAccess.Builder builder = JsonJPObjectAccess.newBuilder()
-        .objectClassCode(jpClass.getCode())
-        .objectId(objectId)
-        .read(
-            objectAccessService.checkRead(JPId.get(jpClass.getCode(), objectId), auth)
-        )
-        .create(
-            objectAccessService.checkCreate(jpClass.getCode(), auth)
-        )
-        .update(
-            objectAccessService.checkUpdate(JPId.get(jpClass.getCode(), objectId), auth)
-        )
-        .delete(
-            objectAccessService.checkDelete(JPId.get(jpClass.getCode(), objectId), auth)
-        );
-    // Доступ к атрибутам
-    jpClass.getAttrs().stream()
+  private Collection<JsonJPObjectAccess> toJPObjectAccessModel(Collection<String> objectIds, JPClass jpClass, AuthInfo auth) {
+    //Доступ к атрибутам
+    Map<String, Boolean> attrAccess = jpClass.getAttrs().stream()
         .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
-        .forEach(
-            attr -> builder.attrEdit(attr.getCode(), attr.isUpdatable() && securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
-        );
-    return builder.build();
+        .collect(Collectors.toMap(JPAttr::getCode, attr -> attr.isUpdatable() && securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles())));
+
+    return objectAccessService.objectsAccess(
+            jpClass,
+            objectIds,
+            auth)
+        .stream()
+        .map(a -> JsonJPObjectAccess.newBuilder()
+            .objectId(a.getId().toString())
+            .objectClassCode(a.getJpClass())
+            .read(a.isRead())
+            .update(a.isUpdate())
+            .delete(a.isDelete())
+            .create(a.isCreate())
+            .attrEdit(attrAccess)
+            .build())
+        .collect(Collectors.toList());
   }
 
   private JsonAbacPolicySet toJsonPolicySet(PolicySet policySet) {
@@ -400,7 +397,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     jpClass.getAttrs().stream()
         .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
         .forEach(
-            attr -> builder.attrEdit(attr.getCode(), securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles()))
+            attr -> builder.attrEdit(attr.getCode(), securityManager.checkCreate(attr.getJpPackage(), auth.getRoles()))
         );
     return builder.build();
   }

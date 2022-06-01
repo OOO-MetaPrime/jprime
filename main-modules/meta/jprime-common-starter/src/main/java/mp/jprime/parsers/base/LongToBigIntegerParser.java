@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigInteger;
 
 /**
- * Long -> Integer
+ * Long -> BigDecimal
  */
 @Service
 public class LongToBigIntegerParser implements TypeParser<Long, BigInteger> {

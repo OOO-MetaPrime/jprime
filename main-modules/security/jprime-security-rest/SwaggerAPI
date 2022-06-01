@@ -170,7 +170,7 @@ paths:
         '5XX':
           description: Unexpected error.
 
-  '/access/v1/jpObjects/{pluralClassCode}/{objectId}':
+  '/access/v1/jpObjects/{code}/{objectId}':
     get:
       tags:
       - object
@@ -178,12 +178,12 @@ paths:
       description: Получение прав доступа текущего пользователя к указанному объекту
       parameters:
       - in: path
-        name: pluralClassCode
+        name: code
         required: true
         schema:
           type: string
           format: string
-        description: Множественный код метаописания объекта
+        description: код метаописания объекта
       - in: path
         name: objectId
         required: true

@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.listener.ConsumerRecordRecoverer;
-import org.springframework.kafka.listener.ErrorHandler;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.MessageListener;
-import org.springframework.kafka.listener.SeekToCurrentErrorHandler;
 
 import java.util.Map;
 
@@ -17,7 +15,7 @@ import java.util.Map;
  * @param <K> тип ключа события
  * @param <V> тип значения события
  */
-public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V, ErrorHandler> {
+public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerService.class);
 
   /**
@@ -43,23 +41,11 @@ public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDead
    */
   protected abstract MessageListener<K, V> getMessageListener();
 
-  /**
-   * Получает обработчик ошибок, восстанавливающий обработанные с ошибкой события в переданный топик
-   *
-   * @param recoveryTopic топик для необработанных событий
-   * @return {@link ErrorHandler обработчик ошибок}
-   */
   @Override
-  protected ErrorHandler getErrorHandler(String recoveryTopic) {
-    ConsumerRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
-    return new SeekToCurrentErrorHandler(recoverer, NO_RETRY_BACK_OFF); //TODO: заменить Deprecated
-  }
-
-  @Override
-  protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(ErrorHandler errorHandler, long pollInterval) {
+  protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval) {
     Map<String, Object> consumersProps = getConsumersProps(pollInterval);
     ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(consumersProps, pollInterval);
-    factory.setErrorHandler(errorHandler);
+    factory.setCommonErrorHandler(errorHandler);
     factory.setMissingTopicsFatal(false);
     return factory;
   }

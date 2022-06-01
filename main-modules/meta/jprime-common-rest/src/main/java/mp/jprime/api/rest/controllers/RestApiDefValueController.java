@@ -52,7 +52,7 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
   }
 
   @Override
-  public void setJPObjectDefValuesService(JPObjectDefValueService jpObjectDefValueService) {
+  public void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
     this.jpObjectDefValueService = jpObjectDefValueService;
   }
 

@@ -66,7 +66,7 @@ versionCatalogs.[group].name[.name]
 
 ```
 [versions]
-springBootVersion = "2.4.4"
+springBootVersion = "2.6.2"
 ```
 
 Использование:

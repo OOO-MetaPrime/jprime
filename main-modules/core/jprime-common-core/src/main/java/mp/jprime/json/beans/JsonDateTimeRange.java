@@ -10,5 +10,5 @@ import java.time.LocalDateTime;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_EMPTY)
-public class JsonDateTimeRange extends JsonRange<LocalDateTime> {
+public class JsonDateTimeRange extends JsonBorderRange<LocalDateTime> {
 }

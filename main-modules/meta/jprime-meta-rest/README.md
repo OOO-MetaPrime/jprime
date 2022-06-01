@@ -58,7 +58,6 @@ REST-методы публикации метаданных на чтение
         {
             "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
             "code": "userEvent",
-            "pluralCode": "userEvents",
             "qName": "common.userEvent",
             "description": "Таблица с информацией о пользовательских событиях",
             "jpPackage": "adminAccess",
@@ -101,7 +100,6 @@ REST-методы публикации метаданных на чтение
 {
     "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
     "code": "userEvent",
-    "pluralCode": "userEvents",
     "qName": "common.userEvent",
     "description": "Таблица с информацией о пользовательских событиях",
     "jpPackage": "adminAccess",

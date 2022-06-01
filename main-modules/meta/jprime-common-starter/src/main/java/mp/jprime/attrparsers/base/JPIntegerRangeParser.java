@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
- * реализация парсера {@link JPIntegerRange}
+ * реализация парсера {@link mp.jprime.lang.JPIntegerRange}
  */
 @Service
 public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
@@ -99,9 +99,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
         );
         result = JPIntegerRange.create(
             json.getLower(),
-            json.getUpper(),
-            json.isCloseLower(),
-            json.isCloseUpper()
+            json.getUpper()
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
@@ -118,9 +116,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
         );
         result = JPIntegerRange.create(
             json.getLower(),
-            json.getUpper(),
-            json.isCloseLower(),
-            json.isCloseUpper()
+            json.getUpper()
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);

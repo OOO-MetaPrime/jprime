@@ -11,9 +11,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaOperations;
+import org.springframework.kafka.listener.CommonErrorHandler;
 import org.springframework.kafka.listener.ConsumerRecordRecoverer;
 import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
-import org.springframework.kafka.listener.GenericErrorHandler;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -30,14 +31,12 @@ import java.util.regex.Pattern;
  *
  * @param <K> тип ключа события
  * @param <V> тип значения события
- * @param <E> тип обработчика ошибок
  */
-public abstract class JPKafkaDeadLetterConsumerBaseService<K, V, E extends GenericErrorHandler<?>> extends JPKafkaDynamicConsumerBaseService<K, V> {
+public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafkaDynamicConsumerBaseService<K, V> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerBaseService.class);
   private static final String TOPIC_NUMBER_DELIMITER = "-";
   private static final long NO_TIME_INTERVAL = 0L;
   private static final Collection<Long> DEFAULT_POLL_INTERVALS = Collections.singletonList(NO_TIME_INTERVAL);
-  private static final int DEFAULT_MAX_POLL_INTERVAL = 300_000;
   protected static final FixedBackOff NO_RETRY_BACK_OFF = new FixedBackOff(0, 1);
 
   @Value("${jprime.kafka.dead-letter-consumers.poll-interval:60000}")
@@ -60,7 +59,7 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V, E extends Gener
       //Если слушатель - единственный в каскаде, то он восстанавливает события в свой же топик
       String previousRecoveryTopic = first && last ? getTopic() : getTopic(i - 1);
       //Если это последний слушатель каскада, то он восстанавливает события в recoveryTopic предыдущего слушателя
-      E errorHandler = last ?
+      CommonErrorHandler errorHandler = last ?
           getErrorHandler(previousRecoveryTopic) : getErrorHandler(getTopic(i));
       ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, pollInterval);
       //Если это первый слушатель, то он слушает основной топик,
@@ -81,7 +80,7 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V, E extends Gener
               "Topic \"{}\" has no listeners, default will be created with settings: interval={}, infinite={}",
               topic, defaultInterval, infiniteDefaultListeners
           );
-          E errorHandler = infiniteDefaultListeners ? getErrorHandler(topic) : getErrorHandler(getTopic());
+          CommonErrorHandler errorHandler = infiniteDefaultListeners ? getErrorHandler(topic) : getErrorHandler(getTopic());
           ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, defaultInterval);
           register(factory, topic);
         });
@@ -110,11 +109,14 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V, E extends Gener
    * Получает обработчик ошибок, восстанавливающий обработанные с ошибкой события в переданный топик
    *
    * @param recoveryTopic топик для необработанных событий
-   * @return {@link GenericErrorHandler обработчик ошибок}
+   * @return {@link CommonErrorHandler обработчик ошибок}
    */
-  protected abstract E getErrorHandler(String recoveryTopic);
+  private CommonErrorHandler getErrorHandler(String recoveryTopic) {
+    ConsumerRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
+    return new DefaultErrorHandler(recoverer, NO_RETRY_BACK_OFF);
+  }
 
-  protected abstract ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(E errorHandler, long pollInterval);
+  protected abstract ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval);
 
   /**
    * Дополнительные свойства фабрики слушателей
@@ -153,13 +155,6 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V, E extends Gener
           return new TopicPartition(recoveryTopic, consumerRecord.partition());
         }
     );
-  }
-
-  /**
-   * Максимальная задержка между вызовами poll() слушателем
-   */
-  protected int getMaxPollInterval() {
-    return DEFAULT_MAX_POLL_INTERVAL;
   }
 
   /**

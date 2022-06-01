@@ -17,7 +17,7 @@ public enum FileType {
   JRXML("jrxml"),
   HTML("html");
 
-  private String ext;
+  private final String ext;
 
   FileType(String ext) {
     this.ext = ext;

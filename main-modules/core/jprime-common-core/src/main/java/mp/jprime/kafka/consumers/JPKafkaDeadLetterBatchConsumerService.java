@@ -4,10 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.listener.BatchErrorHandler;
 import org.springframework.kafka.listener.BatchMessageListener;
-import org.springframework.kafka.listener.ConsumerRecordRecoverer;
-import org.springframework.kafka.listener.RecoveringBatchErrorHandler;
+import org.springframework.kafka.listener.CommonErrorHandler;
 
 import java.util.Map;
 
@@ -17,7 +15,7 @@ import java.util.Map;
  * @param <K> тип ключа события
  * @param <V> тип значения события
  */
-public abstract class JPKafkaDeadLetterBatchConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V, BatchErrorHandler> {
+public abstract class JPKafkaDeadLetterBatchConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterBatchConsumerService.class);
 
   /**
@@ -43,23 +41,11 @@ public abstract class JPKafkaDeadLetterBatchConsumerService<K, V> extends JPKafk
    */
   protected abstract BatchMessageListener<K, V> getMessageListener();
 
-  /**
-   * Получает обработчик ошибок, восстанавливающий обработанные с ошибкой события в переданный топик
-   *
-   * @param recoveryTopic топик для необработанных событий
-   * @return {@link BatchErrorHandler обработчик ошибок}
-   */
   @Override
-  protected BatchErrorHandler getErrorHandler(String recoveryTopic) {
-    ConsumerRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
-    return new RecoveringBatchErrorHandler(recoverer, NO_RETRY_BACK_OFF); //TODO: заменить Deprecated
-  }
-
-  @Override
-  protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(BatchErrorHandler errorHandler, long pollInterval) {
+  protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval) {
     Map<String, Object> consumersProps = getConsumersProps(pollInterval);
     ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(consumersProps, pollInterval);
-    factory.setBatchErrorHandler(errorHandler);
+    factory.setCommonErrorHandler(errorHandler);
     factory.setBatchListener(true);
     factory.setMissingTopicsFatal(false);
     return factory;

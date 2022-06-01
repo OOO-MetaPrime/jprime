@@ -10,7 +10,7 @@ public enum TimePeriod {
   YEAR("year"),
   NONE("none");
 
-  private String code;
+  private final String code;
 
   TimePeriod(String code) {
     this.code = code;

@@ -14,16 +14,19 @@ import java.util.stream.Collectors;
  */
 public abstract class JPBatchSave extends JPBaseParams {
   private final Collection<JPMutableData> data;
+  private final boolean onConflictDoNothing;
 
   /**
    * Конструктор
    *
-   * @param data   Значение атрибута при создании
-   * @param source Источник данных
-   * @param auth   Данные аутентификации
+   * @param data               Значение атрибута при создании
+   * @param onConflictDoNothing Флаг "При конфликте игнорировать"
+   * @param source             Источник данных
+   * @param auth               Данные аутентификации
    */
-  protected JPBatchSave(Collection<Map<String, Object>> data, Source source, AuthInfo auth) {
+  protected JPBatchSave(Collection<Map<String, Object>> data, boolean onConflictDoNothing, Source source, AuthInfo auth) {
     super(source, auth);
+    this.onConflictDoNothing = onConflictDoNothing;
     this.data = data == null ? Collections.emptyList() :
         Collections.unmodifiableCollection(data.stream().map(JPMutableData::of).collect(Collectors.toList()));
   }
@@ -38,11 +41,21 @@ public abstract class JPBatchSave extends JPBaseParams {
   }
 
   /**
+   * Флаг "При конфликте игнорировать"
+   *
+   * @return Да/Нет
+   */
+  public boolean isOnConflictDoNothing() {
+    return onConflictDoNothing;
+  }
+
+  /**
    * Построитель JPSave
    */
   public abstract static class Builder<T extends Builder> {
     protected Collection<Map<String, Object>> allData = new ArrayList<>();
     protected Map<String, Object> data = new HashMap<>();
+    protected boolean onConflictDoNothing = Boolean.FALSE;
     protected AuthInfo auth;
     protected Source source;
 
@@ -79,6 +92,17 @@ public abstract class JPBatchSave extends JPBaseParams {
      */
     public Source getSource() {
       return source;
+    }
+
+    /**
+     * Флаг "При конфликте игнорировать"
+     *
+     * @param onConflictDoNothing Да/Нет
+     * @return Builder
+     */
+    public T onConflictDoNothing(boolean onConflictDoNothing) {
+      this.onConflictDoNothing = onConflictDoNothing;
+      return (T) this;
     }
 
     /**

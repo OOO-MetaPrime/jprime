@@ -30,8 +30,8 @@ public enum Event implements mp.jprime.log.Event {
   DELETE_ERROR("delete_error", false);
 
 
-  private String code;
-  private boolean success;
+  private final String code;
+  private final boolean success;
 
   Event(String code, boolean success) {
     this.code = code;

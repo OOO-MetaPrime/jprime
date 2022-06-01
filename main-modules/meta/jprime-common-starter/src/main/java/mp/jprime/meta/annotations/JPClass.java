@@ -34,7 +34,7 @@ public @interface JPClass {
    *
    * @return Множественный код кодового имени
    */
-  String pluralCode();
+  String pluralCode() default "";
 
   /**
    * Полный код класса
