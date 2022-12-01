@@ -1,6 +1,5 @@
 package mp.jprime.events.systemevents.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.events.systemevents.JPSystemEvent;
 import mp.jprime.events.systemevents.json.JsonJPSystemEvent;
@@ -99,8 +98,8 @@ public class KafkaSystemEventService implements SystemEventPublisher {
   }
 
 
-  private String toJSON(JPSystemEvent event) throws JsonProcessingException {
-    return jpKafkaJsonMapper.getObjectMapper().writeValueAsString(jsonJPSystemEventConvertor.toJsonJPSystemEvent(event));
+  private String toJSON(JPSystemEvent event) {
+    return jpKafkaJsonMapper.toString(jsonJPSystemEventConvertor.toJsonJPSystemEvent(event));
   }
 
   private JPSystemEvent toEvent(String string) throws IOException, SecurityException {

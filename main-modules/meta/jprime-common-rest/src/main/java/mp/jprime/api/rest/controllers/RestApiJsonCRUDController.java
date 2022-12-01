@@ -11,20 +11,19 @@ import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.json.beans.JsonChangeAccess;
 import mp.jprime.json.beans.JsonJPObject;
 import mp.jprime.json.beans.JsonJPObjectList;
 import mp.jprime.json.beans.JsonSelect;
+import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.requesthistory.services.RequestHistoryPublisher;
-import mp.jprime.rest.v1.Controllers;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
-import mp.jprime.web.services.ServerWebExchangeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +45,6 @@ import java.util.stream.Collectors;
 @RequestMapping("api/v1")
 public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JPReactiveObjectRepositoryServiceAware {
   private static final Logger LOG = LoggerFactory.getLogger(RestApiJsonCRUDController.class);
-
   /**
    * Заполнение запросов на основе JSON
    */
@@ -64,10 +62,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
    */
   private JPMetaStorage metaStorage;
   /**
-   * Методы работы с ServerWebExchangeService
-   */
-  private ServerWebExchangeService sweService;
-  /**
    * Обработчик JWT
    */
   private JWTService jwtService;
@@ -75,6 +69,15 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
    * Работа с отправкой Истории запросов
    */
   private RequestHistoryPublisher historyPublisher;
+  /**
+   * Формирование JsonJPObject
+   */
+  private JsonJPObjectService jsonJPObjectService;
+
+  /**
+   * Фильтр меты
+   */
+  private JPMetaFilter jpMetaFilter;
 
   @Value("${jprime.query.queryTimeout:}")
   private Integer queryTimeout;
@@ -85,11 +88,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
    */
   @Value("${jprime.api.maxLimit:1000}")
   private Integer maxLimit;
-  /**
-   * Признак добавления блока links
-   */
-  @Value("${jprime.api.addLinks:false}")
-  private boolean addLinks;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -107,11 +105,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   }
 
   @Autowired
-  private void setSweService(ServerWebExchangeService sweService) {
-    this.sweService = sweService;
-  }
-
-  @Autowired
   private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
   }
@@ -119,6 +112,16 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   @Autowired(required = false)
   private void setHistoryPublisher(RequestHistoryPublisher historyPublisher) {
     this.historyPublisher = historyPublisher;
+  }
+
+  @Autowired
+  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
+    this.jsonJPObjectService = jsonJPObjectService;
+  }
+
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @Override
@@ -140,7 +143,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     Integer limit = builder.limit();
 
     if (checkLimit && limit != null && limit > maxLimit) {
-      LOG.error("Warning. Select query limit for " + builder.getJpClass() + " exceeded: " + limit);
+      LOG.error("Warning. Select query limit for {} exceeded: {}", builder.getJpClass(), limit);
       builder.limit(maxLimit);
     }
     JPSelect s = builder.build();
@@ -165,24 +168,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                           : Collections.emptyMap();
 
                       return list.stream()
-                          .map((x -> JsonJPObject.newBuilder()
-                                  .jpObject(x)
-                                  .metaStorage(metaStorage)
-                                  .baseUrl(sweService.getBaseUrl(swe))
-                                  .restMapping(Controllers.API_MAPPING)
-                                  .addLinks(addLinks)
-                                  .access(!access ? null : JsonChangeAccess.newBuilder()
-                                      .update(
-                                          mapAccess.get(x.getJpId().getId()).isUpdate()
-                                      )
-                                      .delete(
-                                          mapAccess.get(x.getJpId().getId()).isDelete()
-                                      )
-                                      .build()
-                                  )
-                                  .build()
-                              )
-                          )
+                          .map(x -> jsonJPObjectService.toJsonJPObject(x, !access ? null : mapAccess.get(x.getJpId().getId()), swe))
                           .collect(Collectors.toList());
                     }
                 )
@@ -192,9 +178,8 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                 .limit(s.getLimit())
                 .offset(s.getOffset())
                 .classCode(jpClass.getCode())
-                .pluralCode(jpClass.getPluralCode())
                 .objects(y)
-                .totalCount(x)
+                .totalCount(builder.isTotalCount() ? x : null)
                 .build())
         // Ошибка
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
@@ -208,7 +193,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                                               @PathVariable("code") String code,
                                               @RequestParam(value = "offset", required = false) Integer offset,
                                               @RequestParam(value = "limit", required = false) Integer limit) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -232,7 +217,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   public Mono<JsonJPObjectList> getObjectList(ServerWebExchange swe,
                                               @PathVariable("code") String code,
                                               @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -267,7 +252,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                                               @PathVariable("attrCode") String attrCode,
                                               @PathVariable("attrValue") String attrValue,
                                               @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
     if (jpClass == null || jpClass.isInner() || jpAttr == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -314,7 +299,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                                                   @PathVariable("attrCode") String attrCode,
                                                   @PathVariable("attrValue") String attrValue,
                                                   @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
     if (jpAttr == null || jpAttr.getRefJpClassCode() == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -365,7 +350,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                                                            @PathVariable("objectId") String objectId,
                                                            @PathVariable("attrCode") String attrCode,
                                                            @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     JPAttr jpAttr = jpClass == null || jpClass.isInner() ? null : jpClass.getAttr(attrCode);
     JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClassCode() == null || jpAttr.getType() != JPType.BACKREFERENCE
         ? null : metaStorage.getJPClassByCode(jpAttr.getRefJpClassCode());
@@ -422,7 +407,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   public Mono<JsonJPObject> getObject(ServerWebExchange swe,
                                       @PathVariable("code") String code,
                                       @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -443,13 +428,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     return repo
         .getAsyncObject(jpSelect)
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-        .map(x -> JsonJPObject.newBuilder()
-            .metaStorage(metaStorage)
-            .jpObject(x)
-            .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(Controllers.API_MAPPING)
-            .addLinks(addLinks)
-            .build())
+        .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
@@ -460,7 +439,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   public Mono<Void> deleteObject(ServerWebExchange swe,
                                  @PathVariable("code") String code,
                                  @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -485,7 +464,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -505,13 +484,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
         .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
-        .map(x -> JsonJPObject.newBuilder()
-            .metaStorage(metaStorage)
-            .jpObject(x)
-            .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(Controllers.API_MAPPING)
-            .addLinks(addLinks)
-            .build());
+        .map(object -> jsonJPObjectService.toJsonJPObject(object, swe));
   }
 
   @ResponseBody
@@ -521,7 +494,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -544,12 +517,37 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
         .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-        .map(x -> JsonJPObject.newBuilder()
-            .metaStorage(metaStorage)
-            .jpObject(x)
-            .baseUrl(sweService.getBaseUrl(swe))
-            .restMapping(Controllers.API_MAPPING)
-            .addLinks(addLinks)
-            .build());
+        .map(object -> jsonJPObjectService.toJsonJPObject(object, swe));
+  }
+
+  @ResponseBody
+  @PostMapping(value = "/{code}/search/anonymous", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<JsonJPObjectList> getObjectListAnonymous(ServerWebExchange swe,
+                                                       @PathVariable("code") String code,
+                                                       @RequestBody String query) {
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    if (historyPublisher != null) {
+      historyPublisher.sendSearch(jpClass.getCode(), query, null, swe);
+    }
+
+    JPSelect.Builder builder;
+    boolean access;
+    try {
+      JsonSelect jsonSelect = queryService.getQuery(query);
+      access = jsonSelect != null && jsonSelect.isAccess();
+      builder = queryService.getSelect(jpClass.getCode(), jsonSelect, null)
+          .timeout(queryTimeout)
+          .source(Source.USER);
+    } catch (JPRuntimeException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    if (builder.isOrderByEmpty()) {
+      builder.orderByDesc(jpClass.getPrimaryKeyAttr());
+    }
+    return getListResult(builder, access, swe, null);
   }
 }

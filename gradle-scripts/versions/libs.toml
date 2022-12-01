@@ -1,8 +1,8 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.13.2"
-jacksonDataformatXmlVersion = "2.13.2"
-jacksonDatatypeJsr310Version = "2.13.2"
+jacksonAnnotationsVersion = "2.13.3"
+jacksonDataformatXmlVersion = "2.13.3"
+jacksonDatatypeJsr310Version = "2.13.3"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter

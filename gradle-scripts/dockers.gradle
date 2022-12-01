@@ -3,16 +3,6 @@ ext {
 }
 
 ext.common = [
-    pullDocker            : { image ->
-      exec {
-        commandLine 'docker', 'pull', image
-      }
-    },
-    saveDockerTar         : { tarName, image ->
-      exec {
-        commandLine 'docker', 'save', '-o', dockerImageDir + tarName, image
-      }
-    },
     buildDocker           : { String name, String context, String... params ->
       exec {
         Collection<String> command = new ArrayList<>(Arrays.asList('docker', 'build', '-t', name))
@@ -28,24 +18,18 @@ ext.common = [
     }
 ]
 
-void loadDocker(String tar) {
+void loadDocker(String tag, String tar) {
   exec {
     commandLine 'docker', 'load', '-i', dockerImageDir + tar
   }
 }
 
-task dockerImages(group: "build offline") {
-  doFirst {
-    mkdir dockerImageDir
-  }
-}
-
 task dockerLoad() {
   doFirst {
-    String[] tars = fileTree(dockerImageDir).filter { it.isFile() && it.getName().endsWith('tar') }.files.name
-    for (String tar : tars) {
-      loadDocker(tar)
-    }
+    loadDocker('alpine-jdk8:latest', 'alpine-jdk8.tar')
+    loadDocker('alpine-jdk8/libreoffice:latest', 'alpine-jdk8-libreoffice.tar')
+    loadDocker('alpine-jdk8/libreoffice-chrome:latest', 'alpine-jdk8-libreoffice-chrome.tar')
+    loadDocker('openjdk:8-jdk', 'openjdk-jdk8.tar')
   }
 }
 

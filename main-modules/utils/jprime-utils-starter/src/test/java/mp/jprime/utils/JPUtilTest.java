@@ -1,5 +1,7 @@
 package mp.jprime.utils;
 
+import mp.jprime.json.services.JsonJPObjectService;
+import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.beans.AuthInfoBean;
 import mp.jprime.security.services.JPSecurityStorage;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -21,7 +24,7 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = JPUtilTest.Config.class)
 public class JPUtilTest {
   @Autowired
   private JPUtilService jpUtilService;
@@ -29,11 +32,21 @@ public class JPUtilTest {
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.utils", "mp.jprime.log", "mp.jprime.json"}
+      basePackages = {"mp.jprime.utils", "mp.jprime.log", "mp.jprime.json"},
+      excludeFilters = {
+          @ComponentScan.Filter(
+              type = FilterType.ASSIGNABLE_TYPE,
+              value = {
+                  JsonJPObjectService.class
+              }
+          )
+      }
   )
   public static class Config {
     @MockBean
     private JPSecurityStorage jpSecurityStorage;
+    @MockBean
+    private JPMetaStorage jpMetaStorage;
   }
 
   @Test

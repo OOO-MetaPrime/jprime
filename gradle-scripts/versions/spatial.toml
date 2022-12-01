@@ -1,0 +1,15 @@
+# GeoTools
+[versions]
+geotoolsVersion = "27.0"
+orgLocationtechVersion = "1.19.0"
+orgPostgisJdbcVersion = "1.3.3"
+querydslSqlVersion = "5.0.0"
+
+[libraries]
+gt-shapefile = { module="org.geotools:gt-shapefile", version.ref="geotoolsVersion" }
+org-locationtech-jts-io-common = { module="org.locationtech.jts.io:jts-io-common", version.ref="orgLocationtechVersion" }
+org-postgis-jdbc = { module="org.postgis:postgis-jdbc", version.ref="orgPostgisJdbcVersion" }
+querydsl-sql-spatial = { module="com.querydsl:querydsl-sql-spatial", version.ref="querydslSqlVersion" }
+
+[bundles]
+geotools = ['gt-shapefile', 'org-locationtech-jts-io-common']

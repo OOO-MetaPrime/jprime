@@ -1,17 +1,15 @@
 package mp.jprime.attrparsers.base;
 
-
 import mp.jprime.attrparsers.AttrTypeParser;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
-import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonIntegerRange;
 import mp.jprime.json.beans.JsonRange;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPIntegerRange;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
-import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +20,7 @@ import java.util.Map;
  */
 @Service
 public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
-  private ParserService parserService;
   private JPJsonMapper jsonMapper;
-
-  @Autowired
-  private void setParserService(ParserService parserService) {
-    this.parserService = parserService;
-  }
 
   @Autowired
   private void setJsonMapper(JPJsonMapper jsonMapper) {
@@ -81,6 +73,9 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
     if (attrValue instanceof JPIntegerRange) {
       return (JPIntegerRange) attrValue;
     }
+
+    String attrName = jpAttr.getName();
+
     JPIntegerRange result = null;
     if (attrValue instanceof Map || attrValue instanceof JsonRange) {
       /*
@@ -94,7 +89,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
        */
       try {
         JsonIntegerRange json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.getObjectMapper().writeValueAsString(attrValue),
+            jsonMapper.toString(attrValue),
             JsonIntegerRange.class
         );
         result = JPIntegerRange.create(
@@ -103,7 +98,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPRuntimeException(e.getMessage(), e);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     } else if (attrValue instanceof String) {
       /*
@@ -120,7 +115,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPRuntimeException(e.getMessage(), e);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     }
     return result;

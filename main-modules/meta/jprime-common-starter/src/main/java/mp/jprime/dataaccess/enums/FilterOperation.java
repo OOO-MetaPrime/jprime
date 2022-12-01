@@ -9,9 +9,9 @@ public enum FilterOperation {
    */
   BETWEEN("BETWEEN"),
   /**
-   * Содержит
+   * Содержит пару ключ-значение
    */
-  CONTAINS("CONTAINS"),
+  CONTAINS_KVP("CONTAINS_KVP"),
   /**
    * Этот диапазон содержит элемент
    */

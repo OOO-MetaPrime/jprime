@@ -77,6 +77,10 @@ public class JsonJPAttr {
    */
   private JsonJPMoney money;
   /**
+   * Настройка пространственного типа
+   */
+  private JsonJPGeometry geometry;
+  /**
    * Схема свойств псевдо-меты
    */
   @JsonProperty(value = "jpProps")
@@ -89,8 +93,8 @@ public class JsonJPAttr {
   private JsonJPAttr(String guid, String code, String qName, String name, String shortName, String description,
                      String jpPackage, boolean identifier, boolean mandatory, String type, boolean updatable, Integer length,
                      String refJpClass, String refJpAttr,
-                     JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction, JsonJPMoney money,
-                     Collection<JsonJPProperty> schemaProps) {
+                     JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction,
+                     JsonJPMoney money, JsonJPGeometry geometry, Collection<JsonJPProperty> schemaProps) {
     this.guid = guid;
     this.code = code;
     this.qName = qName;
@@ -108,6 +112,7 @@ public class JsonJPAttr {
     this.refJpFile = refJpFile;
     this.simpleFraction = simpleFraction;
     this.money = money;
+    this.geometry = geometry;
     this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
   }
 
@@ -265,6 +270,15 @@ public class JsonJPAttr {
   }
 
   /**
+   * Настройки пространственного типа
+   *
+   * @return Пространственный тип
+   */
+  public JsonJPGeometry getGeometry() {
+    return geometry;
+  }
+
+  /**
    * Список дополнительных свойств
    *
    * @return Дополнительные свойства
@@ -303,6 +317,7 @@ public class JsonJPAttr {
     private JsonJPFile refJpFile;
     private JsonJPSimpleFraction simpleFraction;
     private JsonJPMoney money;
+    private JsonJPGeometry geometry;
     private Collection<JsonJPProperty> schemaProps;
 
     private Builder() {
@@ -406,6 +421,11 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder geometry(JsonJPGeometry geometry) {
+      this.geometry = geometry;
+      return this;
+    }
+
     public Builder schemaProps(Collection<JsonJPProperty> schemaProps) {
       this.schemaProps = schemaProps;
       return this;
@@ -413,7 +433,7 @@ public class JsonJPAttr {
 
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, updatable, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, schemaProps);
+          type, updatable, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, geometry, schemaProps);
     }
   }
 }

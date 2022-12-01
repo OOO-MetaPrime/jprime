@@ -48,6 +48,13 @@ public @interface JPUtilLink {
   String[] jpClasses() default {};
 
   /**
+   * Теги классов, обрабатываемые этой утилитой
+   *
+   * @return Теги классов, обрабатываемых этой утилитой
+   */
+  String[] jpClassTags() default {};
+
+  /**
    * Настройки доступа
    *
    * @return Настройки доступа

@@ -11,9 +11,16 @@ subprojects {
   }
 
   repositories {
+    maven {
+      url "https://nexus.metaprime.ru/repository/maven-public/"
+      allowInsecureProtocol = true
+    }
+    /*
     mavenCentral()
-    maven { url "https://repo.spring.io/release" }
     maven { url "https://repo.cuba-platform.com/content/groups/work/" }
+    maven { url "https://repo.osgeo.org/repository/release/" }
+    maven { url "https://repo.spring.io/release" }
+     */
   }
 
   dependencyManagement {

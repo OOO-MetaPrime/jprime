@@ -94,4 +94,14 @@ public interface JPUtil {
     JPUtilLink anno = this.getClass().getAnnotation(JPUtilLink.class);
     return anno != null ? anno.jpClasses() : null;
   }
+
+  /**
+   * Теги классов, обрабатываемые этой утилитой
+   *
+   * @return Теги классов, обрабатываемые этой утилитой
+   */
+  default String[] getJpClassTags() {
+    JPUtilLink anno = this.getClass().getAnnotation(JPUtilLink.class);
+    return anno != null ? anno.jpClassTags() : null;
+  }
 }

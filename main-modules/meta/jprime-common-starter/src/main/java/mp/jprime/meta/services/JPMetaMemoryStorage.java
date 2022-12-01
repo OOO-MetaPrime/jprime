@@ -92,10 +92,6 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
       }
       cache.classes.add(cls);
       cache.codeJpClassMap.put(cls.getCode(), cls);
-      String pluralCode = cls.getPluralCode();
-      if (StringUtils.hasText(pluralCode)) {
-        cache.pluralCodeJpClassMap.put(pluralCode, cls);
-      }
     }
   }
 
@@ -117,10 +113,6 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
         if (cls.isImmutable()) {
           newCache.classes.add(cls);
           newCache.codeJpClassMap.put(cls.getCode(), cls);
-          String pluralCode = cls.getPluralCode();
-          if (StringUtils.hasText(pluralCode)) {
-            newCache.pluralCodeJpClassMap.put(pluralCode, cls);
-          }
         }
       }
       // Добавляем динамические настройки
@@ -131,10 +123,6 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
         }
         newCache.classes.add(cls);
         newCache.codeJpClassMap.put(code, cls);
-        String pluralCode = cls.getPluralCode();
-        if (StringUtils.hasText(pluralCode)) {
-          newCache.pluralCodeJpClassMap.put(pluralCode, cls);
-        }
       }
       // Подменяем кеш после инициализации
       if (cacheRef.compareAndSet(oldCache, newCache)) {
@@ -178,40 +166,6 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     return jpClass;
   }
 
-  /**
-   * Возвращает метаописание класса по множественному коду
-   *
-   * @param pluralCode Множественный код класса
-   * @return Метаописание класса
-   * @deprecated Отказ от множественного кодового имени. Рекомендуется использовать обычное кодовое имя
-   */
-  @Deprecated
-  @Override
-  public JPClass getJPClassByPluralCode(String pluralCode) {
-    return pluralCode == null ? null : cacheRef.get().pluralCodeJpClassMap.get(pluralCode);
-  }
-
-  /**
-   * Возвращает метаописание класса по множественному или простому коду
-   *
-   * @param code Код класса
-   * @return Метаописание класса
-   * @deprecated Отказ от множественного кодового имени. Рекомендуется использовать обычное кодовое имя
-   */
-  @Deprecated
-  @Override
-  public JPClass getJPClassByCodeOrPluralCode(String code) {
-    if (code == null) {
-      return null;
-    }
-    Cache cache = cacheRef.get();
-    JPClass jpClass = cache.codeJpClassMap.get(code);
-    if (jpClass == null) {
-      jpClass = cache.pluralCodeJpClassMap.get(code);
-    }
-    return jpClass;
-  }
-
   private class Cache {
     private UUID uuid = UUID.randomUUID();
     /**
@@ -223,10 +177,6 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
      * Код класса - класс
      */
     private Map<String, JPClass> codeJpClassMap = new ConcurrentHashMap<>();
-    /**
-     * Множественный код класса - класс
-     */
-    private Map<String, JPClass> pluralCodeJpClassMap = new ConcurrentHashMap<>();
 
     @Override
     public boolean equals(Object o) {

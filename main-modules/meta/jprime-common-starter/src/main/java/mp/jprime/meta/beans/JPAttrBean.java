@@ -33,6 +33,7 @@ public final class JPAttrBean implements JPAttr {
   private final JPFile refJpFile;
   private final JPSimpleFraction simpleFraction;
   private final JPMoney money;
+  private final JPGeometry geometry;
   private final JPVirtualPath virtualReference;
   private final Collection<JPProperty> schemaProps;
 
@@ -41,7 +42,8 @@ public final class JPAttrBean implements JPAttr {
                      String name, String shortName, String description,
                      String qName, String jpPackage, Collection<JPProperty> schemaProps,
                      String refJpClassCode, String refJpAttrCode,
-                     JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money, JPVirtualPath virtualReference) {
+                     JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money,
+                     JPGeometry geometry, JPVirtualPath virtualReference) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
@@ -56,6 +58,7 @@ public final class JPAttrBean implements JPAttr {
     this.refJpFile = refJpFile;
     this.simpleFraction = simpleFraction;
     this.money = money;
+    this.geometry = geometry;
     this.virtualReference = virtualReference;
     this.schemaProps = schemaProps == null || schemaProps.isEmpty() ? null :
         Collections.unmodifiableCollection(schemaProps);
@@ -250,6 +253,16 @@ public final class JPAttrBean implements JPAttr {
   }
 
   /**
+   * Возвращает описание пространственных данных
+   *
+   * @return описание пространственных данных
+   */
+  @Override
+  public JPGeometry getGeometry() {
+    return geometry;
+  }
+
+  /**
    * Путь виртуальной ссылки
    *
    * @return Путь виртуальной ссылки
@@ -258,7 +271,6 @@ public final class JPAttrBean implements JPAttr {
   public JPVirtualPath getVirtualReference() {
     return virtualReference;
   }
-
 
   /**
    * Схема свойств псевдо-меты
@@ -295,6 +307,7 @@ public final class JPAttrBean implements JPAttr {
         (refJpFile != null ? ", refJpFile='" + refJpFile + '\'' : "") +
         (simpleFraction != null ? ", simpleFraction='" + simpleFraction + '\'' : "") +
         (money != null ? ", money='" + money + '\'' : "") +
+        (geometry != null ? ", geometry='" + geometry + '\'' : "") +
         ", virtualReference='" + virtualReference + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         '}';
@@ -321,6 +334,7 @@ public final class JPAttrBean implements JPAttr {
     private JPFile refJpFile;
     private JPSimpleFraction simpleFraction;
     private JPMoney money;
+    private JPGeometry geometry;
     private JPVirtualPath virtualReference;
     private Collection<JPProperty> schemaProps;
 
@@ -335,7 +349,7 @@ public final class JPAttrBean implements JPAttr {
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage, schemaProps,
-          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, virtualReference);
+          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, geometry, virtualReference);
     }
 
     /**
@@ -412,6 +426,17 @@ public final class JPAttrBean implements JPAttr {
      */
     public Builder money(JPMoney money) {
       this.money = money;
+      return this;
+    }
+
+    /**
+     * Настройки пространственных данных
+     *
+     * @param geometry Настройки пространственных данных
+     * @return Builder
+     */
+    public Builder geometry(JPGeometry geometry) {
+      this.geometry = geometry;
       return this;
     }
 

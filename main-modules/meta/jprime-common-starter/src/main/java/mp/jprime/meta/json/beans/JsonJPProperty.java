@@ -8,7 +8,7 @@ import java.util.Collections;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JsonJPProperty {
+public final class JsonJPProperty {
   private String code;
   private String qName;
   private String name;

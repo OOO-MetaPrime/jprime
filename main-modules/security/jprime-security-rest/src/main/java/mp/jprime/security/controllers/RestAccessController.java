@@ -6,6 +6,7 @@ import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.conds.CollectionCond;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.JPSecurityPackage;
@@ -22,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -56,6 +58,10 @@ public class RestAccessController implements JPObjectAccessServiceAware {
    * Интерфейс проверки доступа к объекту
    */
   private JPObjectAccessService objectAccessService;
+  /**
+   * Фильтр меты
+   */
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
@@ -77,6 +83,11 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     this.jwtService = jwtService;
   }
 
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
+  }
+
   @Override
   public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
@@ -89,7 +100,10 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   public Mono<JsonJPObjectAccess> getObjectAccess(ServerWebExchange swe,
                                                   @PathVariable("code") String code,
                                                   @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    if (!jpMetaFilter.filter(jpClass)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
     return getAccessList(Collections.singletonList(objectId), jpClass, authInfo)
         .map(accessList -> accessList.iterator().next());
@@ -105,6 +119,9 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     return Flux.fromIterable(batchQuery.getIds())
         .flatMap(query -> {
           JPClass jpClass = metaStorage.getJPClassByCode(query.getObjectClassCode());
+          if (!jpMetaFilter.filter(jpClass)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
           return getAccessList(query.getObjectIds(), jpClass, authInfo);
         })
         .reduce(
@@ -122,7 +139,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   public Mono<JsonJPClassAccess> getClassAccess(ServerWebExchange swe,
                                                 @PathVariable("classCode") String classCode) {
     JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-    if (jpClass == null || jpClass.isInner()) {
+    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.filter(jpClass)) {
       return Mono.empty();
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
@@ -138,7 +155,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
                                                       @PathVariable("attrCode") String attrCode,
                                                       @PathVariable("attrValue") String attrValue) {
     JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-    if (jpClass == null || jpClass.isInner()) {
+    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.filter(jpClass)) {
       return Mono.empty();
     }
 
@@ -158,6 +175,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
     return Flux.fromIterable(classes)
         .filter(x -> !x.isInner())
+        .filter(jpClass -> jpMetaFilter.filter(jpClass))
         .map(x -> toJPClassAccessModel(x, authInfo));
   }
 

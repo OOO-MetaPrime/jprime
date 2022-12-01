@@ -109,8 +109,11 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkRead(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
-    return sett == null || sett.checkRead(roles);
+    if (packageCode == null) {
+      return true;
+    }
+    JPSecurityPackage sett = getJPPackageByCode(packageCode);
+    return sett != null && sett.checkRead(roles);
   }
 
   /**
@@ -122,8 +125,11 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkDelete(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
-    return sett == null || sett.checkDelete(roles);
+    if (packageCode == null) {
+      return true;
+    }
+    JPSecurityPackage sett = getJPPackageByCode(packageCode);
+    return sett != null && sett.checkDelete(roles);
   }
 
   /**
@@ -135,8 +141,11 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkUpdate(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
-    return sett == null || sett.checkUpdate(roles);
+    if (packageCode == null) {
+      return true;
+    }
+    JPSecurityPackage sett = getJPPackageByCode(packageCode);
+    return sett != null && sett.checkUpdate(roles);
   }
 
   /**
@@ -148,8 +157,11 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkCreate(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
-    return sett == null || sett.checkCreate(roles);
+    if (packageCode == null) {
+      return true;
+    }
+    JPSecurityPackage sett = getJPPackageByCode(packageCode);
+    return sett != null && sett.checkCreate(roles);
   }
 
   /**
@@ -161,8 +173,11 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public boolean checkModify(String packageCode, Collection<String> roles) {
-    JPSecurityPackage sett = packageCode != null ? getJPPackageByCode(packageCode) : null;
-    return sett == null || (
+    if (packageCode == null) {
+      return true;
+    }
+    JPSecurityPackage sett = getJPPackageByCode(packageCode);
+    return sett != null && (
         sett.checkCreate(roles) && sett.checkDelete(roles) && sett.checkUpdate(roles)
     );
   }

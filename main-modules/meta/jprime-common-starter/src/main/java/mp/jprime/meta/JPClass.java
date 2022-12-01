@@ -1,5 +1,7 @@
 package mp.jprime.meta;
 
+import mp.jprime.meta.beans.JPType;
+
 import java.util.*;
 
 /**
@@ -20,13 +22,6 @@ public interface JPClass {
    * @return Кодовое имя класса
    */
   String getCode();
-
-  /**
-   * Множественное кодовое имя класса
-   *
-   * @return Множественное кодовое имя класса
-   */
-  String getPluralCode();
 
   /**
    * Название класса
@@ -55,6 +50,13 @@ public interface JPClass {
    * @return Уникальный qName класса
    */
   String getQName();
+
+  /**
+   * Теги класса
+   *
+   * @return Теги класса
+   */
+  Collection<String> getTags();
 
   /**
    * Кодовое имя доступа к метаописанию класса
@@ -89,15 +91,23 @@ public interface JPClass {
   /**
    * Возвращает атрибут по его кодовому имени
    *
-   * @param code Кодовое имя атрибутоа
+   * @param code Кодовое имя атрибута
    * @return JPAttr
    */
   JPAttr getAttr(String code);
 
   /**
+   * Возвращает атрибуты по типу
+   *
+   * @param jpType Тип атрибута
+   * @return Список JPAttr
+   */
+  Collection<JPAttr> getAttrs(JPType jpType);
+
+  /**
    * Возвращает признак наличия атрибута
    *
-   * @param code Кодовое имя атрибутоа
+   * @param code Кодовое имя атрибута
    * @return Да/Нет
    */
   default boolean hasAttr(String code) {

@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.checkers;
 
-import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.checkers.filters.CheckFilter;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
@@ -48,12 +48,21 @@ public final class JPDataCheckDefaultService implements JPDataCheckService {
     }
   }
 
+  /**
+   * Проверяем условие по переданным данным
+   *
+   * @param filter                  Условие
+   * @param data                    Данные
+   * @param auth                    AuthInfo
+   * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data
+   * @return Да/Нет
+   */
   @Override
-  public boolean check(Filter filter, JPMutableData data, AuthInfo auth) {
+  public boolean check(Filter filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
     if (filter == null) {
       return Boolean.TRUE;
     }
     CheckFilter checkFilter = checkFilters.get(filter.getClass());
-    return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth);
+    return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth, notContainsDefaultValue);
   }
 }

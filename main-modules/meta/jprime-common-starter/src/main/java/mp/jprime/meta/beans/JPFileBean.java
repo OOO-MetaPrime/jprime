@@ -50,9 +50,15 @@ public final class JPFileBean implements JPFile {
    */
   private final String fileDateAttrCode;
 
+  /**
+   * Атрибут для хранения - Возвращает дополнительную информацию о файле
+   */
+  private final String fileInfoAttrCode;
+
   private JPFileBean(String fileAttrCode,
                      String storageCode, String storageFilePath, String storageCodeAttrCode, String storageFilePathAttrCode,
-                     String fileTitleAttrCode, String fileExtAttrCode, String fileSizeAttrCode, String fileDateAttrCode) {
+                     String fileTitleAttrCode, String fileExtAttrCode, String fileSizeAttrCode,
+                     String fileDateAttrCode, String fileInfoAttrCode) {
     this.fileAttrCode = fileAttrCode;
     this.storageCode = storageCode;
     this.storageFilePath = storageFilePath;
@@ -62,6 +68,7 @@ public final class JPFileBean implements JPFile {
     this.fileExtAttrCode = fileExtAttrCode;
     this.fileSizeAttrCode = fileSizeAttrCode;
     this.fileDateAttrCode = fileDateAttrCode;
+    this.fileInfoAttrCode = fileInfoAttrCode;
   }
 
   /**
@@ -155,6 +162,16 @@ public final class JPFileBean implements JPFile {
   }
 
   /**
+   * Атрибут для хранения - Возвращает информацию о файле
+   *
+   * @return Кодовое имя атрибута
+   */
+  @Override
+  public String getFileInfoAttrCode() {
+    return fileInfoAttrCode;
+  }
+
+  /**
    * Построитель JPFileBean
    *
    * @return Builder
@@ -176,6 +193,7 @@ public final class JPFileBean implements JPFile {
     private String fileExtAttrCode;
     private String fileSizeAttrCode;
     private String fileDateAttrCode;
+    private String fileInfoAttrCode;
 
     private Builder(String fileAttrCode) {
       this.fileAttrCode = fileAttrCode;
@@ -189,7 +207,7 @@ public final class JPFileBean implements JPFile {
     public JPFileBean build() {
       return new JPFileBean(fileAttrCode,
           storageCode, storageFilePath, storageCodeAttrCode, storageFilePathAttrCode,
-          fileTitleAttrCode, fileExtAttrCode, fileSizeAttrCode, fileDateAttrCode);
+          fileTitleAttrCode, fileExtAttrCode, fileSizeAttrCode, fileDateAttrCode, fileInfoAttrCode);
     }
 
     /**
@@ -278,6 +296,17 @@ public final class JPFileBean implements JPFile {
      */
     public Builder fileDateAttrCode(String fileDateAttrCode) {
       this.fileDateAttrCode = fileDateAttrCode;
+      return this;
+    }
+
+    /**
+     * Атрибут для хранения - Возвращает дополнительную информацию о файле
+     *
+     * @param fileInfoAttrCode Кодовое имя атрибута
+     * @return Builder
+     */
+    public Builder fileInfoAttrCode(String fileInfoAttrCode) {
+      this.fileInfoAttrCode = fileInfoAttrCode;
       return this;
     }
   }

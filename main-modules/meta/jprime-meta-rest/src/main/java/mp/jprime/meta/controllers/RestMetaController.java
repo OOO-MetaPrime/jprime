@@ -84,8 +84,8 @@ public class RestMetaController {
     return JsonJPClass.newBuilder()
         .code(jpClass.getCode())
         .guid(jpClass.getGuid())
-        .pluralCode(jpClass.getPluralCode())
         .qName(jpClass.getQName())
+        .tags(jpClass.getTags())
         .name(jpClass.getName())
         .shortName(jpClass.getShortName())
         .description(jpClass.getDescription())
@@ -106,6 +106,7 @@ public class RestMetaController {
     JPFile jpFile = jpAttr.getRefJpFile();
     JPSimpleFraction simpleFraction = jpAttr.getSimpleFraction();
     JPMoney money = jpAttr.getMoney();
+    JPGeometry geometry = jpAttr.getGeometry();
     if (type == null) {
       return null;
     }
@@ -133,6 +134,7 @@ public class RestMetaController {
                     .extAttr(jpFile.getFileExtAttrCode())
                     .sizeAttr(jpFile.getFileSizeAttrCode())
                     .dateAttr(jpFile.getFileDateAttrCode())
+                    .infoAttr(jpFile.getFileInfoAttrCode())
                     .build()
         )
         // Настройка простой дроби
@@ -149,6 +151,12 @@ public class RestMetaController {
                 JsonJPMoney.newBuilder()
                     .currencyCode(money.getCurrencyCode())
                     .build()
+        )
+        // Настройка геометрии
+        .geometry(
+            type != JPType.GEOMETRY || geometry == null ? null : JsonJPGeometry.newBuilder()
+                .srid(geometry.getSRID())
+                .build()
         )
         // Свойства псевдо-меты
         .schemaProps(

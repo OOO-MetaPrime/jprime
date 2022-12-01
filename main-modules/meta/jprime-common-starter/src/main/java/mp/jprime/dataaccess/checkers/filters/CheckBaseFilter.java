@@ -43,7 +43,7 @@ public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T
     return parserService;
   }
 
-  protected Object parseTo(Class toClass, Object filterValue, AuthInfo authInfo) {
+  protected <T> T parseTo(Class<T> toClass, Object filterValue, AuthInfo authInfo) {
     if (filterValue == null) {
       return null;
     }
@@ -54,12 +54,12 @@ public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T
     return getParserService().parseTo(toClass, filterValue);
   }
 
-  protected Collection<Object> parseTo(Class toClass, Collection<? extends Comparable> filterValues, AuthInfo authInfo) {
-    Collection<Object> values = null;
+  protected <T> Collection<T> parseToCollection(Class<T> toClass, Collection<? extends Comparable> filterValues, AuthInfo authInfo) {
+    Collection<T> values = null;
     if (filterValues != null) {
       values = new ArrayList<>(filterValues.size());
       for (Comparable v : filterValues) {
-        Object newV = parseTo(toClass, v, authInfo);
+        T newV = parseTo(toClass, v, authInfo);
         if (newV == null) {
           continue;
         }

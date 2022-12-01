@@ -6,9 +6,11 @@ import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPWrongVersionException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
+import java.net.ConnectException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,6 +26,9 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
       map.put("details", ((CompositeException) error).getExceptions().stream().map(x -> fill((Exception) x)).collect(Collectors.toList()));
     } else if (error instanceof Exception) {
       map.put("details", Collections.singleton(fill((Exception) error)));
+      if (error instanceof ConnectException) {
+        map.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());
+      }
     }
     return map;
   }

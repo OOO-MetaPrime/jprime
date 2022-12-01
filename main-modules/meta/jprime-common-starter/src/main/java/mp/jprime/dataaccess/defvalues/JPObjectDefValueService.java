@@ -5,7 +5,7 @@ import mp.jprime.security.AuthInfo;
 import reactor.core.publisher.Mono;
 
 /**
- * Логика вычисления значений по умолчанию
+ * Логика вычисления значений по умолчанию при создании объекта
  */
 public interface JPObjectDefValueService {
   /**
@@ -24,26 +24,5 @@ public interface JPObjectDefValueService {
    */
   default Mono<JPMutableData> getAsyncDefValues(String jpClassCode, JPObjectDefValueParams params) {
     return Mono.fromCallable(() -> getDefValues(jpClassCode, params));
-  }
-
-
-  /**
-   * Возвращает значения по умолчанию
-   *
-   * @param jpClassCode Кодовое имя класса объекта для расчета значений по умолчанию
-   * @param auth        Данные авторизации
-   */
-  default JPMutableData getDefValues(String jpClassCode, AuthInfo auth) {
-    return getDefValues(jpClassCode, JPObjectDefValueParamsBean.newBuilder().auth(auth).build());
-  }
-
-  /**
-   * Возвращает значения по умолчанию
-   *
-   * @param jpClassCode Кодовое имя класса объекта для расчета значений по умолчанию
-   * @param auth        Данные авторизации
-   */
-  default Mono<JPMutableData> getAsyncDefValues(String jpClassCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> getDefValues(jpClassCode, auth));
   }
 }

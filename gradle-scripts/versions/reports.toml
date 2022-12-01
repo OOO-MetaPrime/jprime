@@ -3,9 +3,9 @@
 jasperreportsFontsLiberationVersion = "2.1.2"
 jasperreportsFontsVersion = "6.19.1"
 jasperreportsVersion = "6.19.1"
-yargVersion = "2.2.15"
+yargVersion = "2.2.18"
 dynamicreportsCoreVersion = "6.12.1"
-itextVersion = "2.1.7"
+itextVersion = "2.1.7" # выше нельзя, так как изменилась лицензия
 jsonSimpleVersion = "1.1.1"
 olap4JVersion = "1.2.0"
 poiVersion = "4.1.2" # повышать надо вместе с yargVersion

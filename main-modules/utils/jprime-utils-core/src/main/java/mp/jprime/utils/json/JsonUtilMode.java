@@ -1,25 +1,10 @@
 package mp.jprime.utils.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Collection;
 import java.util.Collections;
 
-@JsonPropertyOrder({
-    "utilCode",
-    "modeCode",
-    "code",
-    "title",
-    "qName",
-    "confirmMessage",
-    "jpClasses",
-    "type",
-    "jpAttrs",
-    "inParams",
-    "resultType",
-    "outCustomParams"
-})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JsonUtilMode {
   private String utilCode;
@@ -27,7 +12,9 @@ public class JsonUtilMode {
   private String title;
   private String qName;
   private String confirmMessage;
+  private boolean uni;
   private Collection<String> jpClasses;
+  private Collection<String> jpClassTags;
   private String type;
   private Collection<JsonUtilClassAttr> jpAttrs;
   private Collection<JsonUtilParam> inParams;
@@ -39,15 +26,17 @@ public class JsonUtilMode {
   }
 
   private JsonUtilMode(String utilCode, String modeCode, String title, String qName, String confirmMessage,
-                       Collection<String> jpClasses, String type, Collection<JsonUtilClassAttr> jpAttrs,
-                       Collection<JsonUtilParam> inParams,
+                       boolean uni, Collection<String> jpClasses, Collection<String> jpClassTags,
+                       String type, Collection<JsonUtilClassAttr> jpAttrs, Collection<JsonUtilParam> inParams,
                        String resultType, Collection<JsonUtilParam> outCustomParams) {
     this.utilCode = utilCode;
     this.modeCode = modeCode;
     this.title = title;
     this.qName = qName;
+    this.uni = uni;
     this.confirmMessage = confirmMessage;
     this.jpClasses = Collections.unmodifiableCollection(jpClasses != null ? jpClasses : Collections.emptyList());
+    this.jpClassTags = Collections.unmodifiableCollection(jpClassTags != null ? jpClassTags : Collections.emptyList());
     this.type = type;
     this.jpAttrs = Collections.unmodifiableCollection(jpAttrs != null ? jpAttrs : Collections.emptyList());
     this.inParams = Collections.unmodifiableCollection(inParams != null ? inParams : Collections.emptyList());
@@ -75,8 +64,16 @@ public class JsonUtilMode {
     return confirmMessage;
   }
 
+  public boolean isUni() {
+    return uni;
+  }
+
   public Collection<String> getJpClasses() {
     return jpClasses;
+  }
+
+  public Collection<String> getJpClassTags() {
+    return jpClassTags;
   }
 
   public String getType() {
@@ -125,7 +122,9 @@ public class JsonUtilMode {
     private String title;
     private String qName;
     private String confirmMessage;
+    private boolean uni;
     private Collection<String> jpClasses;
+    private Collection<String> jpClassTags;
     private String type;
     private Collection<JsonUtilClassAttr> jpAttrs;
     private Collection<JsonUtilParam> inParams;
@@ -137,7 +136,7 @@ public class JsonUtilMode {
 
     public JsonUtilMode build() {
       return new JsonUtilMode(utilCode, modeCode, title, qName, confirmMessage,
-          jpClasses, type, jpAttrs, inParams, resultType, outCustomParams);
+          uni, jpClasses, jpClassTags, type, jpAttrs, inParams, resultType, outCustomParams);
     }
 
     public Builder utilCode(String utilCode) {
@@ -165,8 +164,18 @@ public class JsonUtilMode {
       return this;
     }
 
+    public Builder uni(boolean uni) {
+      this.uni = uni;
+      return this;
+    }
+
     public Builder jpClasses(Collection<String> jpClasses) {
       this.jpClasses = jpClasses;
+      return this;
+    }
+
+    public Builder jpClassTags(Collection<String> jpClassTags) {
+      this.jpClassTags = jpClassTags;
       return this;
     }
 

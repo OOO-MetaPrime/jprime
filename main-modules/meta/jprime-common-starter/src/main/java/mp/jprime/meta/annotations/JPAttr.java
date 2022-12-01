@@ -25,7 +25,7 @@ public @interface JPAttr {
    *
    * @return Полный код атрибута
    */
-  String qName();
+  String qName() default "";
 
   /**
    * Название атрибута
@@ -117,6 +117,13 @@ public @interface JPAttr {
    * @return Настройки денежного типа
    */
   JPMoney money() default @JPMoney(currency = "");
+
+  /**
+   * Настройки хранения пространственных данных
+   *
+   * @return Настройки пространственных данных
+   */
+  JPGeometry geometry() default @JPGeometry();
 
   /**
    * Путь виртуальной ссылки

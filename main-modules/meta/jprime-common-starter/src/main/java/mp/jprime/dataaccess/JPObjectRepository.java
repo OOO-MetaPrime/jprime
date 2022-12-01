@@ -71,13 +71,24 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
   Collection<JPObject> getList(JPSelect query);
 
   /**
-   * Возвращает список объектов и блокирует на время транзации
+   * Возвращает список объектов и блокирует на время транзакции
    *
    * @param query Параметры для выборки
    * @return Список объектов
    */
   default Collection<JPObject> getListAndLock(JPSelect query) {
     return getList(query);
+  }
+
+  /**
+   * Возвращает список объектов и блокирует на время транзакции
+   *
+   * @param query      Параметры для выборки
+   * @param skipLocked Признак пропуска заблокированных объектов
+   * @return Список объектов
+   */
+  default Collection<JPObject> getListAndLock(JPSelect query, boolean skipLocked) {
+    return getListAndLock(query);
   }
 
   /**

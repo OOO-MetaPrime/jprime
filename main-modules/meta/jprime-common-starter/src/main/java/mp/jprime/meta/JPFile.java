@@ -66,4 +66,11 @@ public interface JPFile {
    * @return Кодовое имя атрибута
    */
   String getFileDateAttrCode();
+
+  /**
+   * Атрибут для хранения - Возвращает информацию о файле
+   *
+   * @return Кодовое имя атрибута
+   */
+  String getFileInfoAttrCode();
 }

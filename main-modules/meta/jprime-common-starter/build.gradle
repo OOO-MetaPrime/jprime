@@ -4,7 +4,6 @@ dependencies {
   api('org.springframework.security:spring-security-core')
   api(commons.tika.core)
   api(libs.nio.multipart.parser)
-  api(commons.collections4)
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')
   testImplementation('io.projectreactor:reactor-test')

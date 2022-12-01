@@ -275,7 +275,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
     Mono<Boolean> result = Mono.just(true);
     // проверки на значение
     if (updateData != null && accessFilter != null) {
-      result = result.map(x -> x && checkData(accessFilter, updateData, auth));
+      result = result.map(x -> x && checkData(accessFilter, updateData, auth, true));
     }
     // доступ к объекту
     if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || accessFilter != null) {

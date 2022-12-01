@@ -23,6 +23,7 @@ public class XmlJpAttr {
   private XmlJpFile refJpFile;
   private XmlJpSimpleFraction simpleFraction;
   private XmlJpMoney money;
+  private XmlJpGeometry geometry;
   @JacksonXmlProperty(localName = "jpProps")
   private XmlJpProps schemaProps;
 
@@ -170,6 +171,14 @@ public class XmlJpAttr {
     this.money = money;
   }
 
+  public XmlJpGeometry getGeometry() {
+    return geometry;
+  }
+
+  public void setGeometry(XmlJpGeometry geometry) {
+    this.geometry = geometry;
+  }
+
   public XmlJpProps getSchemaProps() {
     return schemaProps;
   }
@@ -196,6 +205,7 @@ public class XmlJpAttr {
         (refJpFile != null ? ", refJpFile='" + refJpFile + '\'' : "") +
         (simpleFraction != null ? ", simpleFraction='" + simpleFraction + '\'' : "") +
         (money != null ? ", money='" + money + '\'' : "") +
+        (geometry != null ? ", geometry='" + geometry + '\'' : "") +
         ", virtualReference='" + virtualReference + '\'' +
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +

@@ -1,6 +1,5 @@
 package mp.jprime.attrparsers.base;
 
-
 import mp.jprime.attrparsers.AttrTypeParser;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
@@ -11,7 +10,6 @@ import mp.jprime.lang.JPDateRange;
 import mp.jprime.lang.JPIntegerRange;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
-import mp.jprime.parsers.ParserService;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,13 +21,7 @@ import java.util.Map;
  */
 @Service
 public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
-  private ParserService parserService;
   private JPJsonMapper jsonMapper;
-
-  @Autowired
-  private void setParserService(ParserService parserService) {
-    this.parserService = parserService;
-  }
 
   @Autowired
   private void setJsonMapper(JPJsonMapper jsonMapper) {
@@ -82,6 +74,9 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
     if (attrValue instanceof JPDateRange) {
       return (JPDateRange) attrValue;
     }
+
+    String attrName = jpAttr.getName();
+
     JPDateRange result = null;
     if (attrValue instanceof Map || attrValue instanceof JsonRange) {
       /*
@@ -95,7 +90,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
        */
       try {
         JsonDateRange json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.getObjectMapper().writeValueAsString(attrValue),
+            jsonMapper.toString(attrValue),
             JsonDateRange.class
         );
         result = JPDateRange.create(
@@ -104,7 +99,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPParseException("range.parse", e.getMessage());
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     } else if (attrValue instanceof String) {
       /*
@@ -121,7 +116,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPParseException("range.parse", e.getMessage());
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     }
     return result;

@@ -20,7 +20,7 @@ public final class AttrParserService {
   /**
    * Все парсеры
    */
-  private Map<JPType, AttrTypeParser> parsers = new HashMap<>();
+  private final Map<JPType, AttrTypeParser> parsers = new HashMap<>();
   /**
    * Парсер типов
    */
@@ -30,7 +30,6 @@ public final class AttrParserService {
   private void setParserService(ParserService parserService) {
     this.parserService = parserService;
   }
-
 
   /**
    * Конструктор
@@ -62,7 +61,7 @@ public final class AttrParserService {
       return;
     }
     AttrTypeParser parser = parsers.get(jpAttr.getValueType());
-    if (parser != null && attrValue != null && parser.getOutputType() == attrValue.getClass()) {
+    if (parser != null && attrValue != null && parser.getOutputType().isInstance(attrValue)) {
       parser.fill(jpAttr, attrValue, data);
     } else if (!data.containsAttr(jpAttr)) {
       // Если парсера нет, приводим значение "as is"

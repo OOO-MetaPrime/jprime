@@ -24,6 +24,11 @@ public final class JsonJPFile {
    */
   private String dateAttr;
 
+  /**
+   * Атрибут для хранения - Возвращает дополнительную информацию о файле
+   */
+  private String infoAttr;
+
   public String getTitleAttr() {
     return titleAttr;
   }
@@ -40,15 +45,20 @@ public final class JsonJPFile {
     return dateAttr;
   }
 
+  public String getInfoAttr() {
+    return infoAttr;
+  }
+
   public JsonJPFile() {
 
   }
 
-  private JsonJPFile(String titleAttr, String extAttr, String sizeAttr, String dateAttr) {
+  private JsonJPFile(String titleAttr, String extAttr, String sizeAttr, String dateAttr, String infoAttr) {
     this.titleAttr = titleAttr;
     this.extAttr = extAttr;
     this.sizeAttr = sizeAttr;
     this.dateAttr = dateAttr;
+    this.infoAttr = infoAttr;
   }
 
   /**
@@ -68,6 +78,7 @@ public final class JsonJPFile {
     private String extAttr;
     private String sizeAttr;
     private String dateAttr;
+    private String infoAttr;
 
     private Builder() {
 
@@ -93,8 +104,13 @@ public final class JsonJPFile {
       return this;
     }
 
+    public Builder infoAttr(String infoAttr) {
+      this.infoAttr = infoAttr;
+      return this;
+    }
+
     public JsonJPFile build() {
-      return new JsonJPFile(titleAttr, extAttr, sizeAttr, dateAttr);
+      return new JsonJPFile(titleAttr, extAttr, sizeAttr, dateAttr, infoAttr);
     }
   }
 }

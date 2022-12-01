@@ -2,7 +2,6 @@ package mp.jprime.dataaccess.handlers.services;
 
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
-import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.handlers.JPReactiveClassHandler;
 import mp.jprime.dataaccess.handlers.JPReactiveClassHandlerStorage;
 import mp.jprime.dataaccess.params.JPCreate;
@@ -26,15 +25,6 @@ import java.util.stream.Collectors;
 public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClassHandlerStorage, JPClassesLinkFilter<JPReactiveClassHandler> {
   private Map<String, Collection<JPReactiveClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPReactiveClassHandler> uniHandlers = new ArrayList<>();
-  /**
-   * Логика вычисления значений по умолчанию
-   */
-  private JPObjectDefValueService jpObjectDefValueService;
-
-  @Autowired
-  private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
-    this.jpObjectDefValueService = jpObjectDefValueService;
-  }
 
   /**
    * Считываем аннотации
@@ -105,9 +95,6 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
    */
   @Override
   public Mono<Void> beforeCreate(JPCreate query) {
-    query.getData().putIfAbsent(
-        jpObjectDefValueService.getDefValues(query.getJpClass(), query.getAuth())
-    );
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
     return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
         handlers

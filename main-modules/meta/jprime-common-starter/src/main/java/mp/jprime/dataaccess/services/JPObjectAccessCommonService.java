@@ -39,11 +39,6 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   // Логика вычисления значений по умолчанию
   private JPObjectDefValueService defValueService;
 
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
-    this.repo = repo;
-  }
-
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
@@ -52,6 +47,11 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   @Autowired
   private void setParserService(ParserService parserService) {
     this.parserService = parserService;
+  }
+
+  @Override
+  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
+    this.repo = repo;
   }
 
   @Override
@@ -320,7 +320,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     }
     Filter accessFilter = access.getFilter();
     // проверки на значение
-    if (updateData != null && accessFilter != null && !checkData(accessFilter, updateData, auth)) {
+    if (updateData != null && accessFilter != null && !checkData(accessFilter, updateData, auth, true)) {
       return false;
     }
     // доступ к объекту

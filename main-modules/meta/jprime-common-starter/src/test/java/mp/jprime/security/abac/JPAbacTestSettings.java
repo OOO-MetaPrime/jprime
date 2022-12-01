@@ -14,12 +14,10 @@ import java.time.DayOfWeek;
     value = {
         @JPPolicySet(
             name = "Группа политик annotation-тест",
-            qName = "jpPolicySet.annotationTest",
             jpClasses = {"test1", "test2"},
             policies = {
                 @JPPolicy(
                     name = "Политика Создание",
-                    qName = "jpPolicySet.annotationTest.create",
                     actions = {JPAction.CREATE},
                     subjectRules = {
                         @JPSubjectRule(
@@ -32,7 +30,6 @@ import java.time.DayOfWeek;
                     environmentRules = {
                         @JPEnvironmentRule(
                             name = "Доступно только в течении для 2010-01-10",
-                            qName = "jpPolicySet.annotationTest.create.envRule1",
                             time = @JPTime(
                                 daysOfWeek = {DayOfWeek.MONDAY, DayOfWeek.THURSDAY},
                                 fromTime = "10:00",
@@ -45,15 +42,25 @@ import java.time.DayOfWeek;
                 ),
                 @JPPolicy(
                     name = "Политика Обновление",
-                    qName = "jpPolicySet.annotationTest.update",
                     actions = {JPAction.READ, JPAction.UPDATE},
                     resourceRules = {
                         @JPResourceRule(
                             name = "Доступно только автору",
-                            qName = "jpPolicySet.annotationTest.update.rule1",
                             attr = "userOwnerId",
                             cond = @JPCond(in = {FilterValue.AUTH_USERID}),
                             effect = JPAccessType.PERMIT
+                        ),
+                        @JPResourceRule(
+                            name = "Доступно, если организация != null",
+                            attr = "org",
+                            cond = @JPCond(isNotNull = true),
+                            effect = JPAccessType.PERMIT
+                        ),
+                        @JPResourceRule(
+                            name = "Запрещено, если департамент == null",
+                            attr = "dep",
+                            cond = @JPCond(isNull = true),
+                            effect = JPAccessType.PROHIBITION
                         )
                     }
                 ),

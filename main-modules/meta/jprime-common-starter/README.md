@@ -1,6 +1,6 @@
 # Основной модуль JPrime
 
-Содержит типовую логику, API и базовые реализации основых функций системы
+Содержит типовую логику, API и базовые реализации основных функций системы
 
 ## Описание
  
@@ -29,6 +29,7 @@
 | double           | Double           | Вещественное (64 бита)                 | 
 | file             | String           | Файл                                   |
 | float            | Float            | Вещественное (32 бита)                 |
+| geometry         | JPGeometry       | Геометрия                              |
 | integer          | Integer          | Целочисленное (32 бита)                |
 | int4range        | JPIntegerRange   | Диапазон целочисленный (32 бита)       |
 | json             | String           | JSON                                   |
@@ -160,16 +161,17 @@
 Физически в атрибуте типа `файл` хранится имя файла в целевом хранилище, а для полноценной работы атрибута необходимо корректное заполнение `refJpFile` свойства
 ,где
 
-| Код                     | Описание                                                       | Обязательное |
-|-------------------------|----------------------------------------------------------------|--------------|
-| storageCode             | Код ФС хранилища с файлом                                      | +            |
-| storageFilePath         | Путь в ФС хранилище с файлом                                   | +            |
-| storageCodeAttrCode     | Кодовое имя атрибута для хранения кода ФС хранилища с файлом   | опционально  |
-| storageFilePathAttrCode | Кодовое имя атрибута для хранения пути в ФС хранилище с файлом | опционально  |
-| fileTitleAttrCode       | Кодовое имя атрибута для хранения исходного имени файла        | опционально  |
-| fileExtAttrCode         | Кодовое имя атрибута для хранения расширения файла             | опционально  |
-| fileSizeAttrCode        | Кодовое имя атрибута для хранения размера файла (в байтах)     | опционально  |
-| fileDateAttrCode        | Кодовое имя атрибута для хранения даты формирования файла      | опционально  |
+| Код                     | Описание                                                             | Обязательное |
+|-------------------------|----------------------------------------------------------------------|--------------|
+| storageCode             | Код ФС хранилища с файлом                                            | +            |
+| storageFilePath         | Путь в ФС хранилище с файлом                                         | +            |
+| storageCodeAttrCode     | Кодовое имя атрибута для хранения кода ФС хранилища с файлом         | опционально  |
+| storageFilePathAttrCode | Кодовое имя атрибута для хранения пути в ФС хранилище с файлом       | опционально  |
+| fileTitleAttrCode       | Кодовое имя атрибута для хранения исходного имени файла              | опционально  |
+| fileExtAttrCode         | Кодовое имя атрибута для хранения расширения файла                   | опционально  |
+| fileSizeAttrCode        | Кодовое имя атрибута для хранения размера файла (в байтах)           | опционально  |
+| fileDateAttrCode        | Кодовое имя атрибута для хранения даты формирования файла            | опционально  |
+| fileInfoAttrCode        | Кодовое имя атрибута для хранения дополнительной информации о  файле | опционально  |
 
 пример через xml
 ```
@@ -187,6 +189,7 @@
           <fileExtAttrCode>attr5</fileExtAttrCode>
           <fileSizeAttrCode>attr6</fileSizeAttrCode>
           <fileDateAttrCode>attr7</fileDateAttrCode>
+          <fileInfoAttrCode>attr8</fileInfoAttrCode>
         </refJpFile>
       </jpAttr>
 ```
@@ -194,7 +197,7 @@
 
 ## Преобразование java типов
 
-Для преобразовавания T1 в T2 разных классов рекомендуется использовать `mp.jprime.parsers.ParserService` 
+Для преобразования T1 в T2 разных классов рекомендуется использовать `mp.jprime.parsers.ParserService` 
 
 ```
   private ParserService parserService;
@@ -217,7 +220,7 @@
 
 ## Преобразование значений по типу атрибута
 
-Для преобразовавания к значению, соответствующему типу атрибута, рекомендуется использовать `mp.jprime.attrparsers.AttrParserService` 
+Для преобразования к значению, соответствующему типу атрибута, рекомендуется использовать `mp.jprime.attrparsers.AttrParserService` 
 
 ```
   private AttrParserService attrParserService;
@@ -243,16 +246,17 @@
 
 Описание класса ``JPClass``
 
-| Свойство    | Описание                         |
-|-------------|----------------------------------|
-| guid        | Глобальный идентификатор         |
-| code        | Кодовое имя класса               |
-| qName       | Полный код класса                |
-| name        | Название класса                  |
-| shortName   | Короткое название класса         |
-| description | Описание класса                  |
-| jpPackage   | Настройки доступа                |
-| attrs       | Список атрибутов класса          |
+| Свойство    | Описание                 |
+|-------------|--------------------------|
+| guid        | Глобальный идентификатор |
+| code        | Кодовое имя класса       |
+| qName       | Полный код класса        |
+| tags        | Теги класса              |
+| name        | Название класса          |
+| shortName   | Короткое название класса |
+| description | Описание класса          |
+| jpPackage   | Настройки доступа        |
+| attrs       | Список атрибутов класса  |
 
 Описание атрибута класса ``JPAttr``
 
@@ -637,10 +641,12 @@
 
 #### Условие
 
-| Свойство | Описание        |
-|----------|-----------------|
-| in       | Список значений |
-| notIn    | Список значений |
+| Свойство   | Описание        |
+|------------|-----------------|
+| in         | Список значений |
+| notIn      | Список значений |
+| isNull     | Флаг boolean    |
+| isNotNull  | Флаг boolean    |
 
 ### Способы описания настроек
 
@@ -728,6 +734,20 @@
                             attr = "name",
                             cond = @JPCond(in = {"test3"}),
                             effect = JPAccessType.PROHIBITION
+                        ),
+                        @JPResourceRule(
+                            name = "Доступен, если test4 == null",
+                            qName = "jpPolicySet.annotationTest.update4.rule4",
+                            attr = "name",
+                            cond = @JPCond(isNull = true),
+                            effect = JPAccessType.PERMIT
+                        ),
+                        @JPResourceRule(
+                            name = "Доступен, если test5 != null",
+                            qName = "jpPolicySet.annotationTest.update5.rule5",
+                            attr = "name",
+                            cond = @JPCond(isNotNull = true),
+                            effect = JPAccessType.PERMIT
                         )
                     }
                 ),
@@ -780,6 +800,15 @@
           </subjectRules>
           <resourceRules>
             <resourceRule>
+              <name>Доступно, если автор != null</name>
+              <qName>jpPolicySet.xmlTest.update.rule1</qName>
+              <attr>userOwnerId</attr>
+              <cond>
+                <isNotNull>
+                  <value>true</value>
+                </isNotNull>
+              </cond>
+              <effect>permit</effect>
             </resourceRule>
           </resourceRules>
           <environmentRules>
@@ -962,10 +991,21 @@
 
 Значения поиска для `virtualReference` соответствуют конечному типу данных, указанному в 'virtualType'
 
+## Настройки внешней публикации меты
+
+`jprime.meta.api.filter.enabled` - признак публикации указанных данных
+`jprime.meta.api.filter.jpClassCodes` - список кодовых имен классов через [,] для публикации
+`jprime.meta.api.filter.jpStorageCodes` - список кодовых имен хранилищ через [,], классы которых публикуем
+
+## Настройки доступа к мете анонимуса
+
+`jprime.meta.api.filter.anonymous.enabled` - признак доступа анонимуса
+`jprime.meta.api.filter.anonymous.jpClassCodes` - список кодовых имен классов через [,] для публикации
+
 ## Бины
 
 Любые данные после получения из хранилища сериализуются в `mp.jprime.dataaccess.beans.JPObject`
-При необходимости создать кастомный бин достаточно наследовать его от `mp.jprime.dataaccess.beans.JPObject` 
+При необходимости создать кастомный бин достаточно наследовать его от `mp.jprime.dataaccess.beans.JPObject`
 и указать аннотацией для каких классов он будет использоваться
 
 ```
@@ -1181,6 +1221,40 @@ public class TestClassDefValue implements JPObjectApplyValue {
 ## Определение дополнительных сведений по объекту
 
 В JPrime есть возможность возвратить набор информационных подсказок с  помощью `mp.jprime.dataaccess.addinfos.JPObjectAddInfoService`
+
+## Поддержка разных форматов json для хранения и отображения
+
+Реализация интерфейса `mp.jprime.attrparsers.jpjsonnode.JPJsonAttrValueConverter` позволяет использовать разные форматы для хранения и отображения (при конвертации в JsonJPObject)
+
+Для этого необходимо реализовать класс, указав с помощью аннотации `mp.jprime.annotations.JPClassAttrsLink` атрибуты, для которых поддерживается конвертация
+
+```java
+@JPClassAttrsLink(
+    jpAttrs = {
+        @JPClassAttr(
+            jpClass = "jpClass1",
+            jpAttr = "jsonAttr1"
+        ),
+        @JPClassAttr(
+            jpClass = "jpClass2",
+            jpAttr = "jsonAttr2"
+        )
+    }
+)
+public class JsonSignsConverter implements JPJsonAttrValueConverter {
+  /**
+   * Конвертирует данные из формата хранения в формат представления
+   *
+   * @param value Данные в формате хранения
+   * @return Данные в формате представления
+   */
+  @Override
+  public JPJsonNode toJsonView(JPJsonNode value) {
+    // value = ... логика преобразования
+    return value;
+  }
+}
+```
 
 ### Реализация источника данных
 

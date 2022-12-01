@@ -22,8 +22,8 @@ public class JsonCond {
   private String gte;
   private String lt;
   private String lte;
-  private JsonBetweenCond between;
-  private JsonContainsCond contains;
+  private JsonBetween between;
+  private JsonContainsKVP contains;
   private String startsWith;
   private String notStartsWith;
   private String like;
@@ -128,11 +128,11 @@ public class JsonCond {
     return lte;
   }
 
-  public JsonBetweenCond getBetween() {
+  public JsonBetween getBetween() {
     return between;
   }
 
-  public JsonContainsCond getContains() {
+  public JsonContainsKVP getContains() {
     return contains;
   }
 
@@ -336,12 +336,12 @@ public class JsonCond {
     return this;
   }
 
-  public JsonCond between(JsonBetweenCond between) {
+  public JsonCond between(JsonBetween between) {
     this.between = between;
     return this;
   }
 
-  public JsonCond contains(JsonContainsCond contains) {
+  public JsonCond contains(JsonContainsKVP contains) {
     this.contains = contains;
     return this;
   }

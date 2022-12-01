@@ -13,8 +13,9 @@ import java.util.Map;
 public class JPBatchCreate extends JPBatchSave {
   private final String jpClass;
 
-  private JPBatchCreate(Collection<Map<String, Object>> data, boolean onConflictDoNothing, Source source, AuthInfo auth, String jpClass) {
-    super(data, onConflictDoNothing, source, auth);
+  private JPBatchCreate(Collection<Map<String, Object>> data, boolean onConflictDoNothing, boolean upsert,
+                        Collection<String> conflictAttr, Collection<String> conflictSet, Source source, AuthInfo auth, String jpClass) {
+    super(data, onConflictDoNothing, upsert, conflictAttr, conflictSet, source, auth);
     this.jpClass = jpClass;
   }
 
@@ -59,7 +60,7 @@ public class JPBatchCreate extends JPBatchSave {
      */
     @Override
     public JPBatchCreate build() {
-      return new JPBatchCreate(allData, onConflictDoNothing, source, auth, jpClass);
+      return new JPBatchCreate(allData, onConflictDoNothing, upsert, conflictAttr, conflictSet, source, auth, jpClass);
     }
 
     /**

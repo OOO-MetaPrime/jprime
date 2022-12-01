@@ -12,6 +12,8 @@ import mp.jprime.exceptions.JPQueryException;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.log.AppLogger;
+import mp.jprime.meta.JPClass;
+import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPSecurityStorage;
 import mp.jprime.utils.*;
@@ -43,22 +45,35 @@ import java.util.stream.Stream;
 public final class JPUtilCommonService implements JPUtilService {
   private static final Logger LOG = LoggerFactory.getLogger(JPUtilCommonService.class);
 
-  private Map<String, UtilInfo> jpUtils = new HashMap<>();
-  private Map<String, UtilInfo> jpUniUtils = new HashMap<>();
-  /**
-   * Системный журнал
-   */
+  private final Map<String, UtilInfo> jpUtils = new HashMap<>();
+  private final Map<String, UtilInfo> jpUniUtils = new HashMap<>();
+  // Системный журнал
   private AppLogger appLogger;
-  /**
-   * Хранилище настроек RBAC
-   */
+  // Хранилище настроек RBAC
   private JPSecurityStorage securityManager;
-
+  // Базовый класс JSON-обработчиков
   private JPJsonMapper jpJsonMapper;
+  // Хранилище метаинформации
+  private JPMetaStorage metaStorage;
+
+  @Autowired
+  private void setAppLogger(AppLogger appLogger) {
+    this.appLogger = appLogger;
+  }
+
+  @Autowired
+  private void setSecurityManager(JPSecurityStorage securityManager) {
+    this.securityManager = securityManager;
+  }
 
   @Autowired
   private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
     this.jpJsonMapper = jpJsonMapper;
+  }
+
+  @Autowired
+  private void setMetaStorage(JPMetaStorage metaStorage) {
+    this.metaStorage = metaStorage;
   }
 
   /**
@@ -77,6 +92,7 @@ public final class JPUtilCommonService implements JPUtilService {
         UtilInfo utilInfo = new UtilInfo(util);
         boolean isUni = util.isUni();
         String[] utilJpClasses = util.getJpClasses();
+        String[] utilJpClassTags = util.getJpClassTags();
 
         for (Method method : util.getClass().getMethods()) {
           JPUtilModeLink anno = method.getAnnotation(JPUtilModeLink.class);
@@ -101,6 +117,7 @@ public final class JPUtilCommonService implements JPUtilService {
               resultType,
               isUni,
               utilJpClasses,
+              utilJpClassTags,
               !StringUtils.hasText(anno.jpPackage()) ? anno.jpPackage() : util.getJpPackage(),
               anno.authRoles().length > 0 ? anno.authRoles() : util.getAuthRoles(),
               anno
@@ -108,7 +125,10 @@ public final class JPUtilCommonService implements JPUtilService {
           utilInfo.modes.putIfAbsent(anno.code(), info);
         }
         // Добавляем болванку шага check
-        utilInfo.modes.putIfAbsent(CHECK_MODE, new ModeInfo(util, isUni, utilJpClasses, util.getJpPackage(), util.getAuthRoles()));
+        utilInfo.modes.putIfAbsent(
+            CHECK_MODE,
+            new ModeInfo(util, isUni, utilJpClasses, utilJpClassTags, util.getJpPackage(), util.getAuthRoles())
+        );
 
         if (isUni) {
           jpUniUtils.put(url, utilInfo);
@@ -119,16 +139,6 @@ public final class JPUtilCommonService implements JPUtilService {
         throw JPRuntimeException.wrapException(e);
       }
     }
-  }
-
-  @Autowired
-  private void setAppLogger(AppLogger appLogger) {
-    this.appLogger = appLogger;
-  }
-
-  @Autowired
-  private void setSecurityManager(JPSecurityStorage securityManager) {
-    this.securityManager = securityManager;
   }
 
   /**
@@ -234,8 +244,16 @@ public final class JPUtilCommonService implements JPUtilService {
    */
   @Override
   public Flux<JPUtilMode> getUtils(String className, AuthInfo authInfo) {
+    JPClass jpClass = metaStorage.getJPClassByCode(className);
+    if (jpClass == null) {
+      return Flux.empty();
+    }
     return getUtils(authInfo)
-        .filter(x -> x.isUni() || x.getJpClasses().contains(className));
+        .filter(
+            x -> x.isUni() ||
+            x.getJpClasses().contains(jpClass.getCode()) ||
+            !Collections.disjoint(x.getJpClassTags(), jpClass.getTags())
+        );
   }
 
   /**
@@ -337,7 +355,7 @@ public final class JPUtilCommonService implements JPUtilService {
               String subject = authInfo.getUsername();
               try {
                 if (!CHECK_MODE.equals(modeCode) && x.isActionLog()) { // не логируем чеки
-                  String s = jpJsonMapper.getObjectMapper().writeValueAsString(in);
+                  String s = jpJsonMapper.toString(in);
                   appLogger.debug(Event.UTIL_RUN, subject, utilCode + "/mode/" + modeCode, s, authInfo);
                 }
 
@@ -409,6 +427,7 @@ public final class JPUtilCommonService implements JPUtilService {
     private final String confirmMessage;
     private final boolean uni;
     private final Collection<String> jpClasses;
+    private final Collection<String> jpClassTags;
     private final JPAppendType type;
     private final Collection<JPClassAttr> jpAttrs;
     private final Class paramInClass;
@@ -417,10 +436,15 @@ public final class JPUtilCommonService implements JPUtilService {
     private final Collection<JPUtilParam> outCustomParams;
     private final boolean actionLog;
 
-    private ModeInfo(JPUtil util, boolean uni, String[] jpClasses, String jpPackage, String[] authRoles) {
+    private ModeInfo(JPUtil util, boolean uni, String[] jpClasses, String[] jpClassTags,
+                     String jpPackage, String[] authRoles) {
       Collection<String> jpClassList = new HashSet<>();
       if (jpClasses != null) {
         Collections.addAll(jpClassList, jpClasses);
+      }
+      Collection<String> jpClassTagList = new HashSet<>();
+      if (jpClassTags != null) {
+        Collections.addAll(jpClassTagList, jpClassTags);
       }
       this.modeCode = CHECK_MODE;
       this.util = util;
@@ -431,6 +455,7 @@ public final class JPUtilCommonService implements JPUtilService {
       this.confirmMessage = null;
       this.uni = uni;
       this.jpClasses = Collections.unmodifiableCollection(jpClassList);
+      this.jpClassTags = Collections.unmodifiableCollection(jpClassTagList);
       this.type = JPAppendType.CUSTOM;
       this.jpAttrs = Collections.emptyList();
       this.title = null;
@@ -444,10 +469,15 @@ public final class JPUtilCommonService implements JPUtilService {
     }
 
     private ModeInfo(JPUtil util, String methodName, Class[] inClasses, String resultType,
-                     boolean uni, String[] jpClasses, String jpPackage, String[] authRoles, JPUtilModeLink anno) {
+                     boolean uni, String[] jpClasses, String[] jpClassTags,
+                     String jpPackage, String[] authRoles, JPUtilModeLink anno) {
       Collection<String> jpClassList = new HashSet<>();
       if (jpClasses != null) {
         Collections.addAll(jpClassList, jpClasses);
+      }
+      Collection<String> jpClassTagList = new HashSet<>();
+      if (jpClassTags != null) {
+        Collections.addAll(jpClassTagList, jpClassTags);
       }
       this.modeCode = anno.code();
       this.util = util;
@@ -458,6 +488,7 @@ public final class JPUtilCommonService implements JPUtilService {
       this.confirmMessage = !anno.confirm().isEmpty() ? anno.confirm() : null;
       this.uni = uni;
       this.jpClasses = Collections.unmodifiableCollection(jpClassList);
+      this.jpClassTags = Collections.unmodifiableCollection(jpClassTagList);
       this.type = anno.type();
       this.jpAttrs = Collections.unmodifiableCollection(
           Stream.of(anno.jpAttrs())
@@ -604,6 +635,16 @@ public final class JPUtilCommonService implements JPUtilService {
     @Override
     public Collection<String> getJpClasses() {
       return jpClasses;
+    }
+
+    /**
+     * Теги классов, обрабатываемые этой утилитой
+     *
+     * @return Теги классов, обрабатываемые этой утилитой
+     */
+    @Override
+    public Collection<String> getJpClassTags() {
+      return jpClassTags;
     }
 
     /**

@@ -5,6 +5,7 @@ import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.security.AuthInfo;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -137,6 +138,19 @@ public final class JPObjectApplyValueParamsBean implements JPObjectApplyValuePar
      */
     public JPObjectApplyValueParamsBean build() {
       return new JPObjectApplyValueParamsBean(id, jpClassCode, data, attrs, authInfo, source);
+    }
+
+    /**
+     * Кодовые имена атрибутов класса, которые были модифицированы
+     *
+     * @param attrs Список кодовых имен атрибутов
+     * @return Builder
+     */
+    public Builder attrs(String... attrs) {
+      if (attrs.length > 0) {
+        this.attrs = Arrays.asList(attrs);
+      }
+      return this;
     }
 
     /**

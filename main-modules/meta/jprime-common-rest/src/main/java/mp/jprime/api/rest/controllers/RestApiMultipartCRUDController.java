@@ -12,19 +12,17 @@ import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.files.controllers.DownloadFileRestController;
 import mp.jprime.json.beans.JsonJPObject;
+import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileUploader;
-import mp.jprime.rest.v1.Controllers;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.streams.UploadInputStream;
 import mp.jprime.streams.services.UploadInputStreamService;
-import mp.jprime.web.services.ServerWebExchangeService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -73,10 +71,6 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
    */
   private JPMetaStorage metaStorage;
   /**
-   * Методы работы с ServerWebExchangeService
-   */
-  private ServerWebExchangeService sweService;
-  /**
    * Обработчик JWT
    */
   private JWTService jwtService;
@@ -84,12 +78,10 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
    * Работа с UploadInputStream
    */
   private UploadInputStreamService uploadInputStreamService;
-
   /**
-   * Признак добавления блока links
+   * Формирование JsonJPObject
    */
-  @Value("${jprime.api.addLinks:false}")
-  private boolean addLinks;
+  private JsonJPObjectService jsonJPObjectService;
 
   @Autowired
   private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
@@ -112,11 +104,6 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   }
 
   @Autowired
-  private void setSweService(ServerWebExchangeService sweService) {
-    this.sweService = sweService;
-  }
-
-  @Autowired
   private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
   }
@@ -131,6 +118,11 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
     this.jpFileUploader = jpFileUploader;
   }
 
+  @Autowired
+  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
+    this.jsonJPObjectService = jsonJPObjectService;
+  }
+
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{bearer}")
   @ResponseStatus(HttpStatus.OK)
   public Mono<Void> downloadFile(ServerWebExchange swe,
@@ -139,7 +131,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                  @PathVariable("attrCode") String attrCode,
                                  @PathVariable("bearer") String bearer,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
+    return Mono.just(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner()) {
@@ -165,7 +157,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                      @PathVariable("linkValue") String linkValue,
                                      @PathVariable("bearer") String bearer,
                                      @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
+    return Mono.just(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null || jpClass.isInner()) {
@@ -192,7 +184,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
+    return Mono.just(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (jpClass == null || jpClass.isInner()) {
@@ -256,13 +248,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
             .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
-            .map(x -> JsonJPObject.newBuilder()
-                .metaStorage(metaStorage)
-                .jpObject(x)
-                .baseUrl(sweService.getBaseUrl(swe))
-                .restMapping(Controllers.API_MAPPING)
-                .addLinks(addLinks)
-                .build())
+            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
         );
   }
 
@@ -275,7 +261,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByCodeOrPluralCode(code))
+    return Mono.just(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (jpClass == null || jpClass.isInner()) {
@@ -342,13 +328,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
             .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .map(x -> JsonJPObject.newBuilder()
-                .metaStorage(metaStorage)
-                .jpObject(x)
-                .baseUrl(sweService.getBaseUrl(swe))
-                .restMapping(Controllers.API_MAPPING)
-                .addLinks(addLinks)
-                .build())
+            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
         );
   }
 

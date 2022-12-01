@@ -222,7 +222,7 @@ public abstract class RestUtilsBaseController {
               }
 
               inParams = (JPUtilInParams) jpJsonMapper.getObjectMapper().readValue(
-                  objectMapper.writeValueAsString(inputData), inClass
+                  jpJsonMapper.toString(inputData), inClass
               );
 
               BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(inParams);
@@ -290,7 +290,9 @@ public abstract class RestUtilsBaseController {
         .title(utilMode.getTitle())
         .qName(utilMode.getQName())
         .confirmMessage(utilMode.getConfirmMessage())
+        .uni(utilMode.isUni())
         .jpClasses(utilMode.getJpClasses())
+        .jpClassTags(utilMode.getJpClassTags())
         .type(utilMode.getType().getCode())
         .jpAttrs(utilMode.getJpAttrs()
             .stream()

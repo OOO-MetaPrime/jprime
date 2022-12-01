@@ -14,11 +14,9 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Загрузка метаинформации из xml
@@ -81,6 +79,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
               XmlJpFile jpFile = attr.getRefJpFile();
               XmlJpSimpleFraction simpleFraction = attr.getSimpleFraction();
               XmlJpMoney money = attr.getMoney();
+              XmlJpGeometry geometry = attr.getGeometry();
 
               if (type == null) {
                 continue;
@@ -98,7 +97,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .shortName(attr.getShortName())
                   .description(descr)
                   .code(code)
-                  .jpClassCode(cls.getGuid())
+                  .jpClassCode(cls.getCode())
                   // Настройка ссылки класс+атрибут
                   .refJpClassCode(attr.getRefJpClass())
                   .refJpAttrCode(attr.getRefJpAttr())
@@ -122,6 +121,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                               .fileExtAttrCode(jpFile.getFileExtAttrCode())
                               .fileSizeAttrCode(jpFile.getFileSizeAttrCode())
                               .fileDateAttrCode(jpFile.getFileDateAttrCode())
+                              .fileInfoAttrCode(jpFile.getFileInfoAttrCode())
                               .build()
                   )
                   // Настройка простой дроби
@@ -139,6 +139,13 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                               .currencyCode(money.getCurrencyCode())
                               .build()
                   )
+                  // Настройка пространственных данных
+                  .geometry(
+                      type != JPType.GEOMETRY || geometry == null ? null :
+                          JPGeometryBean.newBuilder()
+                              .srid(geometry.getSRID())
+                              .build()
+                  )
                   // Свойства псевдо-меты
                   .schemaProps(
                       toJPProperty(attr.getSchemaProps())
@@ -148,12 +155,18 @@ public class JPMetaXmlLoader implements JPMetaLoader {
             String name = cls.getName();
             String shortName = cls.getShortName();
             String descr = cls.getDescription();
+            Collection<String> tags = Collections.emptyList();
+            if (cls.getTags() != null && cls.getTags().getTags() != null) {
+              tags = Stream.of(cls.getTags().getTags())
+                  .filter(Objects::nonNull)
+                  .filter(s -> !s.isEmpty())
+                  .collect(Collectors.toSet());
+            }
 
             JPClass newCls = JPClassBean.newBuilder()
                 .guid(cls.getGuid())
                 .code(cls.getCode())
                 .qName(cls.getqName())
-                .pluralCode(cls.getPluralCode())
                 .jpPackage(cls.getJpPackage())
                 .inner(cls.isInner())
                 .actionLog(cls.getActionLog() == null || cls.getActionLog())
@@ -163,6 +176,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                 .shortName(cls.getShortName())
                 .description(cls.getDescription())
                 .attrs(newAttrs)
+                .tags(tags)
                 .build();
 
             result.add(newCls);

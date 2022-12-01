@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = JPSecurityManagerTest.Config.class)
 class JPSecurityManagerTest {
   @Autowired
   private JPSecurityStorage securityManager;
@@ -49,6 +49,16 @@ class JPSecurityManagerTest {
     assertTrue(securityManager.checkCreate(jpPackage, roles));
     assertTrue(securityManager.checkDelete(jpPackage, roles));
     assertTrue(securityManager.checkUpdate(jpPackage, roles));
+  }
+
+  @Test
+  void testAdminWrongPackage() {
+    String jpPackage = "main_error";
+    Collection<String> roles = Collections.singleton("ADMIN");
+    assertFalse(securityManager.checkRead(jpPackage, roles));
+    assertFalse(securityManager.checkCreate(jpPackage, roles));
+    assertFalse(securityManager.checkDelete(jpPackage, roles));
+    assertFalse(securityManager.checkUpdate(jpPackage, roles));
   }
 
   @Test

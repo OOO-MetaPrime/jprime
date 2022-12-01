@@ -72,6 +72,16 @@ public final class JPData implements JPAttrData {
   }
 
   /**
+   * Размер данных
+   *
+   * @return Размер данных
+   */
+  @Override
+  public int size() {
+    return data.size();
+  }
+
+  /**
    * Возвращает данные
    *
    * @return Данные

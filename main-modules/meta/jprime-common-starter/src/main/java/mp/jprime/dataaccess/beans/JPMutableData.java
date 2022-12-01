@@ -44,6 +44,16 @@ public final class JPMutableData implements JPAttrData {
   }
 
   /**
+   * Размер данных
+   *
+   * @return Размер данных
+   */
+  @Override
+  public int size() {
+    return dataMap.size();
+  }
+
+  /**
    * Удаляет данные
    *
    * @return Данные
@@ -81,6 +91,43 @@ public final class JPMutableData implements JPAttrData {
     return (T) dataMap.put(key, value);
   }
 
+  /**
+   * Сохраняет данные
+   *
+   * @param data Данные для добавления
+   * @return Значение
+   */
+  public void putAll(JPData data) {
+    if (dataMap == null || dataMap.isEmpty()) {
+      return;
+    }
+    data.forEach(dataMap::put);
+  }
+
+  /**
+   * Сохраняет данные
+   *
+   * @param data Данные для добавления
+   * @return Значение
+   */
+  public void putAll(JPMutableData data) {
+    if (dataMap == null || dataMap.isEmpty()) {
+      return;
+    }
+    data.forEach(dataMap::put);
+  }
+
+  /**
+   * Сохраняет данные
+   *
+   * @param data Даныне
+   */
+  public void putAll(Map<String, Object> data) {
+    if (data == null || dataMap.isEmpty()) {
+      return;
+    }
+    data.forEach(dataMap::put);
+  }
 
   /**
    * Сохраняет данные
@@ -150,7 +197,19 @@ public final class JPMutableData implements JPAttrData {
   /**
    * Сохраняет данные
    *
-   * @param data Даныне
+   * @param data Данные
+   */
+  public void putIfAbsent(JPData data) {
+    if (data == null) {
+      return;
+    }
+    data.forEach(this::putIfAbsent);
+  }
+
+  /**
+   * Сохраняет данные
+   *
+   * @param data Данные
    */
   public void putIfAbsent(JPMutableData data) {
     if (data == null) {

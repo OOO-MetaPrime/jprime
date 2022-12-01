@@ -1,16 +1,15 @@
 package mp.jprime.attrparsers.base;
 
-
 import mp.jprime.attrparsers.AttrTypeParser;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
-import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonMoney;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPMoney;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -92,6 +91,9 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
     if (jpAttr == null || jpAttr.getValueType() != JPType.MONEY) {
       return null;
     }
+
+    String attrName = jpAttr.getName();
+
     JPMoney result = null;
     if (attrValue instanceof Map) {
       /*
@@ -102,7 +104,7 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
        */
       try {
         JsonMoney json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.getObjectMapper().writeValueAsString(attrValue),
+            jsonMapper.toString(attrValue),
             JsonMoney.class
         );
         result = JPMoney.of(
@@ -111,7 +113,7 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPRuntimeException(e.getMessage(), e);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     } else if (attrValue instanceof String) {
       /*
@@ -128,7 +130,7 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPRuntimeException(e.getMessage(), e);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     }
     return result;

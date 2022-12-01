@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Загрузка метаинформации по аннотациям
@@ -61,6 +62,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
         JPFile jpFile = attr.refJpFile();
         JPSimpleFraction simpleFraction = attr.simpleFraction();
         JPMoney money = attr.money();
+        JPGeometry geometry = attr.geometry();
 
         Map<String, JPPropertySchema> schemas = getSchemas(attr.schemaProps());
         newAttrs.add(JPAttrBean.newBuilder()
@@ -75,7 +77,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .shortName(attr.shortName())
             .description(attr.description())
             .code(code)
-            .jpClassCode(cls.guid())
+            .jpClassCode(cls.code())
             // Настройка ссылки класс+атрибут
             .refJpClassCode(attr.refJpClass())
             .refJpAttrCode(attr.refJpAttr())
@@ -98,6 +100,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
                         .fileExtAttrCode(jpFile.fileExtAttrCode())
                         .fileSizeAttrCode(jpFile.fileSizeAttrCode())
                         .fileDateAttrCode(jpFile.fileDateAttrCode())
+                        .fileInfoAttrCode(jpFile.fileInfoAttrCode())
                         .build()
             )
             // Настройка простой дроби
@@ -115,6 +118,13 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
                         .currencyCode(money.currency())
                         .build()
             )
+            // Настройка пространственных данных
+            .geometry(
+                type != JPType.GEOMETRY ? null :
+                    JPGeometryBean.newBuilder()
+                        .srid(geometry.SRID())
+                        .build()
+            )
             // Свойства псевдо-меты
             .schemaProps(
                 toJPProperty(attr.jpProps(), schemas)
@@ -122,11 +132,17 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .build()
         );
       }
+
+      Collection<String> tags = Stream.of(cls.tags())
+          .filter(Objects::nonNull)
+          .filter(s -> !s.isEmpty())
+          .collect(Collectors.toSet());
+
       mp.jprime.meta.JPClass newCls = JPClassBean.newBuilder()
           .guid(cls.guid())
           .code(cls.code())
           .qName(cls.qName())
-          .pluralCode(cls.pluralCode())
+          .tags(tags)
           .jpPackage(cls.jpPackage())
           .inner(cls.inner())
           .actionLog(cls.actionLog())

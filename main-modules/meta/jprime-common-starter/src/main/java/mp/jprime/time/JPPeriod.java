@@ -30,6 +30,19 @@ public final class JPPeriod {
     return new JPPeriod(from, to);
   }
 
+  /**
+   * Признак нахождения указанной даты в периоде
+   *
+   * @param value Дата
+   * @return Да/Нет
+   */
+  public boolean contains(LocalDate value) {
+    if (value == null) {
+      return false;
+    }
+    return (from == null || !from.isAfter(value)) && (to == null || !to.isBefore(value));
+  }
+
   @Override
   public String toString() {
     return from + ".." + to;

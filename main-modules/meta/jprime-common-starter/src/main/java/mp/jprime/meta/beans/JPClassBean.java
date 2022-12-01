@@ -4,6 +4,8 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * метаописание класса
@@ -11,7 +13,6 @@ import java.util.*;
 public final class JPClassBean implements JPClass {
   private final String guid;
   private final String code;
-  private final String pluralCode;
   /**
    * Название класса
    */
@@ -22,25 +23,27 @@ public final class JPClassBean implements JPClass {
   private final String shortName;
   private final String description;
   private final String qName;
+  private final Collection<String> tags;
   private final String jpPackage;
   private final boolean inner;
   private final boolean actionLog;
   private final Map<String, JPAttr> attrs;
+  private final Map<JPType, Collection<JPAttr>> typedAttrs = new ConcurrentHashMap<>();
   private final JPAttr primaryKeyAttr;
   private final Boolean immutable;
 
-  private JPClassBean(String guid, String code, String pluralCode,
-                      String name, String shortName, String description, String qName,
-                      String jpPackage, boolean inner, boolean actionLog, Collection<JPAttr> attrs, boolean immutable) {
+  private JPClassBean(String guid, String code, String name, String shortName, String description, String qName,
+                      Collection<String> tags, String jpPackage, boolean inner, boolean actionLog,
+                      Collection<JPAttr> attrs, boolean immutable) {
     this.immutable = immutable;
 
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
-    this.pluralCode = pluralCode != null && !pluralCode.isEmpty() ? pluralCode : null;
     this.name = name != null && !name.isEmpty() ? name : null;
     this.shortName = shortName != null && !shortName.isEmpty() ? shortName : this.name;
     this.description = description != null && !description.isEmpty() ? description : this.name;
     this.qName = qName != null && !qName.isEmpty() ? qName : null;
+    this.tags = tags != null && !tags.isEmpty() ? Collections.unmodifiableCollection(new ArrayList<>(tags)) : Collections.emptyList();
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
     this.inner = inner;
     this.actionLog = actionLog;
@@ -92,16 +95,6 @@ public final class JPClassBean implements JPClass {
   }
 
   /**
-   * Множественное кодовое имя класса
-   *
-   * @return Множественное кодовое имя класса
-   */
-  @Override
-  public String getPluralCode() {
-    return pluralCode;
-  }
-
-  /**
    * Название класса
    *
    * @return Название класса
@@ -139,6 +132,16 @@ public final class JPClassBean implements JPClass {
   @Override
   public String getQName() {
     return qName;
+  }
+
+  /**
+   * Теги класса
+   *
+   * @return Теги класса
+   */
+  @Override
+  public Collection<String> getTags() {
+    return tags;
   }
 
   /**
@@ -193,6 +196,29 @@ public final class JPClassBean implements JPClass {
   }
 
   /**
+   * Возвращает атрибуты по типу
+   *
+   * @param jpType Тип атрибута
+   * @return Список JPAttr
+   */
+  @Override
+  public Collection<JPAttr> getAttrs(JPType jpType) {
+    if (jpType == null) {
+      return Collections.emptyList();
+    }
+    Collection<JPAttr> result = typedAttrs.get(jpType);
+    if (result == null) {
+      result = Collections.unmodifiableCollection(
+          attrs.values().stream()
+              .filter(x -> x.getType() == jpType)
+              .collect(Collectors.toList())
+      );
+      typedAttrs.put(jpType, result);
+    }
+    return result;
+  }
+
+  /**
    * Возвращает ключевой атрибут класса
    *
    * @return Ключевой атрибут
@@ -217,11 +243,11 @@ public final class JPClassBean implements JPClass {
     return "JPClass{" +
         "code='" + code + '\'' +
         ", guid='" + guid + '\'' +
-        ", pluralCode='" + pluralCode + '\'' +
         ", name='" + name + '\'' +
         ", shortName='" + shortName + '\'' +
         ", name='" + description + '\'' +
         ", qName='" + qName + '\'' +
+        (tags.isEmpty() ? "" : ", tags='" + tags + '\'') +
         ", attrs=" + attrs +
         ", immutable = " + immutable +
         '}';
@@ -242,11 +268,11 @@ public final class JPClassBean implements JPClass {
   public static final class Builder {
     private String guid;
     private String code;
-    private String pluralCode;
     private String name;
     private String shortName;
     private String description;
     private String qName;
+    private Collection<String> tags;
     private String jpPackage;
     private boolean inner;
     private boolean actionLog;
@@ -262,8 +288,8 @@ public final class JPClassBean implements JPClass {
      * @return Метаописание
      */
     public JPClassBean build() {
-      return new JPClassBean(guid, code, pluralCode, name, shortName, description, qName, jpPackage,
-          inner, actionLog, attrs, immutable);
+      return new JPClassBean(guid, code, name, shortName, description, qName, tags,
+          jpPackage, inner, actionLog, attrs, immutable);
     }
 
     /**
@@ -285,17 +311,6 @@ public final class JPClassBean implements JPClass {
      */
     public Builder code(String code) {
       this.code = code;
-      return this;
-    }
-
-    /**
-     * Множественное кодовое имя класса
-     *
-     * @param pluralCode Множественное кодовое имя класса
-     * @return Builder
-     */
-    public Builder pluralCode(String pluralCode) {
-      this.pluralCode = pluralCode;
       return this;
     }
 
@@ -340,6 +355,30 @@ public final class JPClassBean implements JPClass {
      */
     public Builder qName(String qName) {
       this.qName = qName;
+      return this;
+    }
+
+    /**
+     * Теги класса
+     *
+     * @param tags Теги класса
+     * @return Builder
+     */
+    public Builder tags(Collection<String> tags) {
+      this.tags = tags;
+      return this;
+    }
+
+    /**
+     * Теги класса
+     *
+     * @param tags Теги класса
+     * @return Builder
+     */
+    public Builder tags(String... tags) {
+      if (tags.length > 0) {
+        this.tags = Arrays.asList(tags);
+      }
       return this;
     }
 

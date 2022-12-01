@@ -1,6 +1,5 @@
 package mp.jprime.parsers.exceptions;
 
-import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPRuntimeException;
 
 public class JPParserNotFoundException extends JPRuntimeException {

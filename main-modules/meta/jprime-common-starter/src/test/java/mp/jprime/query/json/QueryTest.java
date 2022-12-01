@@ -3,12 +3,15 @@ package mp.jprime.query.json;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.filters.And;
 import mp.jprime.json.beans.*;
+import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -23,7 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = QueryTest.Config.class)
 public class QueryTest {
   private static final JsonSelect query;
   /**
@@ -34,7 +37,17 @@ public class QueryTest {
 
   @Lazy(value = false)
   @Configuration
-  @ComponentScan("mp.jprime.json.services")
+  @ComponentScan(
+      basePackages = {"mp.jprime.json.modules", "mp.jprime.json.services"},
+      excludeFilters = {
+          @ComponentScan.Filter(
+              type = FilterType.ASSIGNABLE_TYPE,
+              value = {
+                  JsonJPObjectService.class
+              }
+          )
+      })
+  @EnableConfigurationProperties
   public static class Config {
   }
 
@@ -53,7 +66,7 @@ public class QueryTest {
             new JsonExpr().or(Arrays.asList(new JsonExpr(JsonCond.newAttrCond("attr3").like("xxx")),
                 new JsonExpr(JsonCond.newAttrCond("attr5").gt("2")))
             ),
-            new JsonExpr().or(Arrays.asList(new JsonExpr(JsonCond.newAttrCond("attr5").between(new JsonBetweenCond("1", "10"))),
+            new JsonExpr().or(Arrays.asList(new JsonExpr(JsonCond.newAttrCond("attr5").between(new JsonBetween("1", "10"))),
                 new JsonExpr(JsonCond.newAttrCond("attr6").in(Arrays.asList("1", "2", "3"))))
             ),
             new JsonExpr(JsonCond.newAttrCond("attr7").eqDay((LocalDate.of(2019, 1, 1)))),

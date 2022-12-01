@@ -1,6 +1,5 @@
 package mp.jprime.parsers.base;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.parsers.TypeParser;
@@ -32,9 +31,8 @@ public class JPJsonNodeToStringParser implements TypeParser<JPJsonNode, String> 
   public String parse(JPJsonNode value) {
     String str = null;
     try {
-      str = value == null ? null :
-          jsonMapper.getObjectMapper().writeValueAsString(value.toJsonNode());
-    } catch (JsonProcessingException e) {
+      str = value == null ? null : jsonMapper.toString(value.toJsonNode());
+    } catch (Exception e) {
       LOG.error(e.getMessage(), e);
     }
     return str;

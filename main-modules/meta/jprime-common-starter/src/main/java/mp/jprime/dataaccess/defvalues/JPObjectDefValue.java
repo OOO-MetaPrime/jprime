@@ -3,7 +3,7 @@ package mp.jprime.dataaccess.defvalues;
 import mp.jprime.dataaccess.beans.JPMutableData;
 
 /**
- * Значения по умолчанию
+ * Значения по умолчанию при создании объекта
  */
 public interface JPObjectDefValue {
   /**

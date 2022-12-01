@@ -79,6 +79,13 @@ public interface JPUserEvent<T> {
   String getUserDescription();
 
   /**
+   * Организация пользователя
+   *
+   * @return Id организации пользователя
+   */
+  String getOrgId();
+
+  /**
    * Тип события
    *
    * @return Тип события

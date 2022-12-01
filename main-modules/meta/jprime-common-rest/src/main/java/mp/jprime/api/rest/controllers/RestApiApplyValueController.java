@@ -73,7 +73,7 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
   public Mono<JsonApplyValueResult> getDefValue(ServerWebExchange swe,
                                                 @PathVariable("code") String code,
                                                 @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCodeOrPluralCode(code);
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }

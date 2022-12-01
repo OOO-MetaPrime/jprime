@@ -1,0 +1,23 @@
+dependencies {
+  annotationProcessor(loggers.log4j.core)
+
+  api(loggers.disruptor)
+  api(loggers.kafka.log4j.appender)
+
+  api(commons.apache.httpclient)
+  api(commons.lang3)
+  api(commons.collections4)
+  api(commons.moneta.core)
+  api(libs.bundles.jackson.v1)
+
+  api project(':jprime-security-core')
+  api project(':jprime-common-exceptions')
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

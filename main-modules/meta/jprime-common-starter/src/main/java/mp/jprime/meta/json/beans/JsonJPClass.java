@@ -16,13 +16,13 @@ public final class JsonJPClass {
    */
   private String code;
   /**
-   * Множественный код кодового имени
-   */
-  private String pluralCode;
-  /**
    * Полный код класса
    */
   private String qName;
+  /**
+   * Теги класса
+   */
+  private Collection<String> tags;
   /**
    * Название класса
    */
@@ -56,13 +56,13 @@ public final class JsonJPClass {
 
   }
 
-  private JsonJPClass(String code, String guid, String pluralCode, String qName,
+  private JsonJPClass(String code, String guid, String qName, Collection<String> tags,
                       String name, String shortName, String description, String jpPackage,
                       boolean immutable, Collection<JsonJPAttr> attrs, Collection<JsonJPClassMap> maps) {
     this.code = code;
     this.guid = guid;
-    this.pluralCode = pluralCode;
     this.qName = qName;
+    this.tags = tags;
     this.name = name;
     this.shortName = shortName;
     this.description = description;
@@ -91,21 +91,21 @@ public final class JsonJPClass {
   }
 
   /**
-   * Множественный код кодового имени
-   *
-   * @return Множественный код кодового имени
-   */
-  public String getPluralCode() {
-    return pluralCode;
-  }
-
-  /**
    * Полный код класса
    *
    * @return Полный код класса
    */
   public String getqName() {
     return qName;
+  }
+
+  /**
+   * Теги класса
+   *
+   * @return Теги класса
+   */
+  public Collection<String> getTags() {
+    return tags;
   }
 
   /**
@@ -188,8 +188,8 @@ public final class JsonJPClass {
   public static final class Builder {
     private String guid;
     private String code;
-    private String pluralCode;
     private String qName;
+    private Collection<String> tags;
     private String name;
     private String shortName;
     private String description;
@@ -212,13 +212,19 @@ public final class JsonJPClass {
       return this;
     }
 
-    public Builder pluralCode(String pluralCode) {
-      this.pluralCode = pluralCode;
+    public Builder qName(String qName) {
+      this.qName = qName;
       return this;
     }
 
-    public Builder qName(String qName) {
-      this.qName = qName;
+    /**
+     * Теги класса
+     *
+     * @param tags Теги класса
+     * @return Builder
+     */
+    public Builder tags(Collection<String> tags) {
+      this.tags = tags;
       return this;
     }
 
@@ -226,7 +232,7 @@ public final class JsonJPClass {
      * Название класса
      *
      * @param name Название класса
-     * @return Название класса
+     * @return Builder
      */
     public Builder name(String name) {
       this.name = name;
@@ -237,7 +243,7 @@ public final class JsonJPClass {
      * Короткое название класса
      *
      * @param shortName Короткое название класса
-     * @return Короткое название класса
+     * @return Builder
      */
     public Builder shortName(String shortName) {
       this.shortName = shortName;
@@ -271,7 +277,7 @@ public final class JsonJPClass {
     }
 
     public JsonJPClass build() {
-      return new JsonJPClass(code, guid, pluralCode, qName, name, shortName, description, jpPackage,
+      return new JsonJPClass(code, guid, qName, tags, name, shortName, description, jpPackage,
           immutable, attrs, maps);
     }
   }

@@ -6,6 +6,10 @@
 		<code>personalCard</code>
 		<qName>jpClass.className1.PersonalCard</qName>
 		<description>Личное дело содержит сведения, предоставляемые гражданином в процессе обращения в ОСЗН; сведения, поступающие из внешних организаций; сведения, формируемые непосредственно в ОСЗН</description>
+    <tags>
+      <tag>person</tag>
+      <tag>personCard</tag>
+    </tags>
 		<jpAttrs>
 			<jpAttr>
 				<guid>3e4cc29e-9ab4-4cce-86ff-9d4f9a42d923</guid>
@@ -37,6 +41,7 @@
           <fileExtAttrCode>attr5</fileExtAttrCode>
           <fileSizeAttrCode>attr6</fileSizeAttrCode>
           <fileDateAttrCode>attr7</fileDateAttrCode>
+          <fileInfoAttrCode>attr8</fileInfoAttrCode>
         </refJpFile>
       </jpAttr>
       <jpAttr>
@@ -59,6 +64,15 @@
         <money>
           <currencyCode>RUR</currencyCode>
         </money>
+      </jpAttr>
+      <jpAttr>
+        <code>geometryAttr</code>
+        <type>geometry</type>
+        <qName>jpClass.className1.PersonalCard.geometryAttr</qName>
+        <description>Геоданные</description>
+        <geometry>
+          <srid>3857</srid>
+        </geometry>
       </jpAttr>
 		</jpAttrs>
 	</jpClass>

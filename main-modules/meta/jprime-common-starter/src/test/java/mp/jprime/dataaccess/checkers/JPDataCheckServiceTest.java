@@ -5,9 +5,11 @@ import mp.jprime.dataaccess.params.query.Filter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -18,16 +20,18 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = JPDataCheckServiceTest.Config.class)
 class JPDataCheckServiceTest {
   @Lazy(value = false)
   @Configuration
-  @ComponentScan(value = {
-      "mp.jprime.dataaccess.checkers",
-      "mp.jprime.dataaccess.params.query",
-      "mp.jprime.dataaccess.templatevalues",
-      "mp.jprime.parsers"
-  })
+  @ComponentScan(
+      basePackages = {
+          "mp.jprime.dataaccess.checkers",
+          "mp.jprime.dataaccess.params.query",
+          "mp.jprime.dataaccess.templatevalues",
+          "mp.jprime.parsers"
+      })
+  @EnableConfigurationProperties
   public static class Config {
   }
 

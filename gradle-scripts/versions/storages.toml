@@ -1,12 +1,12 @@
 # Базы данных
 [versions]
-postgresqlVersion = "42.3.5"
+postgresqlVersion = "42.5.0"
 r2dbcPostgresqlVersion = { strictly = "0.9.0.RELEASE" }
-mssqlJdbcVersion = "9.4.1.jre8"
+mssqlJdbcVersion = "10.2.1.jre8"
 clickhouseJdbcVersion = "0.3.1"
 jtdsVersion = "1.3.1"
 querydslSqlVersion = "5.0.0"
-minioVersion = "7.1.4"
+minioVersion = "8.4.2"
 
 [libraries]
 postgresql = { module="org.postgresql:postgresql", version.ref="postgresqlVersion" }

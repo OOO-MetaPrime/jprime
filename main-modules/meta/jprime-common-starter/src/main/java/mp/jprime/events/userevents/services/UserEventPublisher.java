@@ -12,5 +12,5 @@ public interface UserEventPublisher {
    *
    * @param event the event to publish
    */
-  void publishEvent(JPUserEvent event);
+  void publishEvent(JPUserEvent<?> event);
 }

@@ -12,6 +12,7 @@ public class XmlJpFile {
   private String fileExtAttrCode;
   private String fileSizeAttrCode;
   private String fileDateAttrCode;
+  private String fileInfoAttrCode;
 
   public String getStorageCode() {
     return storageCode;
@@ -77,6 +78,14 @@ public class XmlJpFile {
     this.fileDateAttrCode = fileDateAttrCode;
   }
 
+  public String getFileInfoAttrCode() {
+    return fileInfoAttrCode;
+  }
+
+  public void setFileInfoAttrCode(String fileInfoAttrCode) {
+    this.fileInfoAttrCode = fileInfoAttrCode;
+  }
+
   @Override
   public String toString() {
     return "XmlJpFile{" +
@@ -88,6 +97,7 @@ public class XmlJpFile {
         ", fileExtAttrCode='" + fileExtAttrCode + '\'' +
         ", fileSizeAttrCode='" + fileSizeAttrCode + '\'' +
         ", fileDateAttrCode='" + fileDateAttrCode + '\'' +
+        ", fileInfoAttrCode='" + fileInfoAttrCode + '\'' +
         '}';
   }
 }

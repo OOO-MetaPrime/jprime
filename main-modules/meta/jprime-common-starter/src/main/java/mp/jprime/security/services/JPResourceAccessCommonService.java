@@ -273,10 +273,17 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
 
     Collection<String> inValues = null;
     Collection<String> notInValues = null;
+    boolean isNullValue = false;
+    boolean isNotNullValue = false;
+
     if (cond.getOper() == FilterOperation.IN) {
       inValues = cond.getValue();
     } else if (cond.getOper() == FilterOperation.NOTIN) {
       notInValues = cond.getValue();
+    } else if (cond.getOper() == FilterOperation.ISNULL) {
+      isNullValue = true;
+    } else if (cond.getOper() == FilterOperation.ISNOTNULL) {
+      isNotNullValue = true;
     }
 
     if (JPAccessType.PERMIT == accessType) {
@@ -286,12 +293,25 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
       if (notInValues != null && !notInValues.isEmpty()) {
         return Filter.attr(attrCode).notIn(notInValues);
       }
+      if (isNullValue) {
+        return Filter.attr(attrCode).isNull();
+      }
+      if (isNotNullValue) {
+        return Filter.attr(attrCode).isNotNull();
+      }
+
     } else if (JPAccessType.PROHIBITION == accessType) {
       if (inValues != null && !inValues.isEmpty()) {
-         return Filter.attr(attrCode).notIn(inValues);
+        return Filter.attr(attrCode).notIn(inValues);
       }
       if (notInValues != null && !notInValues.isEmpty()) {
-        return Filter.attr(attrCode).in(inValues);
+        return Filter.attr(attrCode).in(notInValues);
+      }
+      if (isNullValue) {
+        return Filter.attr(attrCode).isNotNull();
+      }
+      if (isNotNullValue) {
+        return Filter.attr(attrCode).isNull();
       }
     }
     return null;

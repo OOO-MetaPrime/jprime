@@ -2,7 +2,6 @@ package mp.jprime.dataaccess.handlers.services;
 
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
-import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
 import mp.jprime.dataaccess.handlers.JPClassHandlerStorageAware;
@@ -25,10 +24,6 @@ import java.util.Map;
 public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage, JPClassesLinkFilter<JPClassHandler> {
   private Map<String, Collection<JPClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPClassHandler> uniHandlers = new ArrayList<>();
-  /**
-   * Логика вычисления значений по умолчанию
-   */
-  private JPObjectDefValueService jpObjectDefValueService;
 
   /**
    * Указание ссылок
@@ -38,11 +33,6 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     for (JPClassHandlerStorageAware aware : awares) {
       aware.setJPClassHandlerStorage(this);
     }
-  }
-
-  @Autowired
-  private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
-    this.jpObjectDefValueService = jpObjectDefValueService;
   }
 
   /**
@@ -114,9 +104,6 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
    */
   @Override
   public void beforeCreate(JPCreate query) {
-    query.getData().putIfAbsent(
-        jpObjectDefValueService.getDefValues(query.getJpClass(), query.getAuth())
-    );
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
       handlers.forEach(x -> x.beforeCreate(query));

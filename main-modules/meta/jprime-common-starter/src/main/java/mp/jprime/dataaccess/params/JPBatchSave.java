@@ -5,28 +5,41 @@ import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.collections4.MapUtils;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Базовые класс для создания/обновления
+ * Базовый класс для создания/обновления
  */
 public abstract class JPBatchSave extends JPBaseParams {
   private final Collection<JPMutableData> data;
   private final boolean onConflictDoNothing;
+  private final boolean upsert;
+  private final Collection<String> conflictAttr;
+  private final Collection<String> conflictSet;
 
   /**
    * Конструктор
    *
-   * @param data               Значение атрибута при создании
+   * @param data                Значение атрибута при создании
    * @param onConflictDoNothing Флаг "При конфликте игнорировать"
-   * @param source             Источник данных
-   * @param auth               Данные аутентификации
+   * @param source              Источник данных
+   * @param auth                Данные аутентификации
    */
-  protected JPBatchSave(Collection<Map<String, Object>> data, boolean onConflictDoNothing, Source source, AuthInfo auth) {
+  protected JPBatchSave(Collection<Map<String, Object>> data, boolean onConflictDoNothing, boolean upsert,
+                        Collection<String> conflictAttr, Collection<String> conflictSet, Source source, AuthInfo auth) {
     super(source, auth);
     this.onConflictDoNothing = onConflictDoNothing;
+    this.upsert = upsert;
+    if (upsert) {
+      this.conflictAttr = Collections.unmodifiableCollection(conflictAttr);
+      this.conflictSet = Collections.unmodifiableCollection(conflictSet);
+    } else {
+      this.conflictAttr = Collections.emptyList();
+      this.conflictSet = Collections.emptyList();
+    }
     this.data = data == null ? Collections.emptyList() :
         Collections.unmodifiableCollection(data.stream().map(JPMutableData::of).collect(Collectors.toList()));
   }
@@ -50,12 +63,51 @@ public abstract class JPBatchSave extends JPBaseParams {
   }
 
   /**
+   * Флаг upsert
+   *
+   * @return Да/Нет
+   */
+  public boolean isUpsert() {
+    return upsert;
+  }
+
+  /**
+   * Конфликты для upsert
+   *
+   * @return Да/Нет
+   */
+  public Collection<String> getСonflictAttr() {
+    return conflictAttr;
+  }
+
+  /**
+   * Заменяемые поля upsert
+   *
+   * @return Да/Нет
+   */
+  public Collection<String> getConflictSet() {
+    return conflictSet;
+  }
+
+  /**
+   * Признак пустого батча
+   *
+   * @return Да/Нет
+   */
+  public boolean isEmpty() {
+    return data.isEmpty();
+  }
+
+  /**
    * Построитель JPSave
    */
   public abstract static class Builder<T extends Builder> {
     protected Collection<Map<String, Object>> allData = new ArrayList<>();
     protected Map<String, Object> data = new HashMap<>();
     protected boolean onConflictDoNothing = Boolean.FALSE;
+    protected boolean upsert = Boolean.FALSE;
+    protected Collection<String> conflictAttr = new ArrayList<>();
+    protected Collection<String> conflictSet = new ArrayList<>();
     protected AuthInfo auth;
     protected Source source;
 
@@ -102,6 +154,24 @@ public abstract class JPBatchSave extends JPBaseParams {
      */
     public T onConflictDoNothing(boolean onConflictDoNothing) {
       this.onConflictDoNothing = onConflictDoNothing;
+      return (T) this;
+    }
+
+    /**
+     * Upsert
+     *
+     * @param conflictAttr Поля конфликта
+     * @param conflictSet  Поля для замены
+     * @return Builder
+     */
+    public T upsert(Collection<String> conflictAttr, Collection<String> conflictSet) {
+      if (!CollectionUtils.isEmpty(conflictAttr) && !CollectionUtils.isEmpty(conflictSet)) {
+        this.upsert = Boolean.TRUE;
+        this.conflictAttr = conflictAttr;
+        this.conflictSet = conflictSet;
+      } else {
+        this.upsert = Boolean.FALSE;
+      }
       return (T) this;
     }
 

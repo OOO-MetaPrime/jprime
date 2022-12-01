@@ -14,9 +14,10 @@ public class XmlJpClass {
   private String jpPackage;
   private boolean inner;
   private Boolean actionLog;
+  @JacksonXmlProperty(localName = "tags")
+  private XmlJpClassTags tags;
   @JacksonXmlProperty(localName = "jpAttrs")
   private XmlJpAttrs jpAttrs;
-  private String pluralCode;
 
   public String getGuid() {
     return guid;
@@ -98,12 +99,12 @@ public class XmlJpClass {
     this.jpAttrs = jpAttrs;
   }
 
-  public String getPluralCode() {
-    return pluralCode;
+  public XmlJpClassTags getTags() {
+    return tags;
   }
 
-  public void setPluralCode(String pluralCode) {
-    this.pluralCode = pluralCode;
+  public void setTags(XmlJpClassTags tags) {
+    this.tags = tags;
   }
 
   @Override
@@ -118,8 +119,8 @@ public class XmlJpClass {
         ", jpPackage='" + jpPackage + '\'' +
         ", inner='" + inner + '\'' +
         ", actionLog='" + (actionLog != null && actionLog)+ '\'' +
+        (tags != null ? ", tags=" + tags : "") +
         ", jpAttrs=" + jpAttrs +
-        ", pluralCode='" + pluralCode + '\'' +
         '}';
   }
 }

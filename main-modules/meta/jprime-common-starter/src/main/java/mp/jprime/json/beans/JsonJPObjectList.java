@@ -17,7 +17,6 @@ import java.util.Collections;
     "totalCount",
     "objectsCount",
     "classCode",
-    "pluralCode",
     "objects"
 })
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -30,8 +29,6 @@ public class JsonJPObjectList {
   private Long totalCount;
   @JsonProperty("classCode")
   private String classCode;
-  @JsonProperty("pluralCode")
-  private String pluralCode;
   @JsonProperty("objects")
   private Collection<JsonJPObject> objects = new ArrayList<>();
 
@@ -49,16 +46,14 @@ public class JsonJPObjectList {
    * @param limit      Объектов в выборке
    * @param totalCount Точное кол-во объектов
    * @param classCode  Кодовое имя класса объектов
-   * @param pluralCode Множественное кодовое имя класса объектов
    * @param objects    Объекты
    */
-  private JsonJPObjectList(Integer offset, Integer limit, Long totalCount, String classCode, String pluralCode,
+  private JsonJPObjectList(Integer offset, Integer limit, Long totalCount, String classCode,
                            Collection<JsonJPObject> objects) {
     this.offset = offset;
     this.limit = limit;
     this.totalCount = totalCount;
     this.classCode = classCode;
-    this.pluralCode = pluralCode;
     this.objects = Collections.unmodifiableCollection(objects == null ? Collections.emptyList() : objects);
   }
 
@@ -99,15 +94,6 @@ public class JsonJPObjectList {
   }
 
   /**
-   * Множественное кодовое имя класса объектов
-   *
-   * @return Множественное кодовое имя класса объектов
-   */
-  public String getPluralCode() {
-    return pluralCode;
-  }
-
-  /**
    * Количество объектов
    *
    * @return Количество объектов
@@ -143,7 +129,6 @@ public class JsonJPObjectList {
     private Integer limit;
     private Long totalCount;
     private String classCode;
-    private String pluralCode;
     private Collection<JsonJPObject> objects = new ArrayList<>();
 
     private Builder() {
@@ -155,7 +140,7 @@ public class JsonJPObjectList {
      * @return ListResult
      */
     public JsonJPObjectList build() {
-      return new JsonJPObjectList(offset, limit, totalCount, classCode, pluralCode, objects);
+      return new JsonJPObjectList(offset, limit, totalCount, classCode, objects);
     }
 
     /**
@@ -199,17 +184,6 @@ public class JsonJPObjectList {
      */
     public Builder classCode(String classCode) {
       this.classCode = classCode;
-      return this;
-    }
-
-    /**
-     * Множественное кодовое имя класса объектов
-     *
-     * @param pluralCode Множественное кодовое имя класса объектов
-     * @return Builder
-     */
-    public Builder pluralCode(String pluralCode) {
-      this.pluralCode = pluralCode;
       return this;
     }
 

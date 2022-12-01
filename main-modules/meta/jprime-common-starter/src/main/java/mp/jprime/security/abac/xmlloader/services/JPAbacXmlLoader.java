@@ -2,9 +2,7 @@ package mp.jprime.security.abac.xmlloader.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.dataaccess.JPAction;
-import mp.jprime.dataaccess.conds.CollectionCond;
-import mp.jprime.dataaccess.conds.InCond;
-import mp.jprime.dataaccess.conds.NotInCond;
+import mp.jprime.dataaccess.conds.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.parsers.ParserService;
 import mp.jprime.security.abac.*;
@@ -27,7 +25,10 @@ import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -219,14 +220,23 @@ public class JPAbacXmlLoader implements JPAbacLoader {
     }
     XmlJpValues in = cond.getIn();
     XmlJpValues notIn = cond.getNotIn();
+    XmlJpValues isNull = cond.getIsNull();
+    XmlJpValues isNotNull = cond.getIsNotNull();
+
     if ((in == null || in.getValue() == null || in.getValue().length == 0) &&
-        (notIn == null || notIn.getValue() == null || notIn.getValue().length == 0)) {
+        (notIn == null || notIn.getValue() == null || notIn.getValue().length == 0) &&
+        (isNull == null || isNull.getValue() == null || isNull.getValue().length == 0) &&
+        (isNotNull == null || isNotNull.getValue() == null || isNotNull.getValue().length == 0)) {
       return null;
     }
+
     if (in != null && in.getValue() != null && in.getValue().length > 0) {
       return InCond.from(Arrays.asList(in.getValue()));
-    } else {
+    } else if (notIn != null && notIn.getValue() != null && notIn.getValue().length > 0) {
       return NotInCond.from(Arrays.asList(notIn.getValue()));
+    } else if (isNull != null && isNull.getValue() != null && isNull.getValue().length > 0) {
+      return IsNullCond.newInstance();
     }
+    return IsNotNullCond.newInstance();
   }
 }

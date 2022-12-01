@@ -1,25 +1,14 @@
 dependencies {
-  annotationProcessor(loggers.log4j.core)
-
   api(commons.codec)
   api(commons.io)
   api(commons.guava)
 
-  api(libs.bundles.jackson.v1)
-
-  api(commons.moneta.core)
-
   api('org.springframework.boot:spring-boot-starter-aop')
-  api('org.springframework.boot:spring-boot-starter-log4j2')
   api('org.springframework.boot:spring-boot-starter-webflux')
   api('org.springframework.kafka:spring-kafka')
   api('org.springframework:spring-tx')
-  api(commons.apache.httpclient)
 
-  api(commons.lang3)
-
-  api(loggers.kafka.log4j.appender)
-  api(loggers.disruptor)
+  api project(':jprime-common-api')
 
   testImplementation('org.springframework.boot:spring-boot-starter-test')
   testImplementation('io.projectreactor:reactor-test')

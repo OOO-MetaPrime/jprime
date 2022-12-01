@@ -13,7 +13,7 @@ public class StringToDoubleParser implements TypeParser<String, Double> {
   /**
    * Прекомпилированный шаблон замены
    */
-  private static final Pattern pattern = Pattern.compile(" ", Pattern.LITERAL);
+  private static final Pattern PATTERN = Pattern.compile(" ", Pattern.LITERAL);
 
   /**
    * Форматирование значения
@@ -30,7 +30,7 @@ public class StringToDoubleParser implements TypeParser<String, Double> {
       return null;
     }
     value = value.replace(',', '.');
-    return Double.valueOf(value.indexOf(' ') > -1 ? pattern.matcher(value).replaceAll("") : value);
+    return Double.valueOf(value.indexOf(' ') > -1 ? PATTERN.matcher(value).replaceAll("") : value);
   }
 
   /**

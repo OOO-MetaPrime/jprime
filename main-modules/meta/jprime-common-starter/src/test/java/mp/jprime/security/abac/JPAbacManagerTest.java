@@ -14,7 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = JPAbacManagerTest.Config.class)
 class JPAbacManagerTest {
   @Autowired
   private JPAbacStorage securityManager;

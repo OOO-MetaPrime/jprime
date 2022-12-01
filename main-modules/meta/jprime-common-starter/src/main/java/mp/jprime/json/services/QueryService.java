@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.enums.*;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.data.Entry;
+import mp.jprime.dataaccess.params.query.data.KeyValuePair;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -54,11 +54,7 @@ public class QueryService {
     if (json == null || json.isEmpty()) {
       return null;
     }
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonSelect.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonSelect.class, json);
   }
 
   /**
@@ -71,11 +67,7 @@ public class QueryService {
     if (json == null || json.isEmpty()) {
       return null;
     }
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonAggrQuery.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonAggrQuery.class, json);
   }
 
   /**
@@ -85,11 +77,7 @@ public class QueryService {
    * @return Описание выборки
    */
   public String toString(JsonSelect query) {
-    try {
-      return jpJsonMapper.getObjectMapper().writeValueAsString(query);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toString(query);
   }
 
   /**
@@ -99,11 +87,7 @@ public class QueryService {
    * @return Описание выборки агрегации
    */
   public String toString(JsonAggrQuery query) {
-    try {
-      return jpJsonMapper.getObjectMapper().writeValueAsString(query);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toString(query);
   }
 
   /**
@@ -406,11 +390,17 @@ public class QueryService {
       BooleanFilter c = (BooleanFilter) filter;
       if (c.getCond() == BooleanCondition.AND) {
         return new JsonExpr().and(
-            c.getFilters().stream().map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc)).collect(Collectors.toList())
+            c.getFilters().stream()
+                .map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
         );
       } else if (c.getCond() == BooleanCondition.OR) {
         return new JsonExpr().or(
-            c.getFilters().stream().map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc)).collect(Collectors.toList())
+            c.getFilters().stream()
+                .map(f -> toExp(f, classCode, refClassCodeFunc, attrCodeFunc))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList())
         );
       }
     }
@@ -525,11 +515,11 @@ public class QueryService {
       } else if (v.getOper() == FilterOperation.BETWEEN) {
         Between b = (Between) v;
         Pair pair = b.getValue();
-        cond = JsonCond.newAttrCond(attrName).between(new JsonBetweenCond(stringValue(pair.getFrom()), stringValue(pair.getTo())));
-      } else if (v.getOper() == FilterOperation.CONTAINS) {
-        Contains b = (Contains) v;
-        Entry entry = b.getValue();
-        cond = JsonCond.newAttrCond(attrName).contains(JsonContainsCond.from(stringValue(entry.getKey()), stringValue(entry.getValue())));
+        cond = JsonCond.newAttrCond(attrName).between(new JsonBetween(stringValue(pair.getFrom()), stringValue(pair.getTo())));
+      } else if (v.getOper() == FilterOperation.CONTAINS_KVP) {
+        ContainsKVP b = (ContainsKVP) v;
+        KeyValuePair entry = b.getValue();
+        cond = JsonCond.newAttrCond(attrName).contains(JsonContainsKVP.from(stringValue(entry.getKey()), stringValue(entry.getValue())));
       }
     } else if (filter instanceof LinkFilter) {
       LinkFilter l = (LinkFilter) filter;
@@ -576,6 +566,7 @@ public class QueryService {
     if (list == null) {
       return null;
     }
+    list.removeIf(Objects::isNull);
     list.removeIf(
         e -> e.getCond() == null && clear(e.getOr()) == null && clear(e.getAnd()) == null
     );
@@ -593,8 +584,8 @@ public class QueryService {
     Collection<JsonExpr> and = clear(exp.getAnd());
     Collection<JsonExpr> or = clear(exp.getOr());
     if (c != null) {
-      JsonBetweenCond between = c.getBetween();
-      JsonContainsCond contains = c.getContains();
+      JsonBetween between = c.getBetween();
+      JsonContainsKVP contains = c.getContains();
       // TODO сделать красиво
       if (c.getEq() != null) {
         return Filter.attr(c.getAttr()).eq(c.getEq());
@@ -629,7 +620,7 @@ public class QueryService {
       } else if (between != null) {
         return Filter.attr(c.getAttr()).between(Pair.from(between.getFrom(), between.getTo()));
       } else if (contains != null) {
-        return Filter.attr(c.getAttr()).contains(Entry.from(contains.getKey(), contains.getValue()));
+        return Filter.attr(c.getAttr()).contains(KeyValuePair.from(contains.getKey(), contains.getValue()));
       } else if (c.getExists() != null) {
         return Filter.attr(c.getAttr()).exists(toFilter(c.getExists()));
       } else if (c.getNotExists() != null) {
@@ -726,11 +717,7 @@ public class QueryService {
    * @return Описание данных
    */
   public JsonObjectData getObjectData(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonObjectData.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonObjectData.class, json);
   }
 
   /**
@@ -740,11 +727,7 @@ public class QueryService {
    * @return Описание данных
    */
   public JsonUpdate getUpdate(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonUpdate.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonUpdate.class, json);
   }
 
   /**
@@ -754,11 +737,7 @@ public class QueryService {
    * @return Описание запроса
    */
   public JsonDefValuesQuery getDefValuesQuery(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonDefValuesQuery.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonDefValuesQuery.class, json);
   }
 
   /**
@@ -768,11 +747,7 @@ public class QueryService {
    * @return Описание запроса
    */
   public JsonApplyValuesQuery getApplyValuesQuery(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonApplyValuesQuery.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonApplyValuesQuery.class, json);
   }
 
   /**
@@ -782,11 +757,7 @@ public class QueryService {
    * @return Описание данных
    */
   public JsonIdentityData getIdentityData(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonIdentityData.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonIdentityData.class, json);
   }
 
   /**
@@ -796,11 +767,7 @@ public class QueryService {
    * @return Описание данных
    */
   public JsonIdentityData getDeleteData(String json) {
-    try {
-      return jpJsonMapper.getObjectMapper().readValue(json, JsonIdentityData.class);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toObject(JsonIdentityData.class, json);
   }
 
   /**
@@ -810,11 +777,7 @@ public class QueryService {
    * @return Описание данных
    */
   public String toString(JsonIdentityData data) {
-    try {
-      return jpJsonMapper.getObjectMapper().writeValueAsString(data);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toString(data);
   }
 
   /**
@@ -824,11 +787,7 @@ public class QueryService {
    * @return Описание данных
    */
   public String toString(JsonUpdate data) {
-    try {
-      return jpJsonMapper.getObjectMapper().writeValueAsString(data);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
+    return jpJsonMapper.toString(data);
   }
 
   /**

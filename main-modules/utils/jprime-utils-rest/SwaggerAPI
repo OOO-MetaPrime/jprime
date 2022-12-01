@@ -202,12 +202,22 @@ components:
           type: string
           description: QName шага
           example: testUtil.testMode
+        uni:
+          type: boolean
+          description: Признак общедоступной утилиты
+          example: false
         jpClasses:
           type: array
           description: Список классов, для которых доступна утилита
           items:
             type: string
           example: ["classCode1","classCode2"]
+        jpClassTags:
+          type: array
+          description: Теги классов, обрабатываемые этой утилитой
+          items:
+            type: string
+          example: ["tag1","tag2"]
         type:
           type: string
           description: Тип привязки утилиты (объект, список, произвольная)

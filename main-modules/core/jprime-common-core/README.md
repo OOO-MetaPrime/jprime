@@ -1,15 +1,6 @@
-# Базовый модуль
+# Базовый модуль JPrime
 
 Содержит глобальные константы и API для межсервисного взаимодействия
-
-## Базовые настройки
-
-| Параметр                 | Описание           | Пример             |
-|--------------------------|--------------------|--------------------|
-| spring.application.name  | имя spring сервиса | sandbox-service    |
-| jprime.application.code  | код jprime сервиса | sandbox            |
-| jprime.application.title | имя jprime сервиса | Тестовая песочница |
-
 
 ## Системные события
 
@@ -265,8 +256,8 @@ class MyClass extends JPKafkaDeadLetterConsumerService<String, String> {
         {
             "code": "jpReportDBRepository.update.versionNotFound",
             "message": "Версия объекта с кодом \"Sosiska\" не соответствует актуальной",
-            "updatedUserDescription": "Ульянов Сергей",
-            "updatedUserLogin": "sulyanov"
+            "updatedUserDescription": "test 1",
+            "updatedUserLogin": "test"
         }
     ]
 }

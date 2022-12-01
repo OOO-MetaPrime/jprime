@@ -2,6 +2,7 @@ package mp.jprime.meta.beans;
 
 import mp.jprime.lang.JPDateRange;
 import mp.jprime.lang.JPDateTimeRange;
+import mp.jprime.lang.JPGeometry;
 import mp.jprime.lang.JPIntegerRange;
 
 import java.math.BigDecimal;
@@ -50,6 +51,10 @@ public enum JPType {
    * Вещественное (32 бита)
    */
   FLOAT("float", "Вещественное (32 бита)", BigDecimal.class),
+  /**
+   * Геометрия
+   */
+  GEOMETRY("geometry", "Геометрия", JPGeometry.class),
   /**
    * Целочисленное (32 бита)
    */
@@ -135,25 +140,6 @@ public enum JPType {
    */
   public static String getCode(JPType type) {
     return type == null ? null : type.getCode();
-  }
-
-  /**
-   * Возвращает java-класс по коду
-   *
-   * @return Java-класс
-   */
-  public static Class getJavaClassByCode(String code) {
-    if (code == null) {
-      return null;
-    }
-
-    for (JPType jpType : JPType.values()) {
-      if (code.equalsIgnoreCase(jpType.code)) {
-        return jpType.javaClass;
-      }
-    }
-
-    return null;
   }
 
   /**

@@ -130,7 +130,7 @@ public class JsonLink {
     private String rel;
     private String baseUrl;
     private String restMapping;
-    private String classPluralCode;
+    private String classCode;
     private String refClassCode;
     private List<String> blocks = new ArrayList<>();
 
@@ -183,13 +183,13 @@ public class JsonLink {
     }
 
     /**
-     * classPluralCode
+     * classCode
      *
-     * @param classPluralCode classPluralCode
+     * @param classCode classCode
      * @return Builder
      */
-    public Builder classPluralCode(String classPluralCode) {
-      this.classPluralCode = classPluralCode;
+    public Builder classCode(String classCode) {
+      this.classCode = classCode;
       return this;
     }
 
@@ -213,7 +213,7 @@ public class JsonLink {
      */
     public JsonLink build() {
       String sBlocks = String.join("/", blocks);
-      String path = restMapping + "/" + classPluralCode + "/" + sBlocks;
+      String path = restMapping + "/" + classCode + "/" + sBlocks;
       return new JsonLink(rel,
           (baseUrl != null ? baseUrl : "") + "/" + path,
           path, refClassCode);

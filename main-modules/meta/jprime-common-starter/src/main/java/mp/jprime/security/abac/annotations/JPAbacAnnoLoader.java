@@ -2,9 +2,7 @@ package mp.jprime.security.abac.annotations;
 
 import mp.jprime.common.annotations.JPCond;
 import mp.jprime.dataaccess.JPAction;
-import mp.jprime.dataaccess.conds.CollectionCond;
-import mp.jprime.dataaccess.conds.InCond;
-import mp.jprime.dataaccess.conds.NotInCond;
+import mp.jprime.dataaccess.conds.*;
 import mp.jprime.parsers.ParserService;
 import mp.jprime.security.JPSecuritySettings;
 import mp.jprime.security.abac.*;
@@ -153,13 +151,18 @@ public class JPAbacAnnoLoader implements JPAbacLoader {
     if (cond == null) {
       return null;
     }
-    if (cond.in().length == 0 && cond.notIn().length == 0) {
+    if (cond.in().length == 0 && cond.notIn().length == 0 &&
+        !cond.isNull() && !cond.isNotNull()) {
       return null;
     }
     if (cond.in().length > 0) {
       return InCond.from(Arrays.asList(cond.in()));
-    } else {
+    } else if (cond.notIn().length > 0) {
       return NotInCond.from(Arrays.asList(cond.notIn()));
+    } else if (cond.isNull()) {
+      return IsNullCond.newInstance();
+    } else {
+      return IsNotNullCond.newInstance();
     }
   }
 }

@@ -252,7 +252,7 @@ REST-методы публикации настроек доступа на чт
 
 ### 6 Настройки доступа к определенному объекту
 
-``GET /access/v1/jpObjects/<pluralClassCode>/<objectId>``
+``GET /access/v1/jpObjects/<classCode>/<objectId>``
 
 * роль AUTH_ACCESS
 
@@ -260,8 +260,8 @@ REST-методы публикации настроек доступа на чт
 
 ```json
 {
-    "objectClassCode": <classCode>,
-    "objectId":  <objectId>,
+    "objectClassCode": "<classCode>",
+    "objectId": "<objectId>",
     "read": true,
     "create": false,
     "update": false,

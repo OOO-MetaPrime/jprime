@@ -41,4 +41,11 @@ public interface JPAttrData {
    * @return Да/Нет
    */
   boolean isEmpty();
+
+  /**
+   * Размер данных
+   *
+   * @return Размер данных
+   */
+  int size();
 }

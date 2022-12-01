@@ -60,7 +60,7 @@ public abstract class JPObjectAccessBaseService implements JPResourceAccessServi
     }
     Filter accessFilter = access.getFilter();
     // проверки на значение
-    if (createData != null && accessFilter != null && !checkData(accessFilter, createData, auth)) {
+    if (createData != null && accessFilter != null && !checkData(accessFilter, createData, auth, false)) {
       return false;
     }
     return true;
@@ -126,7 +126,7 @@ public abstract class JPObjectAccessBaseService implements JPResourceAccessServi
     return filter;
   }
 
-  protected boolean checkData(Filter filter, JPMutableData data, AuthInfo auth) {
-    return dataCheckService.check(filter, data, auth);
+  protected boolean checkData(Filter filter, JPMutableData data, AuthInfo auth, boolean notContainsDefaultValue) {
+    return dataCheckService.check(filter, data, auth, notContainsDefaultValue);
   }
 }

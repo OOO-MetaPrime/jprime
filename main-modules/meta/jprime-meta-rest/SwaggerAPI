@@ -154,7 +154,6 @@ components:
       type: object
       required:
       - code
-      - pluralCode
       - qName
       properties:
         code:
@@ -162,16 +161,17 @@ components:
           format: string
           description: Кодовое имя
           example: mpCompany
-        pluralCode:
-          type: string
-          format: string
-          description: Множественный код кодового имени
-          example: mpCompanies
         qName:
           type: string
           format: string
           description: Полный код класса
           example: 'mp.mpCompany'
+        tags:
+          type: array
+          description: Теги класса
+          items:
+            type: string
+          example: ["tag1","tag2"]
         name:
           type: string
           format: string
@@ -287,8 +287,9 @@ components:
           example: {
                 "titleAttr": "fileTitle",
                 "extAttr": "fileExt",
-                "sizeAttr": "fileSize",
-                "dateAttr": "fileDate"
+                "sizeAttr": "sizeAttr",
+                "dateAttr": "fileDate",
+                "infoAttr": "fileInfo",
             }
         simpleFraction:
           type: object
@@ -306,6 +307,14 @@ components:
             $ref: '#/components/schemas/jpMoney'
           example: {
                 "currencyCode": "RUR"
+            }
+        geometry:
+          type: object
+          description: Настройки пространственного типа
+          items:
+            $ref: '#/components/schemas/jpGeometry'
+          example: {
+                "SRID": 3857
             }
         jpProps:
           type: array
@@ -390,6 +399,11 @@ components:
           format: string
           description: Кодовое имя атрибута - Дата файла
           example: fileDate
+        infoAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Дополнительная информация о файле
+          example: fileInfo
 
     jpSimpleFraction:
       type: object
@@ -413,3 +427,11 @@ components:
           format: string
           description: Код валюты
           example: RUR
+
+    jpGeometry:
+      type: object
+      properties:
+        SRID:
+          type: integer
+          description: ID of the Spatial Reference System
+          example: 3857

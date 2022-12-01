@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.security.AuthInfo;
 
@@ -10,5 +10,14 @@ import mp.jprime.security.AuthInfo;
  * @param <T> Filter
  */
 public interface CheckFilter<T extends Filter> {
-  boolean check(T filter, JPMutableData data, AuthInfo auth);
+  /**
+   * Проверяем условие по переданным данным
+   *
+   * @param filter                  Условие
+   * @param data                    Данные
+   * @param auth                    AuthInfo
+   * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data
+   * @return Да/Нет
+   */
+  boolean check(T filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue);
 }

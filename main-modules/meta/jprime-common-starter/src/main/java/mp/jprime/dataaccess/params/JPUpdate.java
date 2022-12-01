@@ -17,6 +17,7 @@ public class JPUpdate extends JPSave {
   private final Map<String, Collection<JPUpdate>> linkedUpdate;
   private final Map<String, Collection<JPDelete>> linkedDelete;
   private final Filter where;
+  private final boolean autoChangeDate;
 
   /**
    * Конструктор
@@ -33,13 +34,14 @@ public class JPUpdate extends JPSave {
                    Map<String, Collection<JPCreate>> linkedCreate,
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
-                   Filter where, AuthInfo auth, Source source) {
+                   Filter where, AuthInfo auth, Source source, boolean autoChangeDate) {
     super(data, source, auth);
     this.jpId = jpId;
     this.linkedCreate = Collections.unmodifiableMap(linkedCreate == null ? Collections.emptyMap() : linkedCreate);
     this.linkedUpdate = Collections.unmodifiableMap(linkedUpdate == null ? Collections.emptyMap() : linkedUpdate);
     this.linkedDelete = Collections.unmodifiableMap(linkedDelete == null ? Collections.emptyMap() : linkedDelete);
     this.where = where;
+    this.autoChangeDate = autoChangeDate;
   }
 
   /**
@@ -89,6 +91,15 @@ public class JPUpdate extends JPSave {
   }
 
   /**
+   * Устанавливает ли дату изменения
+   *
+   * @return Да/Нет
+   */
+  public boolean isAutoChangeDate() {
+    return autoChangeDate;
+  }
+
+  /**
    * Условия
    *
    * @return Условия
@@ -123,10 +134,11 @@ public class JPUpdate extends JPSave {
    */
   public static final class Builder extends JPSave.Builder<Builder> {
     private final JPId jpId;
-    private Map<String, Collection<JPCreate>> linkedCreate = new HashMap<>();
-    private Map<String, Collection<JPUpdate>> linkedUpdate = new HashMap<>();
-    private Map<String, Collection<JPDelete>> linkedDelete = new HashMap<>();
+    private final Map<String, Collection<JPCreate>> linkedCreate = new HashMap<>();
+    private final Map<String, Collection<JPUpdate>> linkedUpdate = new HashMap<>();
+    private final Map<String, Collection<JPDelete>> linkedDelete = new HashMap<>();
     private Filter where;
+    private boolean autoChangeDate = true;
 
     private Builder(JPId jpId) {
       this.jpId = jpId;
@@ -139,7 +151,7 @@ public class JPUpdate extends JPSave {
      */
     @Override
     public JPUpdate build() {
-      return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, where, auth, source);
+      return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, where, auth, source, autoChangeDate);
     }
 
     /**
@@ -274,6 +286,17 @@ public class JPUpdate extends JPSave {
       } else {
         this.where = Filter.or(this.where, where);
       }
+      return this;
+    }
+
+    /**
+     * Устанавливает ли дату изменения (по умолчанию {@code true})
+     *
+     * @param autoChangeDate Да/Нет
+     * @return Builder
+     */
+    public Builder autoChangeDate(boolean autoChangeDate) {
+      this.autoChangeDate = autoChangeDate;
       return this;
     }
   }

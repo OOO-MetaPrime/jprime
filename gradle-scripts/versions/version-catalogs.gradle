@@ -21,11 +21,17 @@ dependencyResolutionManagement {
     reports {
       from(files("reports.toml"))
     }
+    spatial {
+      from(files("spatial.toml"))
+    }
     spring {
       from(files("spring.toml"))
     }
     storages {
       from(files("storages.toml"))
+    }
+    tests {
+      from(files("tests.toml"))
     }
   }
 }

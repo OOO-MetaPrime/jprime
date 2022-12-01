@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.params.query;
 
-import mp.jprime.dataaccess.params.query.data.Entry;
+import mp.jprime.dataaccess.params.query.data.KeyValuePair;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.dataaccess.params.query.filters.range.*;
@@ -539,8 +539,8 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public Contains contains(Entry value) {
-      return new Contains(attrCode, value);
+    public ContainsKVP contains(KeyValuePair value) {
+      return new ContainsKVP(attrCode, value);
     }
 
     /**

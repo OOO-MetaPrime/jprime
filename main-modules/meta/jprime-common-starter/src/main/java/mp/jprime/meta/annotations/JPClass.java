@@ -30,18 +30,18 @@ public @interface JPClass {
   String code();
 
   /**
-   * Множественный код кодового имени
-   *
-   * @return Множественный код кодового имени
-   */
-  String pluralCode() default "";
-
-  /**
    * Полный код класса
    *
    * @return Полный код класса
    */
-  String qName();
+  String qName() default "";
+
+  /**
+   * Теги класса
+   *
+   * @return Теги класса
+   */
+  String[] tags() default "";
 
   /**
    * Название класса

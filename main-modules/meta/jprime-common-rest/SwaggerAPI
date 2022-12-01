@@ -137,6 +137,40 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/api/v1/{code}/search/anonymous':
+    post:
+      tags:
+      - list
+      summary: Поиск объектов класса для анонимуса
+      description: Отображение списка объектов по указанным условиям для анонимуса
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественное кодовое имя класса
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+        description: object to add
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
   '/api/v1/{code}/search/{attrCode}/{attrValue}':
     post:
       tags:
@@ -699,6 +733,40 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/api/v1/{code}/uniquevalues':
+    post:
+      tags:
+      - list
+      summary: Уникальных значения объектов
+      description: Позволяет получить уникальные значения объектов по атрибутам
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: код метакласса
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/uniquevaluesRequest'
+        description: Параметры для вычисления
+      responses:
+        '200':
+          description: Значения по умолчанию
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/uniquevaluesResponse'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
 components:
   securitySchemes:
     password:
@@ -979,10 +1047,6 @@ components:
           type: string
           format: string
           example: personalCard
-        pluralCode:
-          type: string
-          format: string
-          example: personalCards
         objects:
           type: array
           items:
@@ -1319,3 +1383,56 @@ components:
           format: string
           description: Текст сообщения
           example: Данные корректны
+
+
+
+    uniquevaluesRequest:
+      type: object
+      properties:
+        attrs:
+          type: array
+          items:
+            type: string
+          example:
+              ["attr1", "attr2","attr3" ,"attr4"]
+          description: Список атрибутов уникальных значений
+        filter:
+          type: object
+          items:
+            $ref: '#/components/schemas/expression'
+          example:
+              {"or": [{"cond": {"attr": "attr1", "eq": '1'}},{"cond": {"attr": "attr2","like":"AA"}}]}
+          description: Условие ограничения выборки
+
+    uniquevaluesResponse:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/uniquevalue'
+          description: Список атрибутов уникальных значений
+
+    uniquevalue:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+          description: Идентификатор
+        attr:
+          type: string
+          format: string
+          example: status
+        value:
+          example: 173
+        subValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/uniquevalue'
+          example:
+          - id: 2
+            attr: description
+            value: inner description
+            subValues:

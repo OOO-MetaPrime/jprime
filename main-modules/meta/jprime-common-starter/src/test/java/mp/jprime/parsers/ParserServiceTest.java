@@ -1,14 +1,18 @@
 package mp.jprime.parsers;
 
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.json.services.JsonJPObjectService;
+import mp.jprime.json.services.QueryService;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
 import mp.jprime.lang.JPXmlString;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -30,7 +34,7 @@ import static mp.jprime.formats.DateFormat.ISO8601;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration()
+@ContextConfiguration(classes = ParserServiceTest.Config.class)
 class ParserServiceTest {
   private static final String TEST_DATE_FORMAT = "yyyy-MM-dd";
   private static final String TEST_DATE_TIME_FORMAT = TEST_DATE_FORMAT + " HH:mm:ss.SSS";
@@ -48,7 +52,18 @@ class ParserServiceTest {
 
   @Lazy(value = false)
   @Configuration
-  @ComponentScan(value = {"mp.jprime.parsers", "mp.jprime.json.services"})
+  @ComponentScan(
+      basePackages = {"mp.jprime.parsers", "mp.jprime.json.services"},
+      excludeFilters = {
+          @ComponentScan.Filter(
+              type = FilterType.ASSIGNABLE_TYPE,
+              value = {
+                  JsonJPObjectService.class,
+                  QueryService.class
+              }
+          )
+      })
+  @EnableConfigurationProperties
   public static class Config {
   }
 

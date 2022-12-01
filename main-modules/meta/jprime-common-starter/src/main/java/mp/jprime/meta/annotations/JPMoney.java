@@ -1,7 +1,7 @@
 package mp.jprime.meta.annotations;
 
 /**
- * Описание денежнного типа
+ * Описание денежного типа
  */
 public @interface JPMoney {
   /**

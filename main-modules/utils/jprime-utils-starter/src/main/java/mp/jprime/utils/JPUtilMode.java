@@ -68,6 +68,13 @@ public interface JPUtilMode {
   Collection<String> getJpClasses();
 
   /**
+   * Теги классов, обрабатываемые этой утилитой
+   *
+   * @return Теги классов, обрабатываемые этой утилитой
+   */
+  Collection<String> getJpClassTags();
+
+  /**
    * Возвращает тип утилиты
    *
    * @return Тип утилиты
