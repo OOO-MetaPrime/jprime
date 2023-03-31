@@ -30,10 +30,15 @@ public interface JPObjectRepositoryService {
    * @param select Параметры для выборки
    * @return Объект
    */
-  default JPObject getObject(JPSelect select) {
-    Collection<JPObject> result = getList(select);
-    return result != null && !result.isEmpty() ? result.iterator().next() : null;
-  }
+  JPObject getObject(JPSelect select);
+
+  /**
+   * Возвращает объект и блокирует его на время транзакции
+   *
+   * @param query Параметры для выборки
+   * @return Объект
+   */
+  JPObject getObjectAndLock(JPSelect query);
 
   /**
    * Возвращает optional результата запроса
@@ -78,6 +83,14 @@ public interface JPObjectRepositoryService {
    * @return Список объектов
    */
   Collection<JPObject> getList(JPSelect select);
+
+  /**
+   * Возвращает список объектов и блокирует на время транзакции
+   *
+   * @param query Параметры для выборки
+   * @return Список объектов
+   */
+  Collection<JPObject> getListAndLock(JPSelect query);
 
   /**
    * Возвращает результаты агрегации

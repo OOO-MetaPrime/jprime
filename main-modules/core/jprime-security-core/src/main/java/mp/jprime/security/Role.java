@@ -17,6 +17,10 @@ public class Role {
    */
   public static final String IMEX_ADMIN = "IMEX_ADMIN";
   /**
+   * Конфигурирование: настройка UI
+   */
+  public final static String UI_ADMIN = "UI_ADMIN";
+  /**
    * Конфигурирование: непроверенные возможности
    */
   public static final String FEATURES_ADMIN = "FEATURES_ADMIN";

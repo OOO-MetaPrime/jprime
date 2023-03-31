@@ -1,7 +1,9 @@
 package mp.jprime.time;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * Логика объединения периодов

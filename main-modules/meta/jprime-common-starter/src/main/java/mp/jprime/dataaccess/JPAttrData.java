@@ -2,6 +2,8 @@ package mp.jprime.dataaccess;
 
 import mp.jprime.meta.JPAttr;
 
+import java.util.function.BiConsumer;
+
 public interface JPAttrData {
   /**
    * Возвращает признак наличия данных
@@ -34,6 +36,13 @@ public interface JPAttrData {
    * @return Данные
    */
   <T> T get(String attr);
+
+  /**
+   * Реализация итератора
+   *
+   * @param action BiConsumer
+   */
+  void forEach(BiConsumer<? super String, ? super Object> action);
 
   /**
    * Признак отсутствия данных

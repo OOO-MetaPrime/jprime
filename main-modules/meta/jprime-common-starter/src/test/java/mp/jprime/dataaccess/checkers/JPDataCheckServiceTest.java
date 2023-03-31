@@ -9,7 +9,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -55,7 +54,8 @@ class JPDataCheckServiceTest {
             Filter.attr("attr1").eq(1),
             Filter.attr("attr1").eq("2")
         ),
-        JPMutableData.of(data));
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.TRUE, out);
   }
 
@@ -70,7 +70,8 @@ class JPDataCheckServiceTest {
             Filter.attr("attr1").eq(3),
             Filter.attr("attr1").eq(4)
         ),
-        JPMutableData.of(data));
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.FALSE, out);
   }
 
@@ -86,7 +87,8 @@ class JPDataCheckServiceTest {
             Filter.attr("attr1").neq(4),
             Filter.attr("attr2").neq(5)
         ),
-        JPMutableData.of(data));
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.TRUE, out);
   }
 
@@ -101,7 +103,8 @@ class JPDataCheckServiceTest {
             Filter.attr("attr1").in(Collections.singletonList("1")),
             Filter.attr("attr2").in(Collections.singletonList(2))
         ),
-        JPMutableData.of(data));
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.TRUE, out);
   }
 
@@ -116,7 +119,65 @@ class JPDataCheckServiceTest {
             Filter.attr("attr1").notIn(Collections.singletonList("10")),
             Filter.attr("attr2").notIn(Collections.singletonList("10"))
         ),
-        JPMutableData.of(data));
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testLT() {
+    Map<String, Object> data = new HashMap<String, Object>() {{
+      put("attr1", 1);
+      put("attr2", 2);
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.and(
+            Filter.attr("attr1").lt(2)
+        ),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testLTE() {
+    Map<String, Object> data = new HashMap<String, Object>() {{
+      put("attr1", 1);
+      put("attr2", 2);
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.attr("attr1").lte(1),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testGT() {
+    Map<String, Object> data = new HashMap<String, Object>() {{
+      put("attr1", 1);
+      put("attr2", 2);
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.attr("attr1").gt(0),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testGTE() {
+    Map<String, Object> data = new HashMap<String, Object>() {{
+      put("attr1", 1);
+      put("attr2", 2);
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.or(
+            Filter.attr("attr1").gte(1),
+            Filter.attr("attr2").gte(1)
+        ),
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.TRUE, out);
   }
 }

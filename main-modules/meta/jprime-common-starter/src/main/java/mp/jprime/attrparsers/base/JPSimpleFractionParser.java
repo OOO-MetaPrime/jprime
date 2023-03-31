@@ -111,9 +111,9 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
        *  }
        */
       try {
-        result = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.toString(attrValue),
-            JPSimpleFraction.class
+        result = jsonMapper.toObject(
+            JPSimpleFraction.class,
+            jsonMapper.toString(attrValue)
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
@@ -124,9 +124,9 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
        * Если строка, мало ли кто-то положил
        */
       try {
-        result = jsonMapper.getObjectMapper().readValue(
-            (String) attrValue,
-            JPSimpleFraction.class
+        result = jsonMapper.toObject(
+            JPSimpleFraction.class,
+            (String) attrValue
         );
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);

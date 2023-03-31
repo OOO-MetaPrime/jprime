@@ -16,7 +16,6 @@ import java.util.function.Predicate;
  */
 @Service
 public class EurekaClientDiscoveryService implements ClientDiscoveryService {
-
   /**
    * Клиент опроса service-discovery
    */

@@ -4,6 +4,7 @@ import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.security.JPSecurityDynamicLoader;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
+import mp.jprime.security.events.SecurityChangeEvent;
 import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -210,7 +211,16 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
     this.setts = setts;
   }
 
-  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.security.events.SecurityChangeEvent).CODE)")
+  /**
+   * Код события SecurityChangeEvent
+   *
+   * @return SecurityChangeEvent
+   */
+  public String getChangeEventCode() {
+    return SecurityChangeEvent.CODE;
+  }
+
+  @EventListener(condition = "#event.eventCode.equals(@JPSecurityMemoryStorage.getChangeEventCode())")
   public void handleSecurityChangeEvent(JPSystemApplicationEvent event) {
     dynamicLoad();
   }

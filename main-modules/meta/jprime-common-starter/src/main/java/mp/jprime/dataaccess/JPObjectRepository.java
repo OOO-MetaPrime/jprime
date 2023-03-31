@@ -25,7 +25,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
   }
 
   /**
-   * Возвращает объект и блокирует его на время транзации
+   * Возвращает объект и блокирует его на время транзакции
    *
    * @param query Параметры для выборки
    * @return Объект

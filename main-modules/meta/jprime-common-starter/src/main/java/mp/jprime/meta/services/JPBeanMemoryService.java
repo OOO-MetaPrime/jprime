@@ -6,7 +6,9 @@ import mp.jprime.common.JPClassesLinkFilter;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPLinkedData;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.beans.JPObjectBase;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,14 +74,27 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
    */
   @Override
   public JPObject newInstance(JPClass jpClass, Map<String, Object> data) {
-    JPObject jpObj = jpBeans.get(jpClass.getCode());
-    JPData jpData = JPData.newBuilder().data(data).build();
+    return newInstance(jpClass, JPData.newBuilder().data(data).build(), null);
+  }
 
-    JPObject.Builder builder = JPObject.newBuilder(jpClass);
-    if (jpObj != null) {
-      builder.objectClass(jpObj.getClass());
+  /**
+   * Создает объект
+   *
+   * @param jpClassCode        Кодовое имя класса
+   * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
+   * @param data               Данные объекта
+   * @return Новый объект
+   */
+  @Override
+  public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, Map<String, Object> data) {
+    JPObject jpObj = jpBeans.get(jpClassCode);
+
+    JPData jpData = JPData.newBuilder().data(data).build();
+    if (jpObj == null) {
+      return JPObjectBase.newBaseInstance(jpClassCode, primaryKeyAttrCode, jpData);
+    } else {
+      return jpObj.newInstance(jpClassCode, primaryKeyAttrCode, jpData);
     }
-    return builder.jpData(jpData).build();
   }
 
   /**
@@ -92,13 +107,15 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
    */
   @Override
   public JPObject newInstance(JPClass jpClass, JPData jpData, JPLinkedData jpLinkedData) {
+    JPAttr primaryKeyAttr = jpClass.getPrimaryKeyAttr();
+    String jpClassCode = jpClass.getCode();
+    String primaryKeyAttrCode = primaryKeyAttr != null ? primaryKeyAttr.getCode() : null;
     JPObject jpObj = jpBeans.get(jpClass.getCode());
-
-    JPObject.Builder builder = JPObject.newBuilder(jpClass);
-    if (jpObj != null) {
-      builder.objectClass(jpObj.getClass());
+    if (jpObj == null) {
+      return JPObjectBase.newBaseInstance(jpClassCode, primaryKeyAttrCode, jpData, jpLinkedData);
+    } else {
+      return jpObj.newInstance(jpClassCode, primaryKeyAttrCode, jpData, jpLinkedData);
     }
-    return builder.jpData(jpData).jpLinkedData(jpLinkedData).build();
   }
 
   /**

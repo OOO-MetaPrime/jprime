@@ -18,7 +18,7 @@ import java.io.PipedOutputStream;
  * Работа с UploadInputStream
  */
 @Service
-public class UploadInputStreamServiceImpl implements UploadInputStreamService {
+public class UploadInputStreamBaseService implements UploadInputStreamService {
   /**
    * Читаем файл
    *

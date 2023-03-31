@@ -22,7 +22,7 @@ public interface JPReactiveObjectRepository {
   }
 
   /**
-   * Возвращает объект и блокирует его на время транзации
+   * Возвращает объект и блокирует его на время транзакции
    *
    * @param query Параметры для выборки
    * @return Объект
@@ -48,7 +48,7 @@ public interface JPReactiveObjectRepository {
   Flux<JPObject> getAsyncList(JPSelect query);
 
   /**
-   * Возвращает список объектов и блокирует на время транзации
+   * Возвращает список объектов и блокирует на время транзакции
    *
    * @param query Параметры для выборки
    * @return Список объектов

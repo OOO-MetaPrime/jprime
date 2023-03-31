@@ -27,7 +27,7 @@ public class JPWrongVersionException extends JPAppRuntimeException {
    * @param code        Код объекта
    */
   public JPWrongVersionException(String messageCode, String code) {
-    this(messageCode, "Версия объекта с кодом \"" + code + "\" не соответствует актуальной", null, null);
+    this(messageCode, code, null, null);
   }
 
   /**

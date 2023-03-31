@@ -1,0 +1,14 @@
+dependencies {
+  api(groovy.bundles.groovy.v1)
+  api(commons.lang3)
+
+  testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

@@ -24,6 +24,17 @@ public interface JPFileLoader {
    */
   Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth);
 
+
+  /**
+   * Данные файла
+   *
+   * @param classCode Кодовое имя класса
+   * @param filter    Условие выборки
+   * @param attr      Атрибут типа файл
+   * @return JFileInfo
+   */
+  Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr);
+
   /**
    * Данные файла
    *

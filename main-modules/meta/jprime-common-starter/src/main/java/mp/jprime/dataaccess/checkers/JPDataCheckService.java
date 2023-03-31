@@ -1,13 +1,35 @@
 package mp.jprime.dataaccess.checkers;
 
 import mp.jprime.dataaccess.JPAttrData;
+import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.security.AuthInfo;
+
+import java.util.Collection;
 
 /**
  * Сервис проверки данных указанному условию
  */
 public interface JPDataCheckService {
+  /**
+   * Возвращает количество объектов, удовлетворяющих выборке
+   *
+   * @param select  JPSelect
+   * @param objects Полный список объектов
+   * @return Количество в выборке
+   */
+  Long getTotalCount(JPSelect select, Collection<JPObject> objects);
+
+  /**
+   * Фильтрует переданный список объектов по условию JPSelect
+   *
+   * @param select  JPSelect
+   * @param objects Полный список объектов
+   * @return Результирующий список
+   */
+  Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects);
+
   /**
    * Проверяем условие по переданным данным
    *

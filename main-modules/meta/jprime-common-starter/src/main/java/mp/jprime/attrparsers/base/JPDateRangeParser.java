@@ -30,7 +30,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
 
   @Override
   public JPType getJPType() {
-    return JPType.DATERANGE;
+    return JPType.DATE_RANGE;
   }
 
   @Override
@@ -48,7 +48,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
    */
   @Override
   public JPDateRange parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATERANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATE_RANGE) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
@@ -68,7 +68,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
    */
   @Override
   public JPDateRange parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JPType.DATERANGE) {
+    if (jpAttr == null || jpAttr.getValueType() != JPType.DATE_RANGE) {
       return null;
     }
     if (attrValue instanceof JPDateRange) {
@@ -89,9 +89,9 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
        *  }
        */
       try {
-        JsonDateRange json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.toString(attrValue),
-            JsonDateRange.class
+        JsonDateRange json = jsonMapper.toObject(
+            JsonDateRange.class,
+            jsonMapper.toString(attrValue)
         );
         result = JPDateRange.create(
             json.getLower(),
@@ -106,9 +106,9 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
        * Если строка, мало ли кто-то положил
        */
       try {
-        JsonDateRange json = jsonMapper.getObjectMapper().readValue(
-            (String) attrValue,
-            JsonDateRange.class
+        JsonDateRange json = jsonMapper.toObject(
+            JsonDateRange.class,
+            (String) attrValue
         );
         result = JPDateRange.create(
             json.getLower(),
@@ -131,7 +131,7 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
    */
   @Override
   public void fill(JPAttr jpAttr, JPDateRange attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATERANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATE_RANGE) {
       return;
     }
     data.put(jpAttr.getCode(), attrValue == null ? null : attrValue.asString());

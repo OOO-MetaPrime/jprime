@@ -29,14 +29,6 @@ subprojects {
     }
   }
 
-  dependencies {
-    api enforcedPlatform (storages.r2dbc.pool)
-    api enforcedPlatform (storages.r2dbc.proxy)
-    api enforcedPlatform (storages.r2dbc.spi)
-    api enforcedPlatform (storages.r2dbc.spi.parent)
-    api enforcedPlatform (storages.r2dbc.postgresql)
-  }
-
   configurations {
     all*.exclude module: 'spring-boot-starter-logging'
     all*.exclude module: 'slf4j-log4j12'

@@ -68,16 +68,16 @@ public interface JPAttr {
   Integer getLength();
 
   /**
-   * Название класса
+   * Название атрибута
    *
-   * @return Название класса
+   * @return Название атрибута
    */
   String getName();
 
   /**
-   * Короткое название класса
+   * Короткое название атрибута
    *
-   * @return Короткое название класса
+   * @return Короткое название атрибута
    */
   String getShortName();
 

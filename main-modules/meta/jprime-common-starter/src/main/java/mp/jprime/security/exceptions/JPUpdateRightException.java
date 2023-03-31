@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 /**
- * Нет прав на чтение
+ * Нет прав на обновление
  */
 @ResponseStatus(HttpStatus.FORBIDDEN)
 public class JPUpdateRightException extends JPSecurityException {

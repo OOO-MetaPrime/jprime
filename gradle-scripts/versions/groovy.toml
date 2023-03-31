@@ -1,6 +1,6 @@
 # Groovy
 [versions]
-groovyAllVersion = "3.0.9"
+groovyAllVersion = "3.0.13"
 groovySandboxVersion = "1.19"
 
 [libraries]

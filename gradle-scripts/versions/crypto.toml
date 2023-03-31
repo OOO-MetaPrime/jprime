@@ -3,11 +3,11 @@ xmlsecVersion = "1.5.0"
 bcmailJdk15OnVersion = "1.70"
 bcpkixJdk15OnVersion = "1.70"
 bcprovJdk15OnVersion = "1.70"
-cxfCoreVersion = "3.5.2"
-cxfRtTransportsHttpVersion = "3.5.2"
-cxfRtFrontendJaxwsVersion = "3.5.2"
-openpdfVersion = "1.3.28"
-xmlgraphicsVersion = "2.7"
+cxfCoreVersion = "3.5.5"
+cxfRtTransportsHttpVersion = "3.5.5"
+cxfRtFrontendJaxwsVersion = "3.5.5"
+xmlgraphicsVersion = "2.8"
+jaxwsRiVersion = "4.0.0"
 
 [libraries]
 xmlsec = { module="org.apache.santuario:xmlsec", version.ref="xmlsecVersion" }
@@ -17,8 +17,8 @@ bcmail-jdk15on = { module="org.bouncycastle:bcmail-jdk15on", version.ref="bcmail
 cxf-core = { module="org.apache.cxf:cxf-core", version.ref = "cxfCoreVersion" }
 cxf-rt-transports-http = { module="org.apache.cxf:cxf-rt-transports-http", version.ref = "cxfRtTransportsHttpVersion" }
 cxf-rt-frontend-jaxws = { module="org.apache.cxf:cxf-rt-frontend-jaxws", version.ref = "cxfRtFrontendJaxwsVersion" }
-openpdf = { module="com.github.librepdf:openpdf", version.ref = "openpdfVersion" }
 fop = { module="org.apache.xmlgraphics:fop", version.ref = "xmlgraphicsVersion" }
+jaxws-ri = { module="com.sun.xml.ws:jaxws-ri", version.ref = "jaxwsRiVersion" }
 
 [bundles]
 cxf-v1 = ["cxf-core", "cxf-rt-transports-http", "cxf-rt-frontend-jaxws"]

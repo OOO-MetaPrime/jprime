@@ -62,6 +62,16 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
 
   @Override
   public Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
+    return getInfos(classCode, filter, attr, auth, Source.USER);
+  }
+
+
+  @Override
+  public Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr) {
+    return getInfos(classCode, filter, attr, null, Source.SYSTEM);
+  }
+
+  private Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth, Source source) {
     if (classCode == null || attr == null) {
       return null;
     }
@@ -78,7 +88,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
             .attr(jpFile.getFileTitleAttrCode())
             .attr(jpFile.getFileExtAttrCode())
             .auth(auth)
-            .source(Source.USER)
+            .source(source)
             .where(
                 filter
             )

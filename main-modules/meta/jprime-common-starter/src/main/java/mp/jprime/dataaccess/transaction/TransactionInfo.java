@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.transaction.events.TransactionEvent;
 import java.util.Collection;
 
 /**
- * Данные транзации
+ * Данные транзакции
  */
 public interface TransactionInfo {
   /**

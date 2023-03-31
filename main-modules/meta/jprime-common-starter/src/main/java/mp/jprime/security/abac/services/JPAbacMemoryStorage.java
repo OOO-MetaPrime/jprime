@@ -7,6 +7,7 @@ import mp.jprime.security.abac.Policy;
 import mp.jprime.security.abac.PolicySet;
 import mp.jprime.security.abac.PolicyTarget;
 import mp.jprime.security.abac.annotations.JPAbacAnnoLoader;
+import mp.jprime.security.abac.events.AbacChangeEvent;
 import mp.jprime.security.abac.xmlloader.services.JPAbacXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -137,7 +138,17 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
     this.classPolicies = classPolicies;
   }
 
-  @EventListener(condition = "#event.eventCode.equals(T(mp.jprime.security.abac.events.AbacChangeEvent).CODE)")
+  /**
+   * Код события AbacChangeEvent
+   *
+   * @return AbacChangeEvent
+   */
+  public String getChangeEventCode() {
+    return AbacChangeEvent.CODE;
+  }
+
+
+  @EventListener(condition = "#event.eventCode.equals(@JPAbacMemoryStorage.getChangeEventCode())")
   public void handleAbacChangeEvent(JPSystemApplicationEvent event) {
     dynamicLoad();
   }

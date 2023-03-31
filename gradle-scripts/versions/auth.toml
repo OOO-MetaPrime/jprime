@@ -1,8 +1,8 @@
 # Jwt
 [versions]
-jjwtApiVersion = "0.10.5"
-jjwtImplVersion = "0.10.5"
-jjwtJacksonVersion = "0.10.5"
+jjwtApiVersion = "0.11.5"
+jjwtImplVersion = "0.11.5"
+jjwtJacksonVersion = "0.11.5"
 
 [libraries]
 jjwt-api = { module="io.jsonwebtoken:jjwt-api", version.ref="jjwtApiVersion" }

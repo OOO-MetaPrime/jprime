@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.filters.StartsWith;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
 import mp.jprime.security.AuthInfo;
+import org.springframework.util.StringUtils;
 
 /**
  * Начинается С
@@ -24,7 +25,7 @@ public class CheckStartsWith extends CheckBaseFilter<StartsWith> {
     if (attrValue != null) {
       String parseAttrValue = parseTo(String.class, attrValue, auth);
       String parseFilterValue = parseTo(String.class, filterValue, auth);
-      return parseAttrValue != null && parseFilterValue != null && parseAttrValue.startsWith(parseFilterValue);
+      return parseAttrValue != null && StringUtils.startsWithIgnoreCase(parseAttrValue, parseFilterValue);
     }
     return Boolean.FALSE;
   }

@@ -57,9 +57,16 @@ task copyDefault(type: Copy, description: "Подготовка application.yml"
   from("${project.projectDir}/src/main/resources/application.yml")
   into("${project.buildDir}/resources/main/")
   filesMatching("**/application.yml") {
-    props.forEach { key, value ->
-      filter {
-        line -> line.replaceAll(/\$\{${key}(:.*)?}/, value as String)
+    filter { String line ->
+      if (line.matches(/.*\$\{.*}.*/)) {
+        def k = line.replaceFirst(/.*\$\{/, "").replaceFirst(/(:.*)?}.*/, "")
+        def value = props.get(k)
+        if (value != null)
+          line.replaceFirst(/\$\{.*(:.*)?}/, value as String)
+        else if (line.matches(/.*\$\{\w*:.*}.*/))
+          line.replaceFirst(/\$\{\w*:/, "").reverse().replaceFirst(/}/, "").reverse()
+      } else {
+        line
       }
     }
   }
@@ -69,5 +76,5 @@ bootJarMainClassName.dependsOn copyDefault
 compileTestJava.dependsOn copyDefault
 test.dependsOn copyDefault
 
-copyDefault.dependsOn copyDistrib
-processResources.finalizedBy { copyDefault }
+copyDefault.dependsOn(copyDistrib)
+processResources.finalizedBy(copyDefault)

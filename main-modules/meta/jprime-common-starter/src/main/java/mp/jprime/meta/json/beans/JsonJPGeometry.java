@@ -13,6 +13,10 @@ public final class JsonJPGeometry {
     return SRID;
   }
 
+  public void setSRID(int SRID) {
+    this.SRID = SRID;
+  }
+
   public JsonJPGeometry() {
 
   }

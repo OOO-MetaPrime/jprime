@@ -34,15 +34,15 @@ public class JsonCond {
   private JsonExpr exists;
   private JsonExpr notExists;
   // Условия на диапазоны
-  private String containsEl;
-  private JsonRange<Object> containsRange;
-  private JsonRange<Object> overlapsRange;
-  private JsonRange<Object> eqRange;
-  private JsonRange<Object> neqRange;
-  private JsonRange<Object> gtRange;
-  private JsonRange<Object> gteRange;
-  private JsonRange<Object> ltRange;
-  private JsonRange<Object> lteRange;
+  private String containsElement;
+  private JsonStringRange containsRange;
+  private JsonStringRange overlapsRange;
+  private JsonStringRange eqRange;
+  private JsonStringRange neqRange;
+  private JsonStringRange gtRange;
+  private JsonStringRange gteRange;
+  private JsonStringRange ltRange;
+  private JsonStringRange lteRange;
   // Условия на дату
   private Integer eqYear;
   private Integer neqYear;
@@ -260,39 +260,39 @@ public class JsonCond {
     return lteDay;
   }
 
-  public String getContainsEl() {
-    return containsEl;
+  public String getContainsElement() {
+    return containsElement;
   }
 
-  public JsonRange<Object> getContainsRange() {
+  public JsonStringRange getContainsRange() {
     return containsRange;
   }
 
-  public JsonRange<Object> getOverlapsRange() {
+  public JsonStringRange getOverlapsRange() {
     return overlapsRange;
   }
 
-  public JsonRange<Object> getEqRange() {
+  public JsonStringRange getEqRange() {
     return eqRange;
   }
 
-  public JsonRange<Object> getNeqRange() {
+  public JsonStringRange getNeqRange() {
     return neqRange;
   }
 
-  public JsonRange<Object> getGtRange() {
+  public JsonStringRange getGtRange() {
     return gtRange;
   }
 
-  public JsonRange<Object> getGteRange() {
+  public JsonStringRange getGteRange() {
     return gteRange;
   }
 
-  public JsonRange<Object> getLtRange() {
+  public JsonStringRange getLtRange() {
     return ltRange;
   }
 
-  public JsonRange<Object> getLteRange() {
+  public JsonStringRange getLteRange() {
     return lteRange;
   }
 
@@ -381,47 +381,47 @@ public class JsonCond {
     return this;
   }
 
-  public JsonCond containsEl(String containsEl) {
-    this.containsEl = containsEl;
+  public JsonCond containsElement(String containsElement) {
+    this.containsElement = containsElement;
     return this;
   }
 
-  public JsonCond containsRange(JsonRange<Object> containsRange) {
+  public JsonCond containsRange(JsonStringRange containsRange) {
     this.containsRange = containsRange;
     return this;
   }
 
-  public JsonCond overlapsRange(JsonRange<Object> overlapsRange) {
+  public JsonCond overlapsRange(JsonStringRange overlapsRange) {
     this.overlapsRange = overlapsRange;
     return this;
   }
 
-  public JsonCond eqRange(JsonRange<Object> eqRange) {
+  public JsonCond eqRange(JsonStringRange eqRange) {
     this.eqRange = eqRange;
     return this;
   }
 
-  public JsonCond neqRange(JsonRange<Object> neqRange) {
+  public JsonCond neqRange(JsonStringRange neqRange) {
     this.neqRange = neqRange;
     return this;
   }
 
-  public JsonCond gtRange(JsonRange<Object> gtRange) {
+  public JsonCond gtRange(JsonStringRange gtRange) {
     this.gtRange = gtRange;
     return this;
   }
 
-  public JsonCond gteRange(JsonRange<Object> gteRange) {
+  public JsonCond gteRange(JsonStringRange gteRange) {
     this.gteRange = gteRange;
     return this;
   }
 
-  public JsonCond ltRange(JsonRange<Object> ltRange) {
+  public JsonCond ltRange(JsonStringRange ltRange) {
     this.ltRange = ltRange;
     return this;
   }
 
-  public JsonCond lteRange(JsonRange<Object> lteRange) {
+  public JsonCond lteRange(JsonStringRange lteRange) {
     this.lteRange = lteRange;
     return this;
   }
@@ -437,7 +437,7 @@ public class JsonCond {
   }
 
   public JsonCond checkDay(Date value) {
-    return checkDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return checkDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond checkDay(LocalDate checkDay) {
@@ -446,7 +446,7 @@ public class JsonCond {
   }
 
   public JsonCond checkFromDay(Date value) {
-    return checkFromDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return checkFromDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond checkFromDay(LocalDate checkFromDay) {
@@ -455,7 +455,7 @@ public class JsonCond {
   }
 
   public JsonCond checkToDay(Date value) {
-    return checkToDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return checkToDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond checkToDay(LocalDate checkToDay) {
@@ -495,7 +495,7 @@ public class JsonCond {
   }
 
   public JsonCond eqMonth(Date value) {
-    return eqMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return eqMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond eqMonth(LocalDate date) {
@@ -504,7 +504,7 @@ public class JsonCond {
   }
 
   public JsonCond neqMonth(Date value) {
-    return neqMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return neqMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond neqMonth(LocalDate date) {
@@ -513,7 +513,7 @@ public class JsonCond {
   }
 
   public JsonCond gtMonth(Date value) {
-    return gtMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return gtMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond gtMonth(LocalDate date) {
@@ -522,7 +522,7 @@ public class JsonCond {
   }
 
   public JsonCond gteMonth(Date value) {
-    return gteMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return gteMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond gteMonth(LocalDate date) {
@@ -531,7 +531,7 @@ public class JsonCond {
   }
 
   public JsonCond ltMonth(Date value) {
-    return ltMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return ltMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond ltMonth(LocalDate date) {
@@ -540,7 +540,7 @@ public class JsonCond {
   }
 
   public JsonCond lteMonth(Date value) {
-    return lteMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return lteMonth(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond lteMonth(LocalDate date) {
@@ -549,7 +549,7 @@ public class JsonCond {
   }
 
   public JsonCond eqDay(Date value) {
-    return eqDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return eqDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond eqDay(LocalDate date) {
@@ -558,7 +558,7 @@ public class JsonCond {
   }
 
   public JsonCond neqDay(Date value) {
-    return neqDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return neqDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond neqDay(LocalDate date) {
@@ -567,7 +567,7 @@ public class JsonCond {
   }
 
   public JsonCond gtDay(Date value) {
-    return gtDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return gtDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond gtDay(LocalDate date) {
@@ -576,7 +576,7 @@ public class JsonCond {
   }
 
   public JsonCond gteDay(Date value) {
-    return gteDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return gteDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond gteDay(LocalDate date) {
@@ -585,7 +585,7 @@ public class JsonCond {
   }
 
   public JsonCond ltDay(Date value) {
-    return ltDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return ltDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond ltDay(LocalDate date) {
@@ -594,7 +594,7 @@ public class JsonCond {
   }
 
   public JsonCond lteDay(Date value) {
-    return lteDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(): null);
+    return lteDay(value != null ? value.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() : null);
   }
 
   public JsonCond lteDay(LocalDate date) {

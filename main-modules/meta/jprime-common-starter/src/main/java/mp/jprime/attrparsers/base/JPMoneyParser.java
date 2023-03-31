@@ -103,9 +103,9 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
        *  }
        */
       try {
-        JsonMoney json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.toString(attrValue),
-            JsonMoney.class
+        JsonMoney json = jsonMapper.toObject(
+            JsonMoney.class,
+            jsonMapper.toString(attrValue)
         );
         result = JPMoney.of(
             json.getValue(),
@@ -120,9 +120,9 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney> {
        * Если строка, мало ли кто-то положил
        */
       try {
-        JsonMoney json = jsonMapper.getObjectMapper().readValue(
-            (String) attrValue,
-            JsonMoney.class
+        JsonMoney json = jsonMapper.toObject(
+            JsonMoney.class,
+            (String) attrValue
         );
         result = JPMoney.of(
             json.getValue(),

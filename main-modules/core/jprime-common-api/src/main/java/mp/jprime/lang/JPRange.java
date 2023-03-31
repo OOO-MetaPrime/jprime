@@ -12,6 +12,10 @@ import java.time.temporal.ChronoField;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Базовая логика для периодов
+ * @param <T> Класс значений
+ */
 public abstract class JPRange<T extends Comparable> implements Serializable, Comparable<JPRange<T>> {
 
   public static final int LOWER_INCLUSIVE = 1 << 1;

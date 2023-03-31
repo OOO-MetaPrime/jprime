@@ -31,7 +31,7 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
 
   @Override
   public JPType getJPType() {
-    return JPType.TSRANGE;
+    return JPType.DATETIME_RANGE;
   }
 
   @Override
@@ -49,7 +49,7 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
    */
   @Override
   public JPDateTimeRange parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.TSRANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATETIME_RANGE) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
@@ -69,7 +69,7 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
    */
   @Override
   public JPDateTimeRange parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JPType.TSRANGE) {
+    if (jpAttr == null || jpAttr.getValueType() != JPType.DATETIME_RANGE) {
       return null;
     }
     if (attrValue instanceof JPDateTimeRange) {
@@ -90,9 +90,9 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
        *  }
        */
       try {
-        JsonDateTimeRange json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.toString(attrValue),
-            JsonDateTimeRange.class
+        JsonDateTimeRange json = jsonMapper.toObject(
+            JsonDateTimeRange.class,
+            jsonMapper.toString(attrValue)
         );
         result = JPDateTimeRange.create(
             json.getLower(),
@@ -109,9 +109,9 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
        * Если строка, мало ли кто-то положил
        */
       try {
-        JsonDateTimeRange json = jsonMapper.getObjectMapper().readValue(
-            (String) attrValue,
-            JsonDateTimeRange.class
+        JsonDateTimeRange json = jsonMapper.toObject(
+            JsonDateTimeRange.class,
+            (String) attrValue
         );
         result = JPDateTimeRange.create(
             json.getLower(),
@@ -136,7 +136,7 @@ public class JPDateTimeRangeParser implements AttrTypeParser<JPDateTimeRange> {
    */
   @Override
   public void fill(JPAttr jpAttr, JPDateTimeRange attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.TSRANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.DATETIME_RANGE) {
       return;
     }
     data.put(jpAttr.getCode(), attrValue == null ? null : attrValue.asString());

@@ -115,6 +115,27 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             return StringUtils.hasText(s) ? new BigDecimal(s) : null;
           }
         })
+        // String to JPIntegerArray
+        .addDeserializer(JPIntegerArray.class, new StdDeserializer<JPIntegerArray>(JPIntegerArray.class) {
+          @Override
+          public JPIntegerArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return JPIntegerArray.of(ctxt.readValue(p, Integer[].class));
+          }
+        })
+        // String to JPLongArray
+        .addDeserializer(JPLongArray.class, new StdDeserializer<JPLongArray>(JPLongArray.class) {
+          @Override
+          public JPLongArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return JPLongArray.of(ctxt.readValue(p, Long[].class));
+          }
+        })
+        // String to JPStringArray
+        .addDeserializer(JPStringArray.class, new StdDeserializer<JPStringArray>(JPStringArray.class) {
+          @Override
+          public JPStringArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return JPStringArray.of(ctxt.readValue(p, String[].class));
+          }
+        })
         // JsonNode to JPJsonNode
         .addDeserializer(JPJsonNode.class, new StdDeserializer<JPJsonNode>(JPJsonNode.class) {
           @Override
@@ -122,7 +143,6 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             return JPJsonNode.from(p.getCodec().readTree(p));
           }
         })
-
         // JsonString to String
         .addSerializer(JPJsonString.class,
             new JsonSerializer<JPJsonString>() {
@@ -206,9 +226,9 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
               public void serialize(BigDecimal v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 // При длине > 16 символов браузер игнорирует другие цифры
                 if (v.precision() > 16 || v.compareTo(MIN_SAFE_BIGDECIMAL) < 0 || v.compareTo(MAX_SAFE_BIGDECIMAL) > 0) {
-                  jGen.writeString(v.toString());
+                  jGen.writeString(v.toPlainString());
                 } else {
-                  jGen.writeNumber(v);
+                  jGen.writeNumber(new BigDecimal(v.toPlainString()));
                 }
               }
             })
@@ -234,6 +254,30 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
                 } else {
                   jGen.writeNumber(v);
                 }
+              }
+            })
+        // JPIntegerArray to String
+        .addSerializer(JPIntegerArray.class,
+            new JsonSerializer<JPIntegerArray>() {
+              @Override
+              public void serialize(JPIntegerArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                jGen.writeObject(v.toList());
+              }
+            })
+        // JPLongArray to String
+        .addSerializer(JPLongArray.class,
+            new JsonSerializer<JPLongArray>() {
+              @Override
+              public void serialize(JPLongArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                jGen.writeObject(v.toList());
+              }
+            })
+        // JPStringArray to String
+        .addSerializer(JPStringArray.class,
+            new JsonSerializer<JPStringArray>() {
+              @Override
+              public void serialize(JPStringArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+                jGen.writeObject(v.toList());
               }
             })
         // JPJsonNode to JsonNode

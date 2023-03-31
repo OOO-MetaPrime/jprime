@@ -111,7 +111,7 @@ public final class JPMutableData implements JPAttrData {
    * @return Значение
    */
   public void putAll(JPMutableData data) {
-    if (dataMap == null || dataMap.isEmpty()) {
+    if (data == null || data.isEmpty()) {
       return;
     }
     data.forEach(dataMap::put);
@@ -123,7 +123,7 @@ public final class JPMutableData implements JPAttrData {
    * @param data Даныне
    */
   public void putAll(Map<String, Object> data) {
-    if (data == null || dataMap.isEmpty()) {
+    if (data == null || data.isEmpty()) {
       return;
     }
     data.forEach(dataMap::put);
@@ -156,6 +156,7 @@ public final class JPMutableData implements JPAttrData {
    *
    * @param action BiConsumer
    */
+  @Override
   public void forEach(BiConsumer<? super String, ? super Object> action) {
     dataMap.forEach(action);
   }

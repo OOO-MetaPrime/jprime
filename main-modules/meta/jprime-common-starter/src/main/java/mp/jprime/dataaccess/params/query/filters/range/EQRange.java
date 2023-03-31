@@ -2,15 +2,16 @@ package mp.jprime.dataaccess.params.query.filters.range;
 
 import mp.jprime.dataaccess.enums.FilterOperation;
 import mp.jprime.dataaccess.params.query.filters.ValueFilter;
+import mp.jprime.lang.JPRange;
 
-public class EQRange extends ValueFilter<Object> {
+public class EQRange extends ValueFilter<JPRange<?>> {
   /**
    * Конструктор
    *
    * @param attrCode Условие по значениям
    * @param value    Условие
    */
-  public EQRange(String attrCode, Object value) {
+  public EQRange(String attrCode, JPRange<?> value) {
     super(attrCode, value);
   }
 

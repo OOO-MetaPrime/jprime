@@ -129,7 +129,7 @@ public class JsonJPObjectList {
     private Integer limit;
     private Long totalCount;
     private String classCode;
-    private Collection<JsonJPObject> objects = new ArrayList<>();
+    private final Collection<JsonJPObject> objects = new ArrayList<>();
 
     private Builder() {
     }

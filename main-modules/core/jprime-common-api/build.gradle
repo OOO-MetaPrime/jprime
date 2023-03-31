@@ -12,6 +12,8 @@ dependencies {
 
   api project(':jprime-security-core')
   api project(':jprime-common-exceptions')
+
+  testImplementation('org.springframework.boot:spring-boot-starter-test')
 }
 
 bootJar {

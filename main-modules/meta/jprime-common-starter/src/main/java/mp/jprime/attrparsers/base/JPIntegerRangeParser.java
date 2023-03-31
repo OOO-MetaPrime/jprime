@@ -29,7 +29,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
 
   @Override
   public JPType getJPType() {
-    return JPType.INTRANGE;
+    return JPType.INT_RANGE;
   }
 
   @Override
@@ -47,7 +47,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
    */
   @Override
   public JPIntegerRange parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.INTRANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.INT_RANGE) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
@@ -67,7 +67,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
    */
   @Override
   public JPIntegerRange parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JPType.INTRANGE) {
+    if (jpAttr == null || jpAttr.getValueType() != JPType.INT_RANGE) {
       return null;
     }
     if (attrValue instanceof JPIntegerRange) {
@@ -88,9 +88,9 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
        *  }
        */
       try {
-        JsonIntegerRange json = jsonMapper.getObjectMapper().readValue(
-            jsonMapper.toString(attrValue),
-            JsonIntegerRange.class
+        JsonIntegerRange json = jsonMapper.toObject(
+            JsonIntegerRange.class,
+            jsonMapper.toString(attrValue)
         );
         result = JPIntegerRange.create(
             json.getLower(),
@@ -105,9 +105,9 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
        * Если строка, мало ли кто-то положил
        */
       try {
-        JsonIntegerRange json = jsonMapper.getObjectMapper().readValue(
-            (String) attrValue,
-            JsonIntegerRange.class
+        JsonIntegerRange json = jsonMapper.toObject(
+            JsonIntegerRange.class,
+            (String) attrValue
         );
         result = JPIntegerRange.create(
             json.getLower(),
@@ -130,7 +130,7 @@ public class JPIntegerRangeParser implements AttrTypeParser<JPIntegerRange> {
    */
   @Override
   public void fill(JPAttr jpAttr, JPIntegerRange attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.INTRANGE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.INT_RANGE) {
       return;
     }
     data.put(jpAttr.getCode(), attrValue == null ? null : attrValue.asString());

@@ -159,10 +159,11 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                 .map(list ->
                     {
                       Map<Comparable, JPObjectAccess> mapAccess = access ?
-                          objectAccessService
-                              .objectsChangeAccess(jpClass,
+                          objectAccessService.objectsChangeAccess(
+                                  jpClass,
                                   list.stream().map(o -> o.getJpId().getId()).collect(Collectors.toList()),
-                                  auth)
+                                  auth
+                              )
                               .stream()
                               .collect(Collectors.toMap(JPObjectAccess::getId, j -> j))
                           : Collections.emptyMap();
@@ -425,8 +426,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
         .source(Source.USER)
         .build();
 
-    return repo
-        .getAsyncObject(jpSelect)
+    return repo.getAsyncObject(jpSelect)
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
@@ -540,6 +540,67 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
       JsonSelect jsonSelect = queryService.getQuery(query);
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, null)
+          .timeout(queryTimeout)
+          .source(Source.USER);
+    } catch (JPRuntimeException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    if (builder.isOrderByEmpty()) {
+      builder.orderByDesc(jpClass.getPrimaryKeyAttr());
+    }
+    return getListResult(builder, access, swe, null);
+  }
+
+  @ResponseBody
+  @GetMapping(value = "/{code}/{objectId}/anonymous", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<JsonJPObject> getObjectAnonymous(ServerWebExchange swe,
+                                               @PathVariable("code") String code,
+                                               @PathVariable("objectId") String objectId) {
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    if (historyPublisher != null) {
+      historyPublisher.sendFind(jpClass.getCode(), objectId, null, swe);
+    }
+
+    JPSelect jpSelect = JPSelect
+        .from(jpClass)
+        .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(objectId))
+        .timeout(queryTimeout)
+        .useDefaultJpAttrs(Boolean.TRUE)
+        .auth(null)
+        .source(Source.USER)
+        .build();
+
+    return repo.getAsyncObject(jpSelect)
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+        .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
+  }
+
+  @ResponseBody
+  @PostMapping(value = "/{code}/search/{attrCode}/{attrValue}/anonymous", produces = MediaType.APPLICATION_JSON_VALUE)
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<JsonJPObjectList> getObjectListAnonymous(ServerWebExchange swe,
+                                                       @PathVariable("code") String code,
+                                                       @PathVariable("attrCode") String attrCode,
+                                                       @PathVariable("attrValue") String attrValue,
+                                                       @RequestBody String query) {
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
+    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass) || jpAttr == null) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    JPSelect.Builder builder;
+    boolean access;
+    try {
+      JsonSelect jsonSelect = queryService.getQuery(query);
+      access = jsonSelect != null && jsonSelect.isAccess();
+      builder = queryService.getSelect(jpClass.getCode(), jsonSelect, null)
+          .andWhere(Filter.attr(attrCode).eq(attrValue))
           .timeout(queryTimeout)
           .source(Source.USER);
     } catch (JPRuntimeException e) {

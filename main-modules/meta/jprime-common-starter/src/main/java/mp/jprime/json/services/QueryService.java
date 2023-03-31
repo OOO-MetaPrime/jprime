@@ -8,8 +8,14 @@ import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.data.KeyValuePair;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
+import mp.jprime.dataaccess.params.query.filters.range.*;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.*;
+import mp.jprime.lang.JPJsonNode;
+import mp.jprime.lang.JPRange;
+import mp.jprime.lang.JPStringRange;
+import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,15 +30,21 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Заполнение SELECT на основе REST
+ * Сервис трансформации запросов и условий
  */
 @Service
-public class QueryService {
+public class QueryService implements ParserServiceAware {
   private JPJsonMapper jpJsonMapper;
+  private ParserService parserService;
 
   @Autowired
   private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
     this.jpJsonMapper = jpJsonMapper;
+  }
+
+  @Override
+  public void setParserService(ParserService parserService) {
+    this.parserService = parserService;
   }
 
   /**
@@ -348,7 +360,30 @@ public class QueryService {
    * @return String
    */
   private String stringValue(Object v) {
-    return String.valueOf(v);
+    return parserService.parseTo(String.class, v);
+  }
+
+  /**
+   * JsonRange to JPStringRange
+   *
+   * @param v JsonRange
+   * @return JPStringRange
+   */
+  private JPStringRange toStringRange(JsonStringRange v) {
+    return v != null ? JPStringRange.closed(v.getLower(), v.getUpper()) : null;
+  }
+
+  /**
+   * Object to String
+   *
+   * @param v Object
+   * @return String
+   */
+  private JsonStringRange toJsonRange(JPRange<?> v) {
+    JsonStringRange result = new JsonStringRange();
+    result.setLower(stringValue(v.lower()));
+    result.setUpper(stringValue(v.upper()));
+    return result;
   }
 
   /**
@@ -385,7 +420,9 @@ public class QueryService {
                         String classCode,
                         BiFunction<String, String, String> refClassCodeFunc,
                         BiFunction<String, String, String> attrCodeFunc) {
-
+    if (filter == null) {
+      return null;
+    }
     if (filter instanceof BooleanFilter) {
       BooleanFilter c = (BooleanFilter) filter;
       if (c.getCond() == BooleanCondition.AND) {
@@ -475,11 +512,11 @@ public class QueryService {
       } else if (v.getOper() == FilterOperation.LTE) {
         cond = JsonCond.newAttrCond(attrName).lte(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.IN) {
-        IN in = (IN) v;
-        cond = JsonCond.newAttrCond(attrName).in(toStrings(in.getValue()));
+        IN inst = (IN) v;
+        cond = JsonCond.newAttrCond(attrName).in(toStrings(inst.getValue()));
       } else if (v.getOper() == FilterOperation.NOTIN) {
-        NotIN notIn = (NotIN) v;
-        cond = JsonCond.newAttrCond(attrName).notIn(toStrings(notIn.getValue()));
+        NotIN inst = (NotIN) v;
+        cond = JsonCond.newAttrCond(attrName).notIn(toStrings(inst.getValue()));
       } else if (v.getOper() == FilterOperation.ISNULL) {
         cond = JsonCond.newAttrCond(attrName).isNull(true);
       } else if (v.getOper() == FilterOperation.ISNOTNULL) {
@@ -495,23 +532,31 @@ public class QueryService {
       } else if (v.getOper() == FilterOperation.NOTSTARTSWITH) {
         cond = JsonCond.newAttrCond(attrName).notStartsWith(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.CONTAINSRANGE) {
-        cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
+        ContainsRange inst = (ContainsRange) v;
+        cond = JsonCond.newAttrCond(attrName).containsRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.OVERLAPSRANGE) {
-        cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.CONTAINSEL) {
-        cond = JsonCond.newAttrCond(attrName).gte(stringValue(v.getValue()));
+        OverlapsRange inst = (OverlapsRange) v;
+        cond = JsonCond.newAttrCond(attrName).overlapsRange(toJsonRange(inst.getValue()));
+      } else if (v.getOper() == FilterOperation.CONTAINSELEMENT) {
+        cond = JsonCond.newAttrCond(attrName).containsElement(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.EQRANGE) {
-        cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
+        EQRange inst = (EQRange) v;
+        cond = JsonCond.newAttrCond(attrName).eqRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.GTRANGE) {
-        cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
+        GTRange inst = (GTRange) v;
+        cond = JsonCond.newAttrCond(attrName).gtRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.GTERANGE) {
-        cond = JsonCond.newAttrCond(attrName).gte(stringValue(v.getValue()));
+        GTERange inst = (GTERange) v;
+        cond = JsonCond.newAttrCond(attrName).gteRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.NEQRANGE) {
-        cond = JsonCond.newAttrCond(attrName).neq(stringValue(v.getValue()));
+        NEQRange inst = (NEQRange) v;
+        cond = JsonCond.newAttrCond(attrName).neqRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.LTRANGE) {
-        cond = JsonCond.newAttrCond(attrName).lt(stringValue(v.getValue()));
+        LTRange inst = (LTRange) v;
+        cond = JsonCond.newAttrCond(attrName).ltRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.LTERANGE) {
-        cond = JsonCond.newAttrCond(attrName).lte(stringValue(v.getValue()));
+        LTERange inst = (LTERange) v;
+        cond = JsonCond.newAttrCond(attrName).lteRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.BETWEEN) {
         Between b = (Between) v;
         Pair pair = b.getValue();
@@ -661,24 +706,24 @@ public class QueryService {
         return Filter.attr(c.getAttr()).gtDay(c.getGtDay());
       } else if (c.getGteDay() != null) {
         return Filter.attr(c.getAttr()).gteDay(c.getGteDay());
-      } else if (c.getContainsEl() != null) {
-        return Filter.attr(c.getAttr()).containsEl(c.getContainsEl());
+      } else if (c.getContainsElement() != null) {
+        return Filter.attr(c.getAttr()).containsElement(c.getContainsElement());
       } else if (c.getContainsRange() != null) {
-        return Filter.attr(c.getAttr()).containsRange(c.getContainsRange());
+        return Filter.attr(c.getAttr()).containsRange(toStringRange(c.getContainsRange()));
       } else if (c.getOverlapsRange() != null) {
-        return Filter.attr(c.getAttr()).overlapsRange(c.getOverlapsRange());
+        return Filter.attr(c.getAttr()).overlapsRange(toStringRange(c.getOverlapsRange()));
       } else if (c.getEqRange() != null) {
-        return Filter.attr(c.getAttr()).eqRange(c.getEqRange());
+        return Filter.attr(c.getAttr()).eqRange(toStringRange(c.getEqRange()));
       } else if (c.getGtRange() != null) {
-        return Filter.attr(c.getAttr()).gtRange(c.getGtRange());
+        return Filter.attr(c.getAttr()).gtRange(toStringRange(c.getGtRange()));
       } else if (c.getGteRange() != null) {
-        return Filter.attr(c.getAttr()).gteRange(c.getGteRange());
+        return Filter.attr(c.getAttr()).gteRange(toStringRange(c.getGteRange()));
       } else if (c.getNeqRange() != null) {
-        return Filter.attr(c.getAttr()).neqRange(c.getNeqRange());
+        return Filter.attr(c.getAttr()).neqRange(toStringRange(c.getNeqRange()));
       } else if (c.getLtRange() != null) {
-        return Filter.attr(c.getAttr()).ltRange(c.getLtRange());
+        return Filter.attr(c.getAttr()).ltRange(toStringRange(c.getLtRange()));
       } else if (c.getLteRange() != null) {
-        return Filter.attr(c.getAttr()).lteRange(c.getLteRange());
+        return Filter.attr(c.getAttr()).lteRange(toStringRange(c.getLteRange()));
       } else if (c.getFeature() != null) {
         if (c.getCheckDay() != null) {
           return Filter.feature(c.getFeature()).check(c.getCheckDay());
@@ -694,6 +739,19 @@ public class QueryService {
       return Filter.or(or.stream().map(this::toFilter).filter(Objects::nonNull).collect(Collectors.toList()));
     }
     return null;
+  }
+
+  /**
+   * Учет условия
+   *
+   * @param jsonNode Обёртка
+   * @return Filter условие
+   */
+  public Filter toFilter(JPJsonNode jsonNode) {
+    if (jsonNode == null) {
+      return null;
+    }
+    return toFilter(jpJsonMapper.toObject(JsonExpr.class, jsonNode));
   }
 
   /**

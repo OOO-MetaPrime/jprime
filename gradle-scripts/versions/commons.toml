@@ -6,11 +6,16 @@ commonsIoVersion = "2.11.0"
 commonsLang3Version = "3.12.0"
 commonsValidatorVersion = "1.7"
 monetaCoreVersion = "1.4.2"
-tikaCoreVersion = "2.2.1"
-guavaVersion = "31.0.1-jre"
+tikaCoreVersion = "2.6.0"
+guavaVersion = "31.1-jre"
 fasterxmlUuidVersion = "4.0.1"
-apacheHttpclientVersion = "4.5.13"
-commonsNetVersion = "3.8.0"
+apacheHttpclientVersion = "4.5.14"
+commonsNetVersion = "3.9.0"
+fastjsonVersion = "2.0.21"
+jaxbApiVersion = "2.3.3"
+jaxwsVersion = "2.3.3"
+javaxActivationVersion = "1.2.0"
+zxingVersion = "3.5.1" # Генерация штрих кодов и QR кодов
 
 [libraries]
 codec = { module="commons-codec:commons-codec", version.ref="commonsCodecVersion" }
@@ -24,3 +29,15 @@ guava = { module="com.google.guava:guava", version.ref="guavaVersion" }
 fasterxml-uuid = { module="com.fasterxml.uuid:java-uuid-generator", version.ref="fasterxmlUuidVersion" }
 apache-httpclient = { module="org.apache.httpcomponents:httpclient", version.ref="apacheHttpclientVersion" }
 net = { module="commons-net:commons-net", version.ref="commonsNetVersion" }
+fastjson = { module="com.alibaba.fastjson2:fastjson2", version.ref="fastjsonVersion" }
+jaxb-api = { module="jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbApiVersion" }
+jaxb-runtime = { module="org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbApiVersion" }
+jaxws-rt = { module="com.sun.xml.ws:jaxws-rt", version.ref = "jaxwsVersion" }
+javax-activation = { module="com.sun.activation:javax.activation", version.ref = "javaxActivationVersion" }
+zxing-core = { module="com.google.zxing:core", version.ref = "zxingVersion" }
+zxing-javase = { module="com.google.zxing:javase", version.ref = "zxingVersion" }
+
+[bundles]
+jaxb = ['jaxb-api', 'jaxb-runtime']
+jaxws = ['jaxws-rt', 'javax-activation']
+zxing = ['zxing-core', 'zxing-javase']

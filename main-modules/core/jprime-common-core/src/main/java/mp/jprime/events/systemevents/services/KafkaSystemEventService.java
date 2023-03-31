@@ -103,6 +103,6 @@ public class KafkaSystemEventService implements SystemEventPublisher {
   }
 
   private JPSystemEvent toEvent(String string) throws IOException, SecurityException {
-    return jsonJPSystemEventConvertor.toJPSystemEvent(jpKafkaJsonMapper.getObjectMapper().readValue(string, JsonJPSystemEvent.class));
+    return jsonJPSystemEventConvertor.toJPSystemEvent(jpKafkaJsonMapper.toObject(JsonJPSystemEvent.class, string));
   }
 }

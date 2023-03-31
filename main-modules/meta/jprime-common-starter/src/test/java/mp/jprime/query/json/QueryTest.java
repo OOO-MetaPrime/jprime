@@ -38,7 +38,7 @@ public class QueryTest {
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.json.modules", "mp.jprime.json.services"},
+      basePackages = {"mp.jprime.json.modules", "mp.jprime.json.services", "mp.jprime.parsers"},
       excludeFilters = {
           @ComponentScan.Filter(
               type = FilterType.ASSIGNABLE_TYPE,

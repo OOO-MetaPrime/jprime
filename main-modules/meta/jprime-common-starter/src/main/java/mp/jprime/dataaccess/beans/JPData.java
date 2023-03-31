@@ -95,10 +95,10 @@ public final class JPData implements JPAttrData {
    *
    * @param action BiConsumer
    */
+  @Override
   public void forEach(BiConsumer<? super String, ? super Object> action) {
     data.forEach(action);
   }
-
 
   /**
    * Построитель JPData

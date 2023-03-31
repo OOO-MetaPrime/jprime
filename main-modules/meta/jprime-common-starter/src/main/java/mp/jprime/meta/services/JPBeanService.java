@@ -15,6 +15,16 @@ public interface JPBeanService {
   /**
    * Создает объект
    *
+   * @param jpClassCode        Кодовое имя класса
+   * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
+   * @param data               Данные объекта
+   * @return Новый объект
+   */
+  JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, Map<String, Object> data);
+
+  /**
+   * Создает объект
+   *
    * @param jpClass Метаописание класса
    * @param data    Данные объекта
    * @return Новый объект

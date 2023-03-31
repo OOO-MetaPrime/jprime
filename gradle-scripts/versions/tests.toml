@@ -1,7 +1,7 @@
 # Tests
 [versions]
-testContainersVersion = "1.17.3"
-reactorTestVersion = "3.4.22"
+testContainersVersion = "1.17.6"
+reactorTestVersion = "3.5.1"
 
 [libraries]
 testcontainers-postgresql = { module="org.testcontainers:postgresql", version.ref="testContainersVersion" }

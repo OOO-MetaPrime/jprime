@@ -1,24 +1,44 @@
 package mp.jprime.dataaccess.checkers;
 
 import mp.jprime.dataaccess.JPAttrData;
+import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.filters.CheckFilter;
+import mp.jprime.dataaccess.enums.OrderDirection;
+import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.dataaccess.params.query.Order;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.security.AuthInfo;
+import mp.jprime.security.exceptions.JPSelectRightException;
+import mp.jprime.security.services.JPResourceAccess;
+import mp.jprime.security.services.JPResourceAccessService;
+import mp.jprime.security.services.JPResourceAccessServiceAware;
+import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Сервис проверки данных указанному условию
  */
 @Service
-public final class JPDataCheckDefaultService implements JPDataCheckService {
+public final class JPDataCheckDefaultService implements JPDataCheckService, JPResourceAccessServiceAware {
   private final Map<Class, CheckFilter> checkFilters = new HashMap<>();
+
+  // Проверка доступа
+  private JPResourceAccessService resourceAccessService;
+
+  @Override
+  public void setJpResourceAccessService(JPResourceAccessService accessService) {
+    this.resourceAccessService = accessService;
+  }
 
   /**
    * Указание ссылок
@@ -46,6 +66,67 @@ public final class JPDataCheckDefaultService implements JPDataCheckService {
         throw JPRuntimeException.wrapException(e);
       }
     }
+  }
+
+  /**
+   * Возвращает количество объектов, удовлетворяющих выборке
+   *
+   * @param select  JPSelect
+   * @param objects Полный список объектов
+   * @return Количество в выборке
+   */
+  @Override
+  public Long getTotalCount(JPSelect select, Collection<JPObject> objects) {
+    Stream<JPObject> stream = getListStream(select, objects);
+    return stream.count();
+  }
+
+  /**
+   * Фильтрует переданный список объектов по условию JPSelect
+   *
+   * @param select  JPSelect
+   * @param objects Полный список объектов
+   * @return Результирующий список
+   */
+  @Override
+  public Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects) {
+    Stream<JPObject> stream = getListStream(select, objects);
+    stream = stream
+        .sorted((o1, o2) -> {
+          for (Order order : select.getOrderBy()) {
+            Comparable v1 = o1.getAttrValue(order.getAttr());
+            Comparable v2 = o2.getAttrValue(order.getAttr());
+            int compare = ObjectUtils.compare(v1, v2);
+            if (compare != 0) {
+              return order.getOrder() == OrderDirection.ASC ? compare : -1 * compare;
+            }
+          }
+          return 0;
+        });
+    if (select.getOffset() != null) {
+      stream = stream.skip(select.getOffset());
+    }
+    if (select.getLimit() != null) {
+      stream = stream.limit(select.getLimit());
+    }
+    return stream.collect(Collectors.toList());
+  }
+
+  private Stream<JPObject> getListStream(JPSelect select, Collection<JPObject> objects) {
+    String classCode = select.getJpClass();
+    AuthInfo authInfo = select.getAuth();
+    JPResourceAccess access = select.getSource() == Source.USER ? resourceAccessService.checkRead(classCode, authInfo) : null;
+    if (access != null && !access.isAccess()) {
+      throw new JPSelectRightException(classCode);
+    }
+    Stream<JPObject> stream = objects.stream();
+
+    Filter filter = select.getWhere();
+    if (filter != null) {
+      stream = stream
+          .filter(x -> check(filter, x.getData(), select.getAuth(), false));
+    }
+    return stream;
   }
 
   /**

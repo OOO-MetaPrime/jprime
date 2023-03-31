@@ -103,6 +103,43 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/api/v1/{code}/{objectId}/anonymous':
+      get:
+        tags:
+        - object
+        summary: получние объекта класса
+        description: получние объекта класса
+        parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+            format: string
+          description: код метаописания
+        - in: path
+          name: objectId
+          required: true
+          schema:
+            type: string
+            format: string
+          description: Идентификтор объекта
+        responses:
+          '200':
+            description: get obj
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/objectInfo'
+          '400':
+            description: Bad request.
+          '401':
+            description: Authorization information is missing or invalid.
+          '404':
+            description: An object with the specified ID was not found.
+          '5XX':
+            description: Unexpected error.
+
   '/api/v1/{code}/search':
     post:
       tags:
@@ -172,6 +209,54 @@ paths:
           description: Unexpected error.
 
   '/api/v1/{code}/search/{attrCode}/{attrValue}':
+    post:
+      tags:
+      - list
+      summary: Поиск объектов класса с фильтрацией по 1 атрибуту
+      description: Отображение списка объектов по указанным условиям
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Множественное кодовое имя класса
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Кодовое имя атрибута класса
+      - in: path
+        name: attrValue
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Значение атрибута
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/searchQuery'
+        description: object to add
+      responses:
+        '200':
+          description: get objlist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{code}/search/{attrCode}/{attrValue}/anonymous':
     post:
       tags:
       - list
@@ -689,6 +774,51 @@ paths:
           description: an existing item already exists
 
   '/api/v1/{code}/{objectId}/file/{attrCode}/{bearer}':
+    get:
+      summary: скачивание файла
+      description: получние файла
+      parameters:
+      - in: path
+        name: code
+        required: true
+        schema:
+          type: string
+          format: string
+        description: код метаописания
+      - in: path
+        name: objectId
+        required: true
+        schema:
+          type: string
+          format: string
+        description: Идентификтор объекта
+      - in: path
+        name: attrCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: кодовое имя атрибута типа файл
+      - in: path
+        name: bearer
+        required: true
+        schema:
+          type: string
+          format: string
+        description: токен авторизации
+      responses:
+        '200':
+          description: Файл скачен
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: An object with the specified ID was not found.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{code}/{objectId}/file/{attrCode}/anonymous':
     get:
       summary: скачивание файла
       description: получние файла

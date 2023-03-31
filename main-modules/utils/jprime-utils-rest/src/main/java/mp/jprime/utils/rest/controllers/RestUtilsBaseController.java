@@ -1,6 +1,5 @@
 package mp.jprime.utils.rest.controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.JPEnum;
 import mp.jprime.json.services.JPJsonMapper;
@@ -90,7 +89,7 @@ public abstract class RestUtilsBaseController {
     return Mono.just(authInfo)
         .flatMapMany(x -> {
           try {
-            JPUtilBatchCheckInParams inParams = jpJsonMapper.getObjectMapper().readValue(query, JPUtilBatchCheckInParams.class);
+            JPUtilBatchCheckInParams inParams = jpJsonMapper.toObject(JPUtilBatchCheckInParams.class, query);
             Collection<JPUtilBatchCheckInParams.CheckIds> checkIds = inParams.getIds();
             Collection<String> utils = inParams.getUtils();
             if (checkIds == null || checkIds.isEmpty() || utils == null || utils.isEmpty()) {
@@ -159,7 +158,7 @@ public abstract class RestUtilsBaseController {
         .flatMap(mode -> {
           try {
             Class inClass = mode.getInClass();
-            JPUtilInParams inParams = inClass == null ? null : (JPUtilInParams) jpJsonMapper.getObjectMapper().readValue(query, inClass);
+            JPUtilInParams inParams = inClass == null ? null : (JPUtilInParams) jpJsonMapper.toObject(inClass, query);
             return Mono.zip(Mono.just(mode), Mono.justOrEmpty(inParams));
           } catch (Exception e) {
             LOG.error(e.getMessage(), e);
@@ -208,21 +207,20 @@ public abstract class RestUtilsBaseController {
             Class inClass = mode.getInClass();
             JPUtilInParams inParams = null;
             if (inClass != null) {
-              ObjectMapper objectMapper = jpJsonMapper.getObjectMapper();
-
               Map<String, Object> inputData = new HashMap<>(stringData.size());
               for (Map.Entry<String, String> entry : stringData.entrySet()) {
                 String k = entry.getKey();
                 String v = entry.getValue();
                 if (v.startsWith("[") && v.endsWith("]")) {
-                  inputData.put(k, objectMapper.readValue(v, String[].class));
+                  inputData.put(k, jpJsonMapper.toObject(String[].class, v));
                 } else {
                   inputData.put(k, v);
                 }
               }
 
-              inParams = (JPUtilInParams) jpJsonMapper.getObjectMapper().readValue(
-                  jpJsonMapper.toString(inputData), inClass
+              inParams = (JPUtilInParams) jpJsonMapper.toObject(
+                  inClass,
+                  jpJsonMapper.toString(inputData)
               );
 
               BeanWrapper wrapper = PropertyAccessorFactory.forBeanPropertyAccess(inParams);
@@ -246,7 +244,7 @@ public abstract class RestUtilsBaseController {
   @ResponseBody
   @GetMapping(value = "/labels",
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).ADMIN)")
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).UI_ADMIN)")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonUtilModeLabel> getUtilModeLabelList(ServerWebExchange swe) {
     return jpUtilService.getUtils(jwtService.getAuthInfo(swe))

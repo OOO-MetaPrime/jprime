@@ -84,7 +84,7 @@ paths:
     get:
       tags:
       - action
-      description: Получение описание всех утилит (доступно только роли ADMIN)
+      description: Получение описание всех утилит (доступно только роли UI_ADMIN)
       responses:
         200:
           description: OK

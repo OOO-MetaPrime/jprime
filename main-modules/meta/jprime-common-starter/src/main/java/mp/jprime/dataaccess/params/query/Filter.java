@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.params.query.data.KeyValuePair;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.dataaccess.params.query.filters.range.*;
+import mp.jprime.lang.JPRange;
 import mp.jprime.meta.JPAttr;
 
 import java.time.LocalDate;
@@ -549,7 +550,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public ContainsRange containsRange(Object value) {
+    public ContainsRange containsRange(JPRange<?> value) {
       return new ContainsRange(attrCode, value);
     }
 
@@ -559,8 +560,8 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public ContainsEl containsEl(Object value) {
-      return new ContainsEl(attrCode, value);
+    public ContainsElement containsElement(Object value) {
+      return new ContainsElement(attrCode, value);
     }
 
     /**
@@ -569,7 +570,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public OverlapsRange overlapsRange(Object value) {
+    public OverlapsRange overlapsRange(JPRange<?> value) {
       return new OverlapsRange(attrCode, value);
     }
 
@@ -579,7 +580,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public EQRange eqRange(Object value) {
+    public EQRange eqRange(JPRange<?> value) {
       return new EQRange(attrCode, value);
     }
 
@@ -589,7 +590,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public NEQRange neqRange(Object value) {
+    public NEQRange neqRange(JPRange<?> value) {
       return new NEQRange(attrCode, value);
     }
 
@@ -599,7 +600,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public GTERange gteRange(Object value) {
+    public GTERange gteRange(JPRange<?> value) {
       return new GTERange(attrCode, value);
     }
 
@@ -609,7 +610,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public GTRange gtRange(Object value) {
+    public GTRange gtRange(JPRange<?> value) {
       return new GTRange(attrCode, value);
     }
 
@@ -619,7 +620,7 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public LTERange lteRange(Object value) {
+    public LTERange lteRange(JPRange<?> value) {
       return new LTERange(attrCode, value);
     }
 
@@ -629,9 +630,8 @@ public abstract class Filter {
      * @param value Значение
      * @return Условие
      */
-    public LTRange ltRange(Object value) {
+    public LTRange ltRange(JPRange<?> value) {
       return new LTRange(attrCode, value);
     }
-
   }
 }

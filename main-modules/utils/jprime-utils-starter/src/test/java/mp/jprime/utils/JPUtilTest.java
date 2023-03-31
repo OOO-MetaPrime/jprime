@@ -32,7 +32,7 @@ public class JPUtilTest {
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.utils", "mp.jprime.log", "mp.jprime.json"},
+      basePackages = {"mp.jprime.log", "mp.jprime.json", "mp.jprime.parsers", "mp.jprime.utils"},
       excludeFilters = {
           @ComponentScan.Filter(
               type = FilterType.ASSIGNABLE_TYPE,

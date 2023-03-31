@@ -14,6 +14,7 @@ import mp.jprime.files.controllers.DownloadFileRestController;
 import mp.jprime.json.beans.JsonJPObject;
 import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileUploader;
@@ -82,6 +83,10 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
    * Формирование JsonJPObject
    */
   private JsonJPObjectService jsonJPObjectService;
+  /**
+   * Фильтр меты
+   */
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
   private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
@@ -121,6 +126,11 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   @Autowired
   private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
     this.jsonJPObjectService = jsonJPObjectService;
+  }
+
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{bearer}")
@@ -329,6 +339,56 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
             .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+        );
+  }
+
+  @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/anonymous")
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<Void> downloadFileAnonymous(ServerWebExchange swe,
+                                          @PathVariable("code") String code,
+                                          @PathVariable("objectId") String objectId,
+                                          @PathVariable("attrCode") String attrCode,
+                                          @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+    return Mono.just(metaStorage.getJPClassByCode(code))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(jpClass -> {
+          if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          return jpClass;
+        })
+        .flatMap(
+            jpClass -> jpFileLoader.asyncGetInfo(JPId.get(jpClass.getCode(), objectId), attrCode, null)
+        )
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .flatMap(
+            fileInfo -> writeTo(swe, fileInfo, userAgent)
+        );
+  }
+
+  @GetMapping(value = "/{code}/search/file/{attrCode}/{linkCode}/{linkValue}/anonymous")
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<Void> downloadFilesAnonymous(ServerWebExchange swe,
+                                           @PathVariable("code") String code,
+                                           @PathVariable("attrCode") String attrCode,
+                                           @PathVariable("linkCode") String linkCode,
+                                           @PathVariable("linkValue") String linkValue,
+                                           @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+    return Mono.just(metaStorage.getJPClassByCode(code))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(jpClass -> {
+          if (attrCode == null || jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          return jpClass;
+        })
+        .flatMapMany(
+            jpClass -> jpFileLoader.asyncGetInfos(jpClass.getCode(), Filter.attr(linkCode).eq(linkValue), attrCode, null)
+        )
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .collectList()
+        .flatMap(
+            fileInfos -> writeZipTo(swe, fileInfos, userAgent)
         );
   }
 

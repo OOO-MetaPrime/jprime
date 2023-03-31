@@ -163,9 +163,25 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
     return getRepository(query.getJpClass()).getObject(query);
   }
 
+  /**
+   * Возвращает объект и блокирует его на время транзакции
+   *
+   * @param query Параметры для выборки
+   * @return Объект
+   */
+  @Override
+  public  JPObject getObjectAndLock(JPSelect query) {
+    return getRepository(query.getJpClass()).getObjectAndLock(query);
+  }
+
   @Override
   public Collection<JPObject> getList(JPSelect select) {
     return getRepository(select.getJpClass()).getList(select);
+  }
+
+  @Override
+  public Collection<JPObject> getListAndLock(JPSelect select) {
+    return getRepository(select.getJpClass()).getListAndLock(select);
   }
 
   @Override

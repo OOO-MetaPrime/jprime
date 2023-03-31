@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * Пользовательское событие
  */
-public interface JPUserEvent<T> {
+public interface JPUserEvent<T extends JPUserEventData> {
   /**
    * Признак "призрачного события". Оно не попадает в хранилище и не отображается в глобальном меню "событий"
    *

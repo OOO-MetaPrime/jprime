@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
+import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPClass;
@@ -20,7 +21,7 @@ import java.util.Collection;
 /**
  * Базовая логика проверки доступа к объекту
  */
-public abstract class JPObjectAccessBaseService implements JPResourceAccessServiceAware {
+public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAware, JPResourceAccessServiceAware {
   // Проверка доступа
   protected JPResourceAccessService accessService;
   // Хранилище настроек RBAC
@@ -29,6 +30,11 @@ public abstract class JPObjectAccessBaseService implements JPResourceAccessServi
   protected JPMetaStorage metaStorage;
   // Сервис проверки данных указанному условию
   private JPDataCheckService dataCheckService;
+
+  @Override
+  public void setJpDataCheckService(JPDataCheckService dataCheckService) {
+    this.dataCheckService = dataCheckService;
+  }
 
   @Override
   public void setJpResourceAccessService(JPResourceAccessService accessService) {
@@ -43,11 +49,6 @@ public abstract class JPObjectAccessBaseService implements JPResourceAccessServi
   @Autowired
   private void setSecurityManager(JPSecurityStorage securityManager) {
     this.securityManager = securityManager;
-  }
-
-  @Autowired
-  private void setDataCheckService(JPDataCheckService dataCheckService) {
-    this.dataCheckService = dataCheckService;
   }
 
   protected boolean isCreateCheck(String classCode, JPMutableData createData, AuthInfo auth) {

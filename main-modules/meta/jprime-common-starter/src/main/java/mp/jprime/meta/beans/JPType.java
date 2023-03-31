@@ -1,9 +1,6 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.lang.JPDateRange;
-import mp.jprime.lang.JPDateTimeRange;
-import mp.jprime.lang.JPGeometry;
-import mp.jprime.lang.JPIntegerRange;
+import mp.jprime.lang.*;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -34,11 +31,15 @@ public enum JPType {
   /**
    * Диапазон дат
    */
-  DATERANGE("daterange", "Диапазон дат", JPDateRange.class),
+  DATE_RANGE("dateRange", "Диапазон дат", JPDateRange.class),
   /**
-   * Полная дата (без учета часового пояса)
+   * Полная дата (c учетом часового пояса)
    */
-  DATETIME("datetime", "Полная дата (без учета часового пояса)", LocalDateTime.class),
+  DATETIME("datetime", "Полная дата (c учетом часового пояса)", LocalDateTime.class),
+  /**
+   * Диапазон полных дат
+   */
+  DATETIME_RANGE("datetimeRange", "Диапазон полных дат", JPDateTimeRange.class),
   /**
    * Вещественное (64 бита)
    */
@@ -60,17 +61,25 @@ public enum JPType {
    */
   INT("integer", "Целочисленное (32 бита)", Integer.class),
   /**
+   * Массив целочисленных (32 бита)
+   */
+  INT_ARRAY("intArray", "Массив целочисленных (32 бита)", JPIntegerArray.class),
+  /**
    * Диапазон целочисленный (32 бита)
    */
-  INTRANGE("int4range", "Диапазон целочисленный (32 бита)", JPIntegerRange.class),
+  INT_RANGE("intRange", "Диапазон целочисленный (32 бита)", JPIntegerRange.class),
   /**
-   * JSONa
+   * JSON
    */
   JSON("json", "JSON", String.class),
   /**
    * Целочисленное (64 бита)
    */
   LONG("long", "Целочисленное (64 бита)", Long.class),
+  /**
+   * Массив целочисленных (64 бита)
+   */
+  LONG_ARRAY("longArray", "Массив целочисленных (64 бита)", JPLongArray.class),
   /**
    * Денежное
    */
@@ -88,17 +97,17 @@ public enum JPType {
    */
   STRING("string", "Строка", String.class),
   /**
-   * Полная дата (c учетом часового пояса)
+   * Массив строк
    */
-  TIMESTAMP("timestamp", "Полная дата (c учетом часового пояса)", LocalDateTime.class),
+  STRING_ARRAY("stringArray", "Массив строк", JPStringArray.class),
+  /**
+   * Полная дата (без учета часового пояса)
+   */
+  TIMESTAMP("timestamp", "Полная дата (без учета часового пояса)", LocalDateTime.class),
   /**
    * Время
    */
   TIME("time", "Время", LocalTime.class),
-  /**
-   * Диапазон полных дат
-   */
-  TSRANGE("tsrange", "Диапазон дат со временем", JPDateTimeRange.class),
   /**
    * Глобальный идентификатор
    */

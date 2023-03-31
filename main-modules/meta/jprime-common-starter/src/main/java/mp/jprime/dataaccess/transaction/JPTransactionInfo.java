@@ -7,7 +7,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Данные транзации
+ * Данные транзакции
  */
 public final class JPTransactionInfo implements TransactionInfo {
   private final Collection<TransactionEvent> events = new ArrayList<>();

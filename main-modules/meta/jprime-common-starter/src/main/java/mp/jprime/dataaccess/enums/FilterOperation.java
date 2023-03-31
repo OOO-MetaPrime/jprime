@@ -15,7 +15,7 @@ public enum FilterOperation {
   /**
    * Этот диапазон содержит элемент
    */
-  CONTAINSEL("CONTAINSEL"),
+  CONTAINSELEMENT("CONTAINSELEMENT"),
   /**
    * Этот диапазон содержит диапазон
    */

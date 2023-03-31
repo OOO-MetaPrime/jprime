@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 /**
  * Данные истории запросов
  */
-public interface RequestHistoryData {
+public interface RequestHistoryEvent {
   /**
    * Получить Идентификатор запроса
    *

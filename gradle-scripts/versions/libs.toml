@@ -1,14 +1,19 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.13.3"
-jacksonDataformatXmlVersion = "2.13.3"
-jacksonDatatypeJsr310Version = "2.13.3"
+jacksonAnnotationsVersion = "2.13.4"
+jacksonDataformatXmlVersion = "2.13.4"
+jacksonDatatypeJsr310Version = "2.13.4"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.2"
+jodconverterLocalVersion = "4.4.4"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
+# sshj
+sshjVersion = "0.34.0"
+# lombok
+lombokVersion = "1.18.24"
+lombokPluginVersion = "6.6.1"
 
 [libraries]
 jackson-annotations = { module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonAnnotationsVersion" }
@@ -17,6 +22,11 @@ jackson-datatype-jsr310 = { module="com.fasterxml.jackson.datatype:jackson-datat
 javapoet = { module="com.squareup:javapoet", version.ref="javapoetVersion" }
 jodconverter-local = { module="org.jodconverter:jodconverter-local", version.ref="jodconverterLocalVersion" }
 nio-multipart-parser = { module="org.synchronoss.cloud:nio-multipart-parser", version.ref="nioMultipartParserVersion" }
+sshj ={ module="com.hierynomus:sshj", version.ref="sshjVersion" }
+lombok ={ module="org.projectlombok:lombok", version.ref="lombokVersion" }
+
+[plugins]
+lombok = { id = "io.freefair.lombok", version.ref="lombokPluginVersion" }
 
 [bundles]
 jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310']
