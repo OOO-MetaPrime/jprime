@@ -96,7 +96,6 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
                 .rootJpClassCode(jpAttr.getRefJpClassCode())
                 .refAttrCode(refAttrCode)
                 .auth(auth)
-                .source(Source.USER)
                 .build()
         );
     data.putIfAbsent(refAttrCode, value);
@@ -415,11 +414,11 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
 
   private Collection<? extends Comparable> fillUpdateAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
     if (auth == null || jpClass == null) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     JPResourceAccess access = accessService.checkUpdate(jpClass.getCode(), auth);
     if (!access.isAccess()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     Filter accessFilter = access.getFilter();
     // доступ к объекту
@@ -435,11 +434,11 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
 
   private Collection<Comparable> fillDeleteAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
     if (auth == null || jpClass == null) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     JPResourceAccess access = accessService.checkDelete(jpClass.getCode(), auth);
     if (!access.isAccess()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     // доступ к объекту
     if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
@@ -454,11 +453,11 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
 
   private Collection<Comparable> fillReadAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
     if (auth == null || jpClass == null) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     JPResourceAccess access = accessService.checkRead(jpClass.getCode(), auth);
     if (!access.isAccess()) {
-      return Collections.EMPTY_LIST;
+      return Collections.emptyList();
     }
     // доступ к объекту
     if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {

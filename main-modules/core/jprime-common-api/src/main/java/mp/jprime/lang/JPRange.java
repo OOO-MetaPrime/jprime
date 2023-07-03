@@ -57,7 +57,7 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
     this.mask = mask;
     this.clazz = clazz;
 
-    if (isBounded() && lower.compareTo(upper) > 0) {
+    if (!clazz.equals(String.class) && isBounded() && lower.compareTo(upper) > 0) {
       throw new IllegalArgumentException("The lower bound is greater then upper!");
     }
   }

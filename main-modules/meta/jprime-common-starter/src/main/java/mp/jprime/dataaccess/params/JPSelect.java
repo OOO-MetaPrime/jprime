@@ -49,9 +49,9 @@ public class JPSelect extends JPBaseParams {
     this.useDefaultJpAttrs = useDefaultJpAttrs;
 
     this.jpClass = jpClass;
-    this.select = Collections.unmodifiableMap(select == null ? Collections.emptyMap() : select);
+    this.select = select == null ? Collections.emptyMap() : Collections.unmodifiableMap(select);
     this.where = where;
-    this.orderBy = Collections.unmodifiableList(orderBy == null ? Collections.emptyList() : orderBy);
+    this.orderBy = orderBy == null ? Collections.emptyList() : Collections.unmodifiableList(orderBy);
 
     this.timeout = timeout;
   }
@@ -245,6 +245,15 @@ public class JPSelect extends JPBaseParams {
      */
     public Integer limit() {
       return limit;
+    }
+
+    /**
+     * Условие выборки
+     *
+     * @return Условие выборки
+     */
+    public Filter where() {
+      return where;
     }
 
     /**

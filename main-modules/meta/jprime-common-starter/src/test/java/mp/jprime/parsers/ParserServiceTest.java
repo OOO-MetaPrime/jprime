@@ -22,12 +22,10 @@ import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import static mp.jprime.formats.DateFormat.ISO8601;
@@ -486,7 +484,9 @@ class ParserServiceTest {
   @Test
   void testStringToLocalDateTime() {
     Object out = parserService.parseTo(LocalDateTime.class, TEST_DATE_TIME_S);
-    assertEquals(LocalDateTime.parse(TEST_DATE_TIME_S, DateTimeFormatter.ofPattern(ISO8601)), out);
+    LocalDateTime expected = ZonedDateTime.parse(TEST_DATE_TIME_S, DateTimeFormatter.ofPattern(ISO8601))
+        .withZoneSameInstant(TimeZone.getDefault().toZoneId()).toLocalDateTime();
+    assertEquals(expected, out);
   }
 
   @Test

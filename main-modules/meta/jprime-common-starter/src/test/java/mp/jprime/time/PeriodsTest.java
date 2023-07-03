@@ -1,14 +1,16 @@
 package mp.jprime.time;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PeriodsTest {
 
@@ -51,13 +53,23 @@ class PeriodsTest {
             )
         ).add(
             JPPeriod.get(
-                LocalDate.of(2011, 1, 1),
+                LocalDate.of(2011, 1, 2),
                 LocalDate.of(2011, 12, 31)
             )
         ).add(
             JPPeriod.get(
                 LocalDate.of(2011, 5, 1),
                 LocalDate.of(2016, 12, 31)
+            )
+        ).add(
+            JPPeriod.get(
+                LocalDate.of(2017, 1, 1),
+                LocalDate.of(2017, 1, 1)
+            )
+        ).add(
+            JPPeriod.get(
+                LocalDate.of(2017, 1, 2),
+                LocalDate.of(2017, 12, 31)
             )
         ).getPeriod();
     assertEquals(2, periods.size());
@@ -76,12 +88,20 @@ class PeriodsTest {
                 LocalDate.of(2010, 8, 31)
             ),
             JPPeriod.get(
-                LocalDate.of(2011, 1, 1),
+                LocalDate.of(2011, 1, 2),
                 LocalDate.of(2011, 12, 31)
             ),
             JPPeriod.get(
                 LocalDate.of(2011, 5, 1),
                 LocalDate.of(2016, 12, 31)
+            ),
+            JPPeriod.get(
+                LocalDate.of(2017, 1, 1),
+                LocalDate.of(2017, 1, 1)
+            ),
+            JPPeriod.get(
+                LocalDate.of(2017, 1, 2),
+                LocalDate.of(2017, 12, 31)
             )
         );
     assertEquals(2, periods.size());
@@ -387,5 +407,150 @@ class PeriodsTest {
     Assertions.assertEquals(period3.getTo(), resultIntersecPeriod.getTo());
   }
 
+  @Test
+  void mustIntersectGroupsOfPeriods() {
+    JPPeriods period1 = JPPeriods.get()
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2010, 1, 1),
+                LocalDate.of(2010, 11, 30)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2011, 1, 1),
+                LocalDate.of(2011, 11, 30)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2013, 5, 1),
+                LocalDate.of(2013, 11, 30)
+            )
+        );
+
+    JPPeriods period2 = JPPeriods.get()
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2011, 5, 1),
+                LocalDate.of(2012, 11, 30)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2013, 10, 1),
+                LocalDate.of(2013, 12, 30)
+            )
+        );
+
+    JPPeriods period3 = JPPeriods.get()
+        .add(
+            JPPeriod.get(
+                null,
+                LocalDate.of(2011, 3, 30)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2011, 4, 1),
+                LocalDate.of(2011, 5, 30)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2013, 7, 1),
+                LocalDate.of(2013, 10, 14)
+            )
+        )
+        .add(
+            JPPeriod.get(
+                LocalDate.of(2013, 10, 19),
+                null
+            )
+        );
+    JPPeriods infinitePeriod = JPPeriods.get().add(JPPeriod.get(null, null));
+
+    Collection<JPPeriod> expected = Arrays.asList(
+        JPPeriod.get(
+            LocalDate.of(2011, 5, 1),
+            LocalDate.of(2011, 5, 30)
+        ),
+        JPPeriod.get(
+            LocalDate.of(2013, 10, 1),
+            LocalDate.of(2013, 10, 14)
+        ),
+        JPPeriod.get(
+            LocalDate.of(2013, 10, 19),
+            LocalDate.of(2013, 11, 30)
+        )
+    );
+
+    Collection<JPPeriod> result = JPPeriodUtils.intersections(period1, period2, period3, infinitePeriod);
+    assertTrue(CollectionUtils.isEqualCollection(expected, result));
+  }
+
+  @Test
+  void mustIntersectInfinitePeriods() {
+    JPPeriods infinitePeriod = JPPeriods.get().add(JPPeriod.get(null, null));
+
+    Collection<JPPeriod> result = JPPeriodUtils.intersections(infinitePeriod, infinitePeriod);
+    assertTrue(CollectionUtils.isEqualCollection(infinitePeriod.getPeriod(), result));
+  }
+
+  @Test
+  void mustCollectInfinitePeriod() {
+    JPPeriods jpPeriods = JPPeriods.get()
+        .add(JPPeriod.get(null, LocalDate.of(2013, 10, 1)))
+        .add(JPPeriod.get(LocalDate.of(2013, 9, 1), null));
+
+    Collection<JPPeriod> periods = jpPeriods.getPeriod();
+
+    assertEquals(1, periods.size());
+    JPPeriod next = periods.iterator().next();
+    assertNotNull(next);
+    assertNull(next.getFrom());
+    assertNull(next.getTo());
+
+    jpPeriods = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2013, 1, 1), LocalDate.of(2013, 1, 31)))
+        .add(JPPeriod.get(LocalDate.of(2013, 1, 31), LocalDate.of(2013, 2, 10)));
+
+    periods = jpPeriods.getPeriod();
+    assertEquals(1, periods.size());
+  }
+
+  @Test
+  void shouldSplitOpenPeriods() {
+    Collection<JPPeriod> result = JPPeriodUtils.split(Arrays.asList(
+        JPPeriod.get(null, LocalDate.of(2020, 1, 1)),
+        JPPeriod.get(LocalDate.of(2020, 1, 1), null)));
+    assertEquals(3, result.size());
+    Collection<JPPeriod> expectedPeriods = Arrays.asList(
+        JPPeriod.get(null, LocalDate.of(2019, 12, 31)),
+        JPPeriod.get(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 1)),
+        JPPeriod.get(LocalDate.of(2020, 1, 2), null)
+    );
+    assertTrue(CollectionUtils.isEqualCollection(expectedPeriods, result));
+  }
+
+  @Test
+  void shouldSplitClosedPeriods() {
+    Collection<JPPeriod> result = JPPeriodUtils.split(Arrays.asList(
+        JPPeriod.get(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 10)),
+        JPPeriod.get(LocalDate.of(2020, 1, 3), LocalDate.of(2020, 1, 13)),
+        JPPeriod.get(LocalDate.of(2020, 2, 1), LocalDate.of(2020, 3, 1)),
+        JPPeriod.get(LocalDate.of(2020, 1, 5), LocalDate.of(2020, 1, 15)))
+    );
+    assertEquals(6, result.size());
+    Collection<JPPeriod> expectedPeriods = Arrays.asList(
+        JPPeriod.get(LocalDate.of(2020, 1, 1), LocalDate.of(2020, 1, 2)),
+        JPPeriod.get(LocalDate.of(2020, 1, 3), LocalDate.of(2020, 1, 4)),
+        JPPeriod.get(LocalDate.of(2020, 1, 5), LocalDate.of(2020, 1, 10)),
+        JPPeriod.get(LocalDate.of(2020, 1, 11), LocalDate.of(2020, 1, 13)),
+        JPPeriod.get(LocalDate.of(2020, 1, 14), LocalDate.of(2020, 1, 15)),
+        JPPeriod.get(LocalDate.of(2020, 2, 1), LocalDate.of(2020, 3, 1))
+    );
+    assertTrue(CollectionUtils.isEqualCollection(expectedPeriods, result));
+  }
 
 }

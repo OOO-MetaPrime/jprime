@@ -91,7 +91,7 @@ public class JPParamBase implements JPParam {
     this.refFilter = refFilter != null && !refFilter.isEmpty() ? refFilter : null;
     this.external = external;
     this.value = value;
-    this.enums = Collections.unmodifiableCollection(enums != null ? enums : Collections.emptyList());
+    this.enums = enums != null ? Collections.unmodifiableCollection(enums) : Collections.emptyList();
   }
 
   @Override

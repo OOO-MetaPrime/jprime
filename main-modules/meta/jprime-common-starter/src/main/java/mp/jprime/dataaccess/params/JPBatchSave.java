@@ -220,6 +220,24 @@ public abstract class JPBatchSave extends JPBaseParams {
     }
 
     /**
+     * Признак пустого батча
+     *
+     * @return Да/Нет
+     */
+    public boolean isEmpty() {
+      return allData.isEmpty();
+    }
+
+    /**
+     * Размер батча
+     *
+     * @return Количество записей
+     */
+    public int size() {
+      return allData.size();
+    }
+
+    /**
      * Источник данных
      *
      * @param source Источник данных

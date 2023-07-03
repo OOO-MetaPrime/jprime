@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import mp.jprime.dataaccess.beans.JPData;
@@ -29,7 +28,6 @@ import java.util.stream.Collectors;
     "links",
     "access"
 })
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonJPObject {
   private Object id;

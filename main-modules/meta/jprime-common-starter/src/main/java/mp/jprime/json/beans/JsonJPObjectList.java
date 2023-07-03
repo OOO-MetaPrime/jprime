@@ -54,7 +54,7 @@ public class JsonJPObjectList {
     this.limit = limit;
     this.totalCount = totalCount;
     this.classCode = classCode;
-    this.objects = Collections.unmodifiableCollection(objects == null ? Collections.emptyList() : objects);
+    this.objects = objects == null ? Collections.emptyList() : Collections.unmodifiableCollection(objects);
   }
 
   /**

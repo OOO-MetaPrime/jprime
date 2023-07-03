@@ -28,10 +28,10 @@ public class JsonAbacPolicy {
                          Collection<JsonAbacResourceRule> resourceRules, Collection<JsonAbacEnvironmentRule> environmentRules) {
     this.name = name;
     this.qName = qName;
-    this.actions = Collections.unmodifiableCollection(actions != null ? actions : Collections.emptyList());
-    this.subjectRules = Collections.unmodifiableCollection(subjectRules != null ? subjectRules : Collections.emptyList());
-    this.resourceRules = Collections.unmodifiableCollection(resourceRules != null ? resourceRules : Collections.emptyList());
-    this.environmentRules = Collections.unmodifiableCollection(environmentRules != null ? environmentRules : Collections.emptyList());
+    this.actions = actions != null ? Collections.unmodifiableCollection(actions) : Collections.emptyList();
+    this.subjectRules = subjectRules != null ? Collections.unmodifiableCollection(subjectRules) : Collections.emptyList();
+    this.resourceRules = resourceRules != null ? Collections.unmodifiableCollection(resourceRules) : Collections.emptyList();
+    this.environmentRules = environmentRules != null ? Collections.unmodifiableCollection(environmentRules) : Collections.emptyList();
   }
 
   /**

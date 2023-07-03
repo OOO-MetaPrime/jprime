@@ -6,8 +6,8 @@ import mp.jprime.meta.beans.JPType;
  * Типы атрибута
  */
 public final class JsonType {
-  private String code;
-  private String title;
+  private final String code;
+  private final String title;
 
   private JsonType(String code, String title) {
     this.code = code;

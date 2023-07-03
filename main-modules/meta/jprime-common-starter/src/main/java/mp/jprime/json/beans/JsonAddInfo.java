@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /*
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "code",
     "info"
 })
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonAddInfo {
   /**

@@ -87,6 +87,29 @@ public class ParserBaseService implements ParserService {
   }
 
   /**
+   * Проверяет возможность приведения к указанному типу
+   *
+   * @param to    Выходной тип
+   * @param value Значение
+   * @return Признак возможности успешного приведения к указанному типу
+   */
+  @Override
+  public boolean isParsable(Class<?> to, Object value) {
+    if (to == null) {
+      throw new IllegalArgumentException("Unset destination type <to> on call ParserService!");
+    }
+    if (value == null || to.isInstance(value)) {
+      return true;
+    }
+    try {
+      Object result = parseTo(to, value);
+      return result != null;
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+  /**
    * Возвращает парсер по приводимым типам
    *
    * @param from Входной тип

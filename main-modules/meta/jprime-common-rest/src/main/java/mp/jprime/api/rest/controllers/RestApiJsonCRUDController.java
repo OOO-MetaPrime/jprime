@@ -36,6 +36,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
@@ -129,6 +130,26 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     this.objectAccessService = objectAccessService;
   }
 
+  private void sendObject(String classCode, Object objectId, JsonJPObject result, AuthInfo auth, ServerWebExchange swe) {
+    if (historyPublisher == null) {
+      return;
+    }
+    historyPublisher.sendObject(auth, swe, classCode, objectId,
+        () -> historyPublisher.toRequestHistoryObject(result.getClassCode(), result.getId(), result));
+  }
+
+  private void sendSearch(String classCode, Filter where, Collection<JsonJPObject> result, AuthInfo auth, ServerWebExchange swe) {
+    if (historyPublisher == null) {
+      return;
+    }
+    historyPublisher.sendSearch(auth, swe, classCode,
+        () -> queryService.toExp(where),
+        () -> result.stream()
+            .map(x -> historyPublisher.toRequestHistoryObject(x.getClassCode(), x.getId(), x))
+            .collect(Collectors.toList())
+    );
+  }
+
   /**
    * Возвращает список
    *
@@ -182,6 +203,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
                 .objects(y)
                 .totalCount(builder.isTotalCount() ? x : null)
                 .build())
+        .doOnSuccess(x -> sendSearch(jpClass.getCode(), builder.where(), x.getObjects(), auth, swe))
         // Ошибка
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
@@ -223,9 +245,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    if (historyPublisher != null) {
-      historyPublisher.sendSearch(jpClass.getCode(), query, auth, swe);
-    }
 
     JPSelect.Builder builder;
     boolean access;
@@ -413,9 +432,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    if (historyPublisher != null) {
-      historyPublisher.sendFind(jpClass.getCode(), objectId, auth, swe);
-    }
 
     JPSelect jpSelect = JPSelect
         .from(jpClass)
@@ -429,6 +445,7 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     return repo.getAsyncObject(jpSelect)
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+        .doOnSuccess(x -> sendObject(code, objectId, x, auth, swe))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
@@ -530,9 +547,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    if (historyPublisher != null) {
-      historyPublisher.sendSearch(jpClass.getCode(), query, null, swe);
-    }
 
     JPSelect.Builder builder;
     boolean access;
@@ -560,9 +574,6 @@ public class RestApiJsonCRUDController implements JPObjectAccessServiceAware, JP
     JPClass jpClass = metaStorage.getJPClassByCode(code);
     if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    if (historyPublisher != null) {
-      historyPublisher.sendFind(jpClass.getCode(), objectId, null, swe);
     }
 
     JPSelect jpSelect = JPSelect

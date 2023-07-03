@@ -1,6 +1,5 @@
 package mp.jprime.dataaccess.checkers;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.filters.CheckFilter;
@@ -10,6 +9,7 @@ import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.Order;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.exceptions.JPSelectRightException;
 import mp.jprime.security.services.JPResourceAccess;
@@ -139,7 +139,7 @@ public final class JPDataCheckDefaultService implements JPDataCheckService, JPRe
    * @return Да/Нет
    */
   @Override
-  public boolean check(Filter filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  public boolean check(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     if (filter == null) {
       return Boolean.TRUE;
     }

@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +9,6 @@ import java.util.Map;
  * Модель объекта
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonObjectData extends JsonIdentityData {
   private Map<String, Object> data = new HashMap<>();
   private Map<String, JsonObjectLinkedData> linkedData = new HashMap<>();

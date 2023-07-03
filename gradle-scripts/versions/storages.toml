@@ -1,9 +1,9 @@
 # Базы данных
 [versions]
 postgresqlVersion = "42.5.0"
-r2dbcPostgresqlVersion = { strictly = "0.9.0.RELEASE" }
-mssqlJdbcVersion = "10.2.1.jre8"
-clickhouseJdbcVersion = "0.3.1"
+r2dbcPostgresqlVersion = { strictly = "0.9.1.RELEASE" }
+mssqlJdbcVersion = "10.2.3.jre8"
+clickhouseJdbcVersion = "0.4.6"
 jtdsVersion = "1.3.1"
 querydslSqlVersion = "5.0.0"
 minioVersion = "8.4.6"
@@ -11,7 +11,7 @@ minioVersion = "8.4.6"
 [libraries]
 postgresql = { module="org.postgresql:postgresql", version.ref="postgresqlVersion" }
 mssql = { module="com.microsoft.sqlserver:mssql-jdbc", version.ref="mssqlJdbcVersion" }
-clickhouse = { module="ru.yandex.clickhouse:clickhouse-jdbc", version.ref="clickhouseJdbcVersion" }
+clickhouse = { module="com.clickhouse:clickhouse-jdbc", version.ref="clickhouseJdbcVersion" }
 jtds = { module="net.sourceforge.jtds:jtds", version.ref="jtdsVersion" }
 querydsl-sql = { module="com.querydsl:querydsl-sql", version.ref="querydslSqlVersion" }
 minio = { module="io.minio:minio", version.ref="minioVersion" }

@@ -30,9 +30,10 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
   /**
    * Описания настроек ABAC
    */
-  private Collection<PolicySet> allSetts = new CopyOnWriteArrayList<>();
-  private ActionCache commonPolicies = new ActionCache();
-  private Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
+  private volatile Collection<PolicySet> allSetts = new CopyOnWriteArrayList<>();
+  private volatile Collection<PolicySet> umAllSetts = Collections.unmodifiableCollection(allSetts);
+  private volatile ActionCache commonPolicies = new ActionCache();
+  private volatile Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
   /**
    * Динамическая загрузка настроек ABAC
    */
@@ -92,7 +93,7 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
    */
   @Override
   public Collection<PolicySet> getSettings() {
-    return Collections.unmodifiableCollection(allSetts);
+    return umAllSetts;
   }
 
   /**
@@ -106,7 +107,7 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
   public Collection<Policy> getSettings(String jpClass, JPAction action) {
     ActionCache actionCache = classPolicies.get(jpClass);
     Collection<Policy> policies = actionCache == null ? null : actionCache.get(action);
-    return Collections.unmodifiableCollection(policies == null ? Collections.emptyList() : policies);
+    return policies == null ? Collections.emptyList() : policies;
   }
 
   /**
@@ -119,21 +120,22 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
       return;
     }
 
-    Collection<PolicySet> allSetts = new CopyOnWriteArrayList<>();
+    Collection<PolicySet> newAllSetts = new CopyOnWriteArrayList<>();
     ActionCache commonPolicies = new ActionCache();
     Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
 
     // Добавляем постоянные настройки
     for (PolicySet sett : this.allSetts) {
       if (sett.isImmutable()) {
-        applyJPAbac(allSetts, commonPolicies, classPolicies, sett);
+        applyJPAbac(newAllSetts, commonPolicies, classPolicies, sett);
       }
     }
     // Добавляем динамические настройки
     for (PolicySet sett : list) {
-      applyJPAbac(allSetts, commonPolicies, classPolicies, sett);
+      applyJPAbac(newAllSetts, commonPolicies, classPolicies, sett);
     }
-    this.allSetts = allSetts;
+    this.allSetts = newAllSetts;
+    this.umAllSetts = Collections.unmodifiableCollection(newAllSetts);
     this.commonPolicies = commonPolicies;
     this.classPolicies = classPolicies;
   }
@@ -174,19 +176,24 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
   }
 
   private class ActionCache {
-    private Map<JPAction, Collection<Policy>> actionPolicies = new ConcurrentHashMap<>();
+    private final Map<JPAction, Collection<Policy>> actionPolicies = new ConcurrentHashMap<>();
+    private final Map<JPAction, Collection<Policy>> umActionPolicies = new ConcurrentHashMap<>();
 
     private ActionCache() {
 
     }
 
     private Collection<Policy> get(JPAction action) {
-      return action == null ? null : actionPolicies.get(action);
+      return action == null ? null : umActionPolicies.get(action);
     }
 
     private void add(Policy policy) {
       policy.getActions().forEach(
-          x -> actionPolicies.computeIfAbsent(x, v -> new CopyOnWriteArrayList<>()).add(policy)
+          x -> actionPolicies.computeIfAbsent(x, v -> {
+            Collection<Policy> result = new CopyOnWriteArrayList<>();
+            umActionPolicies.put(x, Collections.unmodifiableCollection(result));
+            return result;
+          }).add(policy)
       );
     }
 

@@ -37,9 +37,9 @@ public class JPUpdate extends JPSave {
                    Filter where, AuthInfo auth, Source source, boolean autoChangeDate) {
     super(data, source, auth);
     this.jpId = jpId;
-    this.linkedCreate = Collections.unmodifiableMap(linkedCreate == null ? Collections.emptyMap() : linkedCreate);
-    this.linkedUpdate = Collections.unmodifiableMap(linkedUpdate == null ? Collections.emptyMap() : linkedUpdate);
-    this.linkedDelete = Collections.unmodifiableMap(linkedDelete == null ? Collections.emptyMap() : linkedDelete);
+    this.linkedCreate = linkedCreate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedCreate);
+    this.linkedUpdate = linkedUpdate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedUpdate);
+    this.linkedDelete = linkedDelete == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedDelete);
     this.where = where;
     this.autoChangeDate = autoChangeDate;
   }

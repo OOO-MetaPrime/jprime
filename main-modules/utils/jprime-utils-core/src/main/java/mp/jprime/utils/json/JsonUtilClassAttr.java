@@ -1,16 +1,10 @@
 package mp.jprime.utils.json;
 
-
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * Путь атрибута
  */
-@JsonPropertyOrder({
-    "jpClass",
-    "jpAttr"
-})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JsonUtilClassAttr {
   /**

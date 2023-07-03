@@ -12,7 +12,7 @@ public class PolicyTargetBean implements PolicyTarget {
   private final Collection<String> jpClasses;
 
   private PolicyTargetBean(Collection<String> jpClasses) {
-    this.jpClasses = Collections.unmodifiableCollection(jpClasses != null ? jpClasses : Collections.emptyList());
+    this.jpClasses = jpClasses != null ? Collections.unmodifiableCollection(jpClasses) : Collections.emptyList();
   }
 
   /**

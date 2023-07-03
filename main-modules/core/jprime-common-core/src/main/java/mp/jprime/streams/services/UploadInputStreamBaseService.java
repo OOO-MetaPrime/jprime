@@ -46,6 +46,7 @@ public class UploadInputStreamBaseService implements UploadInputStreamService {
             } catch (IOException ignored) {
             }
           })
+          .onErrorComplete(IOException.class)
           .subscribe(DataBufferUtils.releaseConsumer());
 
       return isPipe;

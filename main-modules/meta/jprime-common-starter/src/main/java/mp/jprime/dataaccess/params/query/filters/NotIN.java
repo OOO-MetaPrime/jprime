@@ -25,6 +25,6 @@ public class NotIN extends ValueFilter<Collection<? extends Comparable>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.NOTIN;
+    return FilterOperation.NOT_IN;
   }
 }

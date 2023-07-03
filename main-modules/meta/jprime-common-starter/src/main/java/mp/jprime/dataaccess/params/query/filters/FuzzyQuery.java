@@ -23,6 +23,6 @@ public class FuzzyQuery extends ValueFilter<Object> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.FUZZYQUERY;
+    return FilterOperation.FUZZY_QUERY;
   }
 }

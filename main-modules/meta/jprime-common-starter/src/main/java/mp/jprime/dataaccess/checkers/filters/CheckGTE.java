@@ -1,8 +1,8 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.filters.GTE;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -14,11 +14,11 @@ import org.apache.commons.lang3.ObjectUtils;
 )
 public class CheckGTE extends CheckBaseFilter<GTE> {
   @Override
-  public boolean check(GTE filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  public boolean check(GTE filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     Object value = filter.getValue();
 
     String attrCode = filter.getAttrCode();
-    if (!data.containsAttr(attrCode)) {
+    if (!data.containsKey(attrCode)) {
       return notContainsDefaultValue;
     }
     Object attrValue = attrCode != null ? data.get(attrCode) : null;

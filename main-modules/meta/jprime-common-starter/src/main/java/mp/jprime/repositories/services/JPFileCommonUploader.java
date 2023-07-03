@@ -4,10 +4,10 @@ import mp.jprime.dataaccess.JPObjectAccessService;
 import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.JPCreate;
+import mp.jprime.dataaccess.params.JPSave;
 import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.files.JPFileInfo;
 import mp.jprime.files.beans.FileInfo;
-import mp.jprime.dataaccess.params.JPSave;
 import mp.jprime.files.beans.JPFileInfoBase;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.UUID;
 import java.util.function.BiFunction;
 
@@ -143,7 +144,7 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
       return builder;
     }
     String storageCode = jpFile.getStorageCode();
-    String storagePath = jpFile.getStorageFilePath();
+    String storagePath = getStoragePath(jpFile.getStorageFilePath());
 
     JPFileInfo fileInfo = upload(storageCode, storagePath, fileName, is);
     builder.set(attr, fileInfo.getFileCode());
@@ -171,5 +172,24 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
    */
   private String getNewFileCode() {
     return UUID.randomUUID().toString();
+  }
+
+  /**
+   * Заменяет ключевые слова в пути, если они присутствуют
+   *
+   * @param path Путь
+   * @return Измененный путь
+   */
+  private String getStoragePath(String path) {
+    if (path == null || path.isEmpty()) {
+      return path;
+    }
+    final LocalDate now = LocalDate.now();
+    int intMonth = now.getMonth().getValue();
+    int day = now.getDayOfMonth();
+    return path
+        .replace("#year#", String.valueOf(now.getYear()))
+        .replace("#month#", intMonth < 10 ? "0" + intMonth : String.valueOf(intMonth))
+        .replace("#day#", day < 10 ? "0" + day : String.valueOf(day));
   }
 }

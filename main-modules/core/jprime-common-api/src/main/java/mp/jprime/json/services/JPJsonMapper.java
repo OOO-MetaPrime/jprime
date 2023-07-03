@@ -12,7 +12,7 @@ import java.util.Collection;
  */
 @Service
 public class JPJsonMapper extends JPObjectMapper {
-  private final ObjectMapper OBJECT_MAPPER;
+  private static ObjectMapper OBJECT_MAPPER;
 
   private JPJsonMapper(@Autowired Collection<JPObjectMapperExpander> expanders) {
     OBJECT_MAPPER = new ObjectMapper();
@@ -21,6 +21,15 @@ public class JPJsonMapper extends JPObjectMapper {
 
   @Override
   public ObjectMapper getObjectMapper() {
+    return OBJECT_MAPPER;
+  }
+
+  /**
+   * ObjectMapper
+   *
+   * @return ObjectMapper
+   */
+  public static ObjectMapper getMapper() {
     return OBJECT_MAPPER;
   }
 }

@@ -22,6 +22,6 @@ public class EQRange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.EQRANGE;
+    return FilterOperation.EQ_RANGE;
   }
 }

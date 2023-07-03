@@ -35,7 +35,7 @@ public class JsonAbacEnvironmentRule {
     this.name = name;
     this.qName = qName;
     this.effect = effect;
-    this.daysOfWeek = Collections.unmodifiableCollection(daysOfWeek != null ? daysOfWeek : Collections.emptyList());
+    this.daysOfWeek = daysOfWeek != null ? Collections.unmodifiableCollection(daysOfWeek) : Collections.emptyList();
     this.fromTime = fromTime;
     this.toTime = toTime;
     this.fromDateTime = fromDateTime;

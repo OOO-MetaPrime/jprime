@@ -24,6 +24,6 @@ public class ContainsKVP extends ValueFilter<KeyValuePair> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.CONTAINS_KVP;
+    return FilterOperation.CONTAINS;
   }
 }

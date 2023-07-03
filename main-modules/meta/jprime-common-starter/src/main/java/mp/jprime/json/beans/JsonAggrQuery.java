@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import java.util.List;
  * Модель запроса агрегации
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonAggrQuery {
   @JsonProperty
   private List<JsonAggregate> aggrs = new ArrayList<>();

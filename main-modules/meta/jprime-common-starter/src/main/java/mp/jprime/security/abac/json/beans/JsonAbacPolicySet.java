@@ -33,7 +33,7 @@ public class JsonAbacPolicySet {
     this.name = name;
     this.qName = qName;
     this.target = target;
-    this.policies = Collections.unmodifiableCollection(policies != null ? policies : Collections.emptyList());
+    this.policies = policies != null ? Collections.unmodifiableCollection(policies) : Collections.emptyList();
   }
 
   /**
@@ -85,14 +85,14 @@ public class JsonAbacPolicySet {
     this.policies = policies;
   }
 
-  public JsonAbacPolicySet filter(JPAbacQuery jpQuery) {
+  public boolean filter(JPAbacQuery jpQuery) {
     if (jpQuery == null) {
-      return this;
+      return true;
     }
     Collection<String> jpClasses = jpQuery.getJpClassCodes();
     if (jpClasses != null && !jpClasses.isEmpty() &&
         (this.getTarget() == null || !CollectionUtils.containsAny(this.getTarget().getJpClasses(), jpClasses))) {
-      return null;
+      return false;
     }
     String name = jpQuery.getName();
 
@@ -150,11 +150,11 @@ public class JsonAbacPolicySet {
       filteredPolicies.add(policy);
     }
     if (filteredPolicies.isEmpty()) {
-      return null;
+      return false;
     } else {
       this.setPolicies(filteredPolicies);
     }
-    return this;
+    return true;
   }
 
   public static Builder newBuilder(String name) {
@@ -162,8 +162,8 @@ public class JsonAbacPolicySet {
   }
 
   public static final class Builder {
+    private final String name;
     private String code;
-    private String name;
     private String qName;
     private JsonAbacPolicyTarget target;
     private Collection<JsonAbacPolicy> policies;

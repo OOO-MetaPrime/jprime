@@ -27,7 +27,7 @@ public final class JPCommonSystemEvent implements JPSystemEvent {
     this.eventDate = eventDate != null ? eventDate : LocalDateTime.now();
     this.eventCode = eventCode != null ? eventCode : "jpCommonSystemEvent";
     this.external = external != null ? external : false;
-    this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : data);
+    this.data = data == null ? Collections.emptyMap() : Collections.unmodifiableMap(data);
   }
 
   @Override

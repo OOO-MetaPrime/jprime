@@ -24,9 +24,10 @@ public class JPUtilCheckOutParams extends BaseJPUtilOutParams<Void> {
   public JPUtilCheckOutParams(@JsonProperty("description") String description,
                               @JsonProperty("qName") String qName,
                               @JsonProperty("changeData") boolean changeData,
+                              @JsonProperty("deleteData") boolean deleteData,
                               @JsonProperty("confirm") String confirm,
                               @JsonProperty("denied") boolean denied)  {
-    super(description, qName, changeData);
+    super(description, qName, changeData, deleteData);
     this.confirm = confirm;
     this.denied = denied;
   }
@@ -75,7 +76,7 @@ public class JPUtilCheckOutParams extends BaseJPUtilOutParams<Void> {
 
     @Override
     public JPUtilCheckOutParams build() {
-      return new JPUtilCheckOutParams(description, qName, changeData, confirm, denied);
+      return new JPUtilCheckOutParams(description, qName, changeData, deleteData, confirm, denied);
     }
   }
 }

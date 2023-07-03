@@ -15,10 +15,10 @@ String JPRIME_DEFAULT = 'jprime'
 private Properties getProps(String propertiesFileName) {
   Properties props = [:]
 
-  File file = file("${rootProject.projectDir}/services-settings/${propertiesFileName}.properties")
+  File file = file("${rootProject.projectDir}/services-settings/${propertiesFileName}.config-properties")
   if (file.exists()) {
     file.withInputStream {
-      props.load(it)
+      props.load(new InputStreamReader(it, "UTF-8"))
     }
   }
   return props

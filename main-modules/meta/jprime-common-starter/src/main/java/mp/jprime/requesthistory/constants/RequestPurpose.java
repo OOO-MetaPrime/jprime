@@ -2,14 +2,14 @@ package mp.jprime.requesthistory.constants;
 
 import org.springframework.util.StringUtils;
 
-import java.util.Arrays;
-
 /**
  * Цель запроса
  */
 public enum RequestPurpose {
-  FIND("find", "Поиск по ключу"),
-  SEARCH("search", "Просмотр списка");
+  FIND("find", "Запрос объекта"),
+  SEARCH("search", "Запрос списка"),
+  FIND_RESULT("findResult", "Просмотр объекта"),
+  SEARCH_RESULT("searchResult", "Превью объекта");
 
   private final String code;
   private final String title;
@@ -47,11 +47,12 @@ public enum RequestPurpose {
     if (!StringUtils.hasText(purpose)) {
       return null;
     }
-    return Arrays
-        .stream(values())
-        .filter(x -> x.getCode().equals(purpose))
-        .findFirst()
-        .orElse(null);
+    for (RequestPurpose v : RequestPurpose.values()) {
+      if (v.code.equalsIgnoreCase(purpose)) {
+        return v;
+      }
+    }
+    return null;
   }
 
   /**

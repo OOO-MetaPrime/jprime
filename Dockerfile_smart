@@ -1,4 +1,4 @@
-FROM alpine-jdk8:latest
+FROM alpine-jdk17:latest
 
 VOLUME /tmp
 

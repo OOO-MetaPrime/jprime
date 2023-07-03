@@ -1,9 +1,6 @@
 package mp.jprime.groovy;
 
-import groovy.lang.Binding;
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.GroovyCodeSource;
-import groovy.lang.GroovyShell;
+import groovy.lang.*;
 import groovy.util.Eval;
 import mp.jprime.groovy.exceptions.JPGroovyRestrictiveException;
 import mp.jprime.groovy.interceptors.JPGroovyRestrictiveInterceptor;
@@ -12,19 +9,21 @@ import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
+import org.codehaus.groovy.runtime.EncodingGroovyMethods;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.kohsuke.groovy.sandbox.SandboxTransformer;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Реализация JPGroovyShell с учетом запрета выполнения различных операций
  */
 public final class JPGroovyCommonShell implements JPGroovyShell {
+  private static final Map<String, Class<?>> CLASS_CACHE = new ConcurrentHashMap<>();
+
   public static final String DEFAULT_CODE_BASE = "/groovy/script";
 
   private final AtomicInteger counter = new AtomicInteger(0);
@@ -71,6 +70,15 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
   }
 
   /**
+   * Очищает переменные из контекста
+   */
+  @Override
+  public void clearVariables() {
+    Set<String> vars = new HashSet<>(getVariables().keySet());
+    vars.forEach(binding::removeVariable);
+  }
+
+  /**
    * Признак наличия переменной в контексте
    *
    * @param name Имя переменной
@@ -82,7 +90,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
   }
 
   /**
-   * Возращает полный список переменных из контекста
+   * Возвращает полный список переменных из контекста
    *
    * @return Мап переменных
    */
@@ -101,12 +109,30 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
     return this.evaluate(script, true);
   }
 
-  private <T> T evaluate(String script, boolean cachable) {
+  private <T> T evaluate(String codeScript, boolean cachable) {
     interceptor.register();
     try {
-      GroovyCodeSource groovyCodeSource = new GroovyCodeSource(script, generateScriptName(), DEFAULT_CODE_BASE);
+      GroovyCodeSource groovyCodeSource = new GroovyCodeSource(codeScript, generateScriptName(), DEFAULT_CODE_BASE);
       groovyCodeSource.setCachable(cachable);
-      return (T) InvokerHelper.createScript(parseClass(groovyCodeSource), binding).run();
+
+      Class<?> cls = null;
+      if (cachable) {
+        try {
+          StringBuilder strToDigest = new StringBuilder((int) (codeScript.length() * 1.2));
+          strToDigest.append("scriptText:").append(codeScript);
+          String key = EncodingGroovyMethods.md5(strToDigest);
+
+          cls = CLASS_CACHE.computeIfAbsent(key, x -> parseClass(groovyCodeSource));
+        } catch (NoSuchAlgorithmException e) {
+          cls = parseClass(groovyCodeSource);
+        }
+      }
+      if (cls == null) {
+        cls = parseClass(groovyCodeSource);
+      }
+
+      Script script = InvokerHelper.createScript(cls, binding);
+      return (T) script.run();
     } catch (MultipleCompilationErrorsException e) {
       throw new JPGroovyRestrictiveException(e.getMessage(), e);
     } finally {
@@ -293,9 +319,9 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
       );
 
       JPGroovyRestrictiveInterceptor interceptor = new JPGroovyRestrictiveInterceptor(
-              this.additionalAllowedClasses,
-              this.additionalAllAllowedClasses,
-              this.additionalAllowedPackages
+          this.additionalAllowedClasses,
+          this.additionalAllAllowedClasses,
+          this.additionalAllowedPackages
       );
 
       return new JPGroovyCommonShell(conf, interceptor);

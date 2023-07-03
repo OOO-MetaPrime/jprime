@@ -19,7 +19,7 @@ public class JsonAbacPolicyTarget {
   }
 
   private JsonAbacPolicyTarget(Collection<String> jpClasses) {
-    this.jpClasses = Collections.unmodifiableCollection(jpClasses != null ? jpClasses : Collections.emptyList());
+    this.jpClasses = jpClasses != null ? Collections.unmodifiableCollection(jpClasses) : Collections.emptyList();
   }
 
   /**

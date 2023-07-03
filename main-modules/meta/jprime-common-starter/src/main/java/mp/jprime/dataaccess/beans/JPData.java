@@ -2,9 +2,7 @@ package mp.jprime.dataaccess.beans;
 
 import mp.jprime.dataaccess.JPAttrData;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -86,8 +84,29 @@ public final class JPData implements JPAttrData {
    *
    * @return Данные
    */
+  @Override
   public Map<String, Object> toMap() {
     return new HashMap<>(data);
+  }
+
+  /**
+   * Возвращает множество ключей
+   *
+   * @return Множество ключей
+   */
+  @Override
+  public Set<String> keySet() {
+    return data.keySet();
+  }
+
+  /**
+   * Возвращает коллекцию значений
+   *
+   * @return Коллекция значений
+   */
+  @Override
+  public Collection<Object> values() {
+    return data.values();
   }
 
   /**

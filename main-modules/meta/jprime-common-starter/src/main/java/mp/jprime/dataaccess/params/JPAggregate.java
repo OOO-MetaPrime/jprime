@@ -33,7 +33,7 @@ public class JPAggregate extends JPBaseParams {
     super(source, auth);
 
     this.jpClass = jpClass;
-    this.aggrs = Collections.unmodifiableCollection(aggrs == null ? Collections.emptyList() : aggrs);
+    this.aggrs = aggrs == null ? Collections.emptyList() : Collections.unmodifiableCollection(aggrs);
     this.where = where;
 
     this.timeout = timeout;

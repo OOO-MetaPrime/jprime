@@ -1,10 +1,18 @@
 package mp.jprime.dataaccess;
 
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPAttr;
 
-import java.util.function.BiConsumer;
+public interface JPAttrData extends JPMap {
+  /**
+   * Признак наличия данных
+   *
+   * @return Признак наличия
+   */
+  default boolean containsKey(String field) {
+    return containsAttr(field);
+  }
 
-public interface JPAttrData {
   /**
    * Возвращает признак наличия данных
    *
@@ -29,32 +37,4 @@ public interface JPAttrData {
   default <T> T get(JPAttr attr) {
     return get(attr.getCode());
   }
-
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
-  <T> T get(String attr);
-
-  /**
-   * Реализация итератора
-   *
-   * @param action BiConsumer
-   */
-  void forEach(BiConsumer<? super String, ? super Object> action);
-
-  /**
-   * Признак отсутствия данных
-   *
-   * @return Да/Нет
-   */
-  boolean isEmpty();
-
-  /**
-   * Размер данных
-   *
-   * @return Размер данных
-   */
-  int size();
 }

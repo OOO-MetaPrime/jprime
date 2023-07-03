@@ -37,8 +37,9 @@ REST-методы работы утилит
 
 ```json
 {
-    "changeData": false,
-    "response": "Thanx for hello",
+  "changeData": false,
+  "deleteData": false,
+  "response": "Thanx for hello",
     "resultType": "custom"
 }
 ```
@@ -59,8 +60,9 @@ REST-методы работы утилит
 
 ```json
 {
-    "changeData": false,
-    "response": "Thanx for hello",
+  "changeData": false,
+  "deleteData": false,
+  "response": "Thanx for hello",
     "resultType": "custom"
 }
 ```
@@ -120,24 +122,44 @@ REST-методы работы утилит
         "utilCode": "test2",
         "modeCode": "ready",
         "title": "Тестовая утилита (message ответ)",
-        "qName": ""
+        "qName": "",
+        "uni": false,
+        "jpClasses": [
+          "pers"
+        ],
+        "jpClassTags": [
+          "tag1"
+        ],
+        "type": "object"   
     },
     {
         "utilCode": "test3",
         "modeCode": "copy",
         "title": "Тестовая утилита (объект ответ)",
-        "qName": ""
+        "qName": "",
+        "uni": false,
+        "jpClasses": [
+          "pers"
+        ],
+        "jpClassTags": [
+          "tag1"
+        ],
+        "type": "object"   
     },
     ....
 ]    
 ```
 
-| Параметр | Описание      |
-|----------|---------------|
-| utilCode | Урл утилиты   |
-| modeCode | Код шага      |
-| title    | Название шага |
-| qName    | QName шага    |
+| Параметр    | Описание                                            |
+|-------------|-----------------------------------------------------|
+| utilCode    | Урл утилиты                                         |
+| modeCode    | Код шага                                            |
+| title       | Название шага                                       |
+| qName       | QName шага                                          |
+| uni         | Признак общедоступной утилиты                       |
+| jpClasses   | Список классов, для которых доступна утилита        |
+| jpClassTags | Теги классов, обрабатываемые этой утилитой          |
+| type        | Тип привязки утилиты (объект, список, произвольная) |
 
 ### 4. Получение списка всех утилит, доступных пользователю
 

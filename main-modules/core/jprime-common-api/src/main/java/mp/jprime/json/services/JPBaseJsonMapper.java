@@ -13,7 +13,7 @@ import java.util.Map;
 /**
  * Общая логика JP*JsonMapper
  */
-abstract class JPBaseJsonMapper {
+public abstract class JPBaseJsonMapper {
   /**
    * Возвращает ObjectMapper
    *
@@ -32,12 +32,33 @@ abstract class JPBaseJsonMapper {
     }
   }
 
+  public JPJsonNode toJPJsonNode(InputStream is) {
+    JsonNode node = toJsonNode(is);
+    return node != null ? JPJsonNode.from(node) : null;
+  }
+
+  public JPJsonNode toJPJsonNode(String value) {
+    JsonNode node = toJsonNode(value);
+    return node != null ? JPJsonNode.from(node) : null;
+  }
+
   public JsonNode toJsonNode(InputStream is) {
     if (is == null) {
       return null;
     }
     try {
       return getObjectMapper().readTree(is);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  public JsonNode toJsonNode(String value) {
+    if (value == null) {
+      return null;
+    }
+    try {
+      return getObjectMapper().readTree(value);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }

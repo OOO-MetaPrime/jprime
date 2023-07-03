@@ -2,12 +2,13 @@ FROM library/alpine:latest
 
 CMD ["/bin/sh"]
 ENV LANG=C.UTF-8
-RUN /bin/sh -c echo '#!/bin/sh'; echo 'set -e'; echo; echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"'; > /usr/local/bin/docker-java-home && chmod +x /usr/local/bin/docker-java-home
-ENV JAVA_HOME=/usr/lib/jvm/java-1.8-openjdk
-ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/jvm/java-1.8-openjdk/jre/bin:/usr/lib/jvm/java-1.8-openjdk/bin
-ENV JAVA_VERSION=8u322
-ENV JAVA_ALPINE_VERSION=8.345.01-r3
-RUN /bin/sh -c set -x && apk add --no-cache openjdk8="$JAVA_ALPINE_VERSION" && [ "$JAVA_HOME"="$(docker-java-home)" ]
+RUN /bin/sh -c echo '#!/bin/sh'; echo 'set -e'; echo; echo 'dirname "$(dirname "$(readlink -f "$(which javac || which java)")")"';  > /usr/local/bin/docker-java-home && chmod +x /usr/local/bin/docker-java-home
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/lib/jvm/java-17-openjdk/jre/bin:/usr/lib/jvm/java-17-openjdk/bin
+ENV JAVA_VERSION=17.0.7
+ENV JAVA_ALPINE_VERSION=17.0.7_p7-r1
+RUN /bin/sh -c set -x && apk add --no-cache openjdk17="$JAVA_ALPINE_VERSION" && [ "$JAVA_HOME"="$(docker-java-home)" ]
+RUN echo 'jdk.tls.disabledAlgorithms=SSLv3, RC4, DES, MD5withRSA, DH keySize < 1024, EC keySize < 224, 3DES_EDE_CBC, anon, NULL, include jdk.disabled.namedCurves' > /usr/lib/jvm/javaEnableLegacyTLS.security
 
 VOLUME /tmp
 

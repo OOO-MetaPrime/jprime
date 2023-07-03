@@ -104,7 +104,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   @Override
-  public JPFileInfo getInfo(JPId id, String attr, AuthInfo auth) {
+  public JPFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
     if (id == null || attr == null) {
       return null;
     }
@@ -123,7 +123,10 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
             .auth(auth)
             .source(Source.USER)
             .where(
-                Filter.attr(info.jpClass.getPrimaryKeyAttr()).eq(id.getId())
+                Filter.and(
+                    Filter.attr(info.jpClass.getPrimaryKeyAttr()).eq(id.getId()),
+                    filter
+                )
             )
             .build()
     );

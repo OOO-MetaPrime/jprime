@@ -5,9 +5,11 @@ import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.json.beans.JsonDateRange;
 import mp.jprime.json.beans.JsonRange;
+import mp.jprime.json.beans.JsonStringRange;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPDateRange;
 import mp.jprime.lang.JPIntegerRange;
+import mp.jprime.lang.JPStringRange;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.exceptions.JPParseException;
@@ -92,6 +94,20 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
         JsonDateRange json = jsonMapper.toObject(
             JsonDateRange.class,
             jsonMapper.toString(attrValue)
+        );
+        result = JPDateRange.create(
+            json.getLower(),
+            json.getUpper()
+        );
+      } catch (Exception e) {
+        LOG.error(e.getMessage(), e);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+      }
+    } else if (attrValue instanceof JPStringRange) {
+      try {
+        JsonDateRange json = jsonMapper.toObject(
+            JsonDateRange.class,
+            jsonMapper.toString(JsonStringRange.of((JPStringRange) attrValue))
         );
         result = JPDateRange.create(
             json.getLower(),

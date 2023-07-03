@@ -7,191 +7,191 @@ public enum FilterOperation {
   /**
    * Между
    */
-  BETWEEN("BETWEEN"),
+  BETWEEN("between"),
   /**
    * Содержит пару ключ-значение
    */
-  CONTAINS_KVP("CONTAINS_KVP"),
+  CONTAINS("contains"),
   /**
    * Этот диапазон содержит элемент
    */
-  CONTAINSELEMENT("CONTAINSELEMENT"),
+  CONTAINS_ELEMENT("containsElement"),
   /**
    * Этот диапазон содержит диапазон
    */
-  CONTAINSRANGE("CONTAINSRANGE"),
+  CONTAINS_RANGE("containsRange"),
   /**
    * Равно
    */
-  EQ("EQ"),
+  EQ("eq"),
   /**
    * Равно
    */
-  EQRANGE("EQRANGE"),
+  EQ_RANGE("eqRange"),
   /**
    * Равно в днях
    */
-  EQ_DAY("EQ_DAY"),
+  EQ_DAY("eqDay"),
   /**
    * Равно в месяцах
    */
-  EQ_MONTH("EQ_MONTH"),
+  EQ_MONTH("eqMonth"),
   /**
    * Равно в годах
    */
-  EQ_YEAR("EQ_YEAR"),
+  EQ_YEAR("eqYear"),
   /**
    * Содержит
    */
-  EXISTS("EXISTS"),
+  EXISTS("exists"),
   /**
    * Нечеткий поиск
    */
-  FUZZYLIKE("FUZZYLIKE"),
+  FUZZY_LIKE("fuzzyLike"),
   /**
    * Нечеткий поиск c учетом порядка лексем
    */
-  FUZZYORDERLIKE("FUZZYORDERLIKE"),
+  FUZZY_ORDER_LIKE("fuzzyOrderLike"),
   /**
    * Нечеткий поиск(без преобразования)
    */
-  FUZZYQUERY("FUZZYQUERY"),
+  FUZZY_QUERY("fuzzyQuery"),
   /**
    * Больше
    */
-  GT("GT"),
+  GT("gt"),
   /**
    * Больше
    */
-  GTRANGE("GTRANGE"),
+  GT_RANGE("gtRange"),
   /**
    * Больше в днях
    */
-  GT_DAY("GT_DAY"),
+  GT_DAY("gtDay"),
   /**
    * Больше в месяцах
    */
-  GT_MONTH("GT_MONTH"),
+  GT_MONTH("gtMonth"),
   /**
    * Больше в годах
    */
-  GT_YEAR("GT_YEAR"),
+  GT_YEAR("gtYear"),
   /**
    * Больше или равно
    */
-  GTE("GTE"),
+  GTE("gte"),
   /**
    * Больше или равно
    */
-  GTERANGE("GTERANGE"),
+  GTE_RANGE("gteRange"),
   /**
    * Больше или равно в днях
    */
-  GTE_DAY("GTE_DAY"),
+  GTE_DAY("gteDay"),
   /**
    * Больше или равно в месяцах
    */
-  GTE_MONTH("GTE_MONTH"),
+  GTE_MONTH("gteMonth"),
   /**
    * Больше или равно в годах
    */
-  GTE_YEAR("GTE_YEAR"),
+  GTE_YEAR("gteYear"),
   /**
    * В указанном списке
    */
-  IN("IN"),
+  IN("in"),
   /**
    * Указано значение
    */
-  ISNOTNULL("ISNOTNULL"),
+  ISNOTNULL("isNotNull"),
   /**
    * Не указано значение
    */
-  ISNULL("ISNULL"),
+  ISNULL("isNull"),
   /**
    * Содержит
    */
-  LIKE("LIKE"),
+  LIKE("like"),
   /**
    * Меньше
    */
-  LT("LT"),
+  LT("lt"),
   /**
    * Меньше
    */
-  LTRANGE("LTRANGE"),
+  LT_RANGE("ltRange"),
   /**
    * Меньше в днях
    */
-  LT_DAY("LT_DAY"),
+  LT_DAY("ltDay"),
   /**
    * Меньше в месяцах
    */
-  LT_MONTH("LT_MONTH"),
+  LT_MONTH("ltMonth"),
   /**
    * Меньше в годах
    */
-  LT_YEAR("LT_YEAR"),
+  LT_YEAR("ltYear"),
   /**
    * Меньше или равно
    */
-  LTE("LTE"),
+  LTE("lte"),
   /**
    * Меньше или равно
    */
-  LTERANGE("LTERANGE"),
+  LTE_RANGE("lteRange"),
   /**
    * Меньше или равно в днях
    */
-  LTE_DAY("LTE_DAY"),
+  LTE_DAY("lteDay"),
   /**
    * Меньше или равно в месяцах
    */
-  LTE_MONTH("LTE_MONTH"),
+  LTE_MONTH("lteMonth"),
   /**
    * Меньше или равно в годах
    */
-  LTE_YEAR("LTE_YEAR"),
+  LTE_YEAR("lteYear"),
   /**
    * Не равно
    */
-  NEQ("NEQ"),
+  NEQ("neq"),
   /**
    * Не равно
    */
-  NEQRANGE("NEQRANGE"),
+  NEQ_RANGE("neqRange"),
   /**
    * Не равно в днях
    */
-  NEQ_DAY("NEQ_DAY"),
+  NEQ_DAY("neqDay"),
   /**
    * Не равно в месяцах
    */
-  NEQ_MONTH("NEQ_MONTH"),
+  NEQ_MONTH("neqMonth"),
   /**
    * Не равно в годах
    */
-  NEQ_YEAR("NEQ_YEAR"),
+  NEQ_YEAR("neqYear"),
   /**
    * Не содержит
    */
-  NOTEXISTS("NOTEXISTS"),
+  NOT_EXISTS("notExists"),
   /**
    * Не в указанном списке
    */
-  NOTIN("NOTIN"),
+  NOT_IN("notIn"),
   /**
    * Не начинается С
    */
-  NOTSTARTSWITH("NOTSTARTSWITH"),
+  NOT_STARTS_WITH("notStartsWith"),
   /**
    * Этот диапазон содержится в диапазон
    */
-  OVERLAPSRANGE("OVERLAPSRANGE"),
+  OVERLAPSRANGE("overlapsRange"),
   /**
    * Начинается С
    */
-  STARTSWITH("STARTSWITH");
+  STARTS_WITH("startsWith");
 
   private final String code;
 

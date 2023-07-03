@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.defvalues;
 
+import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.security.AuthInfo;
@@ -12,14 +13,17 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
   private final String rootJpClassCode;
   private final JPData rootData;
   private final String refAttrCode;
+  private final JPAttrData data;
   private final AuthInfo authInfo;
   private final Source source;
 
   private JPObjectDefValueParamsBean(Object rootId, String rootJpClassCode, JPData rootData,
-                                     String refAttrCode, AuthInfo authInfo, Source source) {
+                                     String refAttrCode, JPAttrData data,
+                                     AuthInfo authInfo, Source source) {
     this.rootId = rootId;
     this.rootJpClassCode = rootJpClassCode;
     this.rootData = rootData;
+    this.data = data != null ? data : JPData.empty();
     this.refAttrCode = refAttrCode;
     this.authInfo = authInfo;
     this.source = source;
@@ -70,6 +74,17 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
   }
 
   /**
+   * Данные текущего объекта
+   * Могут быть не указаны
+   *
+   * @return Данные текущего объекта
+   */
+  @Override
+  public JPAttrData getData() {
+    return data;
+  }
+
+  /**
    * Данные авторизации
    * Могут быть не указаны
    *
@@ -107,6 +122,7 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
     private String rootJpClassCode;
     private JPData rootData;
     private String refAttrCode;
+    private JPAttrData data;
     private AuthInfo authInfo;
     private Source source;
 
@@ -120,7 +136,7 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
      * @return JPObjectDefValueParamsBean
      */
     public JPObjectDefValueParamsBean build() {
-      return new JPObjectDefValueParamsBean(rootId, rootJpClassCode, rootData, refAttrCode, authInfo, source);
+      return new JPObjectDefValueParamsBean(rootId, rootJpClassCode, rootData, refAttrCode, data, authInfo, source);
     }
 
     /**
@@ -164,6 +180,17 @@ public final class JPObjectDefValueParamsBean implements JPObjectDefValueParams 
      */
     public Builder refAttrCode(String refAttrCode) {
       this.refAttrCode = refAttrCode;
+      return this;
+    }
+
+    /**
+     * Данные текущего объекта
+     *
+     * @param data Данные текущего объекта
+     * @return Builder
+     */
+    public Builder data(JPAttrData data) {
+      this.data = data;
       return this;
     }
 

@@ -9,6 +9,10 @@ import mp.jprime.utils.annotations.JPUtilResultType;
 @JPUtilResultType(code = "custom")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public abstract class JPUtilCustomOutParams extends BaseJPUtilOutParams<Object> {
+  protected JPUtilCustomOutParams(String description, String qName, boolean changeData, boolean deleteData) {
+    super(description, qName, changeData, deleteData);
+  }
+
   protected JPUtilCustomOutParams(String description, String qName, boolean changeData) {
     super(description, qName, changeData);
   }

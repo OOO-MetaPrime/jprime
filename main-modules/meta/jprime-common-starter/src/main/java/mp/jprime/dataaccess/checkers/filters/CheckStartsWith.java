@@ -1,8 +1,8 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.filters.StartsWith;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.springframework.util.StringUtils;
 
@@ -14,11 +14,11 @@ import org.springframework.util.StringUtils;
 )
 public class CheckStartsWith extends CheckBaseFilter<StartsWith> {
   @Override
-  public boolean check(StartsWith filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  public boolean check(StartsWith filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     Object filterValue = filter.getValue();
 
     String attrCode = filter.getAttrCode();
-    if (!data.containsAttr(attrCode)) {
+    if (!data.containsKey(attrCode)) {
       return notContainsDefaultValue;
     }
     Object attrValue = attrCode != null ? data.get(attrCode) : null;

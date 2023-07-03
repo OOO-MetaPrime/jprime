@@ -13,7 +13,7 @@ public class InCond implements CollectionCond<String> {
   private Collection<String> values;
 
   private InCond(Collection<String> value) {
-    this.values = Collections.unmodifiableCollection(value != null ? value : Collections.emptyList());
+    this.values = value != null ? Collections.unmodifiableCollection(value) : Collections.emptyList();
   }
 
   /**

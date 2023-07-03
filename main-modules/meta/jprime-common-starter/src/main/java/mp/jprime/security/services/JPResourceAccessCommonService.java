@@ -278,7 +278,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
 
     if (cond.getOper() == FilterOperation.IN) {
       inValues = cond.getValue();
-    } else if (cond.getOper() == FilterOperation.NOTIN) {
+    } else if (cond.getOper() == FilterOperation.NOT_IN) {
       notInValues = cond.getValue();
     } else if (cond.getOper() == FilterOperation.ISNULL) {
       isNullValue = true;

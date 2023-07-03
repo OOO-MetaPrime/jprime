@@ -22,6 +22,6 @@ public class NEQRange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.NEQRANGE;
+    return FilterOperation.NEQ_RANGE;
   }
 }

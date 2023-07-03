@@ -65,9 +65,9 @@ public interface RequestHistoryEvent {
   String getObjectId();
 
   /**
-   * Получить Тело запроса
+   * Получить Тело истории
    *
-   * @return Тело запроса
+   * @return Тело истории
    */
-  String getRequestBody();
+  String getBody();
 }

@@ -11,15 +11,15 @@ public class Aggregate {
   /**
    * Алиас выборки
    */
-  private String alias;
+  private final String alias;
   /**
    * Кодовое имя атрибута
    */
-  private String attr;
+  private final String attr;
   /**
    * Оператор
    */
-  private AggregationOperator operator;
+  private final AggregationOperator operator;
 
   /**
    * Конструктор

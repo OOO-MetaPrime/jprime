@@ -1,5 +1,6 @@
 package mp.jprime.meta.controllers;
 
+import mp.jprime.beans.PropertyType;
 import mp.jprime.meta.*;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.*;
@@ -42,8 +43,7 @@ public class RestMetaController {
   }
 
   @ResponseBody
-  @GetMapping(value = "/jpClasses/{classCode}",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "/jpClasses/{classCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Mono<JsonJPClass> getClass(@PathVariable("classCode") String classCode) {
     JPClass jpClass = jpMetaStorage.getJPClassByCode(classCode);
@@ -71,13 +71,20 @@ public class RestMetaController {
   }
 
   @ResponseBody
-  @GetMapping(value = "attrTypes",
-      produces = MediaType.APPLICATION_JSON_VALUE)
+  @GetMapping(value = "attrTypes", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   public Flux<JsonType> getAttrTypes() {
     return Flux.fromArray(JPType.values())
         .filter(x -> x != JPType.NONE)
         .map(JsonType::from);
+  }
+
+  @ResponseBody
+  @GetMapping(value = "propertyTypes", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  public Flux<JsonPropertyType> getPropertyTypes() {
+    return Flux.fromArray(PropertyType.values())
+        .map(JsonPropertyType::from);
   }
 
   private JsonJPClass toJson(JPClass jpClass) {

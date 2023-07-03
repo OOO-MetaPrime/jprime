@@ -45,7 +45,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testSimpleEqData() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -61,7 +61,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testSimpleEqDataFailure() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -78,7 +78,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testSimpleNeqData() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -94,7 +94,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testSimpleInData() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -110,7 +110,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testSimpleNotInData() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -126,7 +126,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testLT() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -141,7 +141,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testLTE() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -154,7 +154,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testGT() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};
@@ -167,7 +167,7 @@ class JPDataCheckServiceTest {
 
   @Test
   void testGTE() {
-    Map<String, Object> data = new HashMap<String, Object>() {{
+    Map<String, Object> data = new HashMap<>() {{
       put("attr1", 1);
       put("attr2", 2);
     }};

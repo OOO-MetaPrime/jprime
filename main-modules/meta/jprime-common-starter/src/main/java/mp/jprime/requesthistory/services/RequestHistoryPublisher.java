@@ -1,29 +1,45 @@
 package mp.jprime.requesthistory.services;
 
+import mp.jprime.requesthistory.RequestHistoryObject;
 import mp.jprime.security.AuthInfo;
 import org.springframework.web.server.ServerWebExchange;
+
+import java.util.Collection;
+import java.util.function.Supplier;
 
 /**
  * Работа с отправкой Истории запросов
  */
 public interface RequestHistoryPublisher {
   /**
-   * Отправить find-запрос RequestHistoryEvent
+   * Формирует toRequestHistoryObject
    *
    * @param classCode Код класса
    * @param objectId  Идентификатор объекта
+   * @param body      Тело истории
+   * @return RequestHistoryObject
+   */
+  RequestHistoryObject toRequestHistoryObject(String classCode, Object objectId, Object body);
+
+  /**
+   * Отправить find-запрос RequestHistoryEvent
+   *
    * @param authInfo  Данные аутентификации
    * @param swe       Данные запроса
+   * @param classCode Код класса
+   * @param objectId  Идентификатор объекта
+   * @param result    Результат поиска
    */
-  void sendFind(String classCode, Object objectId, AuthInfo authInfo, ServerWebExchange swe);
+  void sendObject(AuthInfo authInfo, ServerWebExchange swe, String classCode, Object objectId, Supplier<RequestHistoryObject> result);
 
   /**
    * Отправить search-запрос RequestHistoryEvent
    *
-   * @param classCode   Код класса
-   * @param requestBody Тело запроса
-   * @param authInfo    Данные аутентификации
-   * @param swe         Данные запроса
+   * @param authInfo   Данные аутентификации
+   * @param swe        Данные запроса
+   * @param classCode  Код класса
+   * @param searchBody Тело запроса
+   * @param results    Результаты поиска
    */
-  void sendSearch(String classCode, Object requestBody, AuthInfo authInfo, ServerWebExchange swe);
+  void sendSearch(AuthInfo authInfo, ServerWebExchange swe, String classCode, Supplier<Object> searchBody, Supplier<Collection<RequestHistoryObject>> results);
 }

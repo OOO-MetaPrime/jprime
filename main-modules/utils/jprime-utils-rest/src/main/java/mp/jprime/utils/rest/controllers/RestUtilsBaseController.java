@@ -4,13 +4,13 @@ import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.JPEnum;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.parsers.exceptions.JPParseException;
-import mp.jprime.utils.json.*;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.streams.UploadInputStream;
 import mp.jprime.streams.services.UploadInputStreamService;
 import mp.jprime.utils.*;
 import mp.jprime.utils.exceptions.JPUtilNotFoundException;
+import mp.jprime.utils.json.*;
 import mp.jprime.utils.services.JPUtilService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,10 +30,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static org.springframework.http.MediaType.*;
@@ -178,6 +176,7 @@ public abstract class RestUtilsBaseController {
                                                         @PathVariable("utilCode") String utilCode,
                                                         @PathVariable("modeCode") String modeCode) {
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    AtomicReference<Collection<UploadInputStream>> is = new AtomicReference<>(Collections.emptyList());
     return Mono.just(authInfo)
         .flatMap(x -> jpUtilService.apply(utilCode, modeCode, x))
         .switchIfEmpty(Mono.error(new JPUtilNotFoundException(utilCode)))
@@ -203,6 +202,7 @@ public abstract class RestUtilsBaseController {
             JPUtilMode mode = tuple.getT1();
             Map<String, String> stringData = tuple.getT2();
             Map<String, UploadInputStream> isData = tuple.getT3();
+            is.set(isData.values());
 
             Class inClass = mode.getInClass();
             JPUtilInParams inParams = null;
@@ -233,7 +233,8 @@ public abstract class RestUtilsBaseController {
             throw new JPParseException("utils.params.badFormat", "Неверный формат данных");
           }
         })
-        .flatMap(tuple -> jpUtilService.apply(tuple.getT1(), tuple.getT2(), swe, authInfo));
+        .flatMap(tuple -> jpUtilService.apply(tuple.getT1(), tuple.getT2(), swe, authInfo))
+        .doOnTerminate(() -> is.get().forEach(UploadInputStream::close));
   }
 
   public Mono<UploadInputStream> getIsValue(FilePart part) {
@@ -278,6 +279,10 @@ public abstract class RestUtilsBaseController {
         .modeCode(utilMode.getModeCode())
         .title(utilMode.getTitle())
         .qName(utilMode.getQName())
+        .uni(utilMode.isUni())
+        .jpClasses(utilMode.getJpClasses())
+        .jpClassTags(utilMode.getJpClassTags())
+        .type(utilMode.getType().getCode())
         .build();
   }
 

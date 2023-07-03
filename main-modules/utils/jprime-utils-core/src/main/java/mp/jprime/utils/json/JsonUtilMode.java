@@ -33,15 +33,15 @@ public class JsonUtilMode {
     this.modeCode = modeCode;
     this.title = title;
     this.qName = qName;
-    this.uni = uni;
     this.confirmMessage = confirmMessage;
-    this.jpClasses = Collections.unmodifiableCollection(jpClasses != null ? jpClasses : Collections.emptyList());
-    this.jpClassTags = Collections.unmodifiableCollection(jpClassTags != null ? jpClassTags : Collections.emptyList());
+    this.uni = uni;
+    this.jpClasses = jpClasses != null ? Collections.unmodifiableCollection(jpClasses) : Collections.emptyList();
+    this.jpClassTags = jpClassTags != null ? Collections.unmodifiableCollection(jpClassTags) : Collections.emptyList();
     this.type = type;
-    this.jpAttrs = Collections.unmodifiableCollection(jpAttrs != null ? jpAttrs : Collections.emptyList());
-    this.inParams = Collections.unmodifiableCollection(inParams != null ? inParams : Collections.emptyList());
+    this.jpAttrs = jpAttrs != null ? Collections.unmodifiableCollection(jpAttrs) : Collections.emptyList();
+    this.inParams = inParams != null ? Collections.unmodifiableCollection(inParams) : Collections.emptyList();
     this.resultType = resultType;
-    this.outCustomParams = Collections.unmodifiableCollection(outCustomParams != null ? outCustomParams : Collections.emptyList());
+    this.outCustomParams = outCustomParams != null ? Collections.unmodifiableCollection(outCustomParams) : Collections.emptyList();
   }
 
   public String getUtilCode() {

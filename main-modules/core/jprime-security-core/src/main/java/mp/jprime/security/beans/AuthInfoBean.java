@@ -38,7 +38,7 @@ public class AuthInfoBean implements AuthInfo {
     this.depId = depId;
     this.username = username;
     this.fio = fio;
-    this.roles = Collections.unmodifiableCollection(roles == null ? Collections.emptyList() : roles);
+    this.roles = roles == null ? Collections.emptyList() : Collections.unmodifiableCollection(roles);
     this.token = token;
   }
 

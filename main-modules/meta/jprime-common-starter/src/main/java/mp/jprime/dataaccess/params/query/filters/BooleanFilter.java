@@ -11,7 +11,7 @@ import java.util.Collections;
  * Логические условия
  */
 public abstract class BooleanFilter extends Filter {
-  private Collection<Filter> filters;
+  private final Collection<Filter> filters;
 
   /**
    * Конструктор
@@ -28,7 +28,7 @@ public abstract class BooleanFilter extends Filter {
    * @param filters Условия
    */
   protected BooleanFilter(Collection<Filter> filters) {
-    this.filters = Collections.unmodifiableCollection(filters != null ? filters : Collections.emptyList());
+    this.filters = filters != null ? Collections.unmodifiableCollection(filters) : Collections.emptyList();
   }
 
   /**

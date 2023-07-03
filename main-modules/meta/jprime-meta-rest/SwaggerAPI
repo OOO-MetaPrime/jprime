@@ -39,7 +39,6 @@ paths:
       tags:
       - list
       summary: get list of attr types
-      operationId: getAttrTypes
       description:
         you can get list of attr types
       responses:
@@ -49,6 +48,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/attrTypeList'
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '5XX':
+          description: Unexpected error.
+
+  '/meta/v1/propertyTypes':
+    get:
+      tags:
+      - list
+      summary: get list of property types
+      description:
+        you can get list of property types
+      responses:
+        '200':
+          description: get list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/propertyTypeList'
         '400':
           description: Bad request.
         '401':
@@ -127,6 +147,23 @@ components:
         $ref: '#/components/schemas/attrType'
 
     attrType:
+      type: object
+      properties:
+        code:
+          type: string
+          format: string
+          example: float
+        title:
+          type: string
+          format: string
+          example: Вещественный
+
+    propertyTypeList:
+      type: array
+      items:
+        $ref: '#/components/schemas/propertyType'
+
+    propertyType:
       type: object
       properties:
         code:

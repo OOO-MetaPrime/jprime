@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.defvalues;
 
+import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.security.AuthInfo;
@@ -39,6 +40,14 @@ public interface JPObjectDefValueParams {
    * @return Атрибут текущего класса, по которому строилась ссылка
    */
   String getRefAttrCode();
+
+  /**
+   * Данные текущего объекта
+   * Могут быть не указаны
+   *
+   * @return Данные текущего объекта
+   */
+  JPAttrData getData();
 
   /**
    * Данные авторизации

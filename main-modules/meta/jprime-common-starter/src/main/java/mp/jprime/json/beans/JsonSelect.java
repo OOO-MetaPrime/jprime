@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.*;
 
@@ -9,7 +8,6 @@ import java.util.*;
  * Модель запроса
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonSelect {
   /**
    * Ограничение на количество получаемых объектов

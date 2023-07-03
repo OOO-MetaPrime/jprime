@@ -13,8 +13,8 @@ public final class JPUtilJPObjectOutParams extends BaseJPUtilOutParams<JsonJPObj
   private final JsonJPObject jpObject;
 
 
-  private JPUtilJPObjectOutParams(String description, String qName, boolean changeData, JsonJPObject jpObject) {
-    super(description, qName, changeData);
+  private JPUtilJPObjectOutParams(String description, String qName, boolean changeData, boolean deleteData, JsonJPObject jpObject) {
+    super(description, qName, changeData, deleteData);
     this.jpObject = jpObject;
   }
 
@@ -41,7 +41,7 @@ public final class JPUtilJPObjectOutParams extends BaseJPUtilOutParams<JsonJPObj
 
     @Override
     public JPUtilJPObjectOutParams build() {
-      return new JPUtilJPObjectOutParams(description, qName, changeData, jpObject);
+      return new JPUtilJPObjectOutParams(description, qName, changeData, deleteData, jpObject);
     }
 
     public Builder jpObject(JsonJPObject jpObject) {

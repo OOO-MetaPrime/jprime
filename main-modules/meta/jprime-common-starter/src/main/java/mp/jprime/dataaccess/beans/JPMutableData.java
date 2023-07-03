@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.beans;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.meta.JPAttr;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -266,7 +267,28 @@ public final class JPMutableData implements JPAttrData {
    *
    * @return Данные
    */
+  @Override
   public Map<String, Object> toMap() {
     return new HashMap<>(dataMap);
+  }
+
+  /**
+   * Возвращает множество ключей
+   *
+   * @return Множество ключей
+   */
+  @Override
+  public Set<String> keySet() {
+    return dataMap.keySet();
+  }
+
+  /**
+   * Возвращает коллекцию значений
+   *
+   * @return Коллекция значений
+   */
+  @Override
+  public Collection<Object> values() {
+    return dataMap.values();
   }
 }

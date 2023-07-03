@@ -9,8 +9,8 @@ import java.util.Objects;
  * Подрядок сортировки атрибута
  */
 public class Order {
-  private String attr;
-  private OrderDirection order;
+  private final String attr;
+  private final OrderDirection order;
 
   /**
    * Конструктор

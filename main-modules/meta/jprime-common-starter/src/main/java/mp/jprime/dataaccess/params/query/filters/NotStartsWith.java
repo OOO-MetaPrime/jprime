@@ -23,7 +23,7 @@ public class NotStartsWith extends ValueFilter<Object> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.NOTSTARTSWITH;
+    return FilterOperation.NOT_STARTS_WITH;
   }
 }
 

@@ -34,8 +34,8 @@ public final class JsonAbacQuery {
                         boolean usePermit, boolean useProhibition,
                         boolean useEnviromentRules) {
     this.name = name;
-    this.roles = Collections.unmodifiableCollection(roles != null ? roles : Collections.emptyList());
-    this.jpClassCodes = Collections.unmodifiableCollection(jpClassCodes != null ? jpClassCodes : Collections.emptyList());
+    this.roles = roles != null ? Collections.unmodifiableCollection(roles) : Collections.emptyList();
+    this.jpClassCodes = jpClassCodes != null ? Collections.unmodifiableCollection(jpClassCodes) : Collections.emptyList();
     this.useCreate = useCreate;
     this.useRead = useRead;
     this.useUpdate = useUpdate;

@@ -10,8 +10,8 @@ import mp.jprime.utils.annotations.JPUtilResultType;
 @JPUtilResultType(code = "message")
 public final class JPUtilMessageOutParams extends BaseJPUtilOutParams<Void> {
 
-  private JPUtilMessageOutParams(String description, String qName, boolean changeData) {
-    super(description, qName, changeData);
+  private JPUtilMessageOutParams(String description, String qName, boolean changeData, boolean deleteData) {
+    super(description, qName, changeData, deleteData);
   }
 
 
@@ -36,7 +36,7 @@ public final class JPUtilMessageOutParams extends BaseJPUtilOutParams<Void> {
 
     @Override
     public JPUtilMessageOutParams build() {
-      return new JPUtilMessageOutParams(description, qName, changeData);
+      return new JPUtilMessageOutParams(description, qName, changeData, deleteData);
     }
   }
 }

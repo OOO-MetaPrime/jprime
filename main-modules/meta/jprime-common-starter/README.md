@@ -167,9 +167,9 @@
 | Код                     | Описание                                                             | Обязательное |
 |-------------------------|----------------------------------------------------------------------|--------------|
 | storageCode             | Код ФС хранилища с файлом                                            | +            |
-| storageFilePath         | Путь в ФС хранилище с файлом                                         | +            |
+| storageFilePath         | Путь в ФС хранилища с файлом                                         | +            |
 | storageCodeAttrCode     | Кодовое имя атрибута для хранения кода ФС хранилища с файлом         | опционально  |
-| storageFilePathAttrCode | Кодовое имя атрибута для хранения пути в ФС хранилище с файлом       | опционально  |
+| storageFilePathAttrCode | Кодовое имя атрибута для хранения пути в ФС хранилища с файлом       | опционально  |
 | fileTitleAttrCode       | Кодовое имя атрибута для хранения исходного имени файла              | опционально  |
 | fileExtAttrCode         | Кодовое имя атрибута для хранения расширения файла                   | опционально  |
 | fileSizeAttrCode        | Кодовое имя атрибута для хранения размера файла (в байтах)           | опционально  |
@@ -197,10 +197,27 @@
       </jpAttr>
 ```
 
+#### Генерация пути в ФС хранилища с файлом
+
+Существует возможность динамической генерации пути с помощью шаблона - строки,
+содержащей одно или несколько ключевых слов:
+
+* `#year#`
+* `#month#`
+* `#day#`
+
+Шаблон задается как значение атрибута `storageFilePath` и ключевые слова будут
+заменены на год, номер месяца в году и номер дня в месяце даты, в которую файл был
+сохранен.
+
+Пример:
+> Файл сохраняется 01.06.2023 и атрибут `storageFilePath` задан шаблоном
+> `"reports-#year#-#month#-#day#"`.<br>
+> В результате путь файла будет следующим: "reports-2023-06-01"
 
 ## Преобразование java типов
 
-Для преобразования T1 в T2 разных классов рекомендуется использовать `mp.jprime.parsers.ParserService` 
+Для преобразования T1 в T2 разных классов рекомендуется использовать `mp.jprime.parsers.ParserService`
 
 ```
   private ParserService parserService;
@@ -1430,5 +1447,52 @@ public class CommonHandler extends JPClassHandlerBase {
             }
         ]
     }
+}
+```
+
+## Описание функций
+
+Пакет `mp.jprime.functions` содержит API и базовые наборы для вызова функций в типовом формате
+
+### Типовой формат функций
+
+Описание функции в виде `group.func$param1$param2....$paramN`, где:
+
+| Параметр | Описание                               |
+|----------|----------------------------------------|
+| group    | Код группы функций                     |
+| func     | Имя функции                            |
+| param*   | Список параметров. Может отсутствовать |
+
+### Имеющиеся функции
+
+| Группа         | Функция | Параметры                | Описание                           |
+|----------------|---------|--------------------------|------------------------------------|
+| integerFuncs   | sum     | произвольный набор целых | сумма чисел                        |
+| localDateFuncs | addDay  | дата + количество дней   | добавление к указанной дате N дней |
+| localDateFuncs | curDate | -                        | текущая дата                       |
+| localDateFuncs | max     | произвольный набор дат   | максимальная из указанных дат      |
+| localDateFuncs | min     | произвольный набор дат   | минимальная из указанных дат       |
+
+### Примеры вызовов
+
+```java
+public class Test {
+  @Autowired
+  private JPFunctionService functionService;
+
+  public void test() {
+    LocalDate result = functionService.eval("localDateFuncs", "curDate");
+    
+    result = functionService.eval("localDateFuncs.curDate");
+    
+    result = functionService.eval("localDateFuncs", "addDay", curDate, 2);
+
+    result = functionService.eval("localDateFuncs.addDay$param1$2", TestMap.of("param1", curDate));
+
+    result = functionService.eval("localDateFuncs.max$2001-01-01$2000-01-01");
+    
+    result = functionService.eval("localDateFuncs", "max", "2001-01-01", "2000-01-01");
+  }
 }
 ```

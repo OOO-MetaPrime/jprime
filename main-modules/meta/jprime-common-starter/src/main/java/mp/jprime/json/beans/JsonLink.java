@@ -119,8 +119,8 @@ public class JsonLink {
    *
    * @return Builder
    */
-  public static JsonLink.Builder newBuilder() {
-    return new JsonLink.Builder();
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   /**

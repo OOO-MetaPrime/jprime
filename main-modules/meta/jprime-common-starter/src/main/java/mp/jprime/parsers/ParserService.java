@@ -5,6 +5,16 @@ package mp.jprime.parsers;
  */
 public interface ParserService {
   /**
+   * Приводит значение к строке
+   *
+   * @param value Значение
+   * @return Значение
+   */
+  default String toString(Object value) {
+    return parseTo(String.class, value);
+  }
+
+  /**
    * Приводит значение к указанному типу
    *
    * @param to    Выходной тип
@@ -21,4 +31,13 @@ public interface ParserService {
    * @return Парсер типов
    */
   TypeParser getParser(Class from, Class to);
+
+  /**
+   * Проверяет возможность приведения к указанному типу
+   *
+   * @param to    Выходной тип
+   * @param value Значение
+   * @return Признак возможности успешного приведения к указанному типу
+   */
+  boolean isParsable(Class<?> to, Object value);
 }

@@ -4,8 +4,8 @@ package mp.jprime.dataaccess.params.query.data;
  * С - ПО
  */
 public class Pair implements Comparable<Pair> {
-  private Comparable from;
-  private Comparable to;
+  private final Comparable from;
+  private final Comparable to;
 
   /**
    * Конструктор

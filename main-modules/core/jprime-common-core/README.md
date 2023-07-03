@@ -190,7 +190,7 @@ public class EguintegAppProperty extends AppProperty {
 mp:
   jprime:
     application-update:
-      kafkaServers: 172.16.1.171:9092
+      kafkaServers: localhost:9092
       kafkaTopic: egu-application-update
       dead-letter-queue-settings: 0,30000,60000  # 3 слушателя в каскаде: основной + 2 дополнительных
 ```
@@ -263,14 +263,131 @@ class MyClass extends JPKafkaDeadLetterConsumerService<String, String> {
 }
 ```
 * если конкретизировать ошибку не представляется возможным, то детализация выглядит следующим образом
+
 ```json
 {
-    ...,
-    "details": [
-        {
-            "code": "server.error",
-            "message": null
-        }
-    ]
+  ...,
+  "details": [
+    {
+      "code": "server.error",
+      "message": null
+    }
+  ]
+}
+```
+
+## Кэширование
+
+JPrime предоставляет базовый механизм кэширования и обновления кэшей по событию.
+`JPCacheManagerService` обновляет кэши на старте приложения, а так же слушает системные события с кодом
+`JPCacheRefreshEvent.CODE` и обновляет соответствующий кэш по коду, переданному в данных события.
+
+Для реализации кэша, необходимо унаследоваться от `JPBaseCache<C, V>` и определить метод загрузки данных в кэш из
+хранилища.
+
+* Пример:
+
+```java
+class MyCache extends JPBaseCache<String, JPObject> {
+
+  @Override
+  public String getCode() {
+    return "myCacheCode";
+  }
+
+  @Override
+  protected Map<String, JPObject> loadCache() {
+    return loadObjects().stream()
+        .collect(Collectors.toMap(RxCollectorDocFactSourceSettings::getDocTypeCode, Function.identity()));
+  }
+
+  private Collection<JPObject> loadObjects() {
+    //получение данных из хранилища
+  }
+}
+```
+
+Для обновления кэша, необходимо отправить системное событие `JPCacheRefreshEvent` с кодом кэша, требующего обновления.
+
+* Пример:
+
+```java
+class MyService {
+  private SystemEventPublisher eventPublisher;
+
+  @Autowired(required = false)
+  private void setSystemEventPublisher(SystemEventPublisher eventPublisher) {
+    this.eventPublisher = eventPublisher;
+  }
+
+  private void changeData(Collection<JPObject> data) {
+    //изменяем данные в хранилище и публикуем после этого событие для обновления кэша
+    eventPublisher.publishEvent(JPCacheRefreshEvent.newEvent(MyCache.CODE));
+  }
+}
+```
+
+## Типовой сервис отправки событий в Kafka
+
+### Настройки
+
+| Настройка                              | Обязательность | По умолчанию | Описание                                                                            |
+|----------------------------------------|----------------|--------------|-------------------------------------------------------------------------------------|
+| jprime.kafka.kafkaServers              | &#9744;        | -            | Адрес Kafka (обязательная настройка, если не переопределять `getKafkaOperations()`) |
+| jprime.kafka.producers.timeout         | &#9744;        | 5000         | Таймаут отправки событий в Kafka для гарантированной доставки (мс)                  |
+| jprime.kafka.producers.compressionType | &#9744;        | none         | Алгоритм сжатия событий (см. `org.apache.kafka.common.record.CompressionType`)      |
+
+### Использование
+
+#### Реализация
+
+Для пользования типовым KafkaPublisher необходимо реализовать наследника `JPKafkaStringBasePublisher<E, J>`:
+
+* Пример:
+
+```java
+
+@Service
+public class MyPublisher extends JPKafkaStringBasePublisher<MyEvent, JsonMyEvent> {
+
+  @Value("${my.kafkaTopic}")
+  private String topic;
+
+  @Override
+  protected String getTopic(MyEvent event) {
+    return topic;
+  }
+
+  @Override
+  protected JsonMyEvent toJson(MyEvent event) {
+    return JsonMyEvent.builder()
+        .id(event.getId())
+        .build();
+  }
+}
+```
+
+> По умолчанию используется базовая конфигурация `JPBaseStringKafkaProducerConfig`.
+> При необходимости можно изменить это, переопределив метод `getKafkaOperations()`.
+
+> По умолчанию событие отправляется с ключом `null`. При необходимости можно переопределить метод `K toKey(E event)`
+
+#### Использование в прикладном коде
+
+В прикладном коде рекомендуется использовать интерфейс `JPKafkaPublisher` типизированный конкретным типом события.
+
+* Пример:
+
+```java
+
+@Service
+public class MyService {
+
+  private JPKafkaPublisher<MyEvent> publisher;
+
+  @Autowired
+  private void setPublisher(JPKafkaPublisher<MyEvent> publisher) {
+    this.publisher = publisher;
+  }
 }
 ```

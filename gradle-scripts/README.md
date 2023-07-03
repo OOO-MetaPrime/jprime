@@ -159,15 +159,14 @@ TODO
 вместо двух файлов настроек (`application.yml` и `application-distrib.yml`)
 вести одну настройку (`application.yml`).
 
-На этапе сборки проекта, при переносе папок `resource` сервисов файл `application.yml` заполняется данными
-из `jprime.properties`
+На этапе сборки проекта, при переносе папок `resource` сервисов файл `application.yml` заполняется данными из `jprime.config-properties`
 (для локального запуска), а также создаётся файл `application-distrib.yml` (для запуска на сервере) без заполнения
 данными
 
 ## Предварительная настройка окружения
 
 Для использования данного скрипта, необходимо в корневом проекте создать папку `services-settings`, в которой необходимо
-разместить файл `jprime.properties` с настройками, вида:
+разместить файл `jprime..config-properties` с настройками, вида:
 
 ```properties
 JPRIME_SERVICE_PORT=8081

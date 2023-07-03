@@ -1,8 +1,8 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.filters.EQ;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
 /**
@@ -13,11 +13,11 @@ import mp.jprime.security.AuthInfo;
 )
 public class CheckEQ extends CheckBaseFilter<EQ> {
   @Override
-  public boolean check(EQ filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  public boolean check(EQ filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     Object filterValue = filter.getValue();
 
     String attrCode = filter.getAttrCode();
-    if (!data.containsAttr(attrCode)) {
+    if (!data.containsKey(attrCode)) {
       return notContainsDefaultValue;
     }
     Object attrValue  = attrCode != null ? data.get(attrCode) : null;

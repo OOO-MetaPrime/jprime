@@ -15,7 +15,7 @@ public interface JPGroovyShell {
   Object getVariable(String name);
 
   /**
-   * Устанавливает  значение переменной
+   * Устанавливает значение переменной
    *
    * @param name  Имя переменной
    * @param value Значение переменной
@@ -28,6 +28,11 @@ public interface JPGroovyShell {
    * @param name Имя переменной
    */
   void removeVariable(String name);
+
+  /**
+   * Очищает переменные из контекста
+   */
+  void clearVariables();
 
   /**
    * Признак наличия переменной в контексте

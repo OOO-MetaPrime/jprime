@@ -1,9 +1,9 @@
 package mp.jprime.dataaccess.checkers;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
 import java.util.Collection;
@@ -39,7 +39,7 @@ public interface JPDataCheckService {
    * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data
    * @return Да/Нет
    */
-  boolean check(Filter filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue);
+  boolean check(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue);
 
   /**
    * Проверяем условие по переданным данным
@@ -48,7 +48,7 @@ public interface JPDataCheckService {
    * @param data   Данные
    * @return Да/Нет
    */
-  default boolean check(Filter filter, JPAttrData data) {
+  default boolean check(Filter filter, JPMap data) {
     return check(filter, data, null, false);
   }
 }

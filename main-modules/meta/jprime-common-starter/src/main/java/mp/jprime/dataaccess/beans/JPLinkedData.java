@@ -17,7 +17,7 @@ public class JPLinkedData {
    * @param data Данные объекта
    */
   private JPLinkedData(Map<String, JPObject> data) {
-    this.data = Collections.unmodifiableMap(data == null ? Collections.emptyMap() : data);
+    this.data = data == null ? Collections.emptyMap() : Collections.unmodifiableMap(data);
   }
 
   /**

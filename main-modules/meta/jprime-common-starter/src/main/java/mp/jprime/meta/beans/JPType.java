@@ -134,9 +134,9 @@ public enum JPType {
   /**
    * Java-класс, ставящийся в соответствие к коду типа
    */
-  private final Class javaClass;
+  private final Class<?> javaClass;
 
-  JPType(String code, String title, Class javaClass) {
+  JPType(String code, String title, Class<?> javaClass) {
     this.code = code;
     this.title = title;
     this.javaClass = javaClass;
@@ -183,7 +183,7 @@ public enum JPType {
    *
    * @return Java-класс
    */
-  public Class getJavaClass() {
+  public Class<?> getJavaClass() {
     return javaClass;
   }
 

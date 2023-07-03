@@ -9,6 +9,7 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
 import mp.jprime.formats.DateFormat;
+import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -25,7 +26,7 @@ import java.util.TimeZone;
  * Подключение JavaTimeModule
  */
 @Service
-public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpander {
+public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpander, JPObjectMapperXmlExpander {
   @Override
   public void expand(ObjectMapper objectMapper) {
     objectMapper.registerModule(

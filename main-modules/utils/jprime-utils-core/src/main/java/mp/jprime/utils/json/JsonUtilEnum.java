@@ -1,13 +1,7 @@
 package mp.jprime.utils.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({
-    "value",
-    "description",
-    "qName"
-})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JsonUtilEnum {
   private Object value;

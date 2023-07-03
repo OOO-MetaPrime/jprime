@@ -23,7 +23,7 @@ public class StartsWith extends ValueFilter<Object> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.STARTSWITH;
+    return FilterOperation.STARTS_WITH;
   }
 }
 

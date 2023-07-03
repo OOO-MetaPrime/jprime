@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
@@ -14,7 +13,6 @@ import java.util.Map;
     "classCode",
     "aggrs"
 })
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonAggregateResult {
   private String classCode;

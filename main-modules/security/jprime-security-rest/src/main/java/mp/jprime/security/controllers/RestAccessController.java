@@ -250,10 +250,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     JPAbacQuery jpQuery = query.toAbacQuery();
     return Flux.fromIterable(sets)
         .map(this::toJsonPolicySet)
-        .flatMap(x -> {
-          JsonAbacPolicySet set = x.filter(jpQuery);
-          return set == null ? Mono.empty() : Mono.just(set);
-        });
+        .filter(x -> x.filter(jpQuery));
   }
 
   private Mono<Collection<JsonJPObjectAccess>> getAccessList(Collection<String> objectIds, JPClass jpClass, AuthInfo authInfo) {
@@ -386,7 +383,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
 
     return resourceRules.stream().map(resourceRule ->
         JsonAbacResourceRule.newBuilder(
-            resourceRule.getName(), resourceRule.getEffect().getCode(), resourceRule.getAttrCode(), toJsonAbacConds(resourceRule.getCond()))
+                resourceRule.getName(), resourceRule.getEffect().getCode(), resourceRule.getAttrCode(), toJsonAbacConds(resourceRule.getCond()))
             .qName(resourceRule.getQName())
             .build()
     ).collect(Collectors.toList());

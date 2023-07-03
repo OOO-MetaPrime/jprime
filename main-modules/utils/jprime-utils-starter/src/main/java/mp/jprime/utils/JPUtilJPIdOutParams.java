@@ -13,8 +13,8 @@ import mp.jprime.utils.annotations.JPUtilResultType;
 public final class JPUtilJPIdOutParams extends BaseJPUtilOutParams<JsonJPId> {
   private final JsonJPId jpId;
 
-  private JPUtilJPIdOutParams(String description, String qName, boolean changeData, JsonJPId jpId) {
-    super(description, qName, changeData);
+  private JPUtilJPIdOutParams(String description, String qName, boolean changeData, boolean deleteData, JsonJPId jpId) {
+    super(description, qName, changeData, deleteData);
     this.jpId = jpId;
   }
 
@@ -41,7 +41,7 @@ public final class JPUtilJPIdOutParams extends BaseJPUtilOutParams<JsonJPId> {
 
     @Override
     public JPUtilJPIdOutParams build() {
-      return new JPUtilJPIdOutParams(description, qName, changeData, jpId);
+      return new JPUtilJPIdOutParams(description, qName, changeData, deleteData, jpId);
     }
 
     public Builder jpId(JsonJPId jpId) {

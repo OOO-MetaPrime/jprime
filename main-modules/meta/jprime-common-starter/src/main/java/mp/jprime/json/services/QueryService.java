@@ -514,7 +514,7 @@ public class QueryService implements ParserServiceAware {
       } else if (v.getOper() == FilterOperation.IN) {
         IN inst = (IN) v;
         cond = JsonCond.newAttrCond(attrName).in(toStrings(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.NOTIN) {
+      } else if (v.getOper() == FilterOperation.NOT_IN) {
         NotIN inst = (NotIN) v;
         cond = JsonCond.newAttrCond(attrName).notIn(toStrings(inst.getValue()));
       } else if (v.getOper() == FilterOperation.ISNULL) {
@@ -523,45 +523,45 @@ public class QueryService implements ParserServiceAware {
         cond = JsonCond.newAttrCond(attrName).isNotNull(true);
       } else if (v.getOper() == FilterOperation.LIKE) {
         cond = JsonCond.newAttrCond(attrName).like(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.FUZZYLIKE) {
+      } else if (v.getOper() == FilterOperation.FUZZY_LIKE) {
         cond = JsonCond.newAttrCond(attrName).fuzzyLike(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.FUZZYORDERLIKE) {
+      } else if (v.getOper() == FilterOperation.FUZZY_ORDER_LIKE) {
         cond = JsonCond.newAttrCond(attrName).fuzzyOrderLike(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.STARTSWITH) {
+      } else if (v.getOper() == FilterOperation.STARTS_WITH) {
         cond = JsonCond.newAttrCond(attrName).startsWith(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.NOTSTARTSWITH) {
+      } else if (v.getOper() == FilterOperation.NOT_STARTS_WITH) {
         cond = JsonCond.newAttrCond(attrName).notStartsWith(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.CONTAINSRANGE) {
+      } else if (v.getOper() == FilterOperation.CONTAINS_RANGE) {
         ContainsRange inst = (ContainsRange) v;
         cond = JsonCond.newAttrCond(attrName).containsRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.OVERLAPSRANGE) {
         OverlapsRange inst = (OverlapsRange) v;
         cond = JsonCond.newAttrCond(attrName).overlapsRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.CONTAINSELEMENT) {
+      } else if (v.getOper() == FilterOperation.CONTAINS_ELEMENT) {
         cond = JsonCond.newAttrCond(attrName).containsElement(stringValue(v.getValue()));
-      } else if (v.getOper() == FilterOperation.EQRANGE) {
+      } else if (v.getOper() == FilterOperation.EQ_RANGE) {
         EQRange inst = (EQRange) v;
         cond = JsonCond.newAttrCond(attrName).eqRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.GTRANGE) {
+      } else if (v.getOper() == FilterOperation.GT_RANGE) {
         GTRange inst = (GTRange) v;
         cond = JsonCond.newAttrCond(attrName).gtRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.GTERANGE) {
+      } else if (v.getOper() == FilterOperation.GTE_RANGE) {
         GTERange inst = (GTERange) v;
         cond = JsonCond.newAttrCond(attrName).gteRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.NEQRANGE) {
+      } else if (v.getOper() == FilterOperation.NEQ_RANGE) {
         NEQRange inst = (NEQRange) v;
         cond = JsonCond.newAttrCond(attrName).neqRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.LTRANGE) {
+      } else if (v.getOper() == FilterOperation.LT_RANGE) {
         LTRange inst = (LTRange) v;
         cond = JsonCond.newAttrCond(attrName).ltRange(toJsonRange(inst.getValue()));
-      } else if (v.getOper() == FilterOperation.LTERANGE) {
+      } else if (v.getOper() == FilterOperation.LTE_RANGE) {
         LTERange inst = (LTERange) v;
         cond = JsonCond.newAttrCond(attrName).lteRange(toJsonRange(inst.getValue()));
       } else if (v.getOper() == FilterOperation.BETWEEN) {
         Between b = (Between) v;
         Pair pair = b.getValue();
         cond = JsonCond.newAttrCond(attrName).between(new JsonBetween(stringValue(pair.getFrom()), stringValue(pair.getTo())));
-      } else if (v.getOper() == FilterOperation.CONTAINS_KVP) {
+      } else if (v.getOper() == FilterOperation.CONTAINS) {
         ContainsKVP b = (ContainsKVP) v;
         KeyValuePair entry = b.getValue();
         cond = JsonCond.newAttrCond(attrName).contains(JsonContainsKVP.from(stringValue(entry.getKey()), stringValue(entry.getValue())));

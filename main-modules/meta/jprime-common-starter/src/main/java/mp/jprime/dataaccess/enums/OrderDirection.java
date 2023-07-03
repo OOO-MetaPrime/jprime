@@ -20,6 +20,15 @@ public enum OrderDirection {
   }
 
   /**
+   * Код направления сортировки
+   *
+   * @return Код направления сортировки
+   */
+  public String getCode() {
+    return code;
+  }
+
+  /**
    * Возвращает направление по коду
    *
    * @param code Код

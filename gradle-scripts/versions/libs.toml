@@ -1,18 +1,18 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.13.4"
-jacksonDataformatXmlVersion = "2.13.4"
-jacksonDatatypeJsr310Version = "2.13.4"
+jacksonAnnotationsVersion = "2.13.5"
+jacksonDataformatXmlVersion = "2.13.5"
+jacksonDatatypeJsr310Version = "2.13.5"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.4"
+jodconverterLocalVersion = "4.4.6"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
 # sshj
-sshjVersion = "0.34.0"
+sshjVersion = "0.35.0"
 # lombok
-lombokVersion = "1.18.24"
+lombokVersion = "1.18.26"
 lombokPluginVersion = "6.6.1"
 
 [libraries]

@@ -158,6 +158,33 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
         );
   }
 
+  @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{linkCode}/{linkValue}/{bearer}")
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<Void> downloadFile(ServerWebExchange swe,
+                                 @PathVariable("code") String code,
+                                 @PathVariable("objectId") String objectId,
+                                 @PathVariable("attrCode") String attrCode,
+                                 @PathVariable("linkCode") String linkCode,
+                                 @PathVariable("linkValue") String linkValue,
+                                 @PathVariable("bearer") String bearer,
+                                 @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+    return Mono.just(metaStorage.getJPClassByCode(code))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(jpClass -> {
+          if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          return jpClass;
+        })
+        .flatMap(
+            jpClass -> jpFileLoader.asyncGetInfo(JPId.get(jpClass.getCode(), objectId), Filter.attr(linkCode).eq(linkValue), attrCode, jwtService.getAuthInfo(bearer, swe))
+        )
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .flatMap(
+            fileInfo -> writeTo(swe, fileInfo, userAgent)
+        );
+  }
+
   @GetMapping(value = "/{code}/search/file/{attrCode}/{linkCode}/{linkValue}/{bearer}")
   @ResponseStatus(HttpStatus.OK)
   public Mono<Void> downloadFilesZip(ServerWebExchange swe,

@@ -64,7 +64,7 @@ public interface JPUtilInParams<R> {
 
     private RootInfo(String classCode, Collection<R> ids) {
       this.classCode = classCode;
-      this.ids = Collections.unmodifiableCollection(ids != null ? ids : Collections.emptyList());
+      this.ids = ids != null && !ids.isEmpty() ? Collections.unmodifiableCollection(ids) : Collections.emptyList();
     }
 
     public String getClassCode() {

@@ -1,23 +1,9 @@
 package mp.jprime.utils.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Collection;
 
-@JsonPropertyOrder({
-    "code",
-    "type",
-    "length",
-    "description",
-    "qName",
-    "mandatory",
-    "multiple",
-    "refJpClass",
-    "refJpAttr",
-    "refFilter",
-    "enums"
-})
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class JsonUtilParam {
   /**

@@ -21,6 +21,6 @@ public class ContainsElement extends ValueFilter<Object> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.CONTAINSELEMENT;
+    return FilterOperation.CONTAINS_ELEMENT;
   }
 }

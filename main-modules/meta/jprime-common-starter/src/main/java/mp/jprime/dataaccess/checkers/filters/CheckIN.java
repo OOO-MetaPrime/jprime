@@ -1,8 +1,8 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.filters.IN;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
 import java.util.Collection;
@@ -15,11 +15,11 @@ import java.util.Collection;
 )
 public class CheckIN extends CheckBaseFilter<IN> {
   @Override
-  public boolean check(IN filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  public boolean check(IN filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     Collection<? extends Comparable> filterValue = filter.getValue();
 
     String attrCode = filter.getAttrCode();
-    if (!data.containsAttr(attrCode)) {
+    if (!data.containsKey(attrCode)) {
       return notContainsDefaultValue;
     }
     Object attrValue = attrCode != null ? data.get(attrCode) : null;

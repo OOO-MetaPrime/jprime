@@ -22,13 +22,13 @@ public class PolicySetBean implements PolicySet {
    */
   private final boolean immutable;
 
-  private PolicySetBean(String name, String qName, PolicyTarget target,
+  private PolicySetBean(String code, String name, String qName, PolicyTarget target,
                         Collection<Policy> policies, boolean immutable) {
-    this.code = UUID.randomUUID().toString();
+    this.code = code != null ? code : UUID.randomUUID().toString();
     this.name = name;
     this.qName = qName;
     this.target = target;
-    this.policies = Collections.unmodifiableCollection(policies != null ? policies : Collections.emptyList());
+    this.policies = policies != null ? Collections.unmodifiableCollection(policies) : Collections.emptyList();
     this.immutable = immutable;
   }
 
@@ -99,7 +99,8 @@ public class PolicySetBean implements PolicySet {
   }
 
   public static final class Builder {
-    private String name;
+    private final String name;
+    private String code;
     private String qName;
     private PolicyTarget target;
     private Collection<Policy> policies;
@@ -110,7 +111,12 @@ public class PolicySetBean implements PolicySet {
     }
 
     public PolicySetBean build() {
-      return new PolicySetBean(name, qName, target, policies, immutable);
+      return new PolicySetBean(code, name, qName, target, policies, immutable);
+    }
+
+    public Builder code(String code) {
+      this.code = code;
+      return this;
     }
 
     public Builder qName(String qName) {

@@ -10,6 +10,26 @@ public final class JPDateRange extends JPRange<LocalDate> {
     super(lower, upper, mask, LocalDate.class);
   }
 
+
+  /**
+   * Returns the lower bound of this range. If {@code null} is returned then this range is left-unbounded.
+   *
+   * @return The lower bound.
+   */
+  public LocalDate getFromDate() {
+    return lower();
+  }
+
+  /**
+   * Returns the upper bound of this range. If {@code null} is returned then this range is right-unbounded.
+   *
+   * @return The upper bound.
+   */
+  public LocalDate geToDate() {
+    return upper;
+  }
+
+
   /**
    * Создание закрытого c двух сторон диапазона.
    *
@@ -21,7 +41,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
    * @param upper The upper bound, never null.
    * @return The closed range.
    */
-  @SuppressWarnings("unchecked")
   public static JPDateRange closed(LocalDate lower, LocalDate upper) {
     Objects.requireNonNull(lower);
     Objects.requireNonNull(upper);
@@ -38,7 +57,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
    * @param lower The lower bound, never null.
    * @return The range.
    */
-  @SuppressWarnings("unchecked")
   public static JPDateRange closedInfinite(LocalDate lower) {
     Objects.requireNonNull(lower);
     return new JPDateRange(lower, null, LOWER_INCLUSIVE | UPPER_INFINITE);
@@ -54,7 +72,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
    * @param upper The upper bound, never null.
    * @return The range.
    */
-  @SuppressWarnings("unchecked")
   public static JPDateRange infiniteClosed(LocalDate upper) {
     Objects.requireNonNull(upper);
     return new JPDateRange(null, upper, UPPER_INCLUSIVE | LOWER_INFINITE);
@@ -69,7 +86,6 @@ public final class JPDateRange extends JPRange<LocalDate> {
    *
    * @return The infinite range.
    */
-  @SuppressWarnings("unchecked")
   public static JPDateRange infinite() {
     return new JPDateRange(null, null, LOWER_INFINITE | UPPER_INFINITE);
   }
@@ -94,10 +110,39 @@ public final class JPDateRange extends JPRange<LocalDate> {
   }
 
   public static JPDateRange emptyRange() {
-    return new JPDateRange(
-        null,
-        null,
-        LOWER_INFINITE | UPPER_INFINITE
-    );
+    return new JPDateRange(null, null, LOWER_INFINITE | UPPER_INFINITE);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof JPDateRange)) return false;
+    JPDateRange range = (JPDateRange) o;
+    if (!Objects.equals(clazz, range.clazz)) return false;
+    return
+        ((this.lower() == null && range.lower() == null) || this.lower() != null && this.lower().isEqual(range.lower()))
+            &&
+            ((this.upper() == null && range.upper() == null) || this.upper() != null && this.upper().isEqual(range.upper()));
+  }
+
+  /**
+   * Признак пересечения указанного периода с периодом
+   *
+   * @param value Период
+   * @return Да/Нет
+   */
+  public boolean intersection(JPDateRange value) {
+    if (value == null) {
+      return false;
+    }
+
+    LocalDate start = value.lower() == null ? LocalDate.MIN : value.lower();
+    LocalDate end = value.upper() == null ? LocalDate.MAX : value.upper();
+
+    LocalDate from = lower();
+    LocalDate to = upper();
+
+    return ((from == null || !from.isAfter(start)) && (to == null || !to.isBefore(start)))
+        || ((from == null || !from.isAfter(end)) && (to == null || !to.isBefore(end)));
   }
 }

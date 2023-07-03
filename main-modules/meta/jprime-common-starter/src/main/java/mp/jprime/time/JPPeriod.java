@@ -1,6 +1,7 @@
 package mp.jprime.time;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Описание периода С-По
@@ -41,6 +42,48 @@ public final class JPPeriod {
       return false;
     }
     return (from == null || !from.isAfter(value)) && (to == null || !to.isBefore(value));
+  }
+
+  /**
+   * Признак пересечения указанного периода с периодом
+   *
+   * @param value Период
+   * @return Да/Нет
+   */
+  public boolean intersection(JPPeriod value) {
+    if (value == null) {
+      return false;
+    }
+
+    LocalDate start = value.from == null ? LocalDate.MIN : value.from;
+    LocalDate end = value.to == null ? LocalDate.MAX : value.to;
+
+    return ((from == null || !from.isAfter(start)) && (to == null || !to.isBefore(start)))
+        || ((from == null || !from.isAfter(end)) && (to == null || !to.isBefore(end)));
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    JPPeriod jpPeriod = (JPPeriod) o;
+
+    if (!Objects.equals(from, jpPeriod.from)) {
+      return false;
+    }
+    return Objects.equals(to, jpPeriod.to);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = from != null ? from.hashCode() : 0;
+    result = 31 * result + (to != null ? to.hashCode() : 0);
+    return result;
   }
 
   @Override

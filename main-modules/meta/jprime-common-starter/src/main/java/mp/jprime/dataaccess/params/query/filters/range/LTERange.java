@@ -22,6 +22,6 @@ public class LTERange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.LTERANGE;
+    return FilterOperation.LTE_RANGE;
   }
 }

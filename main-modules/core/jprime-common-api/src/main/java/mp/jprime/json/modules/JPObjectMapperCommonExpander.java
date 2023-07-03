@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.json.beans.*;
 import mp.jprime.lang.*;
+import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +23,7 @@ import java.util.regex.Pattern;
  * Подключение базовых обработчиков
  */
 @Service
-public final class JPObjectMapperCommonExpander implements JPObjectMapperExpander {
+public final class JPObjectMapperCommonExpander implements JPObjectMapperExpander, JPObjectMapperXmlExpander {
   public final static long MAX_SAFE_INTEGER = 0x000FFFFFFFFFFFFFL * 2 + 1;
   public final static long MIN_SAFE_INTEGER = -1 * MAX_SAFE_INTEGER;
 
@@ -134,13 +135,6 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           @Override
           public JPStringArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPStringArray.of(ctxt.readValue(p, String[].class));
-          }
-        })
-        // JsonNode to JPJsonNode
-        .addDeserializer(JPJsonNode.class, new StdDeserializer<JPJsonNode>(JPJsonNode.class) {
-          @Override
-          public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return JPJsonNode.from(p.getCodec().readTree(p));
           }
         })
         // JsonString to String
@@ -279,16 +273,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
               public void serialize(JPStringArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(v.toList());
               }
-            })
-        // JPJsonNode to JsonNode
-        .addSerializer(JPJsonNode.class,
-            new JsonSerializer<JPJsonNode>() {
-              @Override
-              public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
-                jGen.writeObject(jpJsonNode.toJsonNode());
-              }
-            }
-        );
+            });
     objectMapper.registerModule(module);
   }
 }

@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
 /**
@@ -19,5 +19,5 @@ public interface CheckFilter<T extends Filter> {
    * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data
    * @return Да/Нет
    */
-  boolean check(T filter, JPAttrData data, AuthInfo auth, boolean notContainsDefaultValue);
+  boolean check(T filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue);
 }

@@ -70,7 +70,7 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
   @PostMapping(value = "/{code}/applyvalue", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
   @ResponseStatus(HttpStatus.OK)
-  public Mono<JsonApplyValueResult> getDefValue(ServerWebExchange swe,
+  public Mono<JsonApplyValueResult> getApplyValue(ServerWebExchange swe,
                                                 @PathVariable("code") String code,
                                                 @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByCode(code);

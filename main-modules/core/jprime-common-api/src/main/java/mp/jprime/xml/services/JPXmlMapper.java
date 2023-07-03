@@ -2,8 +2,7 @@ package mp.jprime.xml.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.json.modules.JPObjectMapperExpander;
-import mp.jprime.json.services.JPObjectMapper;
+import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,10 +13,10 @@ import java.util.Collection;
  * Базовый класс XML-обработчиков
  */
 @Service
-public class JPXmlMapper extends JPObjectMapper {
+public class JPXmlMapper extends JPObjectXmlMapper {
   private final XmlMapper OBJECT_MAPPER;
 
-  private JPXmlMapper(@Autowired Collection<JPObjectMapperExpander> expanders) {
+  private JPXmlMapper(@Autowired Collection<JPObjectMapperXmlExpander> expanders) {
     OBJECT_MAPPER = new XmlMapper();
     setSettings(expanders, OBJECT_MAPPER);
   }

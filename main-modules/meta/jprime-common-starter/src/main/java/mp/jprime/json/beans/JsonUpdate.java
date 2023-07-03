@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
@@ -10,7 +9,6 @@ import java.util.Map;
  * Модель обновления
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonUpdate extends JsonObjectData {
   @JsonProperty
   private JsonExpr filter;

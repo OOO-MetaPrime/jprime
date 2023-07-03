@@ -22,6 +22,6 @@ public class GTRange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.GTRANGE;
+    return FilterOperation.GT_RANGE;
   }
 }

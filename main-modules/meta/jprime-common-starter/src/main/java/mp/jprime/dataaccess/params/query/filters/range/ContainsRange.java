@@ -22,6 +22,6 @@ public class ContainsRange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.CONTAINSRANGE;
+    return FilterOperation.CONTAINS_RANGE;
   }
 }

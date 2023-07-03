@@ -15,8 +15,8 @@ public final class JPUtilJPObjectListOutParams extends BaseJPUtilOutParams<Colle
   private final Collection<JsonJPObject> jpObjectList;
 
 
-  private JPUtilJPObjectListOutParams(String description, String qName, boolean changeData, Collection<JsonJPObject> jpObjectList) {
-    super(description, qName, changeData);
+  private JPUtilJPObjectListOutParams(String description, String qName, boolean changeData, boolean deleteData, Collection<JsonJPObject> jpObjectList) {
+    super(description, qName, changeData, deleteData);
     this.jpObjectList = jpObjectList;
   }
 
@@ -43,7 +43,7 @@ public final class JPUtilJPObjectListOutParams extends BaseJPUtilOutParams<Colle
 
     @Override
     public JPUtilJPObjectListOutParams build() {
-      return new JPUtilJPObjectListOutParams(description, qName, changeData, jpObjectList);
+      return new JPUtilJPObjectListOutParams(description, qName, changeData, deleteData, jpObjectList);
     }
 
     public Builder jpObjectList(Collection<JsonJPObject> jpObjectList) {
