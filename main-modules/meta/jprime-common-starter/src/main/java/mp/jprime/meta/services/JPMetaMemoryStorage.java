@@ -17,8 +17,8 @@ import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * Хранилище метаинформации
@@ -29,13 +29,11 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
   /**
    * Системный журнал
    */
-  private AppLogger appLogger;
+  private final AppLogger appLogger;
 
-  private AtomicReference<Cache> cacheRef = new AtomicReference<Cache>() {
-    {
-      set(new Cache());
-    }
-  };
+  private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
+    set(new Cache());
+  }};
 
   /**
    * Публикация событий
@@ -46,9 +44,11 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    * Размещает метаописание в хранилище
    */
   private JPMetaMemoryStorage(@Autowired AppLogger appLogger,
+                              @Autowired ApplicationEventPublisher eventPublisher,
                               @Autowired JPMetaAnnoLoader annoLoader,
                               @Autowired JPMetaXmlLoader xmlLoader) {
     this.appLogger = appLogger;
+    this.eventPublisher = eventPublisher;
 
     Collection<Flux<Collection<JPClass>>> p = new ArrayList<>();
     p.add(annoLoader.load());
@@ -58,40 +58,36 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
         .subscribe(this::applyJPClasses);
   }
 
-  @Autowired
-  private void setApplicationEventPublisher(ApplicationEventPublisher eventPublisher) {
-    this.eventPublisher = eventPublisher;
-  }
-
   @Autowired(required = false)
   private void setDynamicLoader(Collection<JPMetaDynamicLoader> dynamicLoaders) {
-    Flux
-        .merge(
-            dynamicLoaders.stream()
-                .map(JPMetaDynamicLoader::load)
-                .collect(Collectors.toList())
-        )
-        .filter(Objects::nonNull)
-        .subscribe(this::applyDynamicJPClasses);
+    if (dynamicLoaders == null) {
+      return;
+    }
+    AtomicInteger i = new AtomicInteger(1);
+    dynamicLoaders.forEach(x -> x.load().forEach(flux -> {
+      int sourceNum = i.getAndIncrement();
+      flux.subscribe(list -> applyDynamicJPClasses(sourceNum, list));
+    }));
   }
 
   /**
    * Загружает список классов
    *
-   * @param jpClasses Список классов
+   * @param list Список классов
    */
-  private void applyJPClasses(Collection<JPClass> jpClasses) {
-    Cache cache = cacheRef.get();
-    for (JPClass cls : jpClasses) {
-      if (cache.codeJpClassMap.containsKey(cls.getCode())) {
-        continue;
+  private void applyJPClasses(Collection<JPClass> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+
+    while (true) {
+      Cache oldCache = cacheRef.get();
+
+      Cache newCache = new Cache(oldCache, Cache.IMMUTABLE_SOURCE_CODE, list);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
       }
-      if (cls.getPrimaryKeyAttr() == null) {
-        appLogger.error(Event.PRIMARY_KEY_NOT_FOUND, "JPClass \"" + cls.getCode() + "\" not loaded. Primary key is absent.");
-        continue;
-      }
-      cache.classes.add(cls);
-      cache.codeJpClassMap.put(cls.getCode(), cls);
     }
   }
 
@@ -100,30 +96,14 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    *
    * @param list Список классов
    */
-  private void applyDynamicJPClasses(Collection<JPClass> list) {
+  private void applyDynamicJPClasses(Integer sourceNum, Collection<JPClass> list) {
     if (list == null || list.isEmpty()) {
       return;
     }
     while (true) {
-      Cache newCache = new Cache();
-
       Cache oldCache = cacheRef.get();
-      // Добавляем постоянные настройки
-      for (JPClass cls : oldCache.classes) {
-        if (cls.isImmutable()) {
-          newCache.classes.add(cls);
-          newCache.codeJpClassMap.put(cls.getCode(), cls);
-        }
-      }
-      // Добавляем динамические настройки
-      for (JPClass cls : list) {
-        String code = cls.getCode();
-        if (code == null || newCache.codeJpClassMap.containsKey(code)) {
-          continue;
-        }
-        newCache.classes.add(cls);
-        newCache.codeJpClassMap.put(code, cls);
-      }
+
+      Cache newCache = new Cache(oldCache, sourceNum, list);
       // Подменяем кеш после инициализации
       if (cacheRef.compareAndSet(oldCache, newCache)) {
         break;
@@ -159,7 +139,7 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
     if (!StringUtils.hasText(code)) {
       throw new JPClassNotFoundException();
     }
-    JPClass jpClass = cacheRef.get().codeJpClassMap.get(code);
+    JPClass jpClass = getJPClassByCode(code);
     if (jpClass == null) {
       throw new JPClassNotFoundException(code);
     }
@@ -167,16 +147,61 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
   }
 
   private class Cache {
-    private UUID uuid = UUID.randomUUID();
-    /**
-     * Список всей меты
-     */
-    private Collection<JPClass> classes = ConcurrentHashMap.newKeySet();
-    private Collection<JPClass> umClasses = Collections.unmodifiableCollection(classes);
-    /**
-     * Код класса - класс
-     */
-    private Map<String, JPClass> codeJpClassMap = new ConcurrentHashMap<>();
+    private final static Integer IMMUTABLE_SOURCE_CODE = 0;
+
+    private final UUID uuid = UUID.randomUUID();
+    // Список всей меты
+    private final Collection<JPClass> classes = ConcurrentHashMap.newKeySet();
+    private final Collection<JPClass> umClasses = Collections.unmodifiableCollection(classes);
+    // Список по источникам
+    private final Map<Integer, Collection<JPClass>> sourceJpClassMap = new ConcurrentHashMap<>();
+    // Код класса - класс
+    private final Map<String, JPClass> codeJpClassMap = new ConcurrentHashMap<>();
+
+    private Cache() {
+
+    }
+
+    private Cache(Cache oldCache, Integer sourceNum, Collection<JPClass> list) {
+      // Добавляем постоянные настройки
+      Collection<JPClass> immutableClasses = oldCache.sourceJpClassMap.get(IMMUTABLE_SOURCE_CODE);
+      if (immutableClasses != null) {
+        for (JPClass cls : immutableClasses) {
+          if (cls.isImmutable()) {
+            add(IMMUTABLE_SOURCE_CODE, cls);
+          }
+        }
+      }
+      // Добавляем динамические настройки
+      for (Map.Entry<Integer, Collection<JPClass>> entry : oldCache.sourceJpClassMap.entrySet()) {
+        Integer key = entry.getKey();
+        Collection<JPClass> value = entry.getValue();
+        if (IMMUTABLE_SOURCE_CODE.equals(key) || value == null || value.isEmpty()) {
+          continue;
+        }
+        // Сначала добавляем всю мету другого источника
+        if (!key.equals(sourceNum)) {
+          value.forEach(x -> add(key, x));
+        }
+      }
+      // Потом мету текущего источника
+      if (list != null) {
+        list.forEach(x -> add(sourceNum, x));
+      }
+    }
+
+    private void add(Integer sourceCode, JPClass cls) {
+      if (codeJpClassMap.containsKey(cls.getCode())) {
+        return;
+      }
+      if (cls.getPrimaryKeyAttr() == null) {
+        appLogger.error(Event.PRIMARY_KEY_NOT_FOUND, "JPClass \"" + cls.getCode() + "\" not loaded. Primary key is absent.");
+        return;
+      }
+      sourceJpClassMap.computeIfAbsent(sourceCode, x -> ConcurrentHashMap.newKeySet()).add(cls);
+      classes.add(cls);
+      codeJpClassMap.put(cls.getCode(), cls);
+    }
 
     @Override
     public boolean equals(Object o) {

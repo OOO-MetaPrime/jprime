@@ -152,4 +152,11 @@ public @interface JPAttr {
    * @return вложенные свойства псевдо-меты
    */
   JPPropertySchema[] schemaProps() default {};
+
+  /**
+   * Код атрибута, содержащего подпись
+   *
+   * @return Код атрибута, содержащего подпись
+   */
+  String signAttrCode() default "";
 }

@@ -100,7 +100,7 @@ public class JPAggregate extends JPBaseParams {
    */
   public static final class Builder {
     private String jpClass;
-    private Collection<Aggregate> aggrs = new ArrayList<>();
+    private final Collection<Aggregate> aggrs = new ArrayList<>();
     private Filter where;
     private AuthInfo auth;
     private Integer timeout;

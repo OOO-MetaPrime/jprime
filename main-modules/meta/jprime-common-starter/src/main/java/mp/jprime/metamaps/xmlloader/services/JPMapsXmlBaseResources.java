@@ -20,7 +20,7 @@ import java.util.Collections;
  */
 @Service
 public final class JPMapsXmlBaseResources implements JPMapsXmlResources {
-  private Logger LOG = LoggerFactory.getLogger(JPMapsXmlBaseResources.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JPMapsXmlBaseResources.class);
   /**
    * Папка с описанием привязки меты к хранилищам
    */

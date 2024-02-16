@@ -4,6 +4,7 @@ import mp.jprime.caches.JPCache;
 import mp.jprime.caches.JPCacheManager;
 import mp.jprime.caches.events.JPCacheRefreshEvent;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
+import mp.jprime.util.JPApplicationShutdownManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,16 +12,14 @@ import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.*;
 
 @Service
 public class JPCacheManagerService implements JPCacheManager {
   private static final Logger LOG = LoggerFactory.getLogger(JPCacheManagerService.class);
 
   private final Map<String, JPCache<?, ?>> caches = new HashMap<>();
+  private JPApplicationShutdownManager shutdownManager;
 
   @Autowired(required = false)
   public void setCaches(Collection<JPCache<?, ?>> caches) {
@@ -29,17 +28,30 @@ public class JPCacheManagerService implements JPCacheManager {
     }
   }
 
+  @Autowired
+  private void setShutdownManager(JPApplicationShutdownManager shutdownManager) {
+    this.shutdownManager = shutdownManager;
+  }
+
   @EventListener
   private void listenContextRefresh(ContextRefreshedEvent event) {
-    caches.values().forEach(cache -> CompletableFuture.runAsync(() -> {
-              try {
-                cache.refresh();
-              } catch (Exception e) {
-                LOG.error("Error during refreshing cache {}, cause: {}", cache.getCode(), e.getMessage(), e);
+    TreeMap<Integer, Collection<JPCache<?, ?>>> initOrder = new TreeMap<>(Collections.reverseOrder());
+    caches.values()
+        .forEach(x -> initOrder.computeIfAbsent(x.getOrder(), k -> new ArrayList<>()).add(x));
+
+    for (Collection<JPCache<?, ?>> caches : initOrder.values()) {
+      caches.parallelStream().forEach(cache -> {
+            try {
+              cache.refresh();
+            } catch (Exception e) {
+              LOG.error("Error during refreshing cache {}, cause: {}", cache.getCode(), e.getMessage(), e);
+              if (cache.isFailFastOnStartUp()) {
+                shutdownManager.exitWithError();
               }
             }
-        )
-    );
+          }
+      );
+    }
   }
 
   /**

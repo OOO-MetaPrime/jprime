@@ -7,7 +7,6 @@ import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.beans.JPObjectAccess;
 import mp.jprime.json.beans.JsonChangeAccess;
 import mp.jprime.json.beans.JsonJPObject;
-import mp.jprime.lang.JPJsonNode;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
@@ -69,6 +68,10 @@ public class JsonJPObjectService {
     this.sweService = sweService;
   }
 
+  public JsonJPObject toJsonJPObject(JPObject object) {
+    return toJsonJPObject(object, null, null);
+  }
+
   public JsonJPObject toJsonJPObject(JPObject object, ServerWebExchange swe) {
     return toJsonJPObject(object, null, swe);
   }
@@ -83,7 +86,7 @@ public class JsonJPObjectService {
         .jpId(object.getJpId())
         .jpData(getJPData(object.getJpClassCode(), object.getData()))
         .jpLinkedData(object.getLinkedData())
-        .baseUrl(sweService.getBaseUrl(swe))
+        .baseUrl(swe != null ? sweService.getBaseUrl(swe) : null)
         .restMapping(Controllers.API_MAPPING)
         .addLinks(addLinks)
         .access(objectAccess == null ? null : JsonChangeAccess.newBuilder()
@@ -110,13 +113,13 @@ public class JsonJPObjectService {
     }
     Map<String, Object> data = objectData.toMap();
     jsonAttrs.forEach(jpAttr -> {
+      if (!data.containsKey(jpAttr.getCode())) {
+        return;
+      }
       // старое значение
       Object value = objectData.get(jpAttr);
       // сконвертированное новое
-      data.put(
-          jpAttr.getCode(),
-          jsonAttrValueConverterService.toJsonView(jpAttr, jpJsonParser.parse(jpAttr, value))
-      );
+      data.put(jpAttr.getCode(), jsonAttrValueConverterService.toJsonView(jpAttr, jpJsonParser.parse(jpAttr, value)));
     });
     return JPData.of(data);
   }

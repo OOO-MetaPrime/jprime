@@ -56,7 +56,7 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
             ))
             // LocalDateTime to String
             .addSerializer(LocalDateTime.class,
-                new JsonSerializer<LocalDateTime>() {
+                new JsonSerializer<>() {
                   @Override
                   public void serialize(LocalDateTime localDateTime, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                     ZonedDateTime zdt = ZonedDateTime.of(localDateTime, TimeZone.getDefault().toZoneId());
@@ -66,7 +66,7 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
             )
             // LocalTime to String
             .addSerializer(LocalTime.class,
-                new JsonSerializer<LocalTime>() {
+                new JsonSerializer<>() {
                   @Override
                   public void serialize(LocalTime localTime, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                     jGen.writeString(DateFormat.LOCAL_TIME_FORMAT.format(localTime));
@@ -75,7 +75,7 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
             )
             // LocalDate to String
             .addSerializer(LocalDate.class,
-                new JsonSerializer<LocalDate>() {
+                new JsonSerializer<>() {
                   @Override
                   public void serialize(LocalDate LocalDate, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                     jGen.writeString(DateFormat.LOCAL_DATE_FORMAT.format(LocalDate));

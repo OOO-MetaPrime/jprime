@@ -1,5 +1,6 @@
 package mp.jprime.lang;
 
+import java.util.Collection;
 import java.util.List;
 
 public final class JPLongArray extends JPArray<Long> {
@@ -20,6 +21,16 @@ public final class JPLongArray extends JPArray<Long> {
   public Long[] toArray() {
     List<Long> values = getValues();
     return values.toArray(new Long[0]);
+  }
+
+  /**
+   * Создать JPLongArray
+   *
+   * @param values Список значений
+   * @return JPLongArray
+   */
+  public static JPLongArray of(Collection<Long> values) {
+    return new JPLongArray(values != null ? values.stream().toList() : null);
   }
 
   /**

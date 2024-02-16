@@ -1,7 +1,6 @@
 package mp.jprime.dataaccess.services;
 
 import mp.jprime.dataaccess.JPReactiveObjectAccessService;
-import mp.jprime.dataaccess.JPReactiveObjectAccessServiceAware;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPId;
@@ -12,11 +11,8 @@ import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-
-import java.util.Collection;
 
 /**
  * Реализация проверки доступа к объекту
@@ -30,16 +26,6 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
   @Override
   public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
     this.repo = repo;
-  }
-
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPReactiveObjectAccessServiceAware> awares) {
-    for (JPReactiveObjectAccessServiceAware aware : awares) {
-      aware.setJpReactiveObjectAccessService(this);
-    }
   }
 
   /**

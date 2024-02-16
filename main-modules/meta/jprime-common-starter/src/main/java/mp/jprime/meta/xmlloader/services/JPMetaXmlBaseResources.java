@@ -20,7 +20,7 @@ import java.util.Collections;
  */
 @Service
 public final class JPMetaXmlBaseResources implements JPMetaXmlResources {
-  private Logger LOG = LoggerFactory.getLogger(JPMetaXmlBaseResources.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JPMetaXmlBaseResources.class);
   /**
    * Папка с метаописанием
    */

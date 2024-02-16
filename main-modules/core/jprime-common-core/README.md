@@ -278,6 +278,14 @@ class MyClass extends JPKafkaDeadLetterConsumerService<String, String> {
 
 ## Кэширование
 
+### Настройки
+
+| Настройка                 | Обязательность | По умолчанию | Описание                                |
+|---------------------------|----------------|--------------|-----------------------------------------|
+| jprime.cache.load.timeout | -              | 5            | Таймаут инициализации кэша (в секундах) |
+
+### Использование
+
 JPrime предоставляет базовый механизм кэширования и обновления кэшей по событию.
 `JPCacheManagerService` обновляет кэши на старте приложения, а так же слушает системные события с кодом
 `JPCacheRefreshEvent.CODE` и обновляет соответствующий кэш по коду, переданному в данных события.
@@ -391,3 +399,58 @@ public class MyService {
   }
 }
 ```
+
+## Вспомогательные классы
+
+### JPForkJoinPoolService
+ForkJoinPool для решений на базе JPrime. Рекомендуется к использованию для запуска асинхронных операций
+
+```java
+import java.util.concurrent.CompletableFuture;
+
+class MyService {
+  public void run() {
+    CompletableFuture.runAsync(() -> {}, JPForkJoinPoolService.pool());
+  }
+}
+```
+
+
+### NamedThreadFactory
+
+Фабрика потоков, используется в при создании пулов потоков. С помощью данного класса можно задать префикс именам 
+потоков, фабрика автоматически добавляет суффикс порядкового номера. 
+Дополнительно можно определить свойство deamon потокам
+
+```java
+class MyService {
+  Executor EXECUTOR = Executors.newSingleThreadExecutor(
+      NamedThreadFactory.of("custom-prefix", false)
+  );
+}
+```
+
+### ContextClassLoaderThreadFactoryWrapper
+
+Декоратор для экземпляров ThreadFactory, для переопределения ClassLoader порождаемым потокам.
+Начиная с Java 9 fork/join common pool порождает потоки в которых установлен системный загрузчик классов.
+Однако в Spring Boot приложениях используется собственный загрузчик классов, что можен привести к ошибке загрузки классов.
+Например, выполнив код CompletableFuture.runAsync(() -> ...)
+
+Для исправления ошибки, рекомендуется создать собственный пулл и выполнить асинхронную операцию в нем
+
+```java
+class MyService {
+  Executor EXECUTOR = Executors.newSingleThreadExecutor(
+      ContextClassLoaderThreadFactoryWrapper.of(
+          NamedThreadFactory.of("custom-prefix", false),
+          this.getClass().getClassLoader() // опционально
+      )
+  );
+  
+  public voin doSamething() {
+    CompletableFuture.runAsync(() -> {}, EXECUTOR);
+  }
+}
+```
+ 

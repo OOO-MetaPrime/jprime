@@ -1,6 +1,7 @@
 package mp.jprime.json.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import mp.jprime.json.modules.JPObjectMapperExpander;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ public class JPJsonMapper extends JPObjectMapper {
 
   private JPJsonMapper(@Autowired Collection<JPObjectMapperExpander> expanders) {
     OBJECT_MAPPER = new ObjectMapper();
+    OBJECT_MAPPER.setNodeFactory(JsonNodeFactory.withExactBigDecimals(true));
     setSettings(expanders, OBJECT_MAPPER);
   }
 

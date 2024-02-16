@@ -4,8 +4,6 @@ import mp.kafka.configs.KafkaPublisherConfigTest;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +12,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @ContextConfiguration
 @Tag("manualTests")
 class KafkaPublisherTest {
-  private static final Logger LOG = LoggerFactory.getLogger(KafkaPublisherTest.class);
 
   @Value("${jprime.test.kafka.producers.timeout:5000}")
   private int timeout;
@@ -78,21 +73,15 @@ class KafkaPublisherTest {
     long ts = System.currentTimeMillis();
 
     CountDownLatch latch = new CountDownLatch(DATA.size());
-    ListenableFutureCallback<SendResult<String, String>> callback =
-        new ListenableFutureCallback<SendResult<String, String>>() {
-          @Override
-          public void onSuccess(SendResult<String, String> result) {
-            latch.countDown();
-          }
-
-          @Override
-          public void onFailure(Throwable ex) {
+    DATA.forEach(msg -> kafkaBatchOperations
+        .send(topic, msg)
+        .whenCompleteAsync((result, e) -> {
+          if (e != null) {
             isError.set(true);
-            latch.countDown();
           }
-        };
-
-    DATA.forEach(msg -> kafkaBatchOperations.send(topic, msg).addCallback(callback));
+          latch.countDown();
+        })
+    );
     kafkaBatchOperations.flush();
 
     assertDoesNotThrow(() -> latch.await(timeout, TimeUnit.MILLISECONDS));

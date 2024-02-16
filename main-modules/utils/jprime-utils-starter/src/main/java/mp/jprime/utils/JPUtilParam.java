@@ -1,7 +1,7 @@
 package mp.jprime.utils;
 
 import mp.jprime.common.JPEnum;
-import mp.jprime.common.JPParamBase;
+import mp.jprime.common.beans.JPParamBase;
 import mp.jprime.meta.beans.JPType;
 
 import java.util.Collection;
@@ -23,8 +23,8 @@ public class JPUtilParam extends JPParamBase {
    */
   private JPUtilParam(String code, JPType type, Integer length, String description, String qName,
                       boolean mandatory, boolean multiple, String refJpClass, String refJpAttr, String refFilter,
-                      boolean external, Object value, Collection<JPEnum> enums) {
-    super(code, type, length, description, qName, mandatory, multiple, refJpClass, refJpAttr, refFilter, external, value, enums);
+                      boolean external, Object value, Collection<JPEnum> enums, boolean clientSearch) {
+    super(code, type, length, description, qName, mandatory, multiple, refJpClass, refJpAttr, refFilter, external, value, enums, clientSearch);
   }
 
 
@@ -39,7 +39,7 @@ public class JPUtilParam extends JPParamBase {
 
     public JPUtilParam build() {
       return new JPUtilParam(code, type, length, description, qName, mandatory, multiple, refJpClass,
-          refJpAttr, refFilter, external, value, enums);
+          refJpAttr, refFilter, external, value, enums, clientSearch);
     }
   }
 }

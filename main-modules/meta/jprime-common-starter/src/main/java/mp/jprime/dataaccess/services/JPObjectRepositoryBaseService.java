@@ -3,7 +3,6 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPObjectRepository;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -51,16 +50,6 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
    * Обработчики типов
    */
   private Map<Class, JPObjectRepository> repoMap = new ConcurrentHashMap<>();
-
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPObjectRepositoryServiceAware> awares) {
-    for (JPObjectRepositoryServiceAware aware : awares) {
-      aware.setJpObjectRepositoryService(this);
-    }
-  }
 
   /**
    * Считываем аннотации
@@ -170,13 +159,18 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
    * @return Объект
    */
   @Override
-  public  JPObject getObjectAndLock(JPSelect query) {
+  public JPObject getObjectAndLock(JPSelect query) {
     return getRepository(query.getJpClass()).getObjectAndLock(query);
   }
 
   @Override
   public Collection<JPObject> getList(JPSelect select) {
     return getRepository(select.getJpClass()).getList(select);
+  }
+
+  @Override
+  public Collection<JPObject> getListAndLock(JPSelect query, boolean skipLocked) {
+    return getRepository(query.getJpClass()).getListAndLock(query, skipLocked);
   }
 
   @Override
@@ -252,5 +246,35 @@ public class JPObjectRepositoryBaseService implements JPObjectRepositoryService 
   @Override
   public Long delete(JPDelete query) {
     return getRepository(query.getJpClass()).delete(query);
+  }
+
+  @Override
+  public Mono<Void> asyncBatch(JPBatchCreate query) {
+    return getRepository(query.getJpClass()).asyncBatch(query);
+  }
+
+  @Override
+  public void batch(JPBatchCreate query) {
+    getRepository(query.getJpClass()).batch(query);
+  }
+
+  @Override
+  public Mono<Void> asyncBatch(JPBatchUpdate query) {
+    return getRepository(query.getJpClass()).asyncBatch(query);
+  }
+
+  @Override
+  public void batch(JPBatchUpdate query) {
+    getRepository(query.getJpClass()).batch(query);
+  }
+
+  @Override
+  public Mono<JPObject> getAsyncObjectAndLock(JPSelect query) {
+    return getRepository(query.getJpClass()).getAsyncObjectAndLock(query);
+  }
+
+  @Override
+  public Flux<JPObject> getAsyncListAndLock(JPSelect query) {
+    return getRepository(query.getJpClass()).getAsyncListAndLock(query);
   }
 }

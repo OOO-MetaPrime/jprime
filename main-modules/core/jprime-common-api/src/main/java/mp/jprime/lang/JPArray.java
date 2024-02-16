@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Базовая логика для массивов
@@ -49,5 +50,15 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
       return -1;
     }
     return CollectionUtils.isEqualCollection(values, o.toList()) ? 0 : -1;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    return this.compareTo((JPArray<T>) o) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(values);
   }
 }

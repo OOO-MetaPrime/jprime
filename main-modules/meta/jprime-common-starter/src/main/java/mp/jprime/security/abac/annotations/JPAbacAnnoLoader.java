@@ -10,13 +10,14 @@ import mp.jprime.security.abac.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Загрузка ABAC по аннотациям
@@ -45,27 +46,21 @@ public class JPAbacAnnoLoader implements JPAbacLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<PolicySet> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public Flux<Collection<PolicySet>> load() {
+    return Mono.fromCallable(this::annoLoad).flux();
   }
 
-  private void loadTo(FluxSink<PolicySet> sink) {
+  private Collection<PolicySet> annoLoad() {
     if (setts == null || setts.isEmpty()) {
-      return;
+      return Collections.emptyList();
     }
+    Collection<PolicySet> result = new ArrayList<>();
     for (JPSecuritySettings s : setts) {
       JPPolicySets p = s.getClass().getAnnotation(JPPolicySets.class);
       if (p == null) {
         continue;
       }
-      JPPolicySet[] policySets = p.value();
-      if (policySets.length == 0) {
-        continue;
-      }
-      for (JPPolicySet policySet : policySets) {
+      for (JPPolicySet policySet : p.value()) {
         String[] jpClasses = policySet.jpClasses();
         JPPolicy[] jpPolicies = policySet.policies();
 
@@ -77,9 +72,10 @@ public class JPAbacAnnoLoader implements JPAbacLoader {
             .policies(toPolicies(jpPolicies))
             .build();
 
-        sink.next(set);
+        result.add(set);
       }
     }
+    return result;
   }
 
   private Collection<Policy> toPolicies(JPPolicy[] jpPolicies) {
@@ -120,8 +116,8 @@ public class JPAbacAnnoLoader implements JPAbacLoader {
     for (JPResourceRule jpResourceRule : jpResourceRules) {
       resourceRules.add(
           ResourceRuleBean.newBuilder(
-              jpResourceRule.name(), jpResourceRule.effect(), jpResourceRule.attr(), toCollectionCond(jpResourceRule.cond())
-          )
+                  jpResourceRule.name(), jpResourceRule.effect(), jpResourceRule.attr(), toCollectionCond(jpResourceRule.cond())
+              )
               .qName(jpResourceRule.qName())
               .build()
       );

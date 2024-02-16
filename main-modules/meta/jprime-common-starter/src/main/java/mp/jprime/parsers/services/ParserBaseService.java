@@ -1,7 +1,6 @@
 package mp.jprime.parsers.services;
 
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.TypeParser;
 import mp.jprime.parsers.exceptions.JPParseException;
 import mp.jprime.parsers.exceptions.JPParserNotFoundException;
@@ -21,16 +20,6 @@ public class ParserBaseService implements ParserService {
    * Все парсеры
    */
   private final Map<Class, Map<Class, TypeParser>> parsers = new HashMap<>();
-
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<ParserServiceAware> awares) {
-    for (ParserServiceAware aware : awares) {
-      aware.setParserService(this);
-    }
-  }
 
   /**
    * Кеширование парсеров

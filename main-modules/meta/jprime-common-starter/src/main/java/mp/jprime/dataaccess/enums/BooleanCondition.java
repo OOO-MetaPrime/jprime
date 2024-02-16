@@ -1,5 +1,8 @@
 package mp.jprime.dataaccess.enums;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Логические условия
  */
@@ -13,10 +16,23 @@ public enum BooleanCondition {
    */
   OR("OR");
 
+  private static final Map<String, BooleanCondition> BY_CODE = new HashMap<>();
+
+  static {
+    for (BooleanCondition type : BooleanCondition.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
+
+
   private final String code;
 
   BooleanCondition(String code) {
     this.code = code;
+  }
+
+  public String getCode() {
+    return code;
   }
 
   /**
@@ -26,14 +42,6 @@ public enum BooleanCondition {
    * @return Логическое условие
    */
   public static BooleanCondition getCond(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (BooleanCondition v : BooleanCondition.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

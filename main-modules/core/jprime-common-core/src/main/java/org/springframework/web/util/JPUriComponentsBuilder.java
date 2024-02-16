@@ -20,9 +20,7 @@ public final class JPUriComponentsBuilder {
    * @since 4.1.5
    */
   public static UriComponentsBuilder fromServerRequest(ServerRequest request) {
-    return UriComponentsBuilder
-        .fromUri(request.uri())
-        .adaptFromForwardedHeaders(request.headers().asHttpHeaders());
+    return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.uri(), request.headers().asHttpHeaders());
   }
 
   /**
@@ -39,9 +37,8 @@ public final class JPUriComponentsBuilder {
   public static UriComponentsBuilder fromServerRequest(ServerRequest request, String path) {
     HttpHeaders httpHeaders = request.headers().asHttpHeaders();
     String prefix = httpHeaders.getFirst("X-Forwarded-Prefix");
-    return UriComponentsBuilder
-        .fromUri(request.uri())
-        .adaptFromForwardedHeaders(httpHeaders)
+
+    return ForwardedHeaderUtils.adaptFromForwardedHeaders(request.uri(), request.headers().asHttpHeaders())
         .replacePath((prefix != null ? "/" + String.join("", prefix.split(",")) : "") + path);
   }
 }

@@ -2,6 +2,8 @@ package mp.jprime.utils.rest.controllers;
 
 import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.JPEnum;
+import mp.jprime.json.beans.JsonEnum;
+import mp.jprime.json.beans.JsonParam;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.parsers.exceptions.JPParseException;
 import mp.jprime.security.AuthInfo;
@@ -79,7 +81,7 @@ public abstract class RestUtilsBaseController {
   @PostMapping(value = "/batchCheck",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_FORM_URLENCODED_VALUE},
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JPUtilBatchCheckOutParams> batchCheck(ServerWebExchange swe,
                                                     @RequestBody String query) {
@@ -143,7 +145,7 @@ public abstract class RestUtilsBaseController {
   @PostMapping(value = "/{utilCode}/mode/{modeCode}",
       consumes = {APPLICATION_JSON_VALUE, APPLICATION_FORM_URLENCODED_VALUE},
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JPUtilOutParams> executeUtilJsonStep(ServerWebExchange swe,
                                                    @PathVariable("utilCode") String utilCode,
@@ -170,7 +172,7 @@ public abstract class RestUtilsBaseController {
   @PostMapping(value = "/{utilCode}/mode/{modeCode}",
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JPUtilOutParams> executeUtilMultiPartStep(ServerWebExchange swe,
                                                         @PathVariable("utilCode") String utilCode,
@@ -245,7 +247,7 @@ public abstract class RestUtilsBaseController {
   @ResponseBody
   @GetMapping(value = "/labels",
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).UI_ADMIN)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getUiAdmin())")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonUtilModeLabel> getUtilModeLabelList(ServerWebExchange swe) {
     return jpUtilService.getUtils(jwtService.getAuthInfo(swe))
@@ -255,7 +257,7 @@ public abstract class RestUtilsBaseController {
   @ResponseBody
   @GetMapping(value = "/settings",
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonUtilMode> getUtilModeList(ServerWebExchange swe) {
     return jpUtilService.getUtils(jwtService.getAuthInfo(swe))
@@ -265,7 +267,7 @@ public abstract class RestUtilsBaseController {
   @ResponseBody
   @GetMapping(value = "/settings/{classCode}",
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonUtilMode> getUtilModeList(ServerWebExchange swe,
                                             @PathVariable("classCode") String classCode) {
@@ -316,8 +318,8 @@ public abstract class RestUtilsBaseController {
         .build();
   }
 
-  private JsonUtilParam toUtilParam(JPUtilParam utilParam) {
-    return JsonUtilParam.newBuilder()
+  private JsonParam toUtilParam(JPUtilParam utilParam) {
+    return JsonParam.newBuilder()
         .code(utilParam.getCode())
         .type(utilParam.getType() != null ? utilParam.getType().getCode() : null)
         .length(utilParam.getLength())
@@ -325,9 +327,11 @@ public abstract class RestUtilsBaseController {
         .qName(utilParam.getQName())
         .mandatory(utilParam.isMandatory())
         .multiple(utilParam.isMultiple())
+        .external(true)
         .refJpClass(utilParam.getRefJpClassCode())
         .refJpAttr(utilParam.getRefJpAttrCode())
         .refFilter(utilParam.getRefFilter())
+        .clientSearch(utilParam.isClientSearch())
         .enums(utilParam.getEnums()
             .stream()
             .map(this::toUtilEnum)
@@ -335,12 +339,8 @@ public abstract class RestUtilsBaseController {
         .build();
   }
 
-  private JsonUtilEnum toUtilEnum(JPEnum paramEnum) {
-    return JsonUtilEnum.newBuilder()
-        .description(paramEnum.getDescription())
-        .qName(paramEnum.getQName())
-        .value(paramEnum.getValue())
-        .build();
+  private JsonEnum toUtilEnum(JPEnum paramEnum) {
+    return JsonEnum.of(paramEnum.getValue(), paramEnum.getDescription(), paramEnum.getQName());
   }
 
   private JsonUtilClassAttr toUtilClassAttr(JPClassAttr classAttr) {

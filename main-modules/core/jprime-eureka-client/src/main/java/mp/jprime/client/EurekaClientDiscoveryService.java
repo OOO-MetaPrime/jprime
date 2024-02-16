@@ -5,10 +5,7 @@ import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
@@ -39,7 +36,7 @@ public class EurekaClientDiscoveryService implements ClientDiscoveryService {
     for (String serviceId : serviceIds) {
       List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceId);
       if (serviceInstances != null && !serviceInstances.isEmpty()) {
-        ServiceInstance serviceInstance = serviceInstances.get(new Random().nextInt(serviceInstances.size()));
+        ServiceInstance serviceInstance = serviceInstances.get(new SplittableRandom().nextInt(serviceInstances.size()));
         if (func.test(serviceInstance)) {
           uris.add(serviceInstance);
         }
@@ -60,7 +57,7 @@ public class EurekaClientDiscoveryService implements ClientDiscoveryService {
     for (String serviceId : serviceIds) {
       List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceId);
       if (serviceInstances != null && !serviceInstances.isEmpty()) {
-        ServiceInstance serviceInstance = serviceInstances.get(new Random().nextInt(serviceInstances.size()));
+        ServiceInstance serviceInstance = serviceInstances.get(new SplittableRandom().nextInt(serviceInstances.size()));
 
         if (func.test(serviceInstance)) {
           return serviceInstance;
@@ -91,7 +88,7 @@ public class EurekaClientDiscoveryService implements ClientDiscoveryService {
   public ServiceInstance getService(String serviceName) {
     List<ServiceInstance> serviceInstances = discoveryClient.getInstances(serviceName);
     if (serviceInstances != null && !serviceInstances.isEmpty()) {
-      return serviceInstances.get(new Random().nextInt(serviceInstances.size()));
+      return serviceInstances.get(new SplittableRandom().nextInt(serviceInstances.size()));
     }
     return null;
   }

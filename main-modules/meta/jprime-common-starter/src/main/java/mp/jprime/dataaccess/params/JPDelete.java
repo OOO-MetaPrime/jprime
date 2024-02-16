@@ -65,7 +65,7 @@ public class JPDelete extends JPBaseParams {
    * Построитель JPDelete
    */
   public static final class Builder {
-    private JPId jpId;
+    private final JPId jpId;
     private AuthInfo auth;
     private Source source;
 

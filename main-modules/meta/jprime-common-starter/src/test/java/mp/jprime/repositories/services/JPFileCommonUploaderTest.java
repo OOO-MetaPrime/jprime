@@ -74,7 +74,7 @@ public class JPFileCommonUploaderTest {
     JPAttr attr = JPAttrBean.newBuilder()
         .identifier(true)
         .code("attrCode")
-        .type(JPType.FILE.getCode())
+        .type(JPType.FILE)
         .refJpFile(file)
         .build();
     JPClass jpClass = JPClassBean.newBuilder()

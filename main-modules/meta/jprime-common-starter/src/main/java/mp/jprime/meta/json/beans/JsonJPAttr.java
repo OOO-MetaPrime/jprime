@@ -65,6 +65,10 @@ public class JsonJPAttr {
    */
   private String refJpAttr;
   /**
+   * Код атрибута, содержащего подпись
+   */
+  private String signAttr;
+  /**
    * Настройки файлового атрибута
    */
   private JsonJPFile refJpFile;
@@ -92,7 +96,7 @@ public class JsonJPAttr {
 
   private JsonJPAttr(String guid, String code, String qName, String name, String shortName, String description,
                      String jpPackage, boolean identifier, boolean mandatory, String type, boolean updatable, Integer length,
-                     String refJpClass, String refJpAttr,
+                     String refJpClass, String refJpAttr, String signAttr,
                      JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction,
                      JsonJPMoney money, JsonJPGeometry geometry, Collection<JsonJPProperty> schemaProps) {
     this.guid = guid;
@@ -109,6 +113,7 @@ public class JsonJPAttr {
     this.length = length;
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
+    this.signAttr = signAttr;
     this.refJpFile = refJpFile;
     this.simpleFraction = simpleFraction;
     this.money = money;
@@ -243,6 +248,15 @@ public class JsonJPAttr {
   }
 
   /**
+   * Код атрибута, содержащего подпись
+   *
+   * @return Код атрибута, содержащего подпись
+   */
+  public String getSignAttr() {
+    return signAttr;
+  }
+
+  /**
    * Настройки файлового атрибута
    *
    * @return Настройки файлового атрибута
@@ -313,6 +327,7 @@ public class JsonJPAttr {
     private boolean updatable = true;
     private String refJpClass;
     private String refJpAttr;
+    private String signAttr;
     private Integer length;
     private JsonJPFile refJpFile;
     private JsonJPSimpleFraction simpleFraction;
@@ -406,6 +421,11 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder signAttr(String signAttr) {
+      this.signAttr = signAttr;
+      return this;
+    }
+
     public Builder refJpFile(JsonJPFile refJpFile) {
       this.refJpFile = refJpFile;
       return this;
@@ -433,7 +453,7 @@ public class JsonJPAttr {
 
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
-          type, updatable, length, refJpClass, refJpAttr, refJpFile, simpleFraction, money, geometry, schemaProps);
+          type, updatable, length, refJpClass, refJpAttr, signAttr, refJpFile, simpleFraction, money, geometry, schemaProps);
     }
   }
 }

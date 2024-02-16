@@ -1,5 +1,6 @@
 package mp.jprime.meta.beans;
 
+import mp.jprime.files.FileType;
 import mp.jprime.lang.*;
 
 import java.math.BigDecimal;
@@ -7,6 +8,8 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Тип атрибута
@@ -121,6 +124,13 @@ public enum JPType {
    */
   VIRTUALREFERENCE("virtualReference", "Виртуальное значение", null);
 
+  private static final Map<String, JPType> BY_CODE = new HashMap<>();
+
+  static {
+    for (JPType type : JPType.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   /**
    * Код типа
@@ -158,15 +168,7 @@ public enum JPType {
    * @return Тип атрибута
    */
   public static JPType getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (JPType v : JPType.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 
   /**

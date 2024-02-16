@@ -170,7 +170,7 @@ import static mp.jprime.security.Role.*;
         )
     }
 )
-/**
+/*
  * Типовые настройки
  */
 public class BaseAccess implements JPSecuritySettings {

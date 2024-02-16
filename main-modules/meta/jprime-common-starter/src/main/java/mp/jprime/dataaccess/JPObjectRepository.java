@@ -3,7 +3,10 @@ package mp.jprime.dataaccess;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.params.*;
+import mp.jprime.exceptions.JPRuntimeException;
+import org.apache.commons.lang3.NotImplementedException;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
@@ -37,11 +40,11 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
   /**
    * Возвращает optional результата запроса
    *
-   * @param select Параметры для выборки
+   * @param query Параметры для выборки
    * @return optional
    */
-  default Optional<JPObject> getOptionalObject(JPSelect select) {
-    return Optional.ofNullable(getObject(select));
+  default Optional<JPObject> getOptionalObject(JPSelect query) {
+    return Optional.ofNullable(getObject(query));
   }
 
   /**
@@ -198,4 +201,59 @@ public interface JPObjectRepository extends JPReactiveObjectRepository {
    * @return Количество удаленных объектов
    */
   Long delete(JPDelete query);
+
+  /**
+   * Создает объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются
+   * {@link JPClassHandler#beforeCreate(JPCreate)} и {@link JPClassHandler#afterCreate(Comparable, JPCreate)} не учитываются
+   *
+   * @param query Параметры для создания
+   * @return Void
+   * @throws JPRuntimeException, когда:
+   *                             1) queries == null
+   *                             2) Между батчами есть отличия в атрибутах
+   */
+  default Mono<Void> asyncBatch(JPBatchCreate query) {
+    return Mono.fromRunnable(() -> batch(query));
+  }
+
+  /**
+   * Создает объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются
+   * {@link JPClassHandler#beforeCreate(JPCreate)} и {@link JPClassHandler#afterCreate(Comparable, JPCreate)} не учитываются
+   *
+   * @param query Параметры для создания
+   * @throws JPRuntimeException, когда:
+   *                             1) queries == null
+   *                             2) Между батчами есть отличия в атрибутах
+   */
+  default void batch(JPBatchCreate query) {
+    throw new NotImplementedException();
+  }
+
+  /**
+   * Обновляет объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются,
+   * {@link JPClassHandler#beforeUpdate(JPUpdate)} и {@link JPClassHandler#afterUpdate(JPUpdate)} не учитываются
+   *
+   * @param query запрос
+   */
+  default Mono<Void> asyncBatch(JPBatchUpdate query) {
+    return Mono.fromRunnable(() -> batch(query));
+  }
+
+  /**
+   * Обновляет объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются,
+   * {@link JPClassHandler#beforeUpdate(JPUpdate)} и {@link JPClassHandler#afterUpdate(JPUpdate)} не учитываются
+   *
+   * @param query запрос
+   */
+  default void batch(JPBatchUpdate query) {
+    throw new NotImplementedException();
+  }
 }

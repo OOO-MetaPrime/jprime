@@ -23,7 +23,7 @@ public final class JPObjectMapperJsonNodeExpander implements JPObjectMapperExpan
   public void expand(ObjectMapper objectMapper) {
     SimpleModule module = new SimpleModule()
         // JsonNode to JPJsonNode
-        .addDeserializer(JPJsonNode.class, new StdDeserializer<JPJsonNode>(JPJsonNode.class) {
+        .addDeserializer(JPJsonNode.class, new StdDeserializer<>(JPJsonNode.class) {
           @Override
           public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPJsonNode.from(p.getCodec().readTree(p));
@@ -31,7 +31,7 @@ public final class JPObjectMapperJsonNodeExpander implements JPObjectMapperExpan
         })
         // JPJsonNode to JsonNode
         .addSerializer(JPJsonNode.class,
-            new JsonSerializer<JPJsonNode>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(jpJsonNode.toJsonNode());

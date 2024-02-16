@@ -33,16 +33,6 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
   // Хранилище настроек безопасности
   private JPSecurityStorage securityManager;
 
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPObjectDefValueServiceAware> awares) {
-    for (JPObjectDefValueServiceAware aware : awares) {
-      aware.setJPObjectDefValueService(this);
-    }
-  }
-
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
@@ -124,20 +114,10 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
    */
   @Override
   public JPMutableData getDefValues(String jpClassCode, JPObjectDefValueParams params) {
-    JPClass jpClass = metaStorage.getJPClassByCode(jpClassCode);
-    if (jpClass == null) {
-      throw new JPClassNotFoundException(jpClassCode);
-    }
+    JPClass jpClass = getJPClassWithChecking(jpClassCode, params);
     AuthInfo authInfo = params.getAuth();
-    if (params.getSource() == Source.USER
-        && authInfo != null
-        && !securityManager.checkCreate(jpClass.getJpPackage(), authInfo.getRoles())) {
-      throw new JPCreateRightException(jpClassCode);
-    }
     JPMutableData data = JPMutableData.empty();
-    if (jpClassCode == null) {
-      return data;
-    }
+
     // Проставляем значение для связи
     JPAttr refAttr = params.getRefAttrCode() != null ? jpClass.getAttr(params.getRefAttrCode()) : null;
     if (params.getRootId() != null &&
@@ -162,5 +142,19 @@ public class JPObjectDefValueBaseService implements JPObjectDefValueService, JPC
       removes.forEach(data::remove);
     }
     return data;
+  }
+
+  protected JPClass getJPClassWithChecking(String jpClassCode, JPObjectDefValueParams params) {
+    JPClass jpClass = metaStorage.getJPClassByCode(jpClassCode);
+    if (jpClass == null) {
+      throw new JPClassNotFoundException(jpClassCode);
+    }
+    AuthInfo authInfo = params.getAuth();
+    if (params.getSource() == Source.USER
+        && authInfo != null
+        && !securityManager.checkCreate(jpClass.getJpPackage(), authInfo.getRoles())) {
+      throw new JPCreateRightException(jpClassCode);
+    }
+    return jpClass;
   }
 }

@@ -7,9 +7,9 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.files.JPFileInfo;
+import mp.jprime.files.JPIdFileInfo;
 import mp.jprime.files.beans.FileInfo;
-import mp.jprime.files.beans.JPFileInfoBase;
+import mp.jprime.files.beans.JPIdFileInfoBean;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPFile;
@@ -61,19 +61,19 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   @Override
-  public Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
+  public Collection<JPIdFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
     return getInfos(classCode, filter, attr, auth, Source.USER);
   }
 
 
   @Override
-  public Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr) {
+  public Collection<JPIdFileInfo> getInfos(String classCode, Filter filter, String attr) {
     return getInfos(classCode, filter, attr, null, Source.SYSTEM);
   }
 
-  private Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth, Source source) {
+  private Collection<JPIdFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth, Source source) {
     if (classCode == null || attr == null) {
-      return null;
+      return Collections.emptyList();
     }
     Info info = info(classCode, attr);
     if (info == null) {
@@ -104,7 +104,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   @Override
-  public JPFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
+  public JPIdFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
     if (id == null || attr == null) {
       return null;
     }
@@ -166,7 +166,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
     }
   }
 
-  private JPFileInfo toJPFileInfo(JPObject obj, JPAttr jpAttr, JPFileStorage fileStorage) {
+  private JPIdFileInfo toJPFileInfo(JPObject obj, JPAttr jpAttr, JPFileStorage fileStorage) {
     JPFile jpFile = jpAttr.getRefJpFile();
     String fileName = obj.getAttrValue(jpAttr);
     String fileTitle = obj.getAttrValue(jpFile.getFileTitleAttrCode());
@@ -183,7 +183,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
     if (fileInfo == null) {
       return null;
     }
-    return JPFileInfoBase.newBuilder()
+    return JPIdFileInfoBean.newBuilder(obj.getJpId())
         .storageCode(fileStorage.getCode())
         .storageFilePath(storageFilePath)
         .storageFileName(fileName)

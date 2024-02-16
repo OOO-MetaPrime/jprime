@@ -67,7 +67,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
         Map<String, JPPropertySchema> schemas = getSchemas(attr.schemaProps());
         newAttrs.add(JPAttrBean.newBuilder()
             .guid(attr.guid())
-            .type(type.getCode())
+            .type(type)
             .length(attr.length())
             .identifier(attr.identifier())
             .mandatory(attr.mandatory())
@@ -101,6 +101,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
                         .fileSizeAttrCode(jpFile.fileSizeAttrCode())
                         .fileDateAttrCode(jpFile.fileDateAttrCode())
                         .fileInfoAttrCode(jpFile.fileInfoAttrCode())
+                        .fileStampAttrCode(jpFile.fileStampAttrCode())
                         .build()
             )
             // Настройка простой дроби
@@ -129,6 +130,7 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .schemaProps(
                 toJPProperty(attr.jpProps(), schemas)
             )
+            .signAttrCode(attr.signAttrCode())
             .build()
         );
       }

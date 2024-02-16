@@ -3,9 +3,10 @@ package mp.jprime.utils.services;
 import com.fasterxml.jackson.core.JsonParseException;
 import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPClassAttr;
-import mp.jprime.common.JPClassAttrBean;
+import mp.jprime.common.beans.JPClassAttrBean;
 import mp.jprime.common.annotations.JPEnum;
 import mp.jprime.common.annotations.JPParam;
+import mp.jprime.common.beans.JPEnumBase;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPBadFormatException;
 import mp.jprime.exceptions.JPQueryException;
@@ -536,18 +537,15 @@ public final class JPUtilCommonService implements JPUtilService {
           .refFilter(param.refFilter())
           .external(true)
           .enums(Stream.of(param.enums())
-              .map(this::toJPUtilParam)
+              .map(this::toJPEnum)
               .collect(Collectors.toList())
           )
+          .clientSearch(param.clientSearch())
           .build();
     }
 
-    private JPUtilEnum toJPUtilParam(JPEnum paramEnum) {
-      return JPUtilEnum.newBuilder()
-          .description(paramEnum.description())
-          .qName(paramEnum.qName())
-          .value(paramEnum.value())
-          .build();
+    private mp.jprime.common.JPEnum toJPEnum(JPEnum paramEnum) {
+      return JPEnumBase.of(paramEnum.value(), paramEnum.description(), paramEnum.qName());
     }
 
     private JPClassAttr toJPClassAttr(mp.jprime.common.annotations.JPClassAttr classAttr) {

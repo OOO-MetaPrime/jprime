@@ -1,5 +1,8 @@
 package mp.jprime.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Тип свойства
  */
@@ -57,6 +60,14 @@ public enum PropertyType {
    */
   UUID("uuid", "Глобальный идентификатор");
 
+  private static final Map<String, PropertyType> BY_CODE = new HashMap<>();
+
+  static {
+    for (PropertyType type : PropertyType.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
+
 
   /**
    * Код типа
@@ -99,14 +110,6 @@ public enum PropertyType {
    * @return Тип свойства
    */
   public static PropertyType getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (PropertyType v : PropertyType.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

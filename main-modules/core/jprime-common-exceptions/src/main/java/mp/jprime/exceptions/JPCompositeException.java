@@ -19,7 +19,7 @@ public class JPCompositeException extends JPRuntimeException implements Composit
   private final Collection<JPRuntimeException> umData = Collections.unmodifiableList(data);
 
   /**
-   * Конструкор
+   * Конструктор
    */
   public JPCompositeException() {
   }
@@ -36,7 +36,7 @@ public class JPCompositeException extends JPRuntimeException implements Composit
   }
 
   /**
-   * Добавлеяет данные ошибок
+   * Добавляет данные ошибок
    *
    * @param eData Данные ошибок
    * @return Данные ошибок

@@ -1,15 +1,10 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /*
  * Модель данных дополнительных данных
  */
-@JsonPropertyOrder({
-    "code",
-    "info"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonAddInfo {
   /**

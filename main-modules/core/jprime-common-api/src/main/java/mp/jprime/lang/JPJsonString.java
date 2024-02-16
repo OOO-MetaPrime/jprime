@@ -1,5 +1,7 @@
 package mp.jprime.lang;
 
+import java.util.Objects;
+
 /**
  * JSON
  */
@@ -43,5 +45,22 @@ public final class JPJsonString implements Comparable<JPJsonString> {
       return 1;
     }
     return s.compareTo(o.toString());
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    JPJsonString that = (JPJsonString) o;
+    return Objects.equals(s, that.s);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(s);
   }
 }

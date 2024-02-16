@@ -5,8 +5,8 @@ import groovy.lang.GString;
 import groovy.lang.MissingPropertyException;
 import groovy.lang.Script;
 import mp.jprime.groovy.exceptions.JPGroovyRestrictiveException;
+import mp.jprime.groovy.sandbox.GroovyInterceptor;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import org.kohsuke.groovy.sandbox.GroovyInterceptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,7 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 
 /**
- * Реализация GroovyInterceptor {@see https://github.com/jenkinsci/groovy-sandbox/blob/master/src/main/java/org/kohsuke/groovy/sandbox/GroovyInterceptor.java}
+ * Реализация GroovyInterceptor {@see GroovyInterceptor.java}
  * на основе {@see https://github.com/halestudio/hale/blob/master/util/plugins/eu.esdihumboldt.util.groovy.sandbox/src/eu/esdihumboldt/util/groovy/sandbox/internal/RestrictiveGroovyInterceptor.java}
  */
 public final class JPGroovyRestrictiveInterceptor extends GroovyInterceptor {

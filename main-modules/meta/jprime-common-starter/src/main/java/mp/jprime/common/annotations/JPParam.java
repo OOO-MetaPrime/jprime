@@ -7,23 +7,23 @@ import mp.jprime.meta.beans.JPType;
  */
 public @interface JPParam {
   /**
-   * Кодовое имя атрибута
+   * Кодовое имя параметра
    *
-   * @return Кодовое имя атрибута
+   * @return Кодовое имя параметра
    */
   String code();
 
   /**
-   * Полный код атрибута
+   * Полный код параметра
    *
-   * @return Полный код атрибута
+   * @return Полный код параметра
    */
   String qName() default "";
 
   /**
-   * Описание атрибута
+   * Описание параметра
    *
-   * @return Описание атрибута
+   * @return Описание параметра
    */
   String description();
 
@@ -35,9 +35,9 @@ public @interface JPParam {
   boolean mandatory() default false;
 
   /**
-   * Тип атрибута
+   * Тип параметра
    *
-   * @return Тип атрибута
+   * @return Тип параметра
    */
   JPType type();
 
@@ -75,10 +75,18 @@ public @interface JPParam {
    * @return Да/Нет
    */
   boolean multiple() default false;
+
   /**
    * Список перечислимых значений
    *
    * @return Список перечислимых значений
    */
   JPEnum[] enums() default {};
+
+  /**
+   * Клиентский поиск
+   *
+   * @return Да/Нет
+   */
+  boolean clientSearch() default false;
 }

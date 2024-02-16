@@ -5,7 +5,7 @@ import mp.jprime.meta.beans.JPType;
 import java.util.Collection;
 
 /**
- * описания параметра
+ * Описание параметра
  */
 public interface JPParam {
   /**
@@ -119,4 +119,11 @@ public interface JPParam {
    * @return Возможные перечислимые значения
    */
   Collection<JPEnum> getEnums();
+
+  /**
+   * Признак клиенткого поиска
+   *
+   * @return Да/Нет
+   */
+  boolean isClientSearch();
 }

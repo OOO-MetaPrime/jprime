@@ -175,8 +175,8 @@ public class JPSelect extends JPBaseParams {
     private Integer limit;
     private boolean totalCount;
     private boolean useDefaultJpAttrs;
-    private Map<String, Collection<String>> select = new HashMap<>();
-    private List<Order> orderBy = new ArrayList<>();
+    private final Map<String, Collection<String>> select = new HashMap<>();
+    private final List<Order> orderBy = new ArrayList<>();
     private Filter where;
     private AuthInfo auth;
     private Integer timeout;
@@ -225,6 +225,15 @@ public class JPSelect extends JPBaseParams {
     public Builder offset(Integer offset) {
       this.offset = offset;
       return this;
+    }
+
+    /**
+     * Смещение начала выборки
+     *
+     * @return Смещение начала выборки
+     */
+    public Integer offset() {
+      return offset;
     }
 
     /**
@@ -387,6 +396,15 @@ public class JPSelect extends JPBaseParams {
     }
 
     /**
+     * Возвращает атрибуты в выборке
+     *
+     * @return Builder
+     */
+    public Collection<String> attrs() {
+      return this.select.keySet();
+    }
+
+    /**
      * Признак неуказанной сортировки
      *
      * @return Да/Нет
@@ -519,6 +537,15 @@ public class JPSelect extends JPBaseParams {
     }
 
     /**
+     * Аутентификация
+     *
+     * @return Аутентификация
+     */
+    public AuthInfo auth() {
+      return auth;
+    }
+
+    /**
      * Время ожидания запроса
      *
      * @param timeout Время ожидания запроса
@@ -538,6 +565,15 @@ public class JPSelect extends JPBaseParams {
     public Builder source(Source source) {
       this.source = source;
       return this;
+    }
+
+    /**
+     * Источник данных
+     *
+     * @return Источник данных
+     */
+    public Source source() {
+      return source;
     }
   }
 }

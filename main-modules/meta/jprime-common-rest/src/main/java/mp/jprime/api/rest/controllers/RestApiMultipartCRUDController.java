@@ -1,33 +1,16 @@
 package mp.jprime.api.rest.controllers;
 
-import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
-import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
-import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.exceptions.JPClassNotFoundException;
-import mp.jprime.exceptions.JPObjectNotFoundException;
-import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.files.controllers.DownloadFileRestController;
 import mp.jprime.json.beans.JsonJPObject;
-import mp.jprime.json.services.JsonJPObjectService;
-import mp.jprime.json.services.QueryService;
-import mp.jprime.meta.JPMetaFilter;
-import mp.jprime.meta.services.JPMetaStorage;
-import mp.jprime.repositories.JPFileLoader;
-import mp.jprime.repositories.JPFileUploader;
-import mp.jprime.security.AuthInfo;
-import mp.jprime.security.jwt.JWTService;
-import mp.jprime.streams.UploadInputStream;
-import mp.jprime.streams.services.UploadInputStreamService;
-import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import mp.jprime.meta.JPAttr;
+import mp.jprime.meta.JPClass;
+import mp.jprime.meta.JPFile;
+import mp.jprime.meta.beans.JPType;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -35,113 +18,31 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
+import reactor.core.scheduler.Schedulers;
 
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiMultipartCRUDController extends DownloadFileRestController implements JPReactiveObjectRepositoryServiceAware {
-  /**
-   * Поле в multipart запросе, содержащее json с данными для создания/удаления
-   */
-  private static final String JSON_BODY_FIELD = "body";
-
-  /**
-   * Заполнение запросов на основе JSON
-   */
-  private QueryService queryService;
-  /**
-   * Интерфейс создания / обновления объекта
-   */
-  private JPReactiveObjectRepositoryService repo;
-  /**
-   * Выгрузка файлов объекта
-   */
-  private JPFileLoader jpFileLoader;
-  /**
-   * Загрузка файлов объекта
-   */
-  private JPFileUploader jpFileUploader;
-  /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
-   * Обработчик JWT
-   */
-  private JWTService jwtService;
-  /**
-   * Работа с UploadInputStream
-   */
-  private UploadInputStreamService uploadInputStreamService;
-  /**
-   * Формирование JsonJPObject
-   */
-  private JsonJPObjectService jsonJPObjectService;
-  /**
-   * Фильтр меты
-   */
-  private JPMetaFilter jpMetaFilter;
-
-  @Autowired
-  private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
-    this.uploadInputStreamService = uploadInputStreamService;
-  }
-
-  @Autowired
-  private void setQueryService(QueryService queryService) {
-    this.queryService = queryService;
-  }
-
-  @Override
-  public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
-    this.repo = repo;
-  }
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
-  }
-
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
-  }
-
-  @Autowired
-  private void setJpFileLoader(JPFileLoader jpFileLoader) {
-    this.jpFileLoader = jpFileLoader;
-  }
-
-  @Autowired
-  private void setJpFileUploader(JPFileUploader jpFileUploader) {
-    this.jpFileUploader = jpFileUploader;
-  }
-
-  @Autowired
-  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
-    this.jsonJPObjectService = jsonJPObjectService;
-  }
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
-    this.jpMetaFilter = jpMetaFilter;
-  }
+public class RestApiMultipartCRUDController extends DownloadFileRestController {
 
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{bearer}")
   @ResponseStatus(HttpStatus.OK)
   public Mono<Void> downloadFile(ServerWebExchange swe,
-                                 @PathVariable("code") String code,
+                                 @PathVariable("code") String classCode,
                                  @PathVariable("objectId") String objectId,
                                  @PathVariable("attrCode") String attrCode,
                                  @PathVariable("bearer") String bearer,
+                                 @RequestParam(value = "base", required = false) boolean base,
+                                 @RequestParam(value = "stamp", required = false) boolean stamp,
+                                 @RequestParam(value = "sign", required = false) boolean sign,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(classCode))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner()) {
@@ -149,13 +50,14 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
           }
           return jpClass;
         })
-        .flatMap(
-            jpClass -> jpFileLoader.asyncGetInfo(JPId.get(jpClass.getCode(), objectId), attrCode, jwtService.getAuthInfo(bearer, swe))
-        )
-        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-        .flatMap(
-            fileInfo -> writeTo(swe, fileInfo, userAgent)
-        );
+        .flatMapMany(jpClass -> Flux.fromIterable(getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
+        .parallel()
+        .runOn(Schedulers.parallel())
+        .flatMap(attr -> jpFileLoader.asyncGetInfo(JPId.get(classCode, objectId), attr, jwtService.getAuthInfo(bearer, swe)))
+        .sequential()
+        .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .collectList()
+        .flatMap(infoList -> infoList.size() == 1 ? writeTo(swe, infoList.iterator().next(), userAgent) : writeZipTo(swe, infoList, userAgent));
   }
 
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/{linkCode}/{linkValue}/{bearer}")
@@ -168,7 +70,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                  @PathVariable("linkValue") String linkValue,
                                  @PathVariable("bearer") String bearer,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner()) {
@@ -193,8 +95,11 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                      @PathVariable("linkCode") String linkCode,
                                      @PathVariable("linkValue") String linkValue,
                                      @PathVariable("bearer") String bearer,
+                                     @RequestParam(value = "base", required = false) boolean base,
+                                     @RequestParam(value = "stamp", required = false) boolean stamp,
+                                     @RequestParam(value = "sign", required = false) boolean sign,
                                      @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null || jpClass.isInner()) {
@@ -202,9 +107,13 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
           }
           return jpClass;
         })
-        .flatMapMany(
-            jpClass -> jpFileLoader.asyncGetInfos(jpClass.getCode(), Filter.attr(linkCode).eq(linkValue), attrCode, jwtService.getAuthInfo(bearer, swe))
+        .flatMapMany(jpClass -> Flux.fromIterable(getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
+        .parallel()
+        .runOn(Schedulers.parallel())
+        .flatMap(
+            attr -> jpFileLoader.asyncGetInfos(code, Filter.attr(linkCode).eq(linkValue), attr, jwtService.getAuthInfo(bearer, swe))
         )
+        .sequential()
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .collectList()
         .flatMap(
@@ -216,157 +125,24 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
   @PostMapping(value = "/{code}",
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
-        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-        .map(jpClass -> {
-          if (jpClass == null || jpClass.isInner()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-          }
-          return jpClass;
-        })
-        .flatMap(jpClass -> {
-              Flux<Part> cache = parts.cache();
-              return Mono.zip(
-                  Flux.from(cache)
-                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
-                      .flatMap(
-                          x -> x.content()
-                              .collect(
-                                  () -> new UploadInputStream(x.name()),
-                                  (t, dataBuffer) -> t.collectInputStream(dataBuffer.asInputStream(true))
-                              )
-                      )
-                      .map(x -> {
-                        try (InputStream v = x.getInputStream()) {
-                          return IOUtils.toString(v, StandardCharsets.UTF_8);
-                        } catch (Exception e) {
-                          return "";
-                        }
-                      })
-                      .map(x -> {
-                        JPCreate.Builder jpCreateBuilder;
-                        try {
-                          AuthInfo authInfo = jwtService.getAuthInfo(swe);
-                          jpCreateBuilder = queryService.getCreate(x, Source.USER, authInfo);
-                        } catch (JPRuntimeException e) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (!jpClass.getCode().equals(jpCreateBuilder.getJpClass())) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        return jpCreateBuilder;
-                      })
-                      .singleOrEmpty(),
-                  Flux.from(cache)
-                      .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
-                      .filter(x -> x instanceof FilePart)
-                      .cast(FilePart.class)
-                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
-                      .collectMap(Tuple2::getT1, Tuple2::getT2)
-              );
-            }
-        )
-        .flatMap(tuple -> Mono.fromCallable(() -> {
-              JPCreate.Builder builder = tuple.getT1();
-              tuple.getT2().forEach((attr, value) -> {
-                try (UploadInputStream is = value) {
-                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-                }
-              });
-              return builder;
-            })
-        )
-        .flatMap(builder -> repo.asyncCreateAndGet(builder.build())
-            .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
-            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
-        );
+    return super.createObject(swe, code, parts);
   }
 
   @ResponseBody
   @PutMapping(value = "/{code}",
       consumes = MULTIPART_FORM_DATA_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody Flux<Part> parts) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
-        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-        .map(jpClass -> {
-          if (jpClass == null || jpClass.isInner()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-          }
-          return jpClass;
-        })
-        .flatMap(jpClass -> {
-              Flux<Part> cache = parts.cache();
-              return Mono.zip(
-                  Flux.from(cache)
-                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
-                      .flatMap(
-                          x -> x.content()
-                              .collect(
-                                  () -> new UploadInputStream(x.name()),
-                                  (t, dataBuffer) -> t.collectInputStream(dataBuffer.asInputStream(true))
-                              )
-                      )
-                      .map(x -> {
-                        try (InputStream v = x.getInputStream()) {
-                          return IOUtils.toString(v, StandardCharsets.UTF_8);
-                        } catch (Exception e) {
-                          return "";
-                        }
-                      })
-                      .map(x -> {
-                        JPUpdate.Builder jpUpdateBuilder;
-                        try {
-                          AuthInfo authInfo = jwtService.getAuthInfo(swe);
-                          jpUpdateBuilder = queryService.getUpdate(x, Source.USER, authInfo);
-                        } catch (JPRuntimeException e) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (jpUpdateBuilder.getJpId() == null) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (!jpClass.getCode().equals(jpUpdateBuilder.getJpClass())) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        return jpUpdateBuilder;
-                      })
-                      .singleOrEmpty(),
-                  Flux.from(cache)
-                      .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
-                      .filter(x -> x instanceof FilePart)
-                      .cast(FilePart.class)
-                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
-                      .collectMap(Tuple2::getT1, Tuple2::getT2)
-              );
-            }
-        )
-        .flatMap(tuple -> Mono.fromCallable(() -> {
-              JPUpdate.Builder builder = tuple.getT1();
-              tuple.getT2().forEach((attr, value) -> {
-                try (UploadInputStream is = value) {
-                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-                }
-              });
-              return builder;
-            })
-        )
-        .flatMap(builder -> repo.asyncUpdateAndGet(builder.build())
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-            .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
-        );
+    return super.updateObject(swe, code, parts);
   }
 
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/anonymous")
@@ -376,7 +152,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                           @PathVariable("objectId") String objectId,
                                           @PathVariable("attrCode") String attrCode,
                                           @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
@@ -401,7 +177,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
                                            @PathVariable("linkCode") String linkCode,
                                            @PathVariable("linkValue") String linkValue,
                                            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.just(metaStorage.getJPClassByCode(code))
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
@@ -419,8 +195,30 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController i
         );
   }
 
-  private Mono<UploadInputStream> getStreamValue(FilePart part) {
-    return Mono.just(part)
-        .flatMap(uploadInputStreamService::read);
+  private Collection<String> getRequestedFileAttrs(JPClass jpClass, String attrCode, boolean base, boolean stamp, boolean sign) {
+    JPAttr baseAttr = jpClass.getAttr(attrCode);
+    if (baseAttr == null || baseAttr.getType() != JPType.FILE) {
+      return Collections.emptyList();
+    }
+    Collection<String> fileAttrs = new HashSet<>(3);
+    if (base || !(stamp || sign)) {
+      fileAttrs.add(attrCode);
+    }
+    if (stamp) {
+      JPFile refJpFile = baseAttr.getRefJpFile();
+      String fileStampAttrCode = refJpFile == null ? null : refJpFile.getFileStampAttrCode();
+      JPAttr stampAttr = jpClass.getAttr(fileStampAttrCode);
+      if (stampAttr != null && stampAttr.getType() == JPType.FILE) {
+        fileAttrs.add(fileStampAttrCode);
+      }
+    }
+    if (sign) {
+      String signAttrCode = baseAttr.getSignAttrCode();
+      JPAttr signAttr = jpClass.getAttr(signAttrCode);
+      if (signAttr != null && signAttr.getType() == JPType.FILE) {
+        fileAttrs.add(signAttrCode);
+      }
+    }
+    return fileAttrs;
   }
 }

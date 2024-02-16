@@ -9,6 +9,7 @@ import mp.jprime.lang.JPMoney;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +21,12 @@ import java.util.Map;
  * реализация парсера {@link JPMoney}
  */
 @Service
-public class JPMoneyParser implements AttrTypeParser<JPMoney> {
+public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAware {
   private ParserService parserService;
   private JPJsonMapper jsonMapper;
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  @Override
+  public void setParserService(ParserService parserService) {
     this.parserService = parserService;
   }
 

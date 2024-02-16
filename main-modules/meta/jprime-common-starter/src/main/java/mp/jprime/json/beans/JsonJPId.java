@@ -1,14 +1,8 @@
 package mp.jprime.json.beans;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 /*
  * Модель данных ответа получения jpId
  */
-@JsonPropertyOrder({
-    "id",
-    "classCode"
-})
 public class JsonJPId {
   private final Comparable id;
   private final String classCode;

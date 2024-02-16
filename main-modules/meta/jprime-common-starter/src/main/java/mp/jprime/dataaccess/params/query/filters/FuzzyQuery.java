@@ -5,14 +5,14 @@ import mp.jprime.dataaccess.enums.FilterOperation;
 /**
  * Нечеткий поиск(без парсинга строки)
  */
-public class FuzzyQuery extends ValueFilter<Object> {
+public class FuzzyQuery extends ValueFilter<String> {
   /**
    * Конструктор
    *
    * @param attrCode Условие по значениям
    * @param value    Условие
    */
-  public FuzzyQuery(String attrCode, Object value) {
+  public FuzzyQuery(String attrCode, String value) {
     super(attrCode, value);
   }
 

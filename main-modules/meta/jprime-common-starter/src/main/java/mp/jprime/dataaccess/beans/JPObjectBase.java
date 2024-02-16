@@ -167,6 +167,16 @@ public class JPObjectBase implements JPObject {
   }
 
   /**
+   * Дополняет данные
+   *
+   * @param jpData JPData
+   * @return Новая JPData
+   */
+  protected JPData appendData(JPData jpData) {
+    return jpData;
+  }
+
+  /**
    * Создает новый объект
    *
    * @param jpClassCode        Класс данных
@@ -179,6 +189,7 @@ public class JPObjectBase implements JPObject {
   public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData, JPLinkedData jpLinkedData) {
     try {
       JPObjectBase inst = getClass().newInstance();
+      jpData = appendData(jpData);
       inst.setData(jpClassCode, primaryKeyAttrCode, jpData, jpLinkedData);
       return inst;
     } catch (Exception e) {

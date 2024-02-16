@@ -26,10 +26,10 @@ void loadDocker(String tag, String tar) {
 
 task dockerLoad() {
   doFirst {
-    loadDocker('alpine-jdk8:latest', 'alpine-jdk8.tar')
-    loadDocker('alpine-jdk8/libreoffice:latest', 'alpine-jdk8-libreoffice.tar')
-    loadDocker('alpine-jdk8/libreoffice-chrome:latest', 'alpine-jdk8-libreoffice-chrome.tar')
-    loadDocker('openjdk:8-jdk', 'openjdk-jdk8.tar')
+    loadDocker('alpine-jdk17:latest', 'alpine-jdk17.tar')
+    loadDocker('alpine-jdk17/libreoffice:latest', 'alpine-jdk17-libreoffice.tar')
+    loadDocker('alpine-jdk17/libreoffice-chrome:latest', 'alpine-jdk17-libreoffice-chrome.tar')
+    loadDocker('ubuntu-jdk17:latest', 'ubuntu-jdk17.tar')
   }
 }
 

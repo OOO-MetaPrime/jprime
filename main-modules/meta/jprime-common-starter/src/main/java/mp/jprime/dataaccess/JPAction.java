@@ -1,5 +1,8 @@
 package mp.jprime.dataaccess;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Действия над объектами
  */
@@ -21,6 +24,13 @@ public enum JPAction {
    */
   DELETE("delete");
 
+  private static final Map<String, JPAction> BY_CODE = new HashMap<>();
+
+  static {
+    for (JPAction type : JPAction.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   private final String code;
 
@@ -46,14 +56,6 @@ public enum JPAction {
    * @return действие
    */
   public static JPAction getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (JPAction v : JPAction.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

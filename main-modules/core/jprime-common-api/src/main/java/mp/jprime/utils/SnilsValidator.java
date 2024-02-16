@@ -56,8 +56,8 @@ public class SnilsValidator {
    * @param snils снилс
    * @return снилс без пробелов и тире
    */
-  private static String clearSnils(String snils) {
-    return snils == null ? null : snils.replaceAll("[\\-\\s]", "");
+  public static String clearSnils(String snils) {
+    return snils == null ? null : snils.replaceAll("[^0-9]", "");
   }
 
   /**

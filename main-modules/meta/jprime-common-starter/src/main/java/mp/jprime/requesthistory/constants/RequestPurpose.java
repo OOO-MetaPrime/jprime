@@ -1,6 +1,7 @@
 package mp.jprime.requesthistory.constants;
 
-import org.springframework.util.StringUtils;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Цель запроса
@@ -10,6 +11,14 @@ public enum RequestPurpose {
   SEARCH("search", "Запрос списка"),
   FIND_RESULT("findResult", "Просмотр объекта"),
   SEARCH_RESULT("searchResult", "Превью объекта");
+
+  private static final Map<String, RequestPurpose> BY_CODE = new HashMap<>();
+
+  static {
+    for (RequestPurpose type : RequestPurpose.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   private final String code;
   private final String title;
@@ -40,19 +49,11 @@ public enum RequestPurpose {
   /**
    * Получить Цель запроса по коду
    *
-   * @param purpose Код
+   * @param code Код
    * @return Цель запроса
    */
-  public static RequestPurpose getByCode(String purpose) {
-    if (!StringUtils.hasText(purpose)) {
-      return null;
-    }
-    for (RequestPurpose v : RequestPurpose.values()) {
-      if (v.code.equalsIgnoreCase(purpose)) {
-        return v;
-      }
-    }
-    return null;
+  public static RequestPurpose getByCode(String code) {
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 
   /**

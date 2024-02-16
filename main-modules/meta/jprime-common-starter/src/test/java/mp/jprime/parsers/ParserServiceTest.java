@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.TimeZone;
 import java.util.UUID;
 
@@ -534,5 +535,15 @@ class ParserServiceTest {
     Object in = parserService.parseTo(JPJsonNode.class, TEST_JSON);
     Object out = parserService.parseTo(String.class, in);
     assertEquals(out, TEST_JSON);
+  }
+
+  @Test
+  void testLinkedHashMapToJPJsonString() {
+    LinkedHashMap<String, Object> in = new LinkedHashMap<>();
+    in.put("key1", 1);
+    in.put("key2", "2");
+
+    JPJsonString out = parserService.parseTo(JPJsonString.class, in);
+    assertEquals(out.toString(), "{\"key1\":1,\"key2\":\"2\"}");
   }
 }

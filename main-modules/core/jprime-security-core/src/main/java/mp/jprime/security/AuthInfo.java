@@ -14,6 +14,27 @@ public interface AuthInfo extends ConnectionInfo {
   String getUserId();
 
   /**
+   * Возвращает ОКТМО пользователя
+   *
+   * @return ОКТМО пользователя
+   */
+  String getOktmo();
+
+  /**
+   * Возвращает ведомство пользователя
+   *
+   * @return ведомство пользователя
+   */
+  String getAdministration();
+
+  /**
+   * Возвращает предметные группы пользователя
+   *
+   * @return предметные группы пользователя
+   */
+  Collection<Integer> getSubjectGroups();
+
+  /**
    * Возвращает организацию пользователя
    *
    * @return организация пользователя

@@ -73,4 +73,11 @@ public interface JPFile {
    * @return Кодовое имя атрибута
    */
   String getFileInfoAttrCode();
+
+  /**
+   * Атрибут для хранения - Файл со штампом для подписи
+   *
+   * @return Кодовое имя атрибута
+   */
+  String getFileStampAttrCode();
 }

@@ -2,7 +2,7 @@ package mp.jprime.repositories;
 
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.files.JPFileInfo;
+import mp.jprime.files.JPIdFileInfo;
 import mp.jprime.security.AuthInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,9 +20,9 @@ public interface JPFileLoader {
    * @param filter    Условие выборки
    * @param attr      Атрибут типа файл
    * @param auth      AuthInfo
-   * @return JFileInfo
+   * @return {@link JPIdFileInfo}
    */
-  Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth);
+  Collection<JPIdFileInfo> getInfos(String classCode, Filter filter, String attr, AuthInfo auth);
 
 
   /**
@@ -31,9 +31,9 @@ public interface JPFileLoader {
    * @param classCode Кодовое имя класса
    * @param filter    Условие выборки
    * @param attr      Атрибут типа файл
-   * @return JFileInfo
+   * @return {@link JPIdFileInfo}
    */
-  Collection<JPFileInfo> getInfos(String classCode, Filter filter, String attr);
+  Collection<JPIdFileInfo> getInfos(String classCode, Filter filter, String attr);
 
   /**
    * Данные файла
@@ -42,9 +42,9 @@ public interface JPFileLoader {
    * @param filter    Условие выборки
    * @param attr      Атрибут типа файл
    * @param auth      AuthInfo
-   * @return JFileInfo
+   * @return {@link JPIdFileInfo}
    */
-  default Flux<JPFileInfo> asyncGetInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
+  default Flux<JPIdFileInfo> asyncGetInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
     return Flux.fromIterable(getInfos(classCode, filter, attr, auth));
   }
 
@@ -54,9 +54,9 @@ public interface JPFileLoader {
    * @param id   Идентификатор объекта
    * @param attr Атрибут типа файл
    * @param auth AuthInfo
-   * @return JFileInfo
+   * @return {@link JPIdFileInfo}
    */
-  default JPFileInfo getInfo(JPId id, String attr, AuthInfo auth) {
+  default JPIdFileInfo getInfo(JPId id, String attr, AuthInfo auth) {
     return getInfo(id, null, attr, auth);
   }
 
@@ -68,7 +68,7 @@ public interface JPFileLoader {
    * @param auth AuthInfo
    * @return FileInfo
    */
-  default Mono<JPFileInfo> asyncGetInfo(JPId id, String attr, AuthInfo auth) {
+  default Mono<JPIdFileInfo> asyncGetInfo(JPId id, String attr, AuthInfo auth) {
     return Mono.fromCallable(() -> getInfo(id, attr, auth));
   }
 
@@ -81,7 +81,7 @@ public interface JPFileLoader {
    * @param auth   AuthInfo
    * @return FileInfo
    */
-  JPFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth);
+  JPIdFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth);
 
   /**
    * Данные файла
@@ -92,7 +92,7 @@ public interface JPFileLoader {
    * @param auth   AuthInfo
    * @return FileInfo
    */
-  default Mono<JPFileInfo> asyncGetInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
+  default Mono<JPIdFileInfo> asyncGetInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
     return Mono.fromCallable(() -> getInfo(id, filter, attr, auth));
   }
 }

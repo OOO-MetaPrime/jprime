@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,11 +8,6 @@ import java.util.Map;
 /**
  * Модель ответа на пополнение значений
  */
-@JsonPropertyOrder({
-    "id",
-    "classCode",
-    "data"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonApplyValueResult {
   private Object id = null;

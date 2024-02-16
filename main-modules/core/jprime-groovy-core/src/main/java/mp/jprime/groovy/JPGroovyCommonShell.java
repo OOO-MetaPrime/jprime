@@ -11,7 +11,7 @@ import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
 import org.codehaus.groovy.runtime.EncodingGroovyMethods;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import org.kohsuke.groovy.sandbox.SandboxTransformer;
+import mp.jprime.groovy.sandbox.SandboxTransformer;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.*;

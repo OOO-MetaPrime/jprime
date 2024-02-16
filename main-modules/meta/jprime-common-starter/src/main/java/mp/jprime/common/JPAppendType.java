@@ -1,5 +1,8 @@
 package mp.jprime.common;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Тип привязки
  */
@@ -20,6 +23,14 @@ public enum JPAppendType {
    * Произвольная
    */
   CUSTOM("custom");
+
+  private static final Map<String, JPAppendType> BY_CODE = new HashMap<>();
+
+  static {
+    for (JPAppendType type : JPAppendType.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   /**
    * Код типа утилиты
@@ -46,14 +57,6 @@ public enum JPAppendType {
    * @return Тип привязки
    */
   public static JPAppendType getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (JPAppendType v : JPAppendType.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

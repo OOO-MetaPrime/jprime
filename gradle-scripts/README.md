@@ -81,13 +81,13 @@ libs.versions.springBootVersion.get()
 
 ```
 [libraries]
-haulmont-yarg = { module="com.haulmont.yarg:yarg", version.ref="yargVersion" }
+jmix-yarg = { module="io.jmix.reports:jmix-reports", version.ref="jmixVersion" }
 ```
 
 Использование:
 
 ```groovy
-libs.haulmont.yarg
+libs.jmix.yarg
 ```
 
 ### Группы (подключение сразу нескольких библиотек)

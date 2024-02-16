@@ -99,7 +99,7 @@ public final class JPMutableData implements JPAttrData {
    * @return Значение
    */
   public void putAll(JPData data) {
-    if (dataMap == null || dataMap.isEmpty()) {
+    if (data == null || data.isEmpty()) {
       return;
     }
     data.forEach(dataMap::put);
@@ -127,7 +127,7 @@ public final class JPMutableData implements JPAttrData {
     if (data == null || data.isEmpty()) {
       return;
     }
-    data.forEach(dataMap::put);
+    dataMap.putAll(data);
   }
 
   /**

@@ -66,7 +66,7 @@ public class RestApiAggregateController implements JPObjectRepositoryServiceAwar
 
   @ResponseBody
   @PostMapping(value = "/{code}/aggregate", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonAggregateResult> getAggregate(ServerWebExchange swe,
                                                 @PathVariable("code") String code,

@@ -10,6 +10,15 @@ import java.util.Collection;
  */
 public interface JPCache<C, V> {
   /**
+   * Порядок загрузки кешей в DESC
+   *
+   * @return Порядок загрузки
+   */
+  default int getOrder() {
+    return 0;
+  }
+
+  /**
    * Код кэша
    */
   String getCode();
@@ -26,9 +35,15 @@ public interface JPCache<C, V> {
    */
   V getByCode(C code);
 
-
   /**
    * Обновить кэш
    */
   void refresh();
+
+  /**
+   * Признак необходимости остановки приложения в случае ошибки при первичной загрузке кэша
+   */
+  default boolean isFailFastOnStartUp() {
+    return false;
+  }
 }

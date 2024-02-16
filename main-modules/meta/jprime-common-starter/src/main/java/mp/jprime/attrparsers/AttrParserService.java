@@ -5,6 +5,7 @@ import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ import java.util.Map;
  * Парсер значений атрибутов
  */
 @Service
-public final class AttrParserService {
+public final class AttrParserService implements ParserServiceAware {
   /**
    * Все парсеры
    */
@@ -26,8 +27,8 @@ public final class AttrParserService {
    */
   private ParserService parserService;
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  @Override
+  public void setParserService(ParserService parserService) {
     this.parserService = parserService;
   }
 

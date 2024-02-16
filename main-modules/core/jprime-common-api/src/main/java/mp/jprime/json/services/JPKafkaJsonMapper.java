@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
  * Базовый класс JSON-обработчиков данных из Kafka
  */
 @Service
-public class JPKafkaJsonMapper extends JPBaseJsonMapper {
+public class JPKafkaJsonMapper extends JPBaseObjectMapper {
   private final ObjectMapper KAFKA_OBJECT_MAPPER;
 
   public JPKafkaJsonMapper(@Autowired JPJsonMapper jpJsonMapper) {

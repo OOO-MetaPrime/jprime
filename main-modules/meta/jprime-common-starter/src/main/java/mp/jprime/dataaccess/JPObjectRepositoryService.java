@@ -3,7 +3,9 @@ package mp.jprime.dataaccess;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.params.*;
+import mp.jprime.exceptions.JPRuntimeException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -91,6 +93,15 @@ public interface JPObjectRepositoryService {
    * @return Список объектов
    */
   Collection<JPObject> getListAndLock(JPSelect query);
+
+  /**
+   * Возвращает список объектов и блокирует на время транзакции
+   *
+   * @param query      Параметры для выборки
+   * @param skipLocked Признак пропуска заблокированных объектов
+   * @return Список объектов
+   */
+  Collection<JPObject> getListAndLock(JPSelect query, boolean skipLocked);
 
   /**
    * Возвращает результаты агрегации
@@ -199,6 +210,69 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   Long delete(JPDelete query);
+
+  /**
+   * Создает объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются
+   * {@link JPClassHandler#beforeCreate(JPCreate)} и {@link JPClassHandler#afterCreate(Comparable, JPCreate)} не учитываются
+   *
+   * @param query Параметры для создания
+   * @return Void
+   * @throws JPRuntimeException, когда:
+   *                             1) queries == null
+   *                             2) Между батчами есть отличия в атрибутах
+   */
+  Mono<Void> asyncBatch(JPBatchCreate query);
+
+  /**
+   * Создает объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются
+   * {@link JPClassHandler#beforeCreate(JPCreate)} и {@link JPClassHandler#afterCreate(Comparable, JPCreate)} не учитываются
+   *
+   * @param query Параметры для создания
+   * @throws JPRuntimeException, когда:
+   *                             1) query == null
+   *                             2) Между батчами есть отличия в атрибутах
+   */
+  void batch(JPBatchCreate query);
+
+  /**
+   * Обновляет объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются,
+   * {@link JPClassHandler#beforeUpdate(JPUpdate)} и {@link JPClassHandler#afterUpdate(JPUpdate)} не учитываются
+   *
+   * @param query запрос
+   */
+  Mono<Void> asyncBatch(JPBatchUpdate query);
+
+  /**
+   * Обновляет объекты
+   * <p>
+   * Прямые и обратные ссылки не учитываются,
+   * {@link JPClassHandler#beforeUpdate(JPUpdate)} и {@link JPClassHandler#afterUpdate(JPUpdate)} не учитываются
+   *
+   * @param query запрос
+   */
+  void batch(JPBatchUpdate query);
+
+  /**
+   * Возвращает объект и блокирует его на время транзакции
+   *
+   * @param query Параметры для выборки
+   * @return Объект
+   */
+  Mono<JPObject> getAsyncObjectAndLock(JPSelect query);
+
+  /**
+   * Возвращает список объектов и блокирует на время транзакции
+   *
+   * @param query Параметры для выборки
+   * @return Список объектов
+   */
+  Flux<JPObject> getAsyncListAndLock(JPSelect query);
 
   /**
    * Возвращает код хранилища для переданного {@code classCode}

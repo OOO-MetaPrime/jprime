@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -37,14 +38,14 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<JPSecurityPackage> load() {
+  public Flux<Collection<JPSecurityPackage>> load() {
     return Flux.create(x -> {
       loadTo(x);
       x.complete();
     });
   }
 
-  private void loadTo(FluxSink<JPSecurityPackage> sink) {
+  private void loadTo(FluxSink<Collection<JPSecurityPackage>> sink) {
     if (setts == null || setts.isEmpty()) {
       return;
     }
@@ -53,11 +54,9 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
       if (p == null) {
         continue;
       }
-      JPPackage[] packages = p.value();
-      if (packages.length == 0) {
-        continue;
-      }
-      for (JPPackage pack : packages) {
+      Collection<JPSecurityPackage> result = new ArrayList<>();
+
+      for (JPPackage pack : p.value()) {
         JPAccess[] accesses = pack.access();
         if (accesses.length == 0) {
           continue;
@@ -82,8 +81,9 @@ public class JPSecurityAnnoLoader implements JPSecurityLoader {
             builder.prohibitionAccess(accessBean);
           }
         }
-        sink.next(builder.build());
+        result.add(builder.build());
       }
+      sink.next(result);
     }
   }
 }

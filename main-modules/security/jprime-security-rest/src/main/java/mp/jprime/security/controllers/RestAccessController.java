@@ -96,7 +96,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpObjects/{code}/{objectId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPObjectAccess> getObjectAccess(ServerWebExchange swe,
                                                   @PathVariable("code") String code,
                                                   @PathVariable("objectId") String objectId) {
@@ -112,7 +112,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @PostMapping(value = "jpObjects/batchCheck",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPObjectAccessList> getObjectAccess(ServerWebExchange swe,
                                                       @RequestBody JsonJPObjectAccessBatchQuery batchQuery) {
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
@@ -135,7 +135,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpClasses/{classCode}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPClassAccess> getClassAccess(ServerWebExchange swe,
                                                 @PathVariable("classCode") String classCode) {
     JPClass jpClass = metaStorage.getJPClassByCode(classCode);
@@ -149,7 +149,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpClasses/{classCode}/{attrCode}/{attrValue}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPClassAccess> getLinkedClassAccess(ServerWebExchange swe,
                                                       @PathVariable("classCode") String classCode,
                                                       @PathVariable("attrCode") String attrCode,
@@ -166,7 +166,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpClasses",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonJPClassAccess> getClassAccessList(ServerWebExchange swe) {
     Collection<JPClass> classes = metaStorage.getJPClasses();
     if (classes == null) {
@@ -182,7 +182,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpPackages",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonSecurityPackage> getJPPackages(ServerWebExchange swe) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();
     if (packages == null) {
@@ -196,7 +196,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "jpPackages/{code}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonSecurityPackage> getJPPackages(ServerWebExchange swe,
                                                  @PathVariable("code") String code) {
     Collection<JPSecurityPackage> packages = securityManager.getPackages();
@@ -213,7 +213,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "policySets",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN)")
+  @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Flux<JsonAbacPolicySet> getJPPolicySets() {
     Collection<PolicySet> sets = abacStorage.getSettings();
     if (sets == null) {
@@ -226,7 +226,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @GetMapping(value = "policySets/{code}",
       produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN)")
+  @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Mono<JsonAbacPolicySet> getJPPolicySets(@PathVariable("code") String code) {
     Collection<PolicySet> sets = abacStorage.getSettings();
     if (sets == null) {
@@ -241,7 +241,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @ResponseBody
   @PostMapping(value = "/policySets/search", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.security.Role).AUTH_ADMIN)")
+  @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Flux<JsonAbacPolicySet> getJPPolicySets(@RequestBody JsonAbacQuery query) {
     Collection<PolicySet> sets = abacStorage.getSettings();
     if (sets == null) {

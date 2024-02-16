@@ -207,6 +207,102 @@ public class JPPeriodUtils {
   }
 
   /**
+   * Вычитание периодов
+   *
+   * @param minuend     периоды, из которых надо вычитать
+   * @param subtractant вычитаемые периоды
+   * @return результат вычитания периодов
+   */
+  public static Collection<JPPeriod> subtract(Collection<JPPeriod> minuend, Collection<JPPeriod> subtractant) {
+    if (CollectionUtils.isEmpty(minuend)) {
+      return Collections.emptyList();
+    }
+
+    if (CollectionUtils.isEmpty(subtractant)) {
+      return minuend;
+    }
+    return subtract(JPPeriods.get(minuend), JPPeriods.get(subtractant));
+  }
+
+  /**
+   * Вычитание периодов
+   *
+   * @param minuend     периоды, из которых надо вычитать
+   * @param subtractant вычитаемые периоды
+   * @return результат вычитания периодов
+   */
+  public static Collection<JPPeriod> subtract(JPPeriods minuend, JPPeriods subtractant) {
+    if (minuend == null || minuend.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    if (subtractant == null || subtractant.isEmpty()) {
+      return minuend.getPeriod();
+    }
+    Collection<JPPeriod> normalizedSubtractant = subtractant.getPeriod();
+    if (normalizedSubtractant.size() == 1) {
+      JPPeriod subtractantPeriod = normalizedSubtractant.iterator().next();
+      if (subtractantPeriod.getFrom() == null && subtractantPeriod.getTo() == null) {
+        return Collections.emptyList();
+      }
+    }
+    Collection<JPPeriod> normalizedMinuend = minuend.getPeriod();
+
+    Collection<JPPeriod> result = new ArrayList<>();
+
+    for (JPPeriod minuendNext : normalizedMinuend) {
+      Collection<JPPeriod> currentMinuendPeriods = Collections.singleton(minuendNext);
+      for (JPPeriod subtractantNext : normalizedSubtractant) {
+        currentMinuendPeriods = currentMinuendPeriods.stream()
+            .flatMap(x -> JPPeriodUtils.subtract(x, subtractantNext).stream())
+            .toList();
+      }
+      result.addAll(currentMinuendPeriods);
+    }
+    return result;
+  }
+
+  private static Collection<JPPeriod> subtract(JPPeriod minuend, JPPeriod subtractant) {
+    if (minuend == null) {
+      return Collections.emptyList();
+    }
+
+    if (subtractant == null) {
+      return Collections.singleton(minuend);
+    }
+
+    LocalDate subtractantFrom = subtractant.getFrom();
+    LocalDate subtractantTo = subtractant.getTo();
+    LocalDate minuendFrom = minuend.getFrom();
+    LocalDate minuendTo = minuend.getTo();
+
+    //Если вычитаемый период перекрывает уменьшаемый
+    if ((subtractantFrom == null || (minuendFrom != null && !subtractantFrom.isAfter(minuendFrom)))
+        && (subtractantTo == null || (minuendTo != null && !subtractantTo.isBefore(minuendTo)))
+    ) {
+      return Collections.emptyList();
+    }
+
+    //Если вычитаемый период не пересекается с уменьшаемым
+    if (subtractantFrom != null && minuendTo != null && minuendTo.isBefore(subtractantFrom)
+        || subtractantTo != null && minuendFrom != null && minuendFrom.isAfter(subtractantTo)
+    ) {
+      return Collections.singleton(minuend);
+    }
+
+    Collection<JPPeriod> result = new ArrayList<>();
+
+    if (subtractantFrom != null && (minuendFrom == null || subtractantFrom.isAfter(minuendFrom))) {
+      result.add(JPPeriod.get(minuendFrom, subtractantFrom.minusDays(1)));
+    }
+
+    if (subtractantTo != null && (minuendTo == null || subtractantTo.isBefore(minuendTo))) {
+      result.add(JPPeriod.get(subtractantTo.plusDays(1), minuendTo));
+    }
+    return result;
+  }
+
+  /**
    * Разбиение периодов по указанной дате
    * <p>
    * Все периоды, включающие указанную дату, разбиваются на <p>{@code {from..(splitDate - 1)}, {splitDate..to}}

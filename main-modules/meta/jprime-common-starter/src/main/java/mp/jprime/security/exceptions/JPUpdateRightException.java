@@ -12,7 +12,11 @@ public class JPUpdateRightException extends JPSecurityException {
   private final String classCode;
 
   public JPUpdateRightException(String classCode) {
-    super(classCode + ".update.denied", classCode + " no update permission");
+    this(classCode, classCode + " no update permission");
+  }
+
+  public JPUpdateRightException(String classCode, String message) {
+    super(classCode + ".update.denied", message);
     this.classCode = classCode;
   }
 

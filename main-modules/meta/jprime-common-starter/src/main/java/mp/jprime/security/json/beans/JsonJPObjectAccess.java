@@ -1,7 +1,6 @@
 package mp.jprime.security.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,15 +9,6 @@ import java.util.Map;
 /**
  * Доступ к объекту текущим пользователем
  */
-@JsonPropertyOrder({
-    "objectClassCode",
-    "objectId",
-    "read",
-    "create",
-    "update",
-    "delete",
-    "editAttrs",
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class JsonJPObjectAccess {
   private String objectClassCode;

@@ -11,6 +11,9 @@ import java.util.Collections;
 public class AuthInfoBean implements AuthInfo {
   private final String userIP;
   private final String userId;
+  private final String oktmo;
+  private final String administration;
+  private final Collection<Integer> subjectGroups;
   private final String username;
   private final String fio;
   private final Collection<String> roles;
@@ -21,19 +24,27 @@ public class AuthInfoBean implements AuthInfo {
   /**
    * Конструктор
    *
-   * @param userIP   IP пользователя
-   * @param userId   Идентификатор пользователя
-   * @param orgId    Идентификатор организации пользователя
-   * @param depId    Идентификатор подразделения пользователя
-   * @param username Логин пользователя
-   * @param fio      ФИО пользователя
-   * @param roles    Роли пользователя
-   * @param token    Токен
+   * @param userIP         IP пользователя
+   * @param userId         Идентификатор пользователя
+   * @param oktmo          ОКТМО пользователя
+   * @param administration ведомство пользователя
+   * @param subjectGroups  предметные группы пользователя
+   * @param orgId          Идентификатор организации пользователя
+   * @param depId          Идентификатор подразделения пользователя
+   * @param username       Логин пользователя
+   * @param fio            ФИО пользователя
+   * @param roles          Роли пользователя
+   * @param token          Токен
    */
-  private AuthInfoBean(String userIP, String userId, String orgId, String depId, String username, String fio,
+  private AuthInfoBean(String userIP, String userId,
+                       String oktmo, String administration, Collection<Integer> subjectGroups,
+                       String orgId, String depId, String username, String fio,
                        Collection<String> roles, String token) {
     this.userIP = userIP;
     this.userId = userId;
+    this.oktmo = oktmo;
+    this.administration = administration;
+    this.subjectGroups = subjectGroups == null ? Collections.emptyList() : Collections.unmodifiableCollection(subjectGroups);
     this.orgId = orgId;
     this.depId = depId;
     this.username = username;
@@ -42,80 +53,55 @@ public class AuthInfoBean implements AuthInfo {
     this.token = token;
   }
 
-  /**
-   * Возвращает логин пользователя
-   *
-   * @return логин пользователя
-   */
   @Override
   public String getUsername() {
     return username;
   }
 
-  /**
-   * Возвращает ФИО пользователя
-   *
-   * @return ФИО пользователя
-   */
   public String getFio() {
     return fio;
   }
 
-  /**
-   * Возвращает роли пользователя
-   *
-   * @return Роли
-   */
   @Override
   public Collection<String> getRoles() {
     return roles;
   }
 
-  /**
-   * Возвращает идентификатор пользователя
-   *
-   * @return идентификатор пользователя
-   */
   @Override
   public String getUserId() {
     return userId;
   }
 
-  /**
-   * Возвращает идентификатор организации пользователя
-   *
-   * @return идентификатор организации пользователя
-   */
+  @Override
+  public String getOktmo() {
+    return oktmo;
+  }
+
+  @Override
+  public String getAdministration() {
+    return administration;
+  }
+
+  @Override
+  public Collection<Integer> getSubjectGroups() {
+    return subjectGroups;
+  }
+
   @Override
   public String getOrgId() {
     return orgId;
   }
 
-  /**
-   * Возвращает идентификатор подразделения пользователя
-   *
-   * @return идентификатор подразделения пользователя
-   */
   @Override
   public String getDepId() {
     return depId;
   }
 
-  /**
-   * Возвращает IP пользователя
-   *
-   * @return IP пользователя
-   */
   @Override
   public String getUserIP() {
     return userIP;
   }
 
-  /**
-   * Возвращает полностью токен
-   *
-   * @return Токен
-   */
   @Override
   public String getToken() {
     return token;
@@ -136,6 +122,9 @@ public class AuthInfoBean implements AuthInfo {
   public static final class Builder {
     private String userIP;
     private String userId;
+    private String oktmo;
+    private String administration;
+    private Collection<Integer> subjectGroups;
     private String orgId;
     private String depId;
     private String username;
@@ -152,7 +141,7 @@ public class AuthInfoBean implements AuthInfo {
      * @return AuthInfoImpl
      */
     public AuthInfoBean build() {
-      return new AuthInfoBean(userIP, userId, orgId, depId, username, fio, roles, token);
+      return new AuthInfoBean(userIP, userId, oktmo, administration, subjectGroups, orgId, depId, username, fio, roles, token);
     }
 
     /**
@@ -163,6 +152,39 @@ public class AuthInfoBean implements AuthInfo {
      */
     public Builder userId(String userId) {
       this.userId = userId;
+      return this;
+    }
+
+    /**
+     * ОКТМО пользователя
+     *
+     * @param oktmo ОКТМО пользователя
+     * @return Builder
+     */
+    public Builder oktmo(String oktmo) {
+      this.oktmo = oktmo;
+      return this;
+    }
+
+    /**
+     * ведомство пользователя
+     *
+     * @param administration ведомство пользователя
+     * @return Builder
+     */
+    public Builder administration(String administration) {
+      this.administration = administration;
+      return this;
+    }
+
+    /**
+     * предметные группы пользователя
+     *
+     * @param subjectGroups предметные группы пользователя
+     * @return Builder
+     */
+    public Builder subjectGroups(Collection<Integer> subjectGroups) {
+      this.subjectGroups = subjectGroups;
       return this;
     }
 

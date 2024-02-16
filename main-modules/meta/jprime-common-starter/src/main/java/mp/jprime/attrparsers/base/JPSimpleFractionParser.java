@@ -8,6 +8,7 @@ import mp.jprime.lang.JPSimpleFraction;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,12 @@ import java.util.Map;
  * реализация парсера JPSimpleFraction
  */
 @Service
-public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFraction> {
+public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFraction>, ParserServiceAware {
   private ParserService parserService;
   private JPJsonMapper jsonMapper;
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  @Override
+  public void setParserService(ParserService parserService) {
     this.parserService = parserService;
   }
 

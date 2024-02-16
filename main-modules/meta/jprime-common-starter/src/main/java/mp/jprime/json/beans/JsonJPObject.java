@@ -2,7 +2,6 @@ package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPLinkedData;
@@ -20,14 +19,6 @@ import java.util.stream.Collectors;
 /*
  * Модель данных ответа получения объекта
  */
-@JsonPropertyOrder({
-    "id",
-    "classCode",
-    "data",
-    "linkedData",
-    "links",
-    "access"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonJPObject {
   private Object id;
@@ -157,11 +148,6 @@ public class JsonJPObject {
   @JsonProperty("classCode")
   public String getClassCode() {
     return classCode;
-  }
-
-  @JsonProperty("title")
-  public String getTitle() {
-    return null;
   }
 
   @JsonProperty("data")

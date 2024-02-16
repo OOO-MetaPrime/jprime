@@ -26,6 +26,7 @@ public class XmlJpAttr {
   private XmlJpGeometry geometry;
   @JacksonXmlProperty(localName = "jpProps")
   private XmlJpProps schemaProps;
+  private String signAttrCode;
 
   public String getGuid() {
     return guid;
@@ -187,6 +188,14 @@ public class XmlJpAttr {
     this.schemaProps = schemaProps;
   }
 
+  public String getSignAttrCode() {
+    return signAttrCode;
+  }
+
+  public void setSignAttrCode(String signAttrCode) {
+    this.signAttrCode = signAttrCode;
+  }
+
   @Override
   public String toString() {
     return "XmlJpAttr{" +
@@ -210,6 +219,7 @@ public class XmlJpAttr {
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         ", schemaProps=" + schemaProps +
+        ", signAttrCode=" + signAttrCode +
         '}';
   }
 }

@@ -1,11 +1,13 @@
 [versions]
 # Spring
-springBootVersion = "2.7.11"
-springCloudVersion = "2021.0.7"
-dependencyManagement = "1.1.0"
-springBootAdminStarterServer = "2.7.10"
+springBootVersion = "3.2.2"
+springCloudVersion = "2023.0.0"
+securityOauth2AuthVersion = "1.2.1"
+dependencyManagement = "1.1.4"
+springBootAdminStarterServer = "3.2.1"
 
 [libraries]
+security-oauth2-authorization-server = { module = "org.springframework.security:spring-security-oauth2-authorization-server", version.ref = "securityOauth2AuthVersion"}
 boot-admin-starter-server = { module = "de.codecentric:spring-boot-admin-starter-server", version.ref = "springBootAdminStarterServer"}
 
 [plugins]

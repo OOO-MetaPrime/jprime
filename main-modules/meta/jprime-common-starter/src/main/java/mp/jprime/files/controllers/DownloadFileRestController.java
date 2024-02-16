@@ -1,21 +1,49 @@
 package mp.jprime.files.controllers;
 
 import mp.jprime.controllers.DownloadFile;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
+import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
+import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.params.JPCreate;
+import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.exceptions.JPClassNotFoundException;
+import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.files.beans.FileInfo;
 import mp.jprime.files.JPFileInfo;
+import mp.jprime.files.JPIdFileInfo;
+import mp.jprime.files.beans.FileInfo;
+import mp.jprime.json.beans.JsonJPObject;
+import mp.jprime.json.services.JsonJPObjectService;
+import mp.jprime.json.services.QueryService;
+import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.parsers.ParserService;
+import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileStorage;
+import mp.jprime.repositories.JPFileUploader;
 import mp.jprime.repositories.services.RepositoryStorage;
+import mp.jprime.security.AuthInfo;
+import mp.jprime.security.jwt.JWTService;
+import mp.jprime.streams.UploadInputStream;
+import mp.jprime.streams.services.UploadInputStreamService;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
@@ -30,19 +58,113 @@ import java.util.zip.ZipOutputStream;
 /**
  * Базовый класс для скачивания файлов
  */
-public abstract class DownloadFileRestController implements DownloadFile {
+public abstract class DownloadFileRestController implements DownloadFile, JPReactiveObjectRepositoryServiceAware {
   protected static final Logger LOG = LoggerFactory.getLogger(DownloadFileRestController.class);
 
   private final static DateTimeFormatter TS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm");
+  /**
+   * Поле в multipart запросе, содержащее json с данными для создания/удаления
+   */
+  private static final String JSON_BODY_FIELD = "body";
 
+  /**
+   * Заполнение запросов на основе JSON
+   */
+  private QueryService queryService;
+  /**
+   * Интерфейс создания / обновления объекта
+   */
+  private JPReactiveObjectRepositoryService repo;
+  /**
+   * Загрузка файлов объекта
+   */
+  private JPFileUploader jpFileUploader;
+  /**
+   * Работа с UploadInputStream
+   */
+  private UploadInputStreamService uploadInputStreamService;
   /**
    * Описание всех хранилищ системы
    */
   private RepositoryStorage repositoryStorage;
+  /**
+   * Парсер типов
+   */
+  protected ParserService parserService;
+  /**
+   * Выгрузка файлов объекта
+   */
+  protected JPFileLoader jpFileLoader;
+  /**
+   * Хранилище метаинформации
+   */
+  protected JPMetaStorage metaStorage;
+  /**
+   * Обработчик JWT
+   */
+  protected JWTService jwtService;
+  /**
+   * Формирование JsonJPObject
+   */
+  protected JsonJPObjectService jsonJPObjectService;
+  /**
+   * Фильтр меты
+   */
+  protected JPMetaFilter jpMetaFilter;
+
+  @Autowired
+  private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
+    this.uploadInputStreamService = uploadInputStreamService;
+  }
+
+  @Autowired
+  private void setQueryService(QueryService queryService) {
+    this.queryService = queryService;
+  }
+
+  @Override
+  public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
+    this.repo = repo;
+  }
+
+  @Autowired
+  private void setMetaStorage(JPMetaStorage metaStorage) {
+    this.metaStorage = metaStorage;
+  }
+
+  @Autowired
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
+  }
+
+  @Autowired
+  private void setJpFileLoader(JPFileLoader jpFileLoader) {
+    this.jpFileLoader = jpFileLoader;
+  }
+
+  @Autowired
+  private void setJpFileUploader(JPFileUploader jpFileUploader) {
+    this.jpFileUploader = jpFileUploader;
+  }
+
+  @Autowired
+  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
+    this.jsonJPObjectService = jsonJPObjectService;
+  }
+
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
+  }
 
   @Autowired
   private void setRepositoryStorage(RepositoryStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
+  }
+
+  @Autowired
+  private void setParserService(ParserService parserService) {
+    this.parserService = parserService;
   }
 
   protected RepositoryStorage getRepositoryStorage() {
@@ -64,7 +186,7 @@ public abstract class DownloadFileRestController implements DownloadFile {
         userAgent);
   }
 
-  protected Mono<Void> writeZipTo(ServerWebExchange swe, Collection<JPFileInfo> infoList, String userAgent) {
+  protected Mono<Void> writeZipTo(ServerWebExchange swe, Collection<JPIdFileInfo> infoList, String userAgent) {
     AtomicReference<Path> tmpFileRef = new AtomicReference<>();
     return Mono.just(infoList)
         .flatMap(list -> getIs(list, tmpFileRef))
@@ -77,7 +199,7 @@ public abstract class DownloadFileRestController implements DownloadFile {
         );
   }
 
-  private Mono<InputStream> getIs(Collection<JPFileInfo> list, AtomicReference<Path> tmpFileRef) {
+  private Mono<InputStream> getIs(Collection<JPIdFileInfo> list, AtomicReference<Path> tmpFileRef) {
     return Mono.create(sink -> {
       try {
         Path tmpFile = Files.createTempFile("download", "zip");
@@ -85,7 +207,7 @@ public abstract class DownloadFileRestController implements DownloadFile {
         try (FileOutputStream fos = new FileOutputStream(tmpFile.toFile())) {
           try (ZipOutputStream zipOut = new ZipOutputStream(fos)) {
             Map<String, Integer> fileCounter = new HashMap<>();
-            for (JPFileInfo info : list) {
+            for (JPIdFileInfo info : list) {
               JPFileStorage storage = (JPFileStorage) repositoryStorage.getStorage(info.getStorageCode());
               if (storage == null) {
                 continue;
@@ -96,7 +218,7 @@ public abstract class DownloadFileRestController implements DownloadFile {
                 if (is == null) {
                   continue;
                 }
-                String title = info.getFileTitle();
+                String title = parserService.parseTo(String.class, info.getJPId().getId()) + "_" + info.getFileTitle();
                 Integer i = fileCounter.get(title);
                 if (i == null) {
                   i = 0;
@@ -126,6 +248,154 @@ public abstract class DownloadFileRestController implements DownloadFile {
         sink.error(new JPRuntimeException(e));
       }
     });
+  }
+
+  protected Mono<JsonJPObject> createObject(ServerWebExchange swe, String code, Flux<Part> parts) {
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(jpClass -> {
+          if (jpClass == null || jpClass.isInner()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          return jpClass;
+        })
+        .flatMap(jpClass -> {
+              Flux<Part> cache = parts.cache();
+              return Mono.zip(
+                  Flux.from(cache)
+                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
+                      .flatMap(
+                          x -> x.content()
+                              .collect(
+                                  () -> new UploadInputStream(x.name()),
+                                  (t, dataBuffer) -> t.collectInputStream(dataBuffer.asInputStream(true))
+                              )
+                      )
+                      .map(x -> {
+                        try (InputStream v = x.getInputStream()) {
+                          return IOUtils.toString(v, StandardCharsets.UTF_8);
+                        } catch (Exception e) {
+                          return "";
+                        }
+                      })
+                      .map(x -> {
+                        JPCreate.Builder jpCreateBuilder;
+                        try {
+                          AuthInfo authInfo = jwtService.getAuthInfo(swe);
+                          jpCreateBuilder = queryService.getCreate(x, Source.USER, authInfo);
+                        } catch (JPRuntimeException e) {
+                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                        }
+                        if (!jpClass.getCode().equals(jpCreateBuilder.getJpClass())) {
+                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                        }
+                        return jpCreateBuilder;
+                      })
+                      .singleOrEmpty(),
+                  Flux.from(cache)
+                      .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
+                      .filter(x -> x instanceof FilePart)
+                      .cast(FilePart.class)
+                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
+                      .collectMap(Tuple2::getT1, Tuple2::getT2)
+              );
+            }
+        )
+        .flatMap(tuple -> Mono.fromCallable(() -> {
+              JPCreate.Builder builder = tuple.getT1();
+              tuple.getT2().forEach((attr, value) -> {
+                try (UploadInputStream is = value) {
+                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
+                }
+              });
+              return builder;
+            })
+        )
+        .flatMap(builder -> repo.asyncCreateAndGet(builder.build())
+            .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+            .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
+            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+        );
+  }
+
+  public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
+                                         @PathVariable("code") String code,
+                                         @RequestBody Flux<Part> parts) {
+    return Mono.justOrEmpty(metaStorage.getJPClassByCode(code))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .map(jpClass -> {
+          if (jpClass == null || jpClass.isInner()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          return jpClass;
+        })
+        .flatMap(jpClass -> {
+              Flux<Part> cache = parts.cache();
+              return Mono.zip(
+                  Flux.from(cache)
+                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
+                      .flatMap(
+                          x -> x.content()
+                              .collect(
+                                  () -> new UploadInputStream(x.name()),
+                                  (t, dataBuffer) -> t.collectInputStream(dataBuffer.asInputStream(true))
+                              )
+                      )
+                      .map(x -> {
+                        try (InputStream v = x.getInputStream()) {
+                          return IOUtils.toString(v, StandardCharsets.UTF_8);
+                        } catch (Exception e) {
+                          return "";
+                        }
+                      })
+                      .map(x -> {
+                        JPUpdate.Builder jpUpdateBuilder;
+                        try {
+                          AuthInfo authInfo = jwtService.getAuthInfo(swe);
+                          jpUpdateBuilder = queryService.getUpdate(x, Source.USER, authInfo);
+                        } catch (JPRuntimeException e) {
+                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                        }
+                        if (jpUpdateBuilder.getJpId() == null) {
+                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                        }
+                        if (!jpClass.getCode().equals(jpUpdateBuilder.getJpClass())) {
+                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+                        }
+                        return jpUpdateBuilder;
+                      })
+                      .singleOrEmpty(),
+                  Flux.from(cache)
+                      .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
+                      .filter(x -> x instanceof FilePart)
+                      .cast(FilePart.class)
+                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
+                      .collectMap(Tuple2::getT1, Tuple2::getT2)
+              );
+            }
+        )
+        .flatMap(tuple -> Mono.fromCallable(() -> {
+              JPUpdate.Builder builder = tuple.getT1();
+              tuple.getT2().forEach((attr, value) -> {
+                try (UploadInputStream is = value) {
+                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
+                }
+              });
+              return builder;
+            })
+        )
+        .flatMap(builder -> repo.asyncUpdateAndGet(builder.build())
+            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
+            .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+            .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+        );
+  }
+
+  private Mono<UploadInputStream> getStreamValue(FilePart part) {
+    return Mono.just(part)
+        .flatMap(uploadInputStreamService::read);
   }
 
   private void delete(Path file) {

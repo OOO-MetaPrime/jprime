@@ -1,6 +1,5 @@
 package mp.jprime.security.services;
 
-import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.security.JPSecurityDynamicLoader;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
@@ -8,16 +7,13 @@ import mp.jprime.security.events.SecurityChangeEvent;
 import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Описание настроек RBAC
@@ -25,42 +21,64 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 @Lazy(value = false)
 public final class JPSecurityMemoryStorage implements JPSecurityStorage {
-  /**
-   * Описания настроек безопасности
-   */
-  private Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
-  /**
-   * Динамическая загрузка настроек безопасности
-   */
-  private JPSecurityDynamicLoader dynamicLoader;
+  private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
+    set(new Cache());
+  }};
 
   /**
    * Считываем настройки доступа
    */
-  private JPSecurityMemoryStorage(@Autowired JPSecurityAnnoLoader annoLoader, @Autowired JPSecurityXmlLoader xmlLoader) {
-    Collection<Flux<JPSecurityPackage>> p = new ArrayList<>();
+  private JPSecurityMemoryStorage(@Autowired JPSecurityAnnoLoader annoLoader,
+                                  @Autowired JPSecurityXmlLoader xmlLoader) {
+    Collection<Flux<Collection<JPSecurityPackage>>> p = new ArrayList<>();
     p.add(annoLoader.load());
     p.add(xmlLoader.load());
     Flux.concat(p)
         .filter(Objects::nonNull)
-        .subscribe(this::applyJPPackageSecurity);
+        .subscribe(this::applyRbac);
   }
 
   @Autowired(required = false)
-  private void setDynamicLoader(JPSecurityDynamicLoader dynamicLoader) {
-    this.dynamicLoader = dynamicLoader;
-  }
-
-  /**
-   * Сохраняет указанную настройку
-   *
-   * @param sett настройка
-   */
-  private void applyJPPackageSecurity(JPSecurityPackage sett) {
-    if (setts.containsKey(sett.getCode())) {
+  private void setDynamicLoader(Collection<JPSecurityDynamicLoader> dynamicLoaders) {
+    if (dynamicLoaders == null) {
       return;
     }
-    setts.put(sett.getCode(), sett);
+    AtomicInteger i = new AtomicInteger(1);
+    dynamicLoaders.forEach(x -> {
+      int sourceNum = i.getAndIncrement();
+      x.load().subscribe(list -> applyDynamicRbac(sourceNum, list));
+    });
+  }
+
+  private void applyRbac(Collection<JPSecurityPackage> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+
+    while (true) {
+      Cache oldCache = cacheRef.get();
+
+      Cache newCache = new Cache(oldCache, Cache.IMMUTABLE_SOURCE_CODE, list);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
+      }
+    }
+  }
+
+  private void applyDynamicRbac(Integer sourceNum, Collection<JPSecurityPackage> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+    while (true) {
+      Cache oldCache = cacheRef.get();
+
+      Cache newCache = new Cache(oldCache, sourceNum, list);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
+      }
+    }
   }
 
   /**
@@ -70,7 +88,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public Collection<JPSecurityPackage> getPackages() {
-    return setts.values();
+    return cacheRef.get().setts.values();
   }
 
   /**
@@ -81,7 +99,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
    */
   @Override
   public JPSecurityPackage getJPPackageByCode(String code) {
-    return code != null ? setts.get(code) : null;
+    return code != null ? cacheRef.get().setts.get(code) : null;
   }
 
   /**
@@ -93,7 +111,7 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   @Override
   public Collection<String> checkRead(Collection<String> roles) {
     Collection<String> codes = new ArrayList<>();
-    for (JPSecurityPackage sett : this.setts.values()) {
+    for (JPSecurityPackage sett : cacheRef.get().setts.values()) {
       if (sett.checkRead(roles)) {
         codes.add(sett.getCode());
       }
@@ -184,34 +202,6 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
   }
 
   /**
-   * Сохраняет указанный список настроек
-   *
-   * @param list Список настроек
-   */
-  private void applyDynamicJPSecurities(Collection<JPSecurityPackage> list) {
-    if (list == null || list.isEmpty()) {
-      return;
-    }
-
-    Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
-
-    // Добавляем постоянные настройки
-    for (JPSecurityPackage sett : this.setts.values()) {
-      if (sett.isImmutable()) {
-        setts.put(sett.getCode(), sett);
-      }
-    }
-    // Добавляем динамические настройки
-    for (JPSecurityPackage sett : list) {
-      if (setts.containsKey(sett.getCode())) {
-        continue;
-      }
-      setts.put(sett.getCode(), sett);
-    }
-    this.setts = setts;
-  }
-
-  /**
    * Код события SecurityChangeEvent
    *
    * @return SecurityChangeEvent
@@ -220,21 +210,67 @@ public final class JPSecurityMemoryStorage implements JPSecurityStorage {
     return SecurityChangeEvent.CODE;
   }
 
-  @EventListener(condition = "#event.eventCode.equals(@JPSecurityMemoryStorage.getChangeEventCode())")
-  public void handleSecurityChangeEvent(JPSystemApplicationEvent event) {
-    dynamicLoad();
-  }
+  private static class Cache {
+    private static final Integer IMMUTABLE_SOURCE_CODE = 0;
+    private final UUID uuid = UUID.randomUUID();
+    // Описания настроек безопасности
+    private final Map<String, JPSecurityPackage> setts = new ConcurrentHashMap<>();
+    // Список по источникам
+    private final Map<Integer, Collection<JPSecurityPackage>> sourceMaps = new ConcurrentHashMap<>();
 
-  @EventListener
-  public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-    dynamicLoad();
-  }
+    private Cache() {
 
-  private void dynamicLoad() {
-    if (dynamicLoader != null) {
-      dynamicLoader.load()
-          .collectList()
-          .subscribe(this::applyDynamicJPSecurities);
+    }
+
+
+    private Cache(Cache oldCache, Integer sourceNum, Collection<JPSecurityPackage> list) {
+      // Добавляем постоянные настройки
+      Collection<JPSecurityPackage> immutableMaps = oldCache.sourceMaps.get(IMMUTABLE_SOURCE_CODE);
+      if (immutableMaps != null) {
+        for (JPSecurityPackage sett : immutableMaps) {
+          if (sett.isImmutable()) {
+            add(IMMUTABLE_SOURCE_CODE, sett);
+          }
+        }
+      }
+      // Добавляем динамические настройки
+      for (Map.Entry<Integer, Collection<JPSecurityPackage>> entry : oldCache.sourceMaps.entrySet()) {
+        Integer key = entry.getKey();
+        Collection<JPSecurityPackage> value = entry.getValue();
+        if (IMMUTABLE_SOURCE_CODE.equals(key) || value == null || value.isEmpty()) {
+          continue;
+        }
+        // Сначала добавляем всю мету другого источника
+        if (!key.equals(sourceNum)) {
+          value.forEach(x -> add(key, x));
+        }
+      }
+      // Потом мету текущего источника
+      if (list != null) {
+        list.forEach(x -> add(sourceNum, x));
+      }
+    }
+
+
+    private void add(Integer sourceCode, JPSecurityPackage sett) {
+      if (sett.getCode() == null || setts.containsKey(sett.getCode())) {
+        return;
+      }
+      setts.put(sett.getCode(), sett);
+      sourceMaps.computeIfAbsent(sourceCode, x -> ConcurrentHashMap.newKeySet()).add(sett);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Cache cache = (Cache) o;
+      return Objects.equals(uuid, cache.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(uuid);
     }
   }
 }

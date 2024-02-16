@@ -3,7 +3,10 @@ package mp.jprime.meta.xmlloader.services;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.beans.PropertyType;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.meta.*;
+import mp.jprime.meta.JPAttr;
+import mp.jprime.meta.JPClass;
+import mp.jprime.meta.JPMetaLoader;
+import mp.jprime.meta.JPProperty;
 import mp.jprime.meta.beans.*;
 import mp.jprime.meta.xmlloader.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,6 +125,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                               .fileSizeAttrCode(jpFile.getFileSizeAttrCode())
                               .fileDateAttrCode(jpFile.getFileDateAttrCode())
                               .fileInfoAttrCode(jpFile.getFileInfoAttrCode())
+                              .fileStampAttrCode(jpFile.getFileStampAttrCode())
                               .build()
                   )
                   // Настройка простой дроби
@@ -150,6 +154,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .schemaProps(
                       toJPProperty(attr.getSchemaProps())
                   )
+                  .signAttrCode(attr.getSignAttrCode())
                   .build());
             }
             String name = cls.getName();

@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -77,6 +78,9 @@ public final class JPDataCheckDefaultService implements JPDataCheckService, JPRe
    */
   @Override
   public Long getTotalCount(JPSelect select, Collection<JPObject> objects) {
+    if (objects == null || objects.isEmpty()) {
+      return 0L;
+    }
     Stream<JPObject> stream = getListStream(select, objects);
     return stream.count();
   }
@@ -90,12 +94,18 @@ public final class JPDataCheckDefaultService implements JPDataCheckService, JPRe
    */
   @Override
   public Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects) {
+    if (objects == null || objects.isEmpty()) {
+      return Collections.emptyList();
+    }
     Stream<JPObject> stream = getListStream(select, objects);
     stream = stream
         .sorted((o1, o2) -> {
           for (Order order : select.getOrderBy()) {
             Comparable v1 = o1.getAttrValue(order.getAttr());
             Comparable v2 = o2.getAttrValue(order.getAttr());
+            if (v1 instanceof String s1 && v2 instanceof String s2) {
+              return (order.getOrder() == OrderDirection.ASC ? 1 : -1) * s1.compareToIgnoreCase(s2);
+            }
             int compare = ObjectUtils.compare(v1, v2);
             if (compare != 0) {
               return order.getOrder() == OrderDirection.ASC ? compare : -1 * compare;

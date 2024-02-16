@@ -7,10 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaOperations;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.FailureCallback;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
@@ -28,18 +26,8 @@ import java.util.stream.Collectors;
  */
 public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<E> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaBasePublisher.class);
-  private final ListenableFutureCallback<SendResult<K, V>> ERROR_LOG_CALLBACK = new ListenableFutureCallback<SendResult<K, V>>() {
-    @Override
-    public void onSuccess(SendResult<K, V> result) {
-    }
 
-    @Override
-    public void onFailure(Throwable e) {
-      LOG.error(e.getMessage(), e);
-    }
-  };
-
-  @Value("${smev.coordinator.kafka.producers.timeout:5000}")
+  @Value("${jprime.kafka.producers.timeout:5000}")
   private int timeout;
 
   @PostConstruct
@@ -114,23 +102,18 @@ public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<
     AtomicReference<Throwable> error = new AtomicReference<>();
     CountDownLatch latch = new CountDownLatch(events.size());
 
-    ListenableFutureCallback<SendResult<K, V>> callback =
-        new ListenableFutureCallback<SendResult<K, V>>() {
-          @Override
-          public void onSuccess(SendResult<K, V> result) {
-            latch.countDown();
-          }
-
-          @Override
-          public void onFailure(Throwable e) {
+    KafkaOperations<K, V> kafkaOperations = getKafkaOperations();
+    events.forEach(record -> kafkaOperations
+        .send(record)
+        .whenCompleteAsync((result, e) -> {
+          if (e != null) {
             error.set(e);
-            latch.countDown();
             LOG.error(e.getMessage(), e);
           }
-        };
+          latch.countDown();
+        })
+    );
 
-    KafkaOperations<K, V> kafkaOperations = getKafkaOperations();
-    events.forEach(record -> kafkaOperations.send(record).addCallback(callback));
     kafkaOperations.flush();
 
     boolean sent;
@@ -149,12 +132,25 @@ public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<
 
   private void doSendAsync(Collection<ProducerRecord<K, V>> events) {
     KafkaOperations<K, V> kafkaOperations = getKafkaOperations();
-    events.forEach(record -> kafkaOperations.send(record).addCallback(ERROR_LOG_CALLBACK));
+    events.forEach(record -> kafkaOperations
+        .send(record)
+        .whenCompleteAsync((result, e) -> {
+          if (e != null) {
+            LOG.error(e.getMessage(), e);
+          }
+        })
+    );
   }
 
   private void doSendAsync(Collection<ProducerRecord<K, V>> events, FailureCallback failureCallback) {
     KafkaOperations<K, V> kafkaOperations = getKafkaOperations();
-    events.forEach(record -> kafkaOperations.send(record).addCallback(r -> {
-    }, failureCallback));
+    events.forEach(record -> kafkaOperations
+        .send(record)
+        .whenCompleteAsync((result, e) -> {
+          if (e != null) {
+            failureCallback.onFailure(e);
+          }
+        })
+    );
   }
 }

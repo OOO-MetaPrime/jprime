@@ -57,11 +57,11 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
 
     try {
       if (attrValue instanceof String) {
-        return JPJsonNode.from(jsonMapper.getObjectMapper().readTree((String) attrValue));
+        return JPJsonNode.from(jsonMapper.toJsonNode((String) attrValue));
       } else if (attrValue instanceof JPJsonString) {
-        return JPJsonNode.from(jsonMapper.getObjectMapper().readTree(attrValue.toString()));
+        return JPJsonNode.from(jsonMapper.toJsonNode(attrValue.toString()));
       } else {
-        return JPJsonNode.from(jsonMapper.getObjectMapper().valueToTree(attrValue));
+        return jsonMapper.toJPJsonNode(attrValue);
       }
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);

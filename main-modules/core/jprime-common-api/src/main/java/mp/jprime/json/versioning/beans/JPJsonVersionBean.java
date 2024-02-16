@@ -29,7 +29,7 @@ public final class JPJsonVersionBean implements JPJsonVersion {
   }
 
 
-  public static JPJsonVersion of(Integer version, JPJsonNode data) {
+  public static JPJsonVersionBean of(Integer version, JPJsonNode data) {
     return new JPJsonVersionBean(version, data);
   }
 

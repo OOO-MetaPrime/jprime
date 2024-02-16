@@ -1,5 +1,6 @@
 package mp.jprime.lang;
 
+import java.util.Collection;
 import java.util.List;
 
 public final class JPIntegerArray extends JPArray<Integer> {
@@ -20,6 +21,16 @@ public final class JPIntegerArray extends JPArray<Integer> {
   public Integer[] toArray() {
     List<Integer> values = getValues();
     return values.toArray(new Integer[0]);
+  }
+
+  /**
+   * Создать JPIntegerArray
+   *
+   * @param values Список значений
+   * @return JPIntegerArray
+   */
+  public static JPIntegerArray of(Collection<Integer> values) {
+    return new JPIntegerArray(values != null ? values.stream().toList() : null);
   }
 
   /**

@@ -1,20 +1,24 @@
 # Commons
 [versions]
-commonsCodecVersion = "1.15"
+commonsCodecVersion = "1.16.0"
 commonsCollections4Version = "4.4"
-commonsIoVersion = "2.11.0"
-commonsLang3Version = "3.12.0"
-commonsValidatorVersion = "1.7"
+commonsIoVersion = "2.15.1"
+commonsLang3Version = "3.13.0"
+commonsValidatorVersion = "1.8.0"
 monetaCoreVersion = "1.4.2"
-tikaCoreVersion = "2.7.0"
-guavaVersion = "31.1-jre"
-fasterxmlUuidVersion = "4.2.0"
-apacheHttpclientVersion = "4.5.14"
+tikaCoreVersion = "2.9.1"
+guavaVersion = "32.1.3-jre"
+fasterxmlUuidVersion = "4.3.0"
+apacheHttpClientVersion = "5.2.3"
 commonsNetVersion = "3.9.0"
 fastjsonVersion = "2.0.31"
-jaxbApiVersion = "2.3.3"
-jaxwsVersion = "2.3.3"
-javaxActivationVersion = "1.2.0"
+jaxbApiVersionOld = "2.3.1"
+jaxbRuntimeVersionOld = "2.3.8"
+jaxbApiVersion = "4.0.1"
+jaxbRuntimeVersion = "4.0.4"
+jakartaWsApiVersion = "4.0.1"
+jaxwsVersion = "4.0.2"
+jakartaActivationVersion = "2.1.2"
 zxingVersion = "3.5.1" # Генерация штрих кодов и QR кодов
 
 [libraries]
@@ -27,17 +31,18 @@ moneta-core = { module="org.javamoney.moneta:moneta-core", version.ref="monetaCo
 tika-core = { module="org.apache.tika:tika-core", version.ref="tikaCoreVersion" }
 guava = { module="com.google.guava:guava", version.ref="guavaVersion" }
 fasterxml-uuid = { module="com.fasterxml.uuid:java-uuid-generator", version.ref="fasterxmlUuidVersion" }
-apache-httpclient = { module="org.apache.httpcomponents:httpclient", version.ref="apacheHttpclientVersion" }
+apache-httpclient = { module="org.apache.httpcomponents.client5:httpclient5", version.ref="apacheHttpClientVersion" }
 net = { module="commons-net:commons-net", version.ref="commonsNetVersion" }
 fastjson = { module="com.alibaba.fastjson2:fastjson2", version.ref="fastjsonVersion" }
 jaxb-api = { module="jakarta.xml.bind:jakarta.xml.bind-api", version.ref = "jaxbApiVersion" }
-jaxb-runtime = { module="org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbApiVersion" }
-jaxws-rt = { module="com.sun.xml.ws:jaxws-rt", version.ref = "jaxwsVersion" }
-javax-activation = { module="com.sun.activation:javax.activation", version.ref = "javaxActivationVersion" }
+jaxb-runtime = { module="org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxbRuntimeVersion" }
+jakarta-ws-api = { module="jakarta.xml.ws:jakarta.xml.ws-api", version.ref = "jakartaWsApiVersion" }
+jaxws-rt = { module="com.sun.xml.ws:rt", version.ref = "jaxwsVersion" }
+jakarta-activation = { module="jakarta.activation:jakarta.activation-api", version.ref = "jakartaActivationVersion" }
 zxing-core = { module="com.google.zxing:core", version.ref = "zxingVersion" }
 zxing-javase = { module="com.google.zxing:javase", version.ref = "zxingVersion" }
 
 [bundles]
 jaxb = ['jaxb-api', 'jaxb-runtime']
-jaxws = ['jaxws-rt', 'javax-activation']
+jaxws = ['jakarta-ws-api', 'jaxws-rt', 'jakarta-activation']
 zxing = ['zxing-core', 'zxing-javase']

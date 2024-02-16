@@ -5,7 +5,7 @@ import mp.jprime.meta.beans.JPType;
 import java.util.Collection;
 
 /**
- * метаописание атрибута
+ * Метаописание атрибута
  */
 public interface JPAttr {
   /**
@@ -167,4 +167,11 @@ public interface JPAttr {
    * @return свойства псевдо-меты
    */
   Collection<JPProperty> getSchemaProps();
+
+  /**
+   * Код атрибута, содержащего подпись
+   *
+   * @return Код атрибута, содержащего подпись
+   */
+  String getSignAttrCode();
 }

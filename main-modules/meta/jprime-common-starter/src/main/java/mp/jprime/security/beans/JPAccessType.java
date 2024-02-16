@@ -1,5 +1,8 @@
 package mp.jprime.security.beans;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Типы доступа
  */
@@ -13,6 +16,13 @@ public enum JPAccessType {
    */
   PROHIBITION("prohibition");
 
+  private static final Map<String, JPAccessType> BY_CODE = new HashMap<>();
+
+  static {
+    for (JPAccessType type : JPAccessType.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   private final String code;
 
@@ -38,14 +48,6 @@ public enum JPAccessType {
    * @return тип доступа
    */
   public static JPAccessType getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (JPAccessType v : JPAccessType.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

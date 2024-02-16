@@ -5,13 +5,15 @@ subprojects {
   apply plugin: 'org.springframework.boot'
   apply plugin: 'io.spring.dependency-management'
 
-  tasks.withType(JavaCompile) {
+  tasks.withType(JavaCompile).configureEach {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     options.compilerArgs += ["--add-exports", "java.base/sun.security.pkcs=ALL-UNNAMED"]
     options.compilerArgs += ["--add-exports", "java.base/sun.security.util=ALL-UNNAMED"]
     options.compilerArgs += ["--add-exports", "java.base/sun.security.x509=ALL-UNNAMED"]
   }
+
+  tasks.withType(Jar) { duplicatesStrategy = DuplicatesStrategy.EXCLUDE }
 
   repositories {
     maven {
@@ -20,7 +22,7 @@ subprojects {
     }
     /*
     mavenCentral()
-    maven { url "https://repo.cuba-platform.com/content/groups/work/" }
+    maven { url "https://nexus.jmix.io/repository/releases/" }
     maven { url "https://repo.osgeo.org/repository/release/" }
     maven { url "https://repo.spring.io/release" }
      */
@@ -33,8 +35,10 @@ subprojects {
   }
 
   configurations {
-    all*.exclude module: 'spring-boot-starter-logging'
+    all*.exclude module: 'logback-classic'
+    all*.exclude module: 'logback-core'
     all*.exclude module: 'slf4j-log4j12'
+    all*.exclude module: 'spring-boot-starter-logging'
   }
 
   test {

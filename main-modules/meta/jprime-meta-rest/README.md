@@ -21,14 +21,14 @@ REST-методы публикации метаданных на чтение
 
 ```json
 [
-    {
-        "code": "string",
-        "title": "Строка"
-    },
-    {
-        "code": "long",
-        "title": "Целочисленный (длинный)"
-    }
+  {
+    "code": "string",
+    "title": "Строка"
+  },
+  {
+    "code": "long",
+    "title": "Целочисленный (длинный)"
+  }
 ]
 ```
 
@@ -54,18 +54,18 @@ REST-методы публикации метаданных на чтение
 
 ```json
 [
-    {
-      "code": "element",
-      "title": "Элемент"
-    },  
-    {
-      "code": "string",
-      "title": "Строка"
-    },
-    {
-      "code": "long",
-      "title": "Целочисленный (длинный)"
-    }
+  {
+    "code": "element",
+    "title": "Элемент"
+  },
+  {
+    "code": "string",
+    "title": "Строка"
+  },
+  {
+    "code": "long",
+    "title": "Целочисленный (длинный)"
+  }
 ]
 ```
 
@@ -89,31 +89,31 @@ REST-методы публикации метаданных на чтение
 
 ```json
 {
-    "totalCount": 4,
-    "classes": [
+  "totalCount": 4,
+  "classes": [
+    {
+      "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
+      "code": "userEvent",
+      "qName": "common.userEvent",
+      "tags": [
+        "tag1"
+      ],
+      "description": "Таблица с информацией о пользовательских событиях",
+      "jpPackage": "adminAccess",
+      "immutable": true,
+      "attrs": [
         {
-            "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
-            "code": "userEvent",
-            "qName": "common.userEvent",
-            "tags": [
-              "tag1"
-            ],
-            "description": "Таблица с информацией о пользовательских событиях",
-            "jpPackage": "adminAccess",
-            "immutable": true,
-            "attrs": [
-                {
-                    "guid": "85e203ef-e611-4983-a102-fa046f45874c",
-                    "code": "eventCode",
-                    "qName": "common.userevent.eventCode",
-                    "description": "Код события",
-                    "type": "string"
-                },
-            ...
-            ]
+          "guid": "85e203ef-e611-4983-a102-fa046f45874c",
+          "code": "eventCode",
+          "qName": "common.userevent.eventCode",
+          "description": "Код события",
+          "type": "string"
         },
         ...
-    ]
+      ]
+    },
+    ...
+  ]
 }                
 ```
 
@@ -137,100 +137,123 @@ REST-методы публикации метаданных на чтение
 
 ```json
 {
-    "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
-    "code": "userEvent",
-    "qName": "common.userEvent",
-    "description": "Таблица с информацией о пользовательских событиях",
-    "jpPackage": "adminAccess",
-    "immutable": true,
-    "attrs": [
+  "guid": "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
+  "code": "userEvent",
+  "qName": "common.userEvent",
+  "description": "Таблица с информацией о пользовательских событиях",
+  "jpPackage": "adminAccess",
+  "immutable": true,
+  "attrs": [
+    {
+      "guid": "85e203ef-e611-4983-a102-fa046f45874c",
+      "code": "eventCode",
+      "qName": "common.userevent.eventCode",
+      "description": "Код события",
+      "type": "string"
+    },
+    {
+      "guid": "c57d1be4-33e6-4ef9-a87c-f6d23bb4b141",
+      "code": "removeDate",
+      "qName": "common.userevent.removeDate",
+      "description": "Дата, после которой событие будет удалено",
+      "type": "datetime"
+    },
+    {
+      "guid": "749adfcf-67be-4256-8abc-2a24b9568341",
+      "code": "fileName",
+      "qName": "fileName",
+      "name": "Название файла в хранилище",
+      "shortName": "Название файла в хранилище",
+      "description": "Название файла в хранилище",
+      "jpPackage": null,
+      "identifier": false,
+      "mandatory": false,
+      "type": "file",
+      "length": null,
+      "refJpClass": null,
+      "refJpAttr": null,
+      "signAttr": null,
+      "refJpFile": {
+        "titleAttr": "fileTitle",
+        "extAttr": "fileExt",
+        "sizeAttr": "fileSize",
+        "dateAttr": "fileDate",
+        "infoAttr": "fileInfo",
+        "fileStampAttr": null
+      }
+    },
+    {
+      "guid": "a717e338-1e08-4610-917f-9c9969db51b9",
+      "code": "jsonattr",
+      "qName": "common.userevent.jsonattr",
+      "name": "Test json attrs",
+      "shortName": "Test json attrs",
+      "description": "Test json attrs",
+      "jpPackage": null,
+      "identifier": false,
+      "mandatory": false,
+      "type": "json",
+      "length": null,
+      "refJpClass": null,
+      "refJpAttr": null,
+      "refJpFile": null,
+      "signAttr": null,
+      "jpProps": [
         {
-            "guid": "85e203ef-e611-4983-a102-fa046f45874c",
-            "code": "eventCode",
-            "qName": "common.userevent.eventCode",
-            "description": "Код события",
-            "type": "string"
-        },
-        {
-            "guid": "c57d1be4-33e6-4ef9-a87c-f6d23bb4b141",
-            "code": "removeDate",
-            "qName": "common.userevent.removeDate",
-            "description": "Дата, после которой событие будет удалено",
-            "type": "datetime"
-        },
-        {
-            "guid": "749adfcf-67be-4256-8abc-2a24b9568341",
-            "code": "fileName",
-            "qName": "fileName",
-            "name": "Название файла в хранилище",
-            "shortName": "Название файла в хранилище",
-            "description": "Название файла в хранилище",
-            "jpPackage": null,
-            "identifier": false,
-            "mandatory": false,
-            "type": "file",
-            "length": null,
-            "refJpClass": null,
-            "refJpAttr": null,
-            "refJpFile": {
-                "titleAttr": "fileTitle",
-                "extAttr": "fileExt",
-                "sizeAttr": "fileSize",
-                "dateAttr": "fileDate",
-                "infoAttr": "fileInfo"
+          "code": "testprop",
+          "qName": "common.userevent.jsonprop",
+          "name": "Test Prop",
+          "shortName": null,
+          "description": null,
+          "mandatory": false,
+          "multiple": false,
+          "type": "element",
+          "length": null,
+          "refJpClassCode": null,
+          "refJpAttrCode": null,
+          "jpProps": [
+            {
+              "code": "innertestprop",
+              "qName": "common.userevent.injsonprop",
+              "name": "Inner Test Prop",
+              "shortName": null,
+              "description": null,
+              "mandatory": false,
+              "multiple": false,
+              "type": "string",
+              "length": null,
+              "refJpClassCode": null,
+              "refJpAttrCode": null,
+              "jpProps": []
             }
-        },     
-        {
-            "guid": "a717e338-1e08-4610-917f-9c9969db51b9",
-            "code": "jsonattr",
-            "qName": "common.userevent.jsonattr",
-            "name": "Test json attrs",
-            "shortName": "Test json attrs",
-            "description": "Test json attrs",
-            "jpPackage": null,
-            "identifier": false,
-            "mandatory": false,
-            "type": "json",
-            "length": null,
-            "refJpClass": null,
-            "refJpAttr": null,
-            "refJpFile": null,
-            "jpProps": [
-                {
-                    "code": "testprop",
-                    "qName": "common.userevent.jsonprop",
-                    "name": "Test Prop",
-                    "shortName": null,
-                    "description": null,
-                    "mandatory": false,
-                    "multiple": false,
-                    "type": "element",
-                    "length": null,
-                    "refJpClassCode": null,
-                    "refJpAttrCode": null,
-                    "jpProps": [
-                        {
-                            "code": "innertestprop",
-                            "qName": "common.userevent.injsonprop",
-                            "name": "Inner Test Prop",
-                            "shortName": null,
-                            "description": null,
-                            "mandatory": false,
-                            "multiple": false,
-                            "type": "string",
-                            "length": null,
-                            "refJpClassCode": null,
-                            "refJpAttrCode": null,
-                            "jpProps": []
-                        }
-                    ]
-                }
-            ]
-        }   
-        ...
-    ]
+          ]
+        }
+      ]
+    }
+    ...
+  ]
 }
 ```
+
+### Выгрузка метаописания в csv
+
+``GET /meta/v1/jpClasses/<classCode>/csv-export/<token>``
+
+| Параметр  | Описание                  |
+|-----------|---------------------------|
+| classCode | Код импортируемого класса |
+| token     | Токен авторизации         |
+
+* ответ
+
+| Код | Описание            |
+|-----|---------------------|
+| 403 | Нет доступа         |
+| 404 | Адрес не найден     |
+| 500 | Ошибка сервера      |
+| 200 | Успешное выполнение |
+
+> В результате запроса будет скачан файл в формате .csv
 
 ## Описание параметров
 
@@ -250,36 +273,38 @@ REST-методы публикации метаданных на чтение
 
 Параметры атрибута
 
-| Параметр       | Описание                                 |
-|----------------|------------------------------------------|
-| guid           | Глобальный идентификатор                 |
-| code           | Кодовое имя атрибута                     |
-| qName          | Полный код атрибута                      |
-| name           | Название атрибута                        |
-| shortName      | Короткое название атрибута               |
-| description    | Описание атрибута                        |
-| jpPackage      | Настройка доступа                        |
-| identifier     | Признак идентификатора                   |
-| mandatory      | Признак обязательности                   |
-| type           | Тип атрибута                             |
-| updatable      | Признак обновляемости значения атрибута  |
-| length         | Длина (для строковых полей)              |
-| refJpClass     | Кодовое имя класса, на который ссылается |
-| refJpAttr      | Кодовое имя атрибута ссылочного класса   |
-| refJpFile      | Описание файлового атрибута              |
-| simpleFraction | Описание простой дроби                   |
-| money          | Настройки денежного типа                 |
-| jpProps        | Схема свойств псевдо-меты                |
+| Параметр       | Описание                                  |
+|----------------|-------------------------------------------|
+| guid           | Глобальный идентификатор                  |
+| code           | Кодовое имя атрибута                      |
+| qName          | Полный код атрибута                       |
+| name           | Название атрибута                         |
+| shortName      | Короткое название атрибута                |
+| description    | Описание атрибута                         |
+| jpPackage      | Настройка доступа                         |
+| identifier     | Признак идентификатора                    |
+| mandatory      | Признак обязательности                    |
+| type           | Тип атрибута                              |
+| updatable      | Признак обновляемости значения атрибута   |
+| length         | Длина (для строковых полей)               |
+| refJpClass     | Кодовое имя класса, на который ссылается  |
+| refJpAttr      | Кодовое имя атрибута ссылочного класса    |
+| signAttr       | Кодовое имя атрибута, содержащего подпись |
+| refJpFile      | Описание файлового атрибута               |
+| simpleFraction | Описание простой дроби                    |
+| money          | Настройки денежного типа                  |
+| jpProps        | Схема свойств псевдо-меты                 |
 
 Параметры описания файлового атрибута (для type file)
 
-| Параметр  | Описание                                                  |
-|-----------|-----------------------------------------------------------|
-| titleAttr | Кодовое имя атрибута - Заголовок файла                    |
-| extAttr   | Кодовое имя атрибута - Расширение файла                   |
-| sizeAttr  | Кодовое имя атрибута - Размер файла                       |
-| dateAttr  | Кодовое имя атрибута - Дата файла                         |
-| infoAttr  | Кодовое имя атрибута - Ддополнительная информация о файле |
+| Параметр      | Описание                                                 |
+|---------------|----------------------------------------------------------|
+| titleAttr     | Кодовое имя атрибута - Заголовок файла                   |
+| extAttr       | Кодовое имя атрибута - Расширение файла                  |
+| sizeAttr      | Кодовое имя атрибута - Размер файла                      |
+| dateAttr      | Кодовое имя атрибута - Дата файла                        |
+| infoAttr      | Кодовое имя атрибута - Дополнительная информация о файле |
+| fileStampAttr | Кодовое имя атрибута - Файл со штампом для подписи       |
 
 Параметры описания простой дроби (для type simpleFraction)
 
@@ -304,3 +329,16 @@ REST-методы публикации метаданных на чтение
 | refJpClass  | Кодовое имя класса, на который ссылается                           |
 | refJpAttr   | Кодовое имя атрибута ссылочного класса                             |
 | jpProps     | Схема вложенных свойств                                            |
+
+## Сервисы выгрузки метаописания в .csv файл
+
+Предоставляют механизмы выгрузки атрибутов метаописания в .csv файл.
+
+### Сервис `JPAttrCsvWriter`
+
+Предоставляет возможность более глубокой настройки параметров выгрузки метаописания с помощью `JpCsvBaseWriterSettings`
+в `OutputStream`.
+
+### Сервис `JPAttrCsvWriterBaseService`
+
+Предоставляет возможность выгрузить описание атрибутов переданного класса в `InputStream` формата csv

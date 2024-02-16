@@ -27,6 +27,25 @@ public final class JPPeriods {
   }
 
   /**
+   * Создает Periods из коллекции периодов
+   *
+   * @param periods Периоды
+   * @return JPPeriods
+   */
+  public static JPPeriods get(Collection<JPPeriod> periods) {
+    if (periods == null || periods.isEmpty()) {
+      return get();
+    }
+
+    JPPeriods jpPeriods = new JPPeriods();
+    for (JPPeriod period : periods) {
+      jpPeriods.add(period);
+    }
+
+    return jpPeriods;
+  }
+
+  /**
    * Возвращает список периодов
    *
    * @return Список периодов

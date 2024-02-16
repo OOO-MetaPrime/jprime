@@ -2,6 +2,7 @@ dependencies {
   api(commons.codec)
   api(commons.io)
   api(commons.guava)
+  api(commons.fasterxml.uuid)
 
   api('org.springframework.boot:spring-boot-starter-aop')
   api('org.springframework.boot:spring-boot-starter-webflux')

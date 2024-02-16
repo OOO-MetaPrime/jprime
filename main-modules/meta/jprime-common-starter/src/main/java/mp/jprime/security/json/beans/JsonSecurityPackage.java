@@ -1,21 +1,12 @@
 package mp.jprime.security.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Collection;
 
 /**
  * Описание всех пакетов доступа
  */
-@JsonPropertyOrder({
-    "guid",
-    "code",
-    "name",
-    "description",
-    "qName",
-    "accesses"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class JsonSecurityPackage {
   private String guid;

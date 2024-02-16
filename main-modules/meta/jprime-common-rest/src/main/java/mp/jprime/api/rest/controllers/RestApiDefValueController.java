@@ -68,7 +68,7 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
 
   @ResponseBody
   @PostMapping(value = "/{code}/defvalue", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonDefValueResult> getDefValue(ServerWebExchange swe,
                                               @PathVariable("code") String code,
@@ -96,10 +96,6 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
                 .source(Source.USER)
                 .build()
         )
-        .map(x -> JsonDefValueResult.newBuilder()
-            .classCode(jpClass.getCode())
-            .data(x.toMap())
-            .build()
-        );
+        .map(x -> JsonDefValueResult.of(jpClass.getCode(), x.toMap()));
   }
 }

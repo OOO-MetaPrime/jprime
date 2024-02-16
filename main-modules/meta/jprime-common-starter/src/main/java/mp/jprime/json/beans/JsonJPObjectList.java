@@ -1,8 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,25 +9,12 @@ import java.util.Collections;
 /**
  * Список объектов
  */
-@JsonPropertyOrder({
-    "offset",
-    "limit",
-    "totalCount",
-    "objectsCount",
-    "classCode",
-    "objects"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonJPObjectList {
-  @JsonProperty("offset")
   private Integer offset;
-  @JsonProperty("limit")
   private Integer limit;
-  @JsonProperty("totalCount")
   private Long totalCount;
-  @JsonProperty("classCode")
   private String classCode;
-  @JsonProperty("objects")
   private Collection<JsonJPObject> objects = new ArrayList<>();
 
   /**
@@ -98,7 +83,6 @@ public class JsonJPObjectList {
    *
    * @return Количество объектов
    */
-  @JsonProperty("objectsCount")
   public Integer getObjectsCount() {
     return objects.size();
   }

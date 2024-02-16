@@ -17,11 +17,13 @@ import java.util.stream.Collectors;
 public class JPAppCompositeException extends JPAppRuntimeException implements CompositeException<JPAppRuntimeException> {
   private final List<JPAppRuntimeException> data = new ArrayList<>();
   private final Collection<JPAppRuntimeException> umData = Collections.unmodifiableList(data);
+  private final String prefixMessage;
 
   /**
-   * Конструкор
+   * Конструктор
    */
   public JPAppCompositeException() {
+    this(null, null);
   }
 
   /**
@@ -30,13 +32,24 @@ public class JPAppCompositeException extends JPAppRuntimeException implements Co
    * @param data Данные ошибок
    */
   public JPAppCompositeException(Collection<JPAppRuntimeException> data) {
-    if (data != null) {
-      this.data.addAll(data);
-    }
+    this(null, data);
   }
 
   /**
-   * Добавлеяет данные ошибок
+   * Конструктор
+   *
+   * @param prefixMessage Общее сообщение-префикс
+   * @param data          Данные ошибок
+   */
+  public JPAppCompositeException(String prefixMessage, Collection<JPAppRuntimeException> data) {
+    if (data != null) {
+      this.data.addAll(data);
+    }
+    this.prefixMessage = prefixMessage == null || prefixMessage.isBlank() ? "" : prefixMessage + ": ";
+  }
+
+  /**
+   * Добавляет данные ошибок
    *
    * @param eData Данные ошибок
    * @return Данные ошибок
@@ -49,7 +62,7 @@ public class JPAppCompositeException extends JPAppRuntimeException implements Co
   }
 
   /**
-   * Добавлеяет данные ошибок
+   * Добавляет данные ошибок
    *
    * @param eData Данные ошибок
    * @return Данные ошибок
@@ -72,7 +85,7 @@ public class JPAppCompositeException extends JPAppRuntimeException implements Co
 
   @Override
   public String getMessage() {
-    return data.stream().map(JPAppRuntimeException::getMessage).collect(Collectors.joining(", "));
+    return prefixMessage + data.stream().map(JPAppRuntimeException::getMessage).collect(Collectors.joining(", "));
   }
 
   /**

@@ -42,7 +42,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
   public void expand(ObjectMapper objectMapper) {
     SimpleModule module = new SimpleModule()
         // String to Double
-        .addDeserializer(Double.class, new StdDeserializer<Double>(Double.class) {
+        .addDeserializer(Double.class, new StdDeserializer<>(Double.class) {
           @Override
           public Double deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String value = p.getText();
@@ -55,21 +55,21 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to JsonString
-        .addDeserializer(JPJsonString.class, new StdDeserializer<JPJsonString>(JPJsonString.class) {
+        .addDeserializer(JPJsonString.class, new StdDeserializer<>(JPJsonString.class) {
           @Override
           public JPJsonString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPJsonString.from(p.getCodec().readTree(p).toString());
           }
         })
         // String to XmlString
-        .addDeserializer(JPXmlString.class, new StdDeserializer<JPXmlString>(JPXmlString.class) {
+        .addDeserializer(JPXmlString.class, new StdDeserializer<>(JPXmlString.class) {
           @Override
           public JPXmlString deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPXmlString.from(p.getCodec().readTree(p).toString());
           }
         })
         // String to JPSimpleFraction
-        .addDeserializer(JPSimpleFraction.class, new StdDeserializer<JPSimpleFraction>(JPSimpleFraction.class) {
+        .addDeserializer(JPSimpleFraction.class, new StdDeserializer<>(JPSimpleFraction.class) {
           @Override
           public JPSimpleFraction deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonSimpleFraction fraction = ctxt.readValue(p, JsonSimpleFraction.class);
@@ -77,7 +77,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to Money
-        .addDeserializer(JPMoney.class, new StdDeserializer<JPMoney>(JPMoney.class) {
+        .addDeserializer(JPMoney.class, new StdDeserializer<>(JPMoney.class) {
           @Override
           public JPMoney deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonMoney money = ctxt.readValue(p, JsonMoney.class);
@@ -85,7 +85,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to IntegerRange
-        .addDeserializer(JPIntegerRange.class, new StdDeserializer<JPIntegerRange>(JPIntegerRange.class) {
+        .addDeserializer(JPIntegerRange.class, new StdDeserializer<>(JPIntegerRange.class) {
           @Override
           public JPIntegerRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonIntegerRange range = ctxt.readValue(p, JsonIntegerRange.class);
@@ -93,7 +93,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to DateRange
-        .addDeserializer(JPDateRange.class, new StdDeserializer<JPDateRange>(JPDateRange.class) {
+        .addDeserializer(JPDateRange.class, new StdDeserializer<>(JPDateRange.class) {
           @Override
           public JPDateRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonDateRange range = ctxt.readValue(p, JsonDateRange.class);
@@ -101,7 +101,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to DateTimeRange
-        .addDeserializer(JPDateTimeRange.class, new StdDeserializer<JPDateTimeRange>(JPDateTimeRange.class) {
+        .addDeserializer(JPDateTimeRange.class, new StdDeserializer<>(JPDateTimeRange.class) {
           @Override
           public JPDateTimeRange deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonDateTimeRange range = ctxt.readValue(p, JsonDateTimeRange.class);
@@ -109,7 +109,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to BigDecimal
-        .addDeserializer(BigDecimal.class, new StdDeserializer<BigDecimal>(BigDecimal.class) {
+        .addDeserializer(BigDecimal.class, new StdDeserializer<>(BigDecimal.class) {
           @Override
           public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String s = p.getValueAsString();
@@ -117,21 +117,21 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           }
         })
         // String to JPIntegerArray
-        .addDeserializer(JPIntegerArray.class, new StdDeserializer<JPIntegerArray>(JPIntegerArray.class) {
+        .addDeserializer(JPIntegerArray.class, new StdDeserializer<>(JPIntegerArray.class) {
           @Override
           public JPIntegerArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPIntegerArray.of(ctxt.readValue(p, Integer[].class));
           }
         })
         // String to JPLongArray
-        .addDeserializer(JPLongArray.class, new StdDeserializer<JPLongArray>(JPLongArray.class) {
+        .addDeserializer(JPLongArray.class, new StdDeserializer<>(JPLongArray.class) {
           @Override
           public JPLongArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPLongArray.of(ctxt.readValue(p, Long[].class));
           }
         })
         // String to JPStringArray
-        .addDeserializer(JPStringArray.class, new StdDeserializer<JPStringArray>(JPStringArray.class) {
+        .addDeserializer(JPStringArray.class, new StdDeserializer<>(JPStringArray.class) {
           @Override
           public JPStringArray deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             return JPStringArray.of(ctxt.readValue(p, String[].class));
@@ -139,7 +139,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
         })
         // JsonString to String
         .addSerializer(JPJsonString.class,
-            new JsonSerializer<JPJsonString>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPJsonString v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeString(v.toString());
@@ -148,7 +148,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
         )
         // XmlString to String
         .addSerializer(JPXmlString.class,
-            new JsonSerializer<JPXmlString>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPXmlString v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeString(v.toString());
@@ -156,7 +156,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // JPSimpleFraction to String
         .addSerializer(JPSimpleFraction.class,
-            new JsonSerializer<JPSimpleFraction>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPSimpleFraction v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonSimpleFraction json = new JsonSimpleFraction();
@@ -169,7 +169,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // Money to String
         .addSerializer(JPMoney.class,
-            new JsonSerializer<JPMoney>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPMoney v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonMoney json = new JsonMoney();
@@ -180,7 +180,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // IntegerRange to String
         .addSerializer(JPIntegerRange.class,
-            new JsonSerializer<JPIntegerRange>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPIntegerRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonIntegerRange json = new JsonIntegerRange();
@@ -191,7 +191,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // DateRange to String
         .addSerializer(JPDateRange.class,
-            new JsonSerializer<JPDateRange>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPDateRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonDateRange json = new JsonDateRange();
@@ -202,7 +202,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // DateTimeRange to String
         .addSerializer(JPDateTimeRange.class,
-            new JsonSerializer<JPDateTimeRange>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPDateTimeRange v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonDateTimeRange json = new JsonDateTimeRange();
@@ -215,7 +215,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // BigDecimal to String
         .addSerializer(BigDecimal.class,
-            new JsonSerializer<BigDecimal>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(BigDecimal v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 // При длине > 16 символов браузер игнорирует другие цифры
@@ -228,7 +228,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // Long to String
         .addSerializer(Long.class,
-            new JsonSerializer<Long>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(Long v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 if (v < MIN_SAFE_INTEGER || v > MAX_SAFE_INTEGER) {
@@ -240,7 +240,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // BigInteger to String
         .addSerializer(BigInteger.class,
-            new JsonSerializer<BigInteger>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(BigInteger v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 if (v.compareTo(MIN_SAFE_BIGINTEGER) < 0 || v.compareTo(MAX_SAFE_BIGINTEGER) > 0) {
@@ -252,7 +252,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // JPIntegerArray to String
         .addSerializer(JPIntegerArray.class,
-            new JsonSerializer<JPIntegerArray>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPIntegerArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(v.toList());
@@ -260,7 +260,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // JPLongArray to String
         .addSerializer(JPLongArray.class,
-            new JsonSerializer<JPLongArray>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPLongArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(v.toList());
@@ -268,7 +268,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             })
         // JPStringArray to String
         .addSerializer(JPStringArray.class,
-            new JsonSerializer<JPStringArray>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPStringArray v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(v.toList());

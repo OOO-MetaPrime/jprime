@@ -1,13 +1,7 @@
 package mp.jprime.meta.json.beans;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.util.Collection;
 
-@JsonPropertyOrder({
-    "totalCount",
-    "maps"
-})
 public final class JsonJPClassMapList {
   private final Long totalCount;
   private final Collection<JsonJPClassMap> maps;

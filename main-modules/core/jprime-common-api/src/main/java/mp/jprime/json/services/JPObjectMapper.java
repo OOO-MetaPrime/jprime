@@ -12,7 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.TimeZone;
 
-public abstract class JPObjectMapper extends JPBaseJsonMapper {
+public abstract class JPObjectMapper extends JPBaseObjectMapper {
 
   protected void setSettings(Collection<JPObjectMapperExpander> expanders, ObjectMapper mapper) {
     // Добавляем модули

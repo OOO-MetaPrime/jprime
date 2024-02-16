@@ -1,12 +1,15 @@
 # Базы данных
 [versions]
-postgresqlVersion = "42.5.0"
-r2dbcPostgresqlVersion = { strictly = "0.9.1.RELEASE" }
-mssqlJdbcVersion = "10.2.3.jre8"
+postgresqlVersion = "42.6.0"
+r2dbcPoolVersion = { strictly = "1.0.1.RELEASE" }
+r2dbcProxyVersion = { strictly = "1.1.4.RELEASE" }
+r2dbcSpiVersion = { strictly = "1.0.0.RELEASE" }
+r2dbcPostgresqlVersion = { strictly = "1.0.4.RELEASE" }
+mssqlJdbcVersion = "12.4.2.jre11"
 clickhouseJdbcVersion = "0.4.6"
 jtdsVersion = "1.3.1"
-querydslSqlVersion = "5.0.0"
-minioVersion = "8.4.6"
+querydslSqlVersion = "5.1.0"
+minioVersion = "8.5.7"
 
 [libraries]
 postgresql = { module="org.postgresql:postgresql", version.ref="postgresqlVersion" }
@@ -16,12 +19,11 @@ jtds = { module="net.sourceforge.jtds:jtds", version.ref="jtdsVersion" }
 querydsl-sql = { module="com.querydsl:querydsl-sql", version.ref="querydslSqlVersion" }
 minio = { module="io.minio:minio", version.ref="minioVersion" }
 
-r2dbc-pool = { module="io.r2dbc:r2dbc-pool", version.ref="r2dbcPostgresqlVersion" }
-r2dbc-proxy = { module="io.r2dbc:r2dbc-proxy", version.ref="r2dbcPostgresqlVersion" }
-r2dbc-spi = { module="io.r2dbc:r2dbc-spi", version.ref="r2dbcPostgresqlVersion" }
-r2dbc-spi-parent = { module="io.r2dbc:r2dbc-spi-parent", version.ref="r2dbcPostgresqlVersion" }
+r2dbc-pool = { module="io.r2dbc:r2dbc-pool", version.ref="r2dbcPoolVersion" }
+r2dbc-proxy = { module="io.r2dbc:r2dbc-proxy", version.ref="r2dbcProxyVersion" }
+r2dbc-spi = { module="io.r2dbc:r2dbc-spi", version.ref="r2dbcSpiVersion" }
 r2dbc-postgresql = { module="org.postgresql:r2dbc-postgresql", version.ref="r2dbcPostgresqlVersion" }
 
 [bundles]
 v1 = ['postgresql', 'mssql', 'clickhouse', 'jtds']
-r2dbc = ['r2dbc-pool', 'r2dbc-proxy', 'r2dbc-spi', 'r2dbc-spi-parent', 'r2dbc-postgresql']
+r2dbc = ['r2dbc-pool', 'r2dbc-proxy', 'r2dbc-spi', 'r2dbc-postgresql']

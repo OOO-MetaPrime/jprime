@@ -5,6 +5,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
 
@@ -26,7 +27,8 @@ public class ServerWebExchangeBaseService implements ServerWebExchangeService {
     }
     HttpHeaders httpHeaders = r.getHeaders();
     InetSocketAddress isa = r.getRemoteAddress();
-    String remoteHost = isa != null ? isa.getAddress().getHostAddress() : null;
+    InetAddress ia = isa != null ? isa.getAddress() : null;
+    String remoteHost = ia != null ? ia.getHostAddress() : null;
 
     String xFor = httpHeaders.getFirst("X-Forwarded-For");
     return xFor != null ? xFor : remoteHost;

@@ -1,28 +1,40 @@
 package mp.jprime.meta.controllers;
 
 import mp.jprime.beans.PropertyType;
-import mp.jprime.meta.*;
+import mp.jprime.controllers.DownloadFile;
+import mp.jprime.exceptions.JPForbiddenException;
+import mp.jprime.meta.JPAttrCsvWriterService;
+import mp.jprime.meta.JPClass;
+import mp.jprime.meta.JPClassJsonConverter;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.beans.JPType;
-import mp.jprime.meta.json.beans.*;
+import mp.jprime.meta.json.beans.JsonJPClass;
+import mp.jprime.meta.json.beans.JsonJPClassList;
+import mp.jprime.meta.json.beans.JsonPropertyType;
+import mp.jprime.meta.json.beans.JsonType;
+import mp.jprime.meta.security.Role;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.security.AuthInfo;
+import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("meta/v1")
-public class RestMetaController {
+public class RestMetaController implements DownloadFile {
   /**
    * Хранилище метаинформации
    */
@@ -31,6 +43,20 @@ public class RestMetaController {
    * Фильтр меты
    */
   private JPMetaFilter jpMetaFilter;
+  /**
+   * Конвертер JpClass
+   */
+  private JPClassJsonConverter converter;
+
+  /**
+   * Сервис выгрузки JPAttr в CSV
+   */
+  private JPAttrCsvWriterService writerService;
+
+  /**
+   * Обработчик JWT
+   */
+  private JWTService jwtService;
 
   @Autowired
   private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
@@ -42,26 +68,41 @@ public class RestMetaController {
     this.jpMetaStorage = jpMetaStorage;
   }
 
+  @Autowired
+  private void setConverter(JPClassJsonConverter converter) {
+    this.converter = converter;
+  }
+
+  @Autowired
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
+  }
+
+  @Autowired
+  private void setWriterService(JPAttrCsvWriterService writerService) {
+    this.writerService = writerService;
+  }
+
   @ResponseBody
   @GetMapping(value = "/jpClasses/{classCode}", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPClass> getClass(@PathVariable("classCode") String classCode) {
     JPClass jpClass = jpMetaStorage.getJPClassByCode(classCode);
     if (!jpMetaFilter.filter(jpClass)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    return Mono.just(toJson(jpClass));
+    return Mono.just(converter.toJson(jpClass));
   }
 
   @ResponseBody
   @GetMapping(value = "/jpClasses", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPClassList> getClassList() {
     Collection<JPClass> classes = jpMetaStorage.getJPClasses();
     List<JsonJPClass> list = classes == null || classes.isEmpty() ? Collections.emptyList() : classes
         .stream()
         .filter(jpClass -> jpMetaFilter.filter(jpClass))
-        .map(this::toJson)
+        .map(converter::toJson)
         .collect(Collectors.toList());
     return Mono.just(JsonJPClassList.newBuilder()
         .classes(list)
@@ -72,7 +113,7 @@ public class RestMetaController {
 
   @ResponseBody
   @GetMapping(value = "attrTypes", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonType> getAttrTypes() {
     return Flux.fromArray(JPType.values())
         .filter(x -> x != JPType.NONE)
@@ -81,117 +122,26 @@ public class RestMetaController {
 
   @ResponseBody
   @GetMapping(value = "propertyTypes", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonPropertyType> getPropertyTypes() {
     return Flux.fromArray(PropertyType.values())
         .map(JsonPropertyType::from);
   }
 
-  private JsonJPClass toJson(JPClass jpClass) {
-    return JsonJPClass.newBuilder()
-        .code(jpClass.getCode())
-        .guid(jpClass.getGuid())
-        .qName(jpClass.getQName())
-        .tags(jpClass.getTags())
-        .name(jpClass.getName())
-        .shortName(jpClass.getShortName())
-        .description(jpClass.getDescription())
-        .jpPackage(jpClass.getJpPackage())
-        .immutable(jpClass.isImmutable())
-        .attrs(jpClass
-            .getAttrs()
-            .stream()
-            .map(this::toJson)
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList())
-        )
-        .build();
-  }
-
-  private JsonJPAttr toJson(JPAttr jpAttr) {
-    JPType type = jpAttr.getValueType();
-    JPFile jpFile = jpAttr.getRefJpFile();
-    JPSimpleFraction simpleFraction = jpAttr.getSimpleFraction();
-    JPMoney money = jpAttr.getMoney();
-    JPGeometry geometry = jpAttr.getGeometry();
-    if (type == null) {
-      return null;
+  @ResponseBody
+  @GetMapping(value = "/jpClasses/{classCode}/csv-export/{bearer}")
+  public Mono<Void> export(ServerWebExchange swe,
+                           @PathVariable("classCode") String classCode,
+                           @PathVariable("bearer") String bearer,
+                           @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
+    AuthInfo authInfo = jwtService.getAuthInfo(bearer, swe);
+    if (!authInfo.getRoles().contains(Role.META_ADMIN)) {
+      return Mono.error(new JPForbiddenException());
     }
-    return JsonJPAttr.newBuilder()
-        .code(jpAttr.getCode())
-        .guid(jpAttr.getGuid())
-        .qName(jpAttr.getQName())
-        .name(jpAttr.getName())
-        .shortName(jpAttr.getShortName())
-        .description(jpAttr.getDescription())
-        .jpPackage(jpAttr.getJpPackage())
-        .identifier(jpAttr.isIdentifier())
-        .mandatory(jpAttr.isMandatory())
-        .type(type.getCode())
-        .updatable(jpAttr.isUpdatable())
-        .length(jpAttr.getLength())
-        // Настройка ссылки класс+атрибут
-        .refJpClass(jpAttr.getRefJpClassCode())
-        .refJpAttr(jpAttr.getRefJpAttrCode())
-        // Настройка файла
-        .refJpFile(
-            type != JPType.FILE || jpFile == null ? null :
-                JsonJPFile.newBuilder()
-                    .titleAttr(jpFile.getFileTitleAttrCode())
-                    .extAttr(jpFile.getFileExtAttrCode())
-                    .sizeAttr(jpFile.getFileSizeAttrCode())
-                    .dateAttr(jpFile.getFileDateAttrCode())
-                    .infoAttr(jpFile.getFileInfoAttrCode())
-                    .build()
-        )
-        // Настройка простой дроби
-        .simpleFraction(
-            type != JPType.SIMPLEFRACTION || simpleFraction == null ? null :
-                JsonJPSimpleFraction.newBuilder()
-                    .integerAttr(simpleFraction.getIntegerAttrCode())
-                    .denominatorAttr(simpleFraction.getDenominatorAttrCode())
-                    .build()
-        )
-        // Настройка денежного типа
-        .money(
-            type != JPType.MONEY || money == null ? null :
-                JsonJPMoney.newBuilder()
-                    .currencyCode(money.getCurrencyCode())
-                    .build()
-        )
-        // Настройка геометрии
-        .geometry(
-            type != JPType.GEOMETRY || geometry == null ? null : JsonJPGeometry.newBuilder()
-                .srid(geometry.getSRID())
-                .build()
-        )
-        // Свойства псевдо-меты
-        .schemaProps(
-            toJsonJPProperty(jpAttr.getSchemaProps())
-        )
-        .build();
-  }
 
-  private Collection<JsonJPProperty> toJsonJPProperty(Collection<JPProperty> properties) {
-    return properties == null ? null :
-        properties.stream().map(this::toJsonJPProperty).collect(Collectors.toList());
+    return Mono.justOrEmpty(jpMetaStorage.getJPClassByCode(classCode))
+        .filter(jpMetaFilter::filter)
+        .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
+        .flatMap(jpClass -> writeTo(swe, writerService.of(jpClass), jpClass.getCode() + " (" + jpClass.getName() + ").csv", userAgent));
   }
-
-  private JsonJPProperty toJsonJPProperty(JPProperty property) {
-    return JsonJPProperty.builder()
-        .code(property.getCode())
-        .type(property.getType() == null ? null : property.getType().getCode())
-        .length(property.getLength())
-        .multiple(property.isMultiple())
-        .mandatory(property.isMandatory())
-        .name(property.getName())
-        .shortName(property.getShortName())
-        .description(property.getDescription())
-        .qName(property.getQName())
-        .refJpClassCode(property.getRefJpClassCode())
-        .refJpAttrCode(property.getRefJpAttrCode())
-        .schemaProps(toJsonJPProperty(property.getSchemaProps()))
-        .build();
-  }
-
 }

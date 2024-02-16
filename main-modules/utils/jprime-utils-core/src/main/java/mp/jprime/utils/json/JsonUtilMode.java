@@ -1,6 +1,7 @@
 package mp.jprime.utils.json;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import mp.jprime.json.beans.JsonParam;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -17,9 +18,9 @@ public class JsonUtilMode {
   private Collection<String> jpClassTags;
   private String type;
   private Collection<JsonUtilClassAttr> jpAttrs;
-  private Collection<JsonUtilParam> inParams;
+  private Collection<JsonParam> inParams;
   private String resultType;
-  private Collection<JsonUtilParam> outCustomParams;
+  private Collection<JsonParam> outCustomParams;
 
   public JsonUtilMode() {
 
@@ -27,8 +28,8 @@ public class JsonUtilMode {
 
   private JsonUtilMode(String utilCode, String modeCode, String title, String qName, String confirmMessage,
                        boolean uni, Collection<String> jpClasses, Collection<String> jpClassTags,
-                       String type, Collection<JsonUtilClassAttr> jpAttrs, Collection<JsonUtilParam> inParams,
-                       String resultType, Collection<JsonUtilParam> outCustomParams) {
+                       String type, Collection<JsonUtilClassAttr> jpAttrs, Collection<JsonParam> inParams,
+                       String resultType, Collection<JsonParam> outCustomParams) {
     this.utilCode = utilCode;
     this.modeCode = modeCode;
     this.title = title;
@@ -89,7 +90,7 @@ public class JsonUtilMode {
    *
    * @return Описание входных параметров
    */
-  public Collection<JsonUtilParam> getInParams() {
+  public Collection<JsonParam> getInParams() {
     return inParams;
   }
 
@@ -107,7 +108,7 @@ public class JsonUtilMode {
    *
    * @return Описание итоговых параметров
    */
-  public Collection<JsonUtilParam> getOutCustomParams() {
+  public Collection<JsonParam> getOutCustomParams() {
     return outCustomParams;
   }
 
@@ -127,9 +128,9 @@ public class JsonUtilMode {
     private Collection<String> jpClassTags;
     private String type;
     private Collection<JsonUtilClassAttr> jpAttrs;
-    private Collection<JsonUtilParam> inParams;
+    private Collection<JsonParam> inParams;
     private String resultType;
-    private Collection<JsonUtilParam> outCustomParams;
+    private Collection<JsonParam> outCustomParams;
 
     private Builder() {
     }
@@ -189,7 +190,7 @@ public class JsonUtilMode {
       return this;
     }
 
-    public Builder inParams(Collection<JsonUtilParam> inParams) {
+    public Builder inParams(Collection<JsonParam> inParams) {
       this.inParams = inParams;
       return this;
     }
@@ -199,7 +200,7 @@ public class JsonUtilMode {
       return this;
     }
 
-    public Builder outCustomParams(Collection<JsonUtilParam> outCustomParams) {
+    public Builder outCustomParams(Collection<JsonParam> outCustomParams) {
       this.outCustomParams = outCustomParams;
       return this;
     }

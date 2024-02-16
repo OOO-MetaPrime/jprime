@@ -6,6 +6,7 @@ import java.util.Collection;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonUniqueValues {
+  public static final JsonUniqueValues EMPTY = new JsonUniqueValues(null);
   /**
    * Вложенные значения
    */

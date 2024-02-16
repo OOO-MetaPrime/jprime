@@ -60,16 +60,6 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
   }
 
   /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPObjectAccessServiceAware> awares) {
-    for (JPObjectAccessServiceAware aware : awares) {
-      aware.setJpObjectAccessService(this);
-    }
-  }
-
-  /**
    * Проверка доступа на создание из другого объекта
    *
    * @param classCode   Код метаописания

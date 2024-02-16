@@ -76,6 +76,15 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
     return !hasMask(LOWER_INFINITE) && !hasMask(UPPER_INFINITE);
   }
 
+  /**
+   * Признак неограниченного диапазона
+   *
+   * @return Да/Нет
+   */
+  public boolean isInfinite() {
+    return !isBounded();
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -197,9 +206,14 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
    * For example:
    * <pre>{@code
    *     assertTrue(integerRange("[-2,2]").contains(integerRange("[-1,1]")))
+   *     assertTrue(integerRange("[-2,2]").contains(integerRange("(-2,2)")))
+   *     assertTrue(integerRange("(,)").contains(integerRange("(-1,1)"))
+   *     assertTrue(integerRange("(,)").contains(integerRange("[-1,1]"))
    *     assertTrue(integerRange("(,)").contains(integerRange("(,)"))
    *
    *     assertFalse(integerRange("[-2,2)").contains(integerRange("[-1,2]")))
+   *     assertFalse(integerRange("[-2,2)").contains(integerRange("[-1,20]")))
+   *     assertFalse(integerRange("[-2,2)").contains(integerRange("[-1,)")))
    *     assertFalse(integerRange("(-2,2]").contains(1))
    * }</pre>
    *
@@ -207,7 +221,35 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
    * @return Whether {@code range} in this range or not.
    */
   public boolean contains(JPRange<T> range) {
-    return (!range.hasLowerBound() || contains(range.lower)) && (!range.hasUpperBound() || contains(range.upper));
+    boolean lowerInfinite = !range.hasLowerBound();
+    if (lowerInfinite && hasLowerBound()) {
+      return false;
+    }
+    boolean upperInfinite = !range.hasUpperBound();
+    if (upperInfinite && hasUpperBound()) {
+      return false;
+    }
+    boolean containsLower = true;
+    if (hasLowerBound()) {
+      if (range.isLowerBoundClosed()) {
+        containsLower = contains(range.lower);
+      } else {
+        containsLower = isLowerBoundClosed() ? contains(range.lower) : range.lower.equals(lower);
+      }
+    }
+    if (!containsLower) {
+      return false;
+    }
+
+    boolean containsUpper = true;
+    if (hasUpperBound()) {
+      if (range.isUpperBoundClosed()) {
+        containsUpper = contains(range.upper);
+      } else {
+        containsUpper = isUpperBoundClosed() ? contains(range.upper) : range.upper.equals(upper);
+      }
+    }
+    return containsUpper;
   }
 
   public String asString() {
@@ -238,7 +280,7 @@ public abstract class JPRange<T extends Comparable> implements Serializable, Com
     };
   }
 
-  public Class<Object> getClazz() {
-    return Object.class;
+  public Class<T> getClazz() {
+    return clazz;
   }
 }

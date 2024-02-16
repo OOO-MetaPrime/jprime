@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.transaction;
 
+import mp.jprime.concurrent.JPForkJoinPoolService;
 import mp.jprime.dataaccess.transaction.events.TransactionEvent;
 import mp.jprime.dataaccess.transaction.events.TransactionEventManager;
 import mp.jprime.repositories.JPStorage;
@@ -218,7 +219,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     TransactionInfo info = currentTransactionInfo();
     Collection<TransactionEvent> events = info != null ? info.getTransactionEvents() : null;
     if (events != null && !events.isEmpty()) {
-      CompletableFuture.runAsync(() -> transactionEventManager.fireEvents(events));
+      CompletableFuture.runAsync(() -> transactionEventManager.fireEvents(events), JPForkJoinPoolService.pool());
     }
     removeTransaction();
   }

@@ -28,6 +28,10 @@ public final class JsonJPFile {
    * Атрибут для хранения - Возвращает дополнительную информацию о файле
    */
   private String infoAttr;
+  /**
+   * Атрибут для хранения - Файл со штампом для подписи
+   */
+  private String fileStampAttr;
 
   public String getTitleAttr() {
     return titleAttr;
@@ -49,16 +53,21 @@ public final class JsonJPFile {
     return infoAttr;
   }
 
+  public String getFileStampAttr() {
+    return fileStampAttr;
+  }
+
   public JsonJPFile() {
 
   }
 
-  private JsonJPFile(String titleAttr, String extAttr, String sizeAttr, String dateAttr, String infoAttr) {
+  private JsonJPFile(String titleAttr, String extAttr, String sizeAttr, String dateAttr, String infoAttr, String fileStampAttr) {
     this.titleAttr = titleAttr;
     this.extAttr = extAttr;
     this.sizeAttr = sizeAttr;
     this.dateAttr = dateAttr;
     this.infoAttr = infoAttr;
+    this.fileStampAttr = fileStampAttr;
   }
 
   /**
@@ -79,6 +88,7 @@ public final class JsonJPFile {
     private String sizeAttr;
     private String dateAttr;
     private String infoAttr;
+    private String fileStampAttr;
 
     private Builder() {
 
@@ -109,8 +119,13 @@ public final class JsonJPFile {
       return this;
     }
 
+    public Builder fileStampAttr(String fileStampAttr) {
+      this.fileStampAttr = fileStampAttr;
+      return this;
+    }
+
     public JsonJPFile build() {
-      return new JsonJPFile(titleAttr, extAttr, sizeAttr, dateAttr, infoAttr);
+      return new JsonJPFile(titleAttr, extAttr, sizeAttr, dateAttr, infoAttr, fileStampAttr);
     }
   }
 }

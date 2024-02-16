@@ -1,6 +1,6 @@
 [versions]
 disruptorVersion = "3.4.4"
-kafkaLog4JAppenderVersion = "3.4.0"
+kafkaLog4JAppenderVersion = "3.6.1"
 log4JCoreVersion = "2.20.0"
 
 [libraries]

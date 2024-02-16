@@ -16,9 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.*;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFutureCallback;
 
 import java.io.IOException;
 
@@ -82,14 +80,9 @@ public class KafkaSystemEventService implements SystemEventPublisher {
       String msg = toJSON(event);
       kafkaTemplate
           .send(topic, msg)
-          .addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
-            @Override
-            public void onSuccess(SendResult<String, String> result) {
-            }
-
-            @Override
-            public void onFailure(Throwable e) {
-              LOG.error("Unable to send message=[" + msg + "] due to : " + e.getMessage(), e);
+          .whenCompleteAsync((result, e) -> {
+            if (e != null) {
+              LOG.error("Unable to send message=[{}] due to : {}", msg, e.getMessage(), e);
             }
           });
     } catch (Exception e) {

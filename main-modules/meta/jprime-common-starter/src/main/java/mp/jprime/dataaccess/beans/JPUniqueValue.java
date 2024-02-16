@@ -1,10 +1,9 @@
 package mp.jprime.dataaccess.beans;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.*;
+import java.util.stream.Stream;
 
-public class JPUniqueValue {
+public final class JPUniqueValue {
   private final String attr;
   private final Object value;
 
@@ -13,12 +12,17 @@ public class JPUniqueValue {
   private JPUniqueValue(String attr, Object value, Collection<JPUniqueValue> subValues) {
     this.attr = attr;
     this.value = value;
-    this.subValues = Collections.unmodifiableCollection(subValues);
+    this.subValues = subValues == null ? Collections.emptyList() : Collections.unmodifiableCollection(subValues);
   }
 
-  public static Builder newBuilder() {
-    return new Builder();
+  public static JPUniqueValue of(String attr, Object value) {
+    return new JPUniqueValue(attr, value, null);
   }
+
+  public static JPUniqueValue of(String attr, Object value, Collection<JPUniqueValue> subValue) {
+    return new JPUniqueValue(attr, value, subValue);
+  }
+
 
   public String getAttr() {
     return attr;
@@ -32,30 +36,35 @@ public class JPUniqueValue {
     return subValues;
   }
 
-  public static class Builder {
-    private String attr;
-    private Object value;
-
-    private Collection<JPUniqueValue> subValues = new ArrayList<>();
-
-    public Builder attr(String attr) {
-      this.attr = attr;
-      return this;
+  /**
+   * Объединяет два массива
+   *
+   * @param values1 Массив 1
+   * @param values2 Массив2
+   * @return Объединенный массив
+   */
+  public static Collection<JPUniqueValue> append(Collection<JPUniqueValue> values1, Collection<JPUniqueValue> values2) {
+    if (values1 == null && values2 == null) {
+      return Collections.emptyList();
     }
-
-    public Builder value(Object value) {
-      this.value = value;
-      return this;
+    if (values1 == null || values1.isEmpty()) {
+      return new ArrayList<>(values2);
     }
-
-    public Builder subValues(Collection<JPUniqueValue> subValues) {
-      this.subValues = subValues;
-      return this;
+    if (values2 == null || values2.isEmpty()) {
+      return new ArrayList<>(values1);
     }
-
-    public JPUniqueValue build() {
-      return new JPUniqueValue(attr, value, subValues);
-    }
+    Map<Object, JPUniqueValue> result = new HashMap<>();
+    Stream.concat(values1.stream(), values2.stream())
+        .forEach(newV -> {
+          JPUniqueValue oldV = result.get(newV.getValue());
+          if (oldV == null) {
+            result.put(newV.getValue(), newV);
+          } else {
+            result.put(newV.getValue(),
+                JPUniqueValue.of(oldV.attr, oldV.value, append(oldV.getSubValues(), newV.getSubValues()))
+            );
+          }
+        });
+    return result.values();
   }
-
 }

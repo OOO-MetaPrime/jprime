@@ -7,9 +7,9 @@ import java.util.Collection;
  */
 public interface JPRoleService {
   /**
-   * Возвращает список ролей, которым разрешен логин в систему
+   * Возвращает список ролей, которым разрешен логин в систему. Требуются все указанные роли
    *
-   * @return список ролей, которым разрешен логин в систему
+   * @return список ролей, которым разрешен логин в систему. Требуются все указанные роли
    */
   default Collection<String> getLoginRoles() {
     return getAllowRoles();

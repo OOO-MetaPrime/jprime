@@ -66,7 +66,7 @@ public class RestApiAddInfoController {
 
   @ResponseBody
   @PostMapping(value = "/{code}/addinfo", produces = MediaType.APPLICATION_JSON_VALUE)
-  @PreAuthorize("hasAuthority(T(mp.jprime.security.Role).AUTH_ACCESS)")
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Flux<JsonAddInfo> getAddInfo(ServerWebExchange swe,
                                       @PathVariable("code") String code,

@@ -3,7 +3,6 @@ package mp.jprime.json.beans;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,16 +10,6 @@ import java.util.List;
 /**
  * Описание Link для HATEOAS
  */
-@JsonPropertyOrder({
-    "rel",
-    "href",
-    "hreflang",
-    "type",
-    "media",
-    "title",
-    "path",
-    "refClassCode"
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonLink {

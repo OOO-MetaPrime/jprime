@@ -1,14 +1,7 @@
 package mp.jprime.meta.json.beans;
 
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 import java.util.Collection;
 
-@JsonPropertyOrder({
-    "totalCount",
-    "count",
-    "classes"
-})
 public final class JsonJPClassList {
   private Long totalCount;
   private Long count;

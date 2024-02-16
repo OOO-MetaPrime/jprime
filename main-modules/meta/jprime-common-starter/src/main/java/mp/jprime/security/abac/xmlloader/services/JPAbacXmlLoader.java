@@ -17,7 +17,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
+import reactor.core.publisher.Mono;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -25,10 +25,7 @@ import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -63,14 +60,11 @@ public class JPAbacXmlLoader implements JPAbacLoader {
    * @return Список метаописания
    */
   @Override
-  public Flux<PolicySet> load() {
-    return Flux.create(x -> {
-      loadTo(x);
-      x.complete();
-    });
+  public Flux<Collection<PolicySet>> load() {
+    return Mono.fromCallable(this::xmlLoad).flux();
   }
 
-  private void loadTo(FluxSink<PolicySet> sink) {
+  private Collection<PolicySet> xmlLoad() {
     try {
       Resource[] resources = null;
       try {
@@ -79,9 +73,10 @@ public class JPAbacXmlLoader implements JPAbacLoader {
         LOG.debug(e.getMessage(), e);
       }
       if (resources == null || resources.length == 0) {
-        return;
+        return Collections.emptyList();
       }
 
+      Collection<PolicySet> result = new ArrayList<>();
       for (Resource res : resources) {
         try (InputStream is = res.getInputStream()) {
           XmlJpAbac xmlJpAbac = new XmlMapper().readValue(is, XmlJpAbac.class);
@@ -104,10 +99,11 @@ public class JPAbacXmlLoader implements JPAbacLoader {
                 .policies(jpPolicies == null ? null : toPolicies(jpPolicies.getJpPolicy()))
                 .build();
 
-            sink.next(set);
+            result.add(set);
           }
         }
       }
+      return result;
     } catch (IOException e) {
       throw JPRuntimeException.wrapException(e);
     }

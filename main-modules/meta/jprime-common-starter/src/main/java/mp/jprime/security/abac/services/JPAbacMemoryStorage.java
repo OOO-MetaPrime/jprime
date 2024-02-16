@@ -1,7 +1,6 @@
 package mp.jprime.security.abac.services;
 
 import mp.jprime.dataaccess.JPAction;
-import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.security.abac.JPAbacDynamicLoader;
 import mp.jprime.security.abac.Policy;
 import mp.jprime.security.abac.PolicySet;
@@ -11,15 +10,14 @@ import mp.jprime.security.abac.events.AbacChangeEvent;
 import mp.jprime.security.abac.xmlloader.services.JPAbacXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Описание настроек ABAC
@@ -27,24 +25,17 @@ import java.util.stream.Collectors;
 @Service
 @Lazy(value = false)
 public final class JPAbacMemoryStorage implements JPAbacStorage {
-  /**
-   * Описания настроек ABAC
-   */
-  private volatile Collection<PolicySet> allSetts = new CopyOnWriteArrayList<>();
-  private volatile Collection<PolicySet> umAllSetts = Collections.unmodifiableCollection(allSetts);
-  private volatile ActionCache commonPolicies = new ActionCache();
-  private volatile Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
-  /**
-   * Динамическая загрузка настроек ABAC
-   */
-  private Collection<JPAbacDynamicLoader> dynamicLoaders;
+  private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
+    set(new Cache());
+  }};
+
 
   /**
    * Считываем настройки доступа
    */
   private JPAbacMemoryStorage(@Autowired JPAbacAnnoLoader annoLoader,
                               @Autowired JPAbacXmlLoader xmlLoader) {
-    Collection<Flux<PolicySet>> p = new ArrayList<>();
+    Collection<Flux<Collection<PolicySet>>> p = new ArrayList<>();
     p.add(annoLoader.load());
     p.add(xmlLoader.load());
     Flux.concat(p)
@@ -53,38 +44,48 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
   }
 
   @Autowired(required = false)
-  private void setDynamicLoaders(Collection<JPAbacDynamicLoader> dLoaders) {
-    this.dynamicLoaders = dLoaders != null ? dLoaders : Collections.emptyList();
+  private void setDynamicLoaders(Collection<JPAbacDynamicLoader> dynamicLoaders) {
+    if (dynamicLoaders == null) {
+      return;
+    }
+    AtomicInteger i = new AtomicInteger(1);
+    dynamicLoaders.forEach(x -> {
+      int sourceNum = i.getAndIncrement();
+      x.load().subscribe(list -> applyDynamicAbac(sourceNum, list));
+    });
   }
 
-  /**
-   * Сохраняет указанную настройку
-   *
-   * @param sett настройка
-   */
-  private void applyJPAbac(PolicySet sett) {
-    applyJPAbac(allSetts, commonPolicies, classPolicies, sett);
-  }
+  private void applyJPAbac(Collection<PolicySet> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
 
-  /**
-   * Сохраняет указанную настройку
-   *
-   * @param sett настройка
-   */
-  private void applyJPAbac(Collection<PolicySet> allSetts,
-                           ActionCache commonPolicies,
-                           Map<String, ActionCache> classPolicies,
-                           PolicySet sett) {
-    allSetts.add(sett);
-    PolicyTarget target = sett.getTarget();
-    if (target == null || target.getJpClassCodes().isEmpty()) {
-      commonPolicies.addAll(sett.getPolicies());
-    } else {
-      target.getJpClassCodes().forEach(
-          x -> classPolicies.computeIfAbsent(x, v -> new ActionCache()).addAll(sett.getPolicies())
-      );
+    while (true) {
+      Cache oldCache = cacheRef.get();
+
+      Cache newCache = new Cache(oldCache, Cache.IMMUTABLE_SOURCE_CODE, list);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
+      }
     }
   }
+
+  private void applyDynamicAbac(Integer sourceNum, Collection<PolicySet> list) {
+    if (list == null || list.isEmpty()) {
+      return;
+    }
+    while (true) {
+      Cache oldCache = cacheRef.get();
+
+      Cache newCache = new Cache(oldCache, sourceNum, list);
+      // Подменяем кеш после инициализации
+      if (cacheRef.compareAndSet(oldCache, newCache)) {
+        break;
+      }
+    }
+  }
+
 
   /**
    * Возвращает загруженные настройки ABAC
@@ -93,7 +94,7 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
    */
   @Override
   public Collection<PolicySet> getSettings() {
-    return umAllSetts;
+    return cacheRef.get().umAllSetts;
   }
 
   /**
@@ -105,39 +106,9 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
    */
   @Override
   public Collection<Policy> getSettings(String jpClass, JPAction action) {
-    ActionCache actionCache = classPolicies.get(jpClass);
+    ActionCache actionCache = cacheRef.get().classPolicies.get(jpClass);
     Collection<Policy> policies = actionCache == null ? null : actionCache.get(action);
     return policies == null ? Collections.emptyList() : policies;
-  }
-
-  /**
-   * Сохраняет указанный список настроек
-   *
-   * @param list Список настроек
-   */
-  private void applyDynamicAbac(Collection<PolicySet> list) {
-    if (list == null || list.isEmpty()) {
-      return;
-    }
-
-    Collection<PolicySet> newAllSetts = new CopyOnWriteArrayList<>();
-    ActionCache commonPolicies = new ActionCache();
-    Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
-
-    // Добавляем постоянные настройки
-    for (PolicySet sett : this.allSetts) {
-      if (sett.isImmutable()) {
-        applyJPAbac(newAllSetts, commonPolicies, classPolicies, sett);
-      }
-    }
-    // Добавляем динамические настройки
-    for (PolicySet sett : list) {
-      applyJPAbac(newAllSetts, commonPolicies, classPolicies, sett);
-    }
-    this.allSetts = newAllSetts;
-    this.umAllSetts = Collections.unmodifiableCollection(newAllSetts);
-    this.commonPolicies = commonPolicies;
-    this.classPolicies = classPolicies;
   }
 
   /**
@@ -149,33 +120,83 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
     return AbacChangeEvent.CODE;
   }
 
+  private static class Cache {
+    private static final Integer IMMUTABLE_SOURCE_CODE = 0;
+    private final UUID uuid = UUID.randomUUID();
+    // Код настроек - Настройки
+    private final Collection<PolicySet> allSetts = new CopyOnWriteArrayList<>();
+    private final Collection<PolicySet> umAllSetts = Collections.unmodifiableCollection(allSetts);
+    private final ActionCache commonPolicies = new ActionCache();
+    private final Map<String, ActionCache> classPolicies = new ConcurrentHashMap<>();
+    // Список по источникам
+    private final Map<Integer, Collection<PolicySet>> sourceMaps = new ConcurrentHashMap<>();
 
-  @EventListener(condition = "#event.eventCode.equals(@JPAbacMemoryStorage.getChangeEventCode())")
-  public void handleAbacChangeEvent(JPSystemApplicationEvent event) {
-    dynamicLoad();
-  }
+    private Cache() {
 
-  @EventListener
-  public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
-    dynamicLoad();
-  }
-
-  private void dynamicLoad() {
-    if (dynamicLoaders == null || dynamicLoaders.isEmpty()) {
-      return;
     }
-    Flux
-        .concat(
-            dynamicLoaders.stream()
-                .map(JPAbacDynamicLoader::load)
-                .collect(Collectors.toList())
-        )
-        .filter(Objects::nonNull)
-        .collectList()
-        .subscribe(this::applyDynamicAbac);
+
+
+    private Cache(Cache oldCache, Integer sourceNum, Collection<PolicySet> list) {
+      // Добавляем постоянные настройки
+      Collection<PolicySet> immutableMaps = oldCache.sourceMaps.get(IMMUTABLE_SOURCE_CODE);
+      if (immutableMaps != null) {
+        for (PolicySet report : immutableMaps) {
+          if (report.isImmutable()) {
+            add(IMMUTABLE_SOURCE_CODE, report);
+          }
+        }
+      }
+      // Добавляем динамические настройки
+      for (Map.Entry<Integer, Collection<PolicySet>> entry : oldCache.sourceMaps.entrySet()) {
+        Integer key = entry.getKey();
+        Collection<PolicySet> value = entry.getValue();
+        if (IMMUTABLE_SOURCE_CODE.equals(key) || value == null || value.isEmpty()) {
+          continue;
+        }
+        // Сначала добавляем всю мету другого источника
+        if (!key.equals(sourceNum)) {
+          value.forEach(x -> add(key, x));
+        }
+      }
+      // Потом мету текущего источника
+      if (list != null) {
+        list.forEach(x -> add(sourceNum, x));
+      }
+    }
+
+
+    private void add(Integer sourceCode, PolicySet sett) {
+      if (sett == null) {
+        return;
+      }
+      allSetts.add(sett);
+
+      PolicyTarget target = sett.getTarget();
+      if (target == null || target.getJpClassCodes().isEmpty()) {
+        commonPolicies.addAll(sett.getPolicies());
+      } else {
+        target.getJpClassCodes().forEach(
+            x -> classPolicies.computeIfAbsent(x, v -> new ActionCache()).addAll(sett.getPolicies())
+        );
+      }
+      sourceMaps.computeIfAbsent(sourceCode, x -> ConcurrentHashMap.newKeySet()).add(sett);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      Cache cache = (Cache) o;
+      return Objects.equals(uuid, cache.uuid);
+    }
+
+    @Override
+    public int hashCode() {
+      return Objects.hash(uuid);
+    }
   }
 
-  private class ActionCache {
+  private static class ActionCache {
     private final Map<JPAction, Collection<Policy>> actionPolicies = new ConcurrentHashMap<>();
     private final Map<JPAction, Collection<Policy>> umActionPolicies = new ConcurrentHashMap<>();
 

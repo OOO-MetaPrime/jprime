@@ -1,7 +1,6 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -9,10 +8,6 @@ import java.util.Map;
 /*
  * Модель данных ответа с агрегациями
  */
-@JsonPropertyOrder({
-    "classCode",
-    "aggrs"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonAggregateResult {
   private String classCode;

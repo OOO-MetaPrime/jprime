@@ -1,6 +1,7 @@
 package mp.jprime.meta.beans;
 
 import mp.jprime.meta.JPFile;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Метаописание хранение файла
@@ -54,11 +55,15 @@ public final class JPFileBean implements JPFile {
    * Атрибут для хранения - Возвращает дополнительную информацию о файле
    */
   private final String fileInfoAttrCode;
+  /**
+   * Атрибут для хранения - Файл со штампом для подписи
+   */
+  private final String fileStampAttrCode;
 
   private JPFileBean(String fileAttrCode,
                      String storageCode, String storageFilePath, String storageCodeAttrCode, String storageFilePathAttrCode,
                      String fileTitleAttrCode, String fileExtAttrCode, String fileSizeAttrCode,
-                     String fileDateAttrCode, String fileInfoAttrCode) {
+                     String fileDateAttrCode, String fileInfoAttrCode, String fileStampAttrCode) {
     this.fileAttrCode = fileAttrCode;
     this.storageCode = storageCode;
     this.storageFilePath = storageFilePath;
@@ -69,6 +74,7 @@ public final class JPFileBean implements JPFile {
     this.fileSizeAttrCode = fileSizeAttrCode;
     this.fileDateAttrCode = fileDateAttrCode;
     this.fileInfoAttrCode = fileInfoAttrCode;
+    this.fileStampAttrCode = StringUtils.isBlank(fileStampAttrCode) ? null : fileStampAttrCode;
   }
 
   /**
@@ -172,6 +178,16 @@ public final class JPFileBean implements JPFile {
   }
 
   /**
+   * Атрибут для хранения - Файл со штампом для подписи
+   *
+   * @return Кодовое имя атрибута
+   */
+  @Override
+  public String getFileStampAttrCode() {
+    return fileStampAttrCode;
+  }
+
+  /**
    * Построитель JPFileBean
    *
    * @return Builder
@@ -194,6 +210,7 @@ public final class JPFileBean implements JPFile {
     private String fileSizeAttrCode;
     private String fileDateAttrCode;
     private String fileInfoAttrCode;
+    private String fileStampAttrCode;
 
     private Builder(String fileAttrCode) {
       this.fileAttrCode = fileAttrCode;
@@ -207,7 +224,7 @@ public final class JPFileBean implements JPFile {
     public JPFileBean build() {
       return new JPFileBean(fileAttrCode,
           storageCode, storageFilePath, storageCodeAttrCode, storageFilePathAttrCode,
-          fileTitleAttrCode, fileExtAttrCode, fileSizeAttrCode, fileDateAttrCode, fileInfoAttrCode);
+          fileTitleAttrCode, fileExtAttrCode, fileSizeAttrCode, fileDateAttrCode, fileInfoAttrCode, fileStampAttrCode);
     }
 
     /**
@@ -307,6 +324,17 @@ public final class JPFileBean implements JPFile {
      */
     public Builder fileInfoAttrCode(String fileInfoAttrCode) {
       this.fileInfoAttrCode = fileInfoAttrCode;
+      return this;
+    }
+
+    /**
+     * Атрибут для хранения - Файл со штампом для подписи
+     *
+     * @param fileStampAttrCode Кодовое имя атрибута
+     * @return Builder
+     */
+    public Builder fileStampAttrCode(String fileStampAttrCode) {
+      this.fileStampAttrCode = fileStampAttrCode;
       return this;
     }
   }

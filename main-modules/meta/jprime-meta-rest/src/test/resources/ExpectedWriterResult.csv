@@ -1,0 +1,6 @@
+"Кодовое имя","Название","Тип","Кодовое имя пакета/группировки метаописания","Код класса","Идентификатор/гуид","Признак идентификатора","Признак обязательности","Признак обновляемости значения","Длина","Короткое название","Описание","Уникальный qName","Код класса, на который ссылается","Код атрибута, на который ссылается","Описание файла","Описание простой дроби","Описание денежного типа","Описание пространственных данных","Описание виртуальной ссылки","Тип значения","Схема свойств псевдо-меты","Код атрибута, содержащего подпись"
+"code1","name1",,,,,"false","false","true",,"name1","name1",,,,,,,,"{""refAttrCode"":""class;"",""targetAttrCode"":""attr"",""virtualType"":""integer""}",,,
+"code2","name2",,,,,"false","false","true",,"name2","name2",,,,"{""titleAttr"":null,""extAttr"":null,""sizeAttr"":null,""dateAttr"":null,""infoAttr"":null,""fileStampAttr"":null}",,,,,,,
+"code3","name3",,,,,"false","false","true",,"name3","name3",,,,,,,,,,,
+"code4","name4",,,,,"false","false","true",,"name4","name4",,,,,,,,,,"[{""code"":""prop1Code"",""qName"":null,""name"":null,""shortName"":null,""description"":null,""mandatory"":false,""multiple"":false,""type"":""integer"",""length"":null,""refJpClassCode"":null,""refJpAttrCode"":null,""jpProps"":null}]",
+,,,,,,"false","false","true",,,,,,,,,,,,,,

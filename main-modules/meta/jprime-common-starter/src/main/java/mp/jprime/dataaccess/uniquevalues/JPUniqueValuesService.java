@@ -2,16 +2,17 @@ package mp.jprime.dataaccess.uniquevalues;
 
 import mp.jprime.dataaccess.beans.JPUniqueValue;
 import mp.jprime.dataaccess.params.JPSelect;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
- * Получение уникальных значиний атрибутов объектов
+ * Получение уникальных значений атрибутов объектов
  */
 public interface JPUniqueValuesService {
   /**
-   * Получение уникальных значиний атрибутов объектов
+   * Получение уникальных значений атрибутов объектов
    */
-  Flux<JPUniqueValue> getUniqueValues(JPSelect select, Collection<String> hierarchy);
+  Mono<Collection<JPUniqueValue>> getUniqueValues(JPSelect select, List<String> hierarchy);
 }

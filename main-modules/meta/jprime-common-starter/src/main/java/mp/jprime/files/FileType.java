@@ -2,6 +2,9 @@ package mp.jprime.files;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Типы файлов
  */
@@ -16,6 +19,14 @@ public enum FileType {
   PDF("pdf"),
   JRXML("jrxml"),
   HTML("html");
+
+  private static final Map<String, FileType> BY_CODE = new HashMap<>();
+
+  static {
+    for (FileType type : FileType.values()) {
+      BY_CODE.put(type.getExt().toLowerCase(), type);
+    }
+  }
 
   private final String ext;
 
@@ -41,15 +52,7 @@ public enum FileType {
    * @return тип файла
    */
   public static FileType getType(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (FileType v : FileType.values()) {
-      if (v.ext.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 
   /**

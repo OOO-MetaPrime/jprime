@@ -1,5 +1,8 @@
 package mp.jprime.time;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Периоды времени
  */
@@ -9,6 +12,14 @@ public enum TimePeriod {
   MONTH("month"),
   YEAR("year"),
   NONE("none");
+
+  private static final Map<String, TimePeriod> BY_CODE = new HashMap<>();
+
+  static {
+    for (TimePeriod type : TimePeriod.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
 
   private final String code;
 
@@ -27,14 +38,6 @@ public enum TimePeriod {
    * @return период времени
    */
   public static TimePeriod getPeriod(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (TimePeriod v : TimePeriod.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

@@ -1,16 +1,10 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-
 
 /**
  * Доступ на изменение (удаление/редактирование)
  */
-@JsonPropertyOrder({
-    "update",
-    "delete"
-})
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class JsonChangeAccess {
   private boolean update;

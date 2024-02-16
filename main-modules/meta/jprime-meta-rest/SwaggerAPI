@@ -130,6 +130,39 @@ paths:
         '5XX':
           description: Unexpected error.
 
+  '/meta/v1/jpClasses/{classCode}/csv-export/{bearer}':
+    get:
+      tags:
+      - file
+      summary: Download a meta description file in .csv format
+      description: Download a meta description file in .csv format, the name of which is built according to the scheme "ClassCode (ClassName).csv"
+      parameters:
+      - in: path
+        name: classCode
+        required: true
+        schema:
+          type: string
+          format: string
+        description: The metaClass's code
+      - in: path
+        name: bearer
+        required: true
+        schema:
+          type: string
+          format: string
+        description: JWT Token
+      responses:
+        '200':
+          description: Файл скачен
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: A class with the specified code was not found.
+        '5XX':
+          description: Unexpected error.
+
 components:
   securitySchemes:
     password:
@@ -316,6 +349,10 @@ components:
           format: string
           description: Кодовое имя атрибута ссылочного класса
           example: string
+        signAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута, содержащего подпись
         refJpFile:
           type: object
           description: Описание файлового атрибута
@@ -441,6 +478,11 @@ components:
           format: string
           description: Кодовое имя атрибута - Дополнительная информация о файле
           example: fileInfo
+        fileStampAttr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута - Файл со штампом для подписи
+          example: fileStamp
 
     jpSimpleFraction:
       type: object

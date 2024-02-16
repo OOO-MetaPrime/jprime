@@ -1,12 +1,13 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.13.5"
-jacksonDataformatXmlVersion = "2.13.5"
-jacksonDatatypeJsr310Version = "2.13.5"
+jacksonAnnotationsVersion = "2.15.3"
+jacksonDataformatXmlVersion = "2.15.3"
+jacksonDataformatYamlVersion = "2.15.3"
+jacksonDatatypeJsr310Version = "2.15.3"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.6"
+jodconverterLocalVersion = "4.4.7"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
 # sshj
@@ -14,19 +15,29 @@ sshjVersion = "0.35.0"
 # lombok
 lombokVersion = "1.18.26"
 lombokPluginVersion = "6.6.1"
+# Apache velocity
+apacheVelocityVersion = "2.3"
+# Opencsv parser
+opencsvParserVersion = "5.8"
+# Bucket4j (Java rate-limiting library based on token-bucket algorithm)
+bucket4jVersion = "8.3.0"
 
 [libraries]
 jackson-annotations = { module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonAnnotationsVersion" }
 jackson-dataformat-xml = { module="com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref="jacksonDataformatXmlVersion" }
+jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jacksonDataformatYamlVersion" }
 jackson-datatype-jsr310 = { module="com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref="jacksonDatatypeJsr310Version" }
 javapoet = { module="com.squareup:javapoet", version.ref="javapoetVersion" }
 jodconverter-local = { module="org.jodconverter:jodconverter-local", version.ref="jodconverterLocalVersion" }
 nio-multipart-parser = { module="org.synchronoss.cloud:nio-multipart-parser", version.ref="nioMultipartParserVersion" }
 sshj ={ module="com.hierynomus:sshj", version.ref="sshjVersion" }
 lombok ={ module="org.projectlombok:lombok", version.ref="lombokVersion" }
+apacheVelocity ={ module="org.apache.velocity:velocity-engine-core", version.ref="apacheVelocityVersion" }
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsvParserVersion" }
+bucket4j ={ module="com.bucket4j:bucket4j-core", version.ref="bucket4jVersion"}
 
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref="lombokPluginVersion" }
 
 [bundles]
-jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310']
+jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310', 'jackson-dataformat-yaml']

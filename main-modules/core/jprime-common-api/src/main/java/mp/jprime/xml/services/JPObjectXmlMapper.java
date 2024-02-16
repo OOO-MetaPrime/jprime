@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import mp.jprime.formats.DateFormat;
-import mp.jprime.json.services.JPBaseJsonMapper;
+import mp.jprime.json.services.JPBaseObjectMapper;
 import mp.jprime.json.services.MixInForIgnoreType;
 import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 
@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.TimeZone;
 
-public abstract class JPObjectXmlMapper extends JPBaseJsonMapper {
+public abstract class JPObjectXmlMapper extends JPBaseObjectMapper {
 
   protected void setSettings(Collection<JPObjectMapperXmlExpander> expanders, ObjectMapper mapper) {
     // Добавляем модули

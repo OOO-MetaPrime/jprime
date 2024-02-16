@@ -9,6 +9,7 @@ import java.time.Period;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -553,4 +554,98 @@ class PeriodsTest {
     assertTrue(CollectionUtils.isEqualCollection(expectedPeriods, result));
   }
 
+  @Test
+  void shouldReturnEmptyCollection_whenEmptyMinuendPassed() {
+    assertTrue(JPPeriodUtils.subtract(Collections.emptyList(), null).isEmpty());
+  }
+
+  @Test
+  void shouldReturnEmptyCollection_whenNullMinuendPassed() {
+    assertTrue(JPPeriodUtils.subtract(Collections.emptyList(), null).isEmpty());
+  }
+
+  @Test
+  void shouldReturnMinuend_whenEmptySubtractantPassed() {
+    JPPeriods minuend = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)));
+    Collection<JPPeriod> actual = JPPeriodUtils.subtract(minuend.getPeriod(), Collections.emptyList());
+    assertFalse(actual.isEmpty());
+    assertTrue(CollectionUtils.isEqualCollection(minuend.getPeriod(), actual));
+  }
+
+  @Test
+  void shouldReturnSubtractant_whenNullSubtractantPassed() {
+    JPPeriods minuend = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)));
+    Collection<JPPeriod> actual = JPPeriodUtils.subtract(minuend, null);
+    assertFalse(actual.isEmpty());
+    assertTrue(CollectionUtils.isEqualCollection(minuend.getPeriod(), actual));
+  }
+
+  @Test
+  void shouldSubtractCorrectly() {
+    JPPeriods minuend = JPPeriods.get()
+        .add(JPPeriod.get(null, LocalDate.of(1999, 10, 10)))
+        .add(JPPeriod.get(LocalDate.of(1999, 11, 11), LocalDate.of(1999, 12, 12)))
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)))
+        .add(JPPeriod.get(LocalDate.of(2001, 10, 10), null));
+
+    JPPeriods sub = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(1999, 5, 5), LocalDate.of(1999, 6, 6)))
+        .add(JPPeriod.get(LocalDate.of(1999, 7, 7), LocalDate.of(1999, 11, 11)))
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)))
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 5), LocalDate.of(2000, 1, 6)));
+
+    Collection<JPPeriod> actual = JPPeriodUtils.subtract(minuend, sub);
+    assertFalse(CollectionUtils.isEmpty(actual));
+
+    Collection<JPPeriod> expected = List.of(
+        JPPeriod.get(null, LocalDate.of(1999, 5, 4)),
+        JPPeriod.get(LocalDate.of(1999, 6, 7), LocalDate.of(1999, 7, 6)),
+        JPPeriod.get(LocalDate.of(1999, 11, 12), LocalDate.of(1999, 12, 12)),
+        JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 1)),
+        JPPeriod.get(LocalDate.of(2000, 1, 4), LocalDate.of(2000, 1, 4)),
+        JPPeriod.get(LocalDate.of(2000, 1, 7), LocalDate.of(2000, 1, 30)),
+        JPPeriod.get(LocalDate.of(2001, 10, 10), null)
+    );
+    assertTrue(CollectionUtils.isEqualCollection(expected, actual));
+  }
+
+  @Test
+  void shouldReturnEmptyCollection_whenOpenSubtractantPassed() {
+    JPPeriods minuend = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)));
+
+    JPPeriods sub = JPPeriods.get()
+        .add(JPPeriod.get(null, null));
+
+    assertTrue(JPPeriodUtils.subtract(minuend, sub).isEmpty());
+  }
+
+  @Test
+  void shouldReturnEmptyCollection_whenOpenPeriodsPassed() {
+    JPPeriods periods = JPPeriods.get()
+        .add(JPPeriod.get(null, null));
+
+    assertTrue(JPPeriodUtils.subtract(periods, periods).isEmpty());
+  }
+
+  @Test
+  void shouldReturnEmptyCollection_whenSubtractantEqualsToMinuend() {
+    JPPeriods periods = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)));
+
+    assertTrue(JPPeriodUtils.subtract(periods, periods).isEmpty());
+  }
+
+  @Test
+  void shouldReturnEmptyCollection_whenSubtractantCoversMinuend() {
+    JPPeriods minuend = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 30)));
+
+    JPPeriods sub = JPPeriods.get()
+        .add(JPPeriod.get(LocalDate.of(1999, 1, 1), LocalDate.of(2001, 1, 30)));
+
+    assertTrue(JPPeriodUtils.subtract(minuend, sub).isEmpty());
+  }
 }

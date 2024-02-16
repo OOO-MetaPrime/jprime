@@ -1,19 +1,12 @@
 package mp.jprime.files.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Date;
 
 /**
  * Описание ответа после загрузки файла
  */
-@JsonPropertyOrder({
-    "fileCode",
-    "name",
-    "createdDate",
-    "length"
-})
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonFileInfo {
   /**

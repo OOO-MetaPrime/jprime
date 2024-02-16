@@ -1,13 +1,14 @@
 package mp.jprime.meta.beans;
 
 import mp.jprime.meta.*;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 
 /**
- * метаописание атрибута
+ * Метаописание атрибута
  */
 public final class JPAttrBean implements JPAttr {
   private final String jpClassCode;
@@ -36,18 +37,19 @@ public final class JPAttrBean implements JPAttr {
   private final JPGeometry geometry;
   private final JPVirtualPath virtualReference;
   private final Collection<JPProperty> schemaProps;
+  private final String signAttrCode;
 
-  private JPAttrBean(String jpClassCode, String guid, String code, String type, Integer length, boolean identifier,
+  private JPAttrBean(String jpClassCode, String guid, String code, JPType type, Integer length, boolean identifier,
                      boolean mandatory,
                      String name, String shortName, String description,
                      String qName, String jpPackage, Collection<JPProperty> schemaProps,
                      String refJpClassCode, String refJpAttrCode,
                      JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money,
-                     JPGeometry geometry, JPVirtualPath virtualReference) {
+                     JPGeometry geometry, JPVirtualPath virtualReference, String signAttrCode) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
-    this.type = type != null && !type.isEmpty() ? JPType.getType(type) : null;
+    this.type = type;
     this.name = name != null && !name.isEmpty() ? name : null;
     this.shortName = shortName != null && !shortName.isEmpty() ? shortName : this.name;
     this.description = description != null && !description.isEmpty() ? description : this.name;
@@ -66,6 +68,7 @@ public final class JPAttrBean implements JPAttr {
     this.length = length;
     this.identifier = identifier;
     this.mandatory = mandatory;
+    this.signAttrCode = StringUtils.isBlank(signAttrCode) ? null : signAttrCode;
   }
 
   @Override
@@ -283,6 +286,16 @@ public final class JPAttrBean implements JPAttr {
   }
 
   /**
+   * Код атрибута, содержащего подпись
+   *
+   * @return Код атрибута, содержащего подпись
+   */
+  @Override
+  public String getSignAttrCode() {
+    return signAttrCode;
+  }
+
+  /**
    * Построитель JPAttr
    *
    * @return Builder
@@ -310,6 +323,7 @@ public final class JPAttrBean implements JPAttr {
         (geometry != null ? ", geometry='" + geometry + '\'' : "") +
         ", virtualReference='" + virtualReference + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
+        ", signAttrCode='" + signAttrCode +
         '}';
   }
 
@@ -320,7 +334,7 @@ public final class JPAttrBean implements JPAttr {
     private String jpClassCode;
     private String guid;
     private String code;
-    private String type;
+    private JPType type;
     private Integer length;
     private boolean identifier;
     private boolean mandatory;
@@ -337,6 +351,7 @@ public final class JPAttrBean implements JPAttr {
     private JPGeometry geometry;
     private JPVirtualPath virtualReference;
     private Collection<JPProperty> schemaProps;
+    private String signAttrCode;
 
     private Builder() {
     }
@@ -349,7 +364,7 @@ public final class JPAttrBean implements JPAttr {
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage, schemaProps,
-          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, geometry, virtualReference);
+          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, geometry, virtualReference, signAttrCode);
     }
 
     /**
@@ -468,8 +483,19 @@ public final class JPAttrBean implements JPAttr {
      * @param type Тип атрибута
      * @return Builder
      */
-    public Builder type(String type) {
+    public Builder type(JPType type) {
       this.type = type;
+      return this;
+    }
+
+    /**
+     * Тип атрибута
+     *
+     * @param type Тип атрибута
+     * @return Builder
+     */
+    public Builder type(String type) {
+      this.type = type != null && !type.isEmpty() ? JPType.getType(type) : null;
       return this;
     }
 
@@ -572,5 +598,15 @@ public final class JPAttrBean implements JPAttr {
       return this;
     }
 
+    /**
+     * Код атрибута, содержащего подпись
+     *
+     * @param signAttrCode Код атрибута, содержащего подпись
+     * @return Builder
+     */
+    public Builder signAttrCode(String signAttrCode) {
+      this.signAttrCode = signAttrCode;
+      return this;
+    }
   }
 }

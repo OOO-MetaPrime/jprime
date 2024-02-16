@@ -1,5 +1,8 @@
 package mp.jprime.dataaccess.enums;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Условия выборки
  */
@@ -193,6 +196,14 @@ public enum FilterOperation {
    */
   STARTS_WITH("startsWith");
 
+  private static final Map<String, FilterOperation> BY_CODE = new HashMap<>();
+
+  static {
+    for (FilterOperation type : FilterOperation.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
+
   private final String code;
 
   FilterOperation(String code) {
@@ -215,14 +226,6 @@ public enum FilterOperation {
    * @return Условия выборки
    */
   public static FilterOperation getOperation(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (FilterOperation v : FilterOperation.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }

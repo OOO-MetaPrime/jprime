@@ -19,6 +19,8 @@ import reactor.core.publisher.FluxSink;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * Загрузка настроек доступа к пакету
@@ -44,14 +46,14 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
    * @return Список описания настроек доступа к пакету
    */
   @Override
-  public Flux<JPSecurityPackage> load() {
+  public Flux<Collection<JPSecurityPackage>> load() {
     return Flux.create(x -> {
       loadTo(x);
       x.complete();
     });
   }
 
-  private void loadTo(FluxSink<JPSecurityPackage> sink) {
+  private void loadTo(FluxSink<Collection<JPSecurityPackage>> sink) {
     try {
       Resource[] resources = null;
       try {
@@ -63,6 +65,7 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
         return;
       }
 
+      Collection<JPSecurityPackage> result = new ArrayList<>();
       for (Resource res : resources) {
         try (InputStream is = res.getInputStream()) {
           XmlJpSecurity xmlJpSecurity = new XmlMapper().readValue(is, XmlJpSecurity.class);
@@ -104,9 +107,12 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
                     .build());
               }
             }
-            sink.next(builder.build());
+            result.add(builder.build());
           }
         }
+      }
+      if (!result.isEmpty()) {
+        sink.next(result);
       }
     } catch (IOException e) {
       throw JPRuntimeException.wrapException(e);

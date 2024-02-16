@@ -40,14 +40,14 @@ public @interface JPFile {
   String fileTitleAttrCode() default "";
 
   /**
-   * Атрибут для хранения -  Расширение файла
+   * Атрибут для хранения - Расширение файла
    *
    * @return Кодовое имя атрибута
    */
   String fileExtAttrCode() default "";
 
   /**
-   * Атрибут для хранения -  Размер файла
+   * Атрибут для хранения - Размер файла
    *
    * @return Кодовое имя атрибута
    */
@@ -66,4 +66,11 @@ public @interface JPFile {
    * @return Кодовое имя атрибута
    */
   String fileInfoAttrCode() default "";
+
+  /**
+   * Атрибут для хранения - Файл со штампом для подписи
+   *
+   * @return Кодовое имя атрибута
+   */
+  String fileStampAttrCode() default "";
 }

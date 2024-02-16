@@ -1,5 +1,6 @@
 package mp.jprime.lang;
 
+import java.util.Collection;
 import java.util.List;
 
 public final class JPStringArray extends JPArray<String> {
@@ -20,6 +21,16 @@ public final class JPStringArray extends JPArray<String> {
   public String[] toArray() {
     List<String> values = getValues();
     return values.toArray(new String[0]);
+  }
+
+  /**
+   * Создать JPStringArray
+   *
+   * @param values Список значений
+   * @return JPStringArray
+   */
+  public static JPStringArray of(Collection<String> values) {
+    return new JPStringArray(values != null ? values.stream().toList() : null);
   }
 
   /**

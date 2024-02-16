@@ -1,5 +1,8 @@
 package mp.jprime.dataaccess.enums;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Агрегации
  */
@@ -29,6 +32,14 @@ public enum AggregationOperator {
    */
   COUNT_DISTINCT("COUNT_DISTINCT");
 
+  private static final Map<String, AggregationOperator> BY_CODE = new HashMap<>();
+
+  static {
+    for (AggregationOperator type : AggregationOperator.values()) {
+      BY_CODE.put(type.getCode().toLowerCase(), type);
+    }
+  }
+
   private final String code;
 
   /**
@@ -51,14 +62,6 @@ public enum AggregationOperator {
    * @return Логическое условие
    */
   public static AggregationOperator getOperator(String code) {
-    if (code == null) {
-      return null;
-    }
-    for (AggregationOperator v : AggregationOperator.values()) {
-      if (v.code.equalsIgnoreCase(code)) {
-        return v;
-      }
-    }
-    return null;
+    return code == null ? null : BY_CODE.get(code.toLowerCase());
   }
 }
