@@ -5,7 +5,6 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.beans.AuthInfoBean;
 import mp.jprime.security.services.JPSecurityStorage;
-import mp.jprime.utils.services.JPUtilService;
 import mp.jprime.utils.test.beans.In;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

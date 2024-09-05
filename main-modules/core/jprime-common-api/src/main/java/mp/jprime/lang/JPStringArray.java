@@ -36,6 +36,19 @@ public final class JPStringArray extends JPArray<String> {
   /**
    * Создать JPStringArray
    *
+   * @param value Значение
+   * @return JPStringArray
+   */
+  public static JPStringArray of(String value) {
+    if (value == null) {
+      return null;
+    }
+    return new JPStringArray(List.of(value));
+  }
+
+  /**
+   * Создать JPStringArray
+   *
    * @param values Список значений
    * @return JPStringArray
    */

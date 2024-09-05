@@ -1,5 +1,6 @@
 package mp.jprime.api.rest.controllers;
 
+import mp.jprime.configurations.JPQuerySettings;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
@@ -12,7 +13,6 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiAggregateController implements JPObjectRepositoryServiceAware {
+public class RestApiAggregateController extends JPQuerySettings implements JPObjectRepositoryServiceAware {
   /**
    * Заполнение запросов на основе JSON
    */
@@ -40,9 +40,6 @@ public class RestApiAggregateController implements JPObjectRepositoryServiceAwar
    * Обработчик JWT
    */
   private JWTService jwtService;
-
-  @Value("${jprime.query.queryTimeout:}")
-  private Integer queryTimeout;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -79,7 +76,7 @@ public class RestApiAggregateController implements JPObjectRepositoryServiceAwar
     JPAggregate.Builder builder;
     try {
       builder = queryService.getAggregate(jpClass.getCode(), query, authInfo)
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);

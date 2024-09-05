@@ -58,20 +58,20 @@ public interface JPReactiveObjectRepository {
   }
 
   /**
-   * Создает объект
-   *
-   * @param query Параметры для создания
-   * @return Идентификатор созданного объекта
-   */
-  Mono<JPId> asyncCreate(JPCreate query);
-
-  /**
    * Возвращает результаты агрегации
    *
    * @param aggr Параметры для выборки
    * @return Список объектов
    */
   Mono<JPData> getAsyncAggregate(JPAggregate aggr);
+
+  /**
+   * Создает объект
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
+  Mono<JPId> asyncCreate(JPCreate query);
 
   /**
    * Создает объект
@@ -96,6 +96,24 @@ public interface JPReactiveObjectRepository {
    * @return Обновленный объект
    */
   Mono<JPObject> asyncUpdateAndGet(JPUpdate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
+  Mono<JPId> asyncPatch(JPCreate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Созданные объект
+   */
+  Mono<JPObject> asyncPatchAndGet(JPCreate query);
 
   /**
    * Удаляет объект

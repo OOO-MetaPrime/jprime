@@ -2,7 +2,7 @@ dependencies {
   api(groovy.groovy.all)
   api(commons.lang3)
 
-  testImplementation('org.springframework.boot:spring-boot-starter-test')
+  testImplementation project(":jprime-test")
 }
 
 bootJar {

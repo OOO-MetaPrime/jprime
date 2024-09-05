@@ -1,6 +1,5 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.files.FileType;
 import mp.jprime.lang.*;
 
 import java.math.BigDecimal;

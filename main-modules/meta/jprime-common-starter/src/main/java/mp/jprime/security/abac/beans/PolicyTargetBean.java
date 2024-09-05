@@ -28,5 +28,9 @@ public class PolicyTargetBean implements PolicyTarget {
   public static PolicyTargetBean from(Collection<String> jpClasses) {
     return new PolicyTargetBean(jpClasses);
   }
+
+  public static PolicyTargetBean from(String jpClass) {
+    return new PolicyTargetBean(Collections.singleton(jpClass));
+  }
 }
 

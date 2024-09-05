@@ -2,6 +2,7 @@ package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -34,7 +35,10 @@ public class JPBatchCreate extends JPBatchSave {
       this.conflictSet = Collections.emptyList();
     }
     this.data = data == null ? Collections.emptyList() :
-        Collections.unmodifiableCollection(data.stream().map(JPMutableData::of).collect(Collectors.toList()));
+        Collections.unmodifiableCollection(data.stream()
+            .map(JPMutableData::of)
+            .collect(Collectors.toList())
+        );
   }
 
   /**
@@ -186,6 +190,19 @@ public class JPBatchCreate extends JPBatchSave {
      */
     public Builder set(JPAttr attr, Object value) {
       return attr != null ? set(attr.getCode(), value) : this;
+    }
+
+    /**
+     * Значение атрибута при создании
+     *
+     * @param attrValues значения атрибутов
+     * @return Построитель {@link JPBatchCreate}
+     */
+    public Builder set(JPMap attrValues) {
+      if (attrValues != null && !attrValues.isEmpty()) {
+        attrValues.forEach((k, v) -> this.data.put(k, v));
+      }
+      return this;
     }
 
     /**

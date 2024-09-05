@@ -92,18 +92,18 @@ public class JsonJPObject {
     // Все его ссылочные
     this.links.addAll(cls.getAttrs()
         .stream()
-        .filter(x -> x.getRefJpClassCode() != null)
+        .filter(x -> x.getRefJpClass() != null)
         .map(x -> {
           JsonLink.Builder builder = JsonLink.newBuilder()
               .rel(x.getCode())
               .baseUrl(baseUrl)
               .restMapping(restMapping);
 
-          JPClass refClass = metaStorage.getJPClassByCode(x.getRefJpClassCode());
+          JPClass refClass = metaStorage.getJPClassByCode(x.getRefJpClass());
           if (refClass == null) {
             return null;
           }
-          JPAttr refAttr = refClass.getAttr(x.getRefJpAttrCode());
+          JPAttr refAttr = refClass.getAttr(x.getRefJpAttr());
           if (refAttr == null) {
             return null;
           }

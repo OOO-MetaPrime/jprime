@@ -85,7 +85,9 @@ public class JPAppCompositeException extends JPAppRuntimeException implements Co
 
   @Override
   public String getMessage() {
-    return prefixMessage + data.stream().map(JPAppRuntimeException::getMessage).collect(Collectors.joining(", "));
+    return prefixMessage + data.stream()
+        .map(JPAppRuntimeException::getMessage)
+        .collect(Collectors.joining(", "));
   }
 
   /**

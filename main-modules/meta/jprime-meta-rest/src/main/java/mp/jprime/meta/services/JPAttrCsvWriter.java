@@ -24,7 +24,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       "Кодовое имя",
       "Название",
       "Тип",
-      "Кодовое имя пакета/группировки метаописания",
+      "Настройки доступа",
       "Код класса",
       "Идентификатор/гуид",
       "Признак идентификатора",
@@ -123,8 +123,8 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       line[10] = value.getShortName();
       line[11] = value.getDescription();
       line[12] = value.getQName();
-      line[13] = value.getRefJpClassCode();
-      line[14] = value.getRefJpAttrCode();
+      line[13] = value.getRefJpClass();
+      line[14] = value.getRefJpAttr();
       line[15] = refJpFileToString(value.getRefJpFile());
       line[16] = simpleFractionToString(value.getSimpleFraction());
       line[17] = moneyToString(value.getMoney());

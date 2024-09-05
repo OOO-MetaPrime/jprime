@@ -20,7 +20,7 @@ public final class JPUtilCheckInParams extends BaseJPUtilInParams {
     private String rootObjectClassCode;
     private String rootObjectId;
     private String objectClassCode;
-    private Collection<String> objectIds = new ArrayList<>();
+    private final Collection<String> objectIds = new ArrayList<>();
 
 
     private Builder() {

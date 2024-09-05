@@ -59,7 +59,7 @@ public class JsonParam {
   /**
    * Перечислимые значения
    */
-  private Collection<JsonEnum> enums;
+  private Collection<JsonJPEnum> enums;
   /**
    * Разрешен множественный выбор
    */
@@ -71,7 +71,7 @@ public class JsonParam {
 
   private JsonParam(String code, String type, Integer length, String description, String qName,
                     boolean mandatory, Object value, boolean multiple, boolean external, String refJpClass,
-                    String refJpAttr, String refFilter, Collection<JsonEnum> enums, boolean clientSearch) {
+                    String refJpAttr, String refFilter, Collection<JsonJPEnum> enums, boolean clientSearch) {
     this.code = code;
     this.type = type;
     this.length = length;
@@ -147,7 +147,7 @@ public class JsonParam {
     return refFilter;
   }
 
-  public Collection<JsonEnum> getEnums() {
+  public Collection<JsonJPEnum> getEnums() {
     return enums;
   }
 
@@ -172,7 +172,7 @@ public class JsonParam {
     private String refJpClass;
     private String refJpAttr;
     private String refFilter;
-    private Collection<JsonEnum> enums;
+    private Collection<JsonJPEnum> enums;
     private boolean clientSearch;
 
     private Builder() {
@@ -243,7 +243,7 @@ public class JsonParam {
       return this;
     }
 
-    public Builder enums(Collection<JsonEnum> enums) {
+    public Builder enums(Collection<JsonJPEnum> enums) {
       this.enums = enums;
       return this;
     }

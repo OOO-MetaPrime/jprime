@@ -1,5 +1,6 @@
 package mp.jprime.kafka.consumers;
 
+import jakarta.annotation.PostConstruct;
 import mp.jprime.exceptions.JPRuntimeException;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
@@ -18,7 +19,6 @@ import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.backoff.FixedBackOff;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;

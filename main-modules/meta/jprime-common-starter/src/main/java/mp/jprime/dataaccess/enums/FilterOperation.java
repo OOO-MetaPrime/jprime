@@ -188,9 +188,13 @@ public enum FilterOperation {
    */
   NOT_STARTS_WITH("notStartsWith"),
   /**
-   * Этот диапазон содержится в диапазон
+   * Этот диапазон содержится в диапазоне
    */
-  OVERLAPSRANGE("overlapsRange"),
+  OVERLAPS_RANGE("overlapsRange"),
+  /**
+   * Этот массив содержится в массиве
+   */
+  OVERLAPS_ARRAY("overlapsArray"),
   /**
    * Начинается С
    */

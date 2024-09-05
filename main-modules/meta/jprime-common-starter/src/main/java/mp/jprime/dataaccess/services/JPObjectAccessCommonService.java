@@ -9,6 +9,7 @@ import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
@@ -29,7 +30,7 @@ import java.util.stream.Collectors;
  * Реализация проверки доступа к объекту
  */
 @Service
-public class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService, JPObjectRepositoryServiceAware, JPObjectDefValueServiceAware {
+public final class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService, JPObjectRepositoryServiceAware, JPObjectDefValueServiceAware {
   // Интерфейс создания/изменения объекта
   private JPObjectRepositoryService repo;
   // Хранилище метаинформации
@@ -75,7 +76,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     }
     JPClass jpClass = metaStorage.getJPClassByCode(classCode);
     JPAttr jpAttr = jpClass != null ? jpClass.getAttr(refAttrCode) : null;
-    if (jpAttr == null || jpAttr.getRefJpClassCode() == null) {
+    if (jpAttr == null || jpAttr.getRefJpClass() == null) {
       return Boolean.FALSE;
     }
     JPMutableData data = defValueService
@@ -83,7 +84,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
             classCode,
             JPObjectDefValueParamsBean.newBuilder()
                 .rootId(value)
-                .rootJpClassCode(jpAttr.getRefJpClassCode())
+                .rootJpClassCode(jpAttr.getRefJpClass())
                 .refAttrCode(refAttrCode)
                 .auth(auth)
                 .build()
@@ -113,7 +114,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
    * @return Да/Нет
    */
   @Override
-  public boolean checkCreate(String classCode, JPMutableData createData, AuthInfo auth) {
+  public boolean checkCreate(String classCode, JPMap createData, AuthInfo auth) {
     return isCreateCheck(classCode, createData, auth);
   }
 
@@ -198,7 +199,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
    * @return Да/Нет
    */
   @Override
-  public boolean checkUpdate(JPId id, JPMutableData updateData, AuthInfo auth) {
+  public boolean checkUpdate(JPId id, JPMap updateData, AuthInfo auth) {
     return checkUpdate(id, updateData, Boolean.FALSE, auth);
   }
 
@@ -247,7 +248,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
    * @return Да/Нет
    */
   @Override
-  public boolean checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth) {
+  public boolean checkUpdateExists(JPId id, JPMap updateData, AuthInfo auth) {
     return checkUpdate(id, updateData, Boolean.TRUE, auth);
   }
 
@@ -295,7 +296,7 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
     return true;
   }
 
-  private boolean checkUpdate(JPId id, JPMutableData updateData, boolean checkExists, AuthInfo auth) {
+  private boolean checkUpdate(JPId id, JPMap updateData, boolean checkExists, AuthInfo auth) {
     if (id == null || auth == null) {
       return false;
     }
@@ -344,7 +345,9 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
    */
   @Override
   public Collection<JPObjectAccess> objectsAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
-    keys = keys.stream().map(id -> cast(jpClass, id)).collect(Collectors.toList());
+    keys = keys.stream()
+        .map(id -> cast(jpClass, id))
+        .collect(Collectors.toList());
     boolean create = checkCreate(jpClass.getCode(), auth);
     Collection<? extends Comparable> read = fillReadAccess(jpClass, keys, auth);
     Collection<? extends Comparable> update = fillUpdateAccess(jpClass, keys, auth);
@@ -374,7 +377,9 @@ public class JPObjectAccessCommonService extends JPObjectAccessBaseService imple
    */
   @Override
   public Collection<JPObjectAccess> objectsChangeAccess(JPClass jpClass, Collection<? extends Comparable> keys, AuthInfo auth) {
-    keys = keys.stream().map(id -> cast(jpClass, id)).collect(Collectors.toList());
+    keys = keys.stream()
+        .map(id -> cast(jpClass, id))
+        .collect(Collectors.toList());
     Collection<? extends Comparable> update = fillUpdateAccess(jpClass, keys, auth);
     Collection<? extends Comparable> delete = fillDeleteAccess(jpClass, keys, auth);
 

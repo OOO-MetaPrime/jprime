@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 /**
  * Базовая логика для массивов
@@ -22,6 +23,15 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
 
   protected JPArray(T[] values) {
     this.values = values == null || values.length == 0 ? Collections.emptyList() : Collections.unmodifiableList(Arrays.asList(values));
+  }
+
+  /**
+   * Реализация итератора
+   *
+   * @param action Consumer
+   */
+  public void forEach(Consumer<T> action) {
+    values.forEach(action);
   }
 
   protected List<T> getValues() {

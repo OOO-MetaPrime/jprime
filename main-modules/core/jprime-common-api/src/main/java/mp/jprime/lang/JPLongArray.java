@@ -44,6 +44,19 @@ public final class JPLongArray extends JPArray<Long> {
   }
 
   /**
+   * Создать JPStringArray
+   *
+   * @param value Значение
+   * @return JPStringArray
+   */
+  public static JPLongArray of(Long value) {
+    if (value == null) {
+      return null;
+    }
+    return new JPLongArray(List.of(value));
+  }
+
+  /**
    * Создать JPLongArray
    *
    * @param values Массив значений

@@ -4,6 +4,9 @@ import mp.jprime.dataaccess.enums.FilterOperation;
 import mp.jprime.dataaccess.params.query.filters.ValueFilter;
 import mp.jprime.lang.JPRange;
 
+/**
+ * Диапазон содержит диапазон
+ */
 public class OverlapsRange extends ValueFilter<JPRange<?>> {
   /**
    * Конструктор
@@ -22,6 +25,6 @@ public class OverlapsRange extends ValueFilter<JPRange<?>> {
    */
   @Override
   public FilterOperation getOper() {
-    return FilterOperation.OVERLAPSRANGE;
+    return FilterOperation.OVERLAPS_RANGE;
   }
 }

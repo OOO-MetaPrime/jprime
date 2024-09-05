@@ -21,7 +21,6 @@ import static org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE;
 
 public interface DownloadFile {
   Logger LOG = LoggerFactory.getLogger(DownloadFile.class);
-  FileTypeDetector FILE_TYPE_DETECTOR = new FileTypeDetector();
 
   String CONTENT_DISP_PREFIX = "filename=";
   String CONTENT_DISP_EXTRA_PREFIX = "filename*=UTF-8''";
@@ -38,7 +37,7 @@ public interface DownloadFile {
   default Mono<Void> writeTo(ServerWebExchange swe, InputStream is, String fileTitle, Long fileLength,
                              String contentType, String userAgent) {
     return Mono.justOrEmpty(contentType)
-        .defaultIfEmpty(FILE_TYPE_DETECTOR.mediaType(fileTitle))
+        .defaultIfEmpty(FileTypeDetector.mediaType(fileTitle))
         .flatMap(x -> {
               String encodedFileName = rfc5987_encode(fileTitle);
 

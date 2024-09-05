@@ -55,7 +55,6 @@ public class RestApiMultipartCRUDController extends DownloadFileRestController {
         .runOn(Schedulers.parallel())
         .flatMap(attr -> jpFileLoader.asyncGetInfo(JPId.get(classCode, objectId), attr, jwtService.getAuthInfo(bearer, swe)))
         .sequential()
-        .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .collectList()
         .flatMap(infoList -> infoList.size() == 1 ? writeTo(swe, infoList.iterator().next(), userAgent) : writeZipTo(swe, infoList, userAgent));
   }

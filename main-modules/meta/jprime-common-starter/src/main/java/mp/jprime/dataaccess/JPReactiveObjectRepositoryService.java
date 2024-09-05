@@ -57,7 +57,7 @@ public interface JPReactiveObjectRepositoryService {
    * Создает объект
    *
    * @param query Параметры для создания
-   * @return Созданные объект
+   * @return Созданный объект
    */
   Mono<JPObject> asyncCreateAndGet(JPCreate query);
 
@@ -76,6 +76,24 @@ public interface JPReactiveObjectRepositoryService {
    * @return Обновленный объект
    */
   Mono<JPObject> asyncUpdateAndGet(JPUpdate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
+  Mono<JPId> asyncPatch(JPCreate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Созданный объект
+   */
+  Mono<JPObject> asyncPatchAndGet(JPCreate query);
 
   /**
    * Удаляет объект

@@ -1,5 +1,7 @@
 package mp.jprime.json.beans;
 
+import mp.jprime.dataaccess.beans.JPId;
+
 /*
  * Модель данных ответа получения jpId
  */
@@ -26,56 +28,11 @@ public class JsonJPId {
     return classCode;
   }
 
-  /**
-   * Построитель JsonJPId
-   *
-   * @return Builder
-   */
-  public static Builder newBuilder() {
-    return new Builder();
+  public static JsonJPId of(JPId id) {
+    return id != null ? new JsonJPId(id.getId(), id.getJpClass()) : null;
   }
 
-  /**
-   * Построитель ObjectResult
-   */
-  public static final class Builder {
-    private Comparable id;
-    private String classCode;
-
-
-    private Builder() {
-    }
-
-    /**
-     * Идентификатор
-     *
-     * @param id Идентификатор
-     * @return Builder
-     */
-    public Builder id(Comparable id) {
-      this.id = id;
-      return this;
-    }
-
-    /**
-     * Кодовое имя класса
-     *
-     * @param classCode Кодовое имя класса
-     * @return Builder
-     */
-    public Builder classCode(String classCode) {
-      this.classCode = classCode;
-      return this;
-    }
-
-
-    /**
-     * Создаем JsonJPId
-     *
-     * @return JsonJPId
-     */
-    public JsonJPId build() {
-      return new JsonJPId(id, classCode);
-    }
+  public static JsonJPId of(Comparable id, String classCode) {
+    return id != null ? new JsonJPId(id, classCode) : null;
   }
 }

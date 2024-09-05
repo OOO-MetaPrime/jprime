@@ -59,7 +59,9 @@ public class JPCompositeException extends JPRuntimeException implements Composit
 
   @Override
   public String getMessage() {
-    return data.stream().map(JPRuntimeException::getMessage).collect(Collectors.joining(", "));
+    return data.stream()
+        .map(JPRuntimeException::getMessage)
+        .collect(Collectors.joining(", "));
   }
 
   /**

@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -41,6 +42,15 @@ public interface JPObjectRepositoryService {
    * @return Объект
    */
   JPObject getObjectAndLock(JPSelect query);
+
+  /**
+   * Возвращает объект и блокирует его на время транзакции
+   *
+   * @param query      Параметры для выборки
+   * @param skipLocked Признак пропуска заблокированных объектов
+   * @return Объект
+   */
+  JPObject getObjectAndLock(JPSelect query, boolean skipLocked);
 
   /**
    * Возвращает optional результата запроса
@@ -127,6 +137,14 @@ public interface JPObjectRepositoryService {
    * @param query Параметры для создания
    * @return Идентификатор созданного объекта
    */
+  JPId create(JPCreate query);
+
+  /**
+   * Создает объект
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
   default Mono<JPId> asyncCreate(JPCreate query) {
     return Mono.fromCallable(() -> create(query));
   }
@@ -135,9 +153,9 @@ public interface JPObjectRepositoryService {
    * Создает объект
    *
    * @param query Параметры для создания
-   * @return Идентификатор созданного объекта
+   * @return Созданные объект
    */
-  JPId create(JPCreate query);
+  JPObject createAndGet(JPCreate query);
 
   /**
    * Создает объект
@@ -148,14 +166,6 @@ public interface JPObjectRepositoryService {
   default Mono<JPObject> asyncCreateAndGet(JPCreate query) {
     return Mono.fromCallable(() -> createAndGet(query));
   }
-
-  /**
-   * Создает объект
-   *
-   * @param query Параметры для создания
-   * @return Созданные объект
-   */
-  JPObject createAndGet(JPCreate query);
 
   /**
    * Обновляем объект
@@ -176,6 +186,24 @@ public interface JPObjectRepositoryService {
   JPId update(JPUpdate query);
 
   /**
+   * Обновляем объекты по условию
+   *
+   * @param query Параметры для обновления
+   * @return Количество обновленных объектов
+   */
+  default Mono<Long> asyncUpdate(JPConditionalUpdate query) {
+    return Mono.fromCallable(() -> update(query));
+  }
+
+  /**
+   * Обновляем объект
+   *
+   * @param query Параметры для обновления
+   * @return Обновленный объект
+   */
+  JPObject updateAndGet(JPUpdate query);
+
+  /**
    * Обновляем объект
    *
    * @param query Параметры для обновления
@@ -186,12 +214,52 @@ public interface JPObjectRepositoryService {
   }
 
   /**
-   * Обновляем объект
+   * Обновляем объекты по условию
    *
    * @param query Параметры для обновления
-   * @return Обновленный объект
+   * @return Количество обновленных объектов
    */
-  JPObject updateAndGet(JPUpdate query);
+  Long update(JPConditionalUpdate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
+  JPId patch(JPCreate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Идентификатор созданного объекта
+   */
+  default Mono<JPId> asyncPatch(JPCreate query) {
+    return Mono.fromCallable(() -> patch(query));
+  }
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Созданные объект
+   */
+  JPObject patchAndGet(JPCreate query);
+
+  /**
+   * Создает или обновляет объект
+   * Метод поддерживается только для меты, где определена логика уникального ключа
+   *
+   * @param query Параметры для создания
+   * @return Созданные объект
+   */
+  default Mono<JPObject> asyncPatchAndGet(JPCreate query) {
+    return Mono.fromCallable(() -> patchAndGet(query));
+  }
 
   /**
    * Удаляет объект
@@ -210,6 +278,24 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   Long delete(JPDelete query);
+
+  /**
+   * Удаляет объекты по условию
+   *
+   * @param query Парамеры для удаления
+   * @return Количество удаленных объектов
+   */
+  default Mono<Long> asyncDelete(JPConditionalDelete query) {
+    return Mono.fromCallable(() -> delete(query));
+  }
+
+  /**
+   * Удаляет объекты по условию
+   *
+   * @param query Парамеры для удаления
+   * @return Количество удаленных объектов
+   */
+  Long delete(JPConditionalDelete query);
 
   /**
    * Создает объекты
@@ -237,6 +323,20 @@ public interface JPObjectRepositoryService {
    *                             2) Между батчами есть отличия в атрибутах
    */
   void batch(JPBatchCreate query);
+
+
+  /**
+   * Создает объекты и возвращает идентификаторы созданных объектов
+   * <p>
+   * Прямые и обратные ссылки не учитываются
+   * {@link JPClassHandler#beforeCreate(JPCreate)} и {@link JPClassHandler#afterCreate(Comparable, JPCreate)} не учитываются
+   *
+   * @param query Параметры для создания
+   * @throws JPRuntimeException, когда:
+   *                             1) query == null
+   *                             2) Между батчами есть отличия в атрибутах
+   */
+  <T> List<T> batchWithKeys(JPBatchCreate query);
 
   /**
    * Обновляет объекты

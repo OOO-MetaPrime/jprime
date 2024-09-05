@@ -1,8 +1,8 @@
 package mp.jprime.dataaccess;
 
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObjectAccess;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 
@@ -40,7 +40,7 @@ public interface JPObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  boolean checkCreate(String classCode, JPMutableData createData, AuthInfo auth);
+  boolean checkCreate(String classCode, JPMap createData, AuthInfo auth);
 
   /**
    * Проверка доступа на чтение
@@ -104,7 +104,7 @@ public interface JPObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  boolean checkUpdate(JPId id, JPMutableData updateData, AuthInfo auth);
+  boolean checkUpdate(JPId id, JPMap updateData, AuthInfo auth);
 
   /**
    * Проверка доступа на чтение
@@ -141,7 +141,7 @@ public interface JPObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  boolean checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth);
+  boolean checkUpdateExists(JPId id, JPMap updateData, AuthInfo auth);
 
   /**
    * Массовая проверка объектов на доступ

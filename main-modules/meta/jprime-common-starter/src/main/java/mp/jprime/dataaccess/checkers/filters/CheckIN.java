@@ -4,6 +4,8 @@ import mp.jprime.dataaccess.params.query.filters.IN;
 import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
+import org.checkerframework.checker.units.qual.C;
+import org.springframework.util.CollectionUtils;
 
 import java.util.Collection;
 
@@ -26,7 +28,11 @@ public class CheckIN extends CheckBaseFilter<IN> {
     if (attrValue == null) {
       return Boolean.FALSE;
     }
-    Collection<? extends Object> p = parseToCollection(attrValue.getClass(), filterValue, auth);
-    return p.contains(attrValue);
+    if (attrValue instanceof Collection<?> aC) {
+      return CollectionUtils.containsAny(aC, filterValue);
+    } else {
+      Collection<? extends Object> p = parseToCollection(attrValue.getClass(), filterValue, auth);
+      return p.contains(attrValue);
+    }
   }
 }

@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess;
 
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import reactor.core.publisher.Mono;
 
@@ -37,7 +37,7 @@ public interface JPReactiveObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  Mono<Boolean> checkCreate(String classCode, JPMutableData createData, AuthInfo auth);
+  Mono<Boolean> checkCreate(String classCode, JPMap createData, AuthInfo auth);
 
   /**
    * Проверка доступа на чтение
@@ -101,7 +101,7 @@ public interface JPReactiveObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  Mono<Boolean> checkUpdate(JPId id, JPMutableData updateData, AuthInfo auth);
+  Mono<Boolean> checkUpdate(JPId id, JPMap updateData, AuthInfo auth);
 
   /**
    * Проверка доступа на чтение + наличие объекта
@@ -138,5 +138,5 @@ public interface JPReactiveObjectAccessService {
    * @param auth       AuthInfo
    * @return Да/Нет
    */
-  Mono<Boolean> checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth);
+  Mono<Boolean> checkUpdateExists(JPId id, JPMap updateData, AuthInfo auth);
 }

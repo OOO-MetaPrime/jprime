@@ -1,6 +1,6 @@
 package mp.jprime.meta.json.beans;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
 
 /**
  * Тип свойства
@@ -28,7 +28,7 @@ public final class JsonPropertyType {
    * @param type JPType
    * @return JsonType
    */
-  public static JsonPropertyType from(PropertyType type) {
+  public static JsonPropertyType from(JPPropertyType type) {
     return new JsonPropertyType(type.getCode(), type.getTitle());
   }
 }

@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.json.beans.*;
 import mp.jprime.lang.*;
@@ -41,6 +42,12 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
   @Override
   public void expand(ObjectMapper objectMapper) {
     SimpleModule module = new SimpleModule()
+        .addDeserializer(String.class, new StdScalarDeserializer<>(String.class) {
+          @Override
+          public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
+            return jsonParser.getValueAsString().trim();
+          }
+        })
         // String to Double
         .addDeserializer(Double.class, new StdDeserializer<>(Double.class) {
           @Override

@@ -2,15 +2,13 @@ package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPMutableData;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 /**
@@ -21,7 +19,7 @@ public class JPBatchUpdate extends JPBatchSave {
 
   private JPBatchUpdate(String jpClass, Map<Comparable, JPMutableData> batches, Source source, AuthInfo auth) {
     super(jpClass, source, auth);
-    this.batches = MapUtils.isEmpty(batches) ? Collections.emptyMap() : Map.copyOf(batches);
+    this.batches = MapUtils.isEmpty(batches) ? Collections.emptyMap() : new LinkedHashMap<>(batches);
   }
 
   /**
@@ -91,9 +89,9 @@ public class JPBatchUpdate extends JPBatchSave {
    * Построитель {@link JPBatchUpdate}
    */
   public static final class Builder extends JPBatchSave.Builder<Builder> {
-    private final Map<Comparable, JPMutableData> batches = new HashMap<>();
+    private final Map<Comparable, JPMutableData> batches = new LinkedHashMap<>();
     private Comparable id;
-    private JPMutableData batch = JPMutableData.empty();
+    private JPMutableData data = JPMutableData.empty();
 
     private Builder(String jpClass) {
       super(jpClass);
@@ -131,6 +129,20 @@ public class JPBatchUpdate extends JPBatchSave {
       return attr != null ? set(attr.getCode(), value) : this;
     }
 
+
+    /**
+     * Значение атрибута при создании
+     *
+     * @param attrValues значения атрибутов
+     * @return Построитель {@link JPBatchCreate}
+     */
+    public Builder set(JPMap attrValues) {
+      if (attrValues != null && !attrValues.isEmpty()) {
+        attrValues.forEach((k, v) -> this.data.put(k, v));
+      }
+      return this;
+    }
+
     /**
      * Значение атрибута
      *
@@ -140,17 +152,17 @@ public class JPBatchUpdate extends JPBatchSave {
      */
     public Builder set(String attrCode, Object value) {
       if (attrCode != null && !attrCode.isEmpty()) {
-        this.batch.put(attrCode, value);
+        this.data.put(attrCode, value);
       }
       return this;
     }
 
     public Builder addBatch() {
-      if (id != null && !batch.isEmpty()) {
-        batches.put(id, batch);
+      if (id != null && !data.isEmpty()) {
+        batches.put(id, data);
       }
       id = null;
-      batch = JPMutableData.empty();
+      data = JPMutableData.empty();
       return this;
     }
 
@@ -161,7 +173,7 @@ public class JPBatchUpdate extends JPBatchSave {
      */
     @Override
     public boolean isEmpty() {
-      return batch.isEmpty();
+      return data.isEmpty();
     }
 
     /**

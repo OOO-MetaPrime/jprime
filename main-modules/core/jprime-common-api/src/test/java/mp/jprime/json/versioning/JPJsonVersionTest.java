@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -26,15 +25,8 @@ public class JPJsonVersionTest {
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.parsers", "mp.jprime.json.modules", "mp.jprime.json.services", "mp.jprime.json.versioning"},
-      excludeFilters = {
-          @ComponentScan.Filter(
-              type = FilterType.ASSIGNABLE_TYPE,
-              value = {
-
-              }
-          )
-      })
+      basePackages = {"mp.jprime.parsers", "mp.jprime.json.modules", "mp.jprime.json.services", "mp.jprime.json.versioning"}
+  )
   @EnableConfigurationProperties
   public static class Config {
   }

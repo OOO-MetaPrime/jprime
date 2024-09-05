@@ -1,5 +1,6 @@
 package mp.jprime.api.rest.controllers;
 
+import mp.jprime.configurations.JPQuerySettings;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPUniqueValue;
 import mp.jprime.dataaccess.params.JPSelect;
@@ -13,7 +14,6 @@ import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -21,10 +21,11 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public abstract class RestApiUniqueValuesBaseController {
+public abstract class RestApiUniqueValuesBaseController extends JPQuerySettings {
   /**
    * Заполнение запросов на основе JSON
    */
@@ -38,9 +39,6 @@ public abstract class RestApiUniqueValuesBaseController {
    * Обработчик JWT
    */
   private JWTService jwtService;
-
-  @Value("${jprime.query.queryTimeout:}")
-  private Integer queryTimeout;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -68,12 +66,13 @@ public abstract class RestApiUniqueValuesBaseController {
     try {
       jsonSelect = queryService.getQuery(query);
       builder = queryService.getSelect(jpClassCode, jsonSelect, auth)
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    return getUniqueValues(builder, new ArrayList<>(jsonSelect.getAttrs()))
+    Collection<String> attrs = jsonSelect.getAttrs();
+    return getUniqueValues(builder, attrs == null ? Collections.emptyList() : new ArrayList<>(attrs))
         .map(x -> JsonUniqueValues.newInstance(toJson(x, new Counter())));
   }
 

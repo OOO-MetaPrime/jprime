@@ -1,8 +1,6 @@
 package mp.jprime.dataaccess.validators;
 
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPDelete;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 
 /**
  * Логика вызова валидаторов
@@ -23,9 +21,23 @@ public interface JPClassValidatorService {
   void beforeUpdate(JPUpdate query);
 
   /**
+   * Перед обновлением
+   *
+   * @param query JPUpdate
+   */
+  void beforeUpdate(JPConditionalUpdate query);
+
+  /**
    * Перед удалением
    *
    * @param query JPDelete
    */
   void beforeDelete(JPDelete query);
+
+  /**
+   * Перед удалением
+   *
+   * @param query JPDelete
+   */
+  void beforeDelete(JPConditionalDelete query);
 }

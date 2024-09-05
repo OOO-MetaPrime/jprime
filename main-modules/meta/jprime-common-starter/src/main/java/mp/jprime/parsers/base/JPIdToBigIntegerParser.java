@@ -12,7 +12,7 @@ import java.math.BigInteger;
  * JPId -> BigInteger
  */
 @Service
-public class JPIdToBigIntegerParser implements TypeParser<JPId, BigInteger>, ParserServiceAware {
+public final class JPIdToBigIntegerParser implements TypeParser<JPId, BigInteger>, ParserServiceAware {
   private ParserService service;
 
   @Override

@@ -7,6 +7,7 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.exceptions.JPNotFoundException;
 import mp.jprime.files.JPIdFileInfo;
 import mp.jprime.files.beans.FileInfo;
 import mp.jprime.files.beans.JPIdFileInfoBean;
@@ -19,6 +20,8 @@ import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileStorage;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.security.AuthInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +35,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServiceAware {
+  public static final Logger LOG = LoggerFactory.getLogger(JPFileCommonLoader.class);
   /**
    * Интерфейс создания / обновления объекта
    */
@@ -98,7 +102,13 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
       return Collections.emptyList();
     }
     return list.stream()
-        .map(obj -> toJPFileInfo(obj, info.jpAttr, info.fileStorage))
+        .map(obj -> {
+          try {
+            return toJPFileInfo(obj, info.jpAttr, info.fileStorage);
+          } catch (JPNotFoundException e) {
+            return null;
+          }
+        })
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }

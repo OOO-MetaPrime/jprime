@@ -84,7 +84,7 @@ public class JPFileCommonUploaderTest {
 
     JPCreate.Builder builder = uploader.upload(jpCreate, attr.getCode(), fileName, null);
 
+    Assertions.assertEquals(EXPECTED_FILE_PATH, uploader.getStoragePath(file.getStorageFilePath()));
     Assertions.assertNotNull(builder);
-    Assertions.assertEquals(EXPECTED_FILE_PATH, builder.build().getData().get("storageFilePathAttrCode"));
   }
 }

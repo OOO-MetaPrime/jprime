@@ -151,14 +151,6 @@ import static mp.jprime.security.Role.*;
             name = "Запрет на удаление для любой роли",
             access = {
                 @JPAccess(
-                    type = JPAccessType.PERMIT,
-                    role = AUTH_ACCESS,
-                    read = true,
-                    create = true,
-                    update = true,
-                    delete = false
-                ),
-                @JPAccess(
                     type = JPAccessType.PROHIBITION,
                     role = AUTH_ACCESS,
                     read = false,

@@ -1,14 +1,16 @@
 package mp.jprime.files;
 
 import org.apache.tika.Tika;
-import org.springframework.stereotype.Service;
 
 /**
  * Определение тип файла
  */
-@Service
 public class FileTypeDetector {
-  private Tika tika = new Tika();
+  private static final Tika TIKA = new Tika();
+
+  private FileTypeDetector() {
+
+  }
 
   /**
    * Возвращает media type по имени файла
@@ -16,7 +18,7 @@ public class FileTypeDetector {
    * @param name имя файла
    * @return media type
    */
-  public String mediaType(String name) {
-    return tika.detect(name);
+  public static String mediaType(String name) {
+    return TIKA.detect(name);
   }
 }

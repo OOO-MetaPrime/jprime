@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.handlers;
 
+import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -8,6 +9,14 @@ import mp.jprime.dataaccess.params.JPUpdate;
  * Интерфейс хендлера
  */
 public interface JPClassHandler {
+  /**
+   * Перед созданием производим поиск на совпадение
+   *
+   * @param query JPCreate
+   * @return Идентификатор найденного объекта
+   */
+  JPId find(JPCreate query);
+
   /**
    * Перед созданием
    *

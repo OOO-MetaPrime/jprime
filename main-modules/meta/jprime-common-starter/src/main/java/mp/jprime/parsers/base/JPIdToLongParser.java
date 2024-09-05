@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * JPId -> Long
  */
 @Service
-public class JPIdToLongParser implements TypeParser<JPId, Long>, ParserServiceAware {
+public final class JPIdToLongParser implements TypeParser<JPId, Long>, ParserServiceAware {
   private ParserService service;
 
   @Override

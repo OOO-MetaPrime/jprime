@@ -16,7 +16,6 @@ import org.synchronoss.cloud.nio.multipart.DefaultPartBodyStreamStorageFactory;
 
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @Configuration
-@Lazy(value = false)
 public class JPWebFluxConfig extends WebFluxConfigurationSupport {
   private Jackson2JsonEncoder encoder;
   private Jackson2JsonDecoder decoder;

@@ -147,13 +147,13 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
     String storagePath = getStoragePath(jpFile.getStorageFilePath());
 
     JPFileInfo fileInfo = upload(storageCode, storagePath, fileName, is);
-    builder.set(attr, fileInfo.getFileCode());
-    builder.set(jpFile.getStorageCodeAttrCode(), storageCode);
-    builder.set(jpFile.getStorageFilePathAttrCode(), storagePath);
-    builder.set(jpFile.getFileTitleAttrCode(), fileInfo.getFileTitle());
-    builder.set(jpFile.getFileExtAttrCode(), fileInfo.getFileExt());
-    builder.set(jpFile.getFileSizeAttrCode(), fileInfo.getFileSize());
-    builder.set(jpFile.getFileDateAttrCode(), fileInfo.getFileDate());
+    builder.setSystem(attr, fileInfo.getFileCode());
+    builder.setSystem(jpFile.getStorageCodeAttrCode(), fileInfo.getStorageCode());
+    builder.setSystem(jpFile.getStorageFilePathAttrCode(), fileInfo.getStorageFilePath());
+    builder.setSystem(jpFile.getFileTitleAttrCode(), fileInfo.getFileTitle());
+    builder.setSystem(jpFile.getFileExtAttrCode(), fileInfo.getFileExt());
+    builder.setSystem(jpFile.getFileSizeAttrCode(), fileInfo.getFileSize());
+    builder.setSystem(jpFile.getFileDateAttrCode(), fileInfo.getFileDate());
     return builder;
   }
 
@@ -174,13 +174,8 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
     return UUID.randomUUID().toString();
   }
 
-  /**
-   * Заменяет ключевые слова в пути, если они присутствуют
-   *
-   * @param path Путь
-   * @return Измененный путь
-   */
-  private String getStoragePath(String path) {
+  @Override
+  public String getStoragePath(String path) {
     if (path == null || path.isEmpty()) {
       return path;
     }

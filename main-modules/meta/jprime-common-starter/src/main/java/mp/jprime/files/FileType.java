@@ -9,16 +9,17 @@ import java.util.Map;
  * Типы файлов
  */
 public enum FileType {
-  TXT("txt"),
-  XML("XML"),
-  XLSX("xlsx"),
-  XLS("xls"),
   CSV("csv"),
   DOC("doc"),
   DOCX("docx"),
-  PDF("pdf"),
+  HTML("html"),
   JRXML("jrxml"),
-  HTML("html");
+  PDF("pdf"),
+  TXT("txt"),
+  XLS("xls"),
+  XLSX("xlsx"),
+  XML("XML"),
+  ZIP("zip");
 
   private static final Map<String, FileType> BY_CODE = new HashMap<>();
 

@@ -44,6 +44,19 @@ public final class JPIntegerArray extends JPArray<Integer> {
   }
 
   /**
+   * Создать JPStringArray
+   *
+   * @param value Значение
+   * @return JPStringArray
+   */
+  public static JPIntegerArray of(Integer value) {
+    if (value == null) {
+      return null;
+    }
+    return new JPIntegerArray(List.of(value));
+  }
+
+  /**
    * Создать JPIntegerArray
    *
    * @param values Массив значений

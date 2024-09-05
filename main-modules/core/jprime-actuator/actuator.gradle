@@ -36,6 +36,7 @@ static String getSubmoduleName(String line) {
     if (submodule.contains('/')) {
       submodule = submodule[submodule.lastIndexOf('/') + 1..submodule.length() - 1]
     }
+    submodule = submodule.replace('.', '_')
   }
   if (!submodule) {
     throw new RuntimeException("Submodule status parsing error: unexpected result from command line")

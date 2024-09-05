@@ -107,6 +107,10 @@ public abstract class JPBaseObjectMapper {
     }
   }
 
+  public Map<String, Object> toMap(String value) {
+    return toMap(toJPJsonNode(value));
+  }
+
   public Map<String, Object> toMap(JPJsonNode value) {
     return value == null ? null : toObject(new TypeReference<>() {
     }, value.toString());

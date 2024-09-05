@@ -7,8 +7,8 @@ import java.util.Objects;
  * Описание периода С-По
  */
 public final class JPPeriod {
-  private LocalDate from;
-  private LocalDate to;
+  private final LocalDate from;
+  private final LocalDate to;
 
   /**
    * Конструктор

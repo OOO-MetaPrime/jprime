@@ -1,11 +1,13 @@
 package mp.jprime.repositories;
 
+import mp.jprime.concurrent.JPForkJoinPoolService;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.files.JPIdFileInfo;
 import mp.jprime.security.AuthInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.util.Collection;
 
@@ -13,6 +15,15 @@ import java.util.Collection;
  * Данные файлов объекта
  */
 public interface JPFileLoader {
+  /**
+   * Scheduler для обработки логики
+   *
+   * @return Scheduler
+   */
+  default Scheduler getReactorScheduler() {
+    return JPForkJoinPoolService.reactorScheduler();
+  }
+
   /**
    * Данные файла
    *
@@ -45,7 +56,8 @@ public interface JPFileLoader {
    * @return {@link JPIdFileInfo}
    */
   default Flux<JPIdFileInfo> asyncGetInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
-    return Flux.fromIterable(getInfos(classCode, filter, attr, auth));
+    return Flux.fromIterable(getInfos(classCode, filter, attr, auth))
+        .subscribeOn(getReactorScheduler());
   }
 
   /**
@@ -69,7 +81,8 @@ public interface JPFileLoader {
    * @return FileInfo
    */
   default Mono<JPIdFileInfo> asyncGetInfo(JPId id, String attr, AuthInfo auth) {
-    return Mono.fromCallable(() -> getInfo(id, attr, auth));
+    return Mono.fromCallable(() -> getInfo(id, attr, auth))
+        .subscribeOn(getReactorScheduler());
   }
 
   /**
@@ -93,6 +106,7 @@ public interface JPFileLoader {
    * @return FileInfo
    */
   default Mono<JPIdFileInfo> asyncGetInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
-    return Mono.fromCallable(() -> getInfo(id, filter, attr, auth));
+    return Mono.fromCallable(() -> getInfo(id, filter, attr, auth))
+        .subscribeOn(getReactorScheduler());
   }
 }

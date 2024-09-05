@@ -1,6 +1,7 @@
 package mp.jprime.security.beans;
 
 import mp.jprime.security.AuthInfo;
+import mp.jprime.security.AuthBaseParams;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -8,44 +9,51 @@ import java.util.Collections;
 /**
  * Данные авторизации
  */
-public class AuthInfoBean implements AuthInfo {
+public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
   private final String userIP;
   private final String userId;
+  private final String userGuid;
   private final String oktmo;
-  private final String administration;
+  private final Collection<String> oktmoList;
   private final Collection<Integer> subjectGroups;
   private final String username;
   private final String fio;
   private final Collection<String> roles;
   private final String orgId;
+  private final String sepDepId;
   private final String depId;
   private final String token;
 
   /**
    * Конструктор
    *
-   * @param userIP         IP пользователя
-   * @param userId         Идентификатор пользователя
-   * @param oktmo          ОКТМО пользователя
-   * @param administration ведомство пользователя
-   * @param subjectGroups  предметные группы пользователя
-   * @param orgId          Идентификатор организации пользователя
-   * @param depId          Идентификатор подразделения пользователя
-   * @param username       Логин пользователя
-   * @param fio            ФИО пользователя
-   * @param roles          Роли пользователя
-   * @param token          Токен
+   * @param userIP        IP пользователя
+   * @param userId        Идентификатор пользователя
+   * @param userGuid      Глобальный идентификатор пользователя
+   * @param oktmo         Основной ОКТМО пользователя
+   * @param oktmoList     ОКТМО пользователя
+   * @param subjectGroups предметные группы пользователя
+   * @param orgId         Идентификатор организации пользователя
+   * @param sepDepId      Идентификатор обособленного подразделения пользователя
+   * @param depId         Идентификатор подразделения пользователя
+   * @param username      Логин пользователя
+   * @param fio           ФИО пользователя
+   * @param roles         Роли пользователя
+   * @param token         Токен
    */
-  private AuthInfoBean(String userIP, String userId,
-                       String oktmo, String administration, Collection<Integer> subjectGroups,
-                       String orgId, String depId, String username, String fio,
+  private AuthInfoBean(String userIP, String userId, String userGuid,
+                       String oktmo, Collection<String> oktmoList,
+                       Collection<Integer> subjectGroups,
+                       String orgId, String sepDepId, String depId, String username, String fio,
                        Collection<String> roles, String token) {
     this.userIP = userIP;
     this.userId = userId;
+    this.userGuid = userGuid;
     this.oktmo = oktmo;
-    this.administration = administration;
+    this.oktmoList = oktmoList == null ? Collections.emptyList() : Collections.unmodifiableCollection(oktmoList);
     this.subjectGroups = subjectGroups == null ? Collections.emptyList() : Collections.unmodifiableCollection(subjectGroups);
     this.orgId = orgId;
+    this.sepDepId = sepDepId;
     this.depId = depId;
     this.username = username;
     this.fio = fio;
@@ -73,13 +81,18 @@ public class AuthInfoBean implements AuthInfo {
   }
 
   @Override
+  public String getUserGuid() {
+    return userGuid;
+  }
+
+  @Override
   public String getOktmo() {
     return oktmo;
   }
 
   @Override
-  public String getAdministration() {
-    return administration;
+  public Collection<String> getOktmoList() {
+    return oktmoList;
   }
 
   @Override
@@ -90,6 +103,11 @@ public class AuthInfoBean implements AuthInfo {
   @Override
   public String getOrgId() {
     return orgId;
+  }
+
+  @Override
+  public String getSepDepId() {
+    return sepDepId;
   }
 
   @Override
@@ -122,11 +140,13 @@ public class AuthInfoBean implements AuthInfo {
   public static final class Builder {
     private String userIP;
     private String userId;
+    private String userGuid;
     private String oktmo;
-    private String administration;
+    private Collection<String> oktmoList;
     private Collection<Integer> subjectGroups;
     private String orgId;
     private String depId;
+    private String sepDepId;
     private String username;
     private String fio;
     private Collection<String> roles;
@@ -141,7 +161,7 @@ public class AuthInfoBean implements AuthInfo {
      * @return AuthInfoImpl
      */
     public AuthInfoBean build() {
-      return new AuthInfoBean(userIP, userId, oktmo, administration, subjectGroups, orgId, depId, username, fio, roles, token);
+      return new AuthInfoBean(userIP, userId, userGuid, oktmo, oktmoList, subjectGroups, orgId, sepDepId, depId, username, fio, roles, token);
     }
 
     /**
@@ -156,9 +176,20 @@ public class AuthInfoBean implements AuthInfo {
     }
 
     /**
-     * ОКТМО пользователя
+     * Глобальный идентификатор пользователя
      *
-     * @param oktmo ОКТМО пользователя
+     * @param userGuid Глобальный идентификатор пользователя
+     * @return Builder
+     */
+    public Builder userGuid(String userGuid) {
+      this.userGuid = userGuid;
+      return this;
+    }
+
+    /**
+     * Основное ОКТМО пользователя
+     *
+     * @param oktmo Основное ОКТМО пользователя
      * @return Builder
      */
     public Builder oktmo(String oktmo) {
@@ -167,13 +198,13 @@ public class AuthInfoBean implements AuthInfo {
     }
 
     /**
-     * ведомство пользователя
+     * ОКТМО пользователя
      *
-     * @param administration ведомство пользователя
+     * @param oktmoList ОКТМО пользователя
      * @return Builder
      */
-    public Builder administration(String administration) {
-      this.administration = administration;
+    public Builder oktmoList(Collection<String> oktmoList) {
+      this.oktmoList = oktmoList;
       return this;
     }
 
@@ -196,6 +227,17 @@ public class AuthInfoBean implements AuthInfo {
      */
     public Builder orgId(String orgId) {
       this.orgId = orgId;
+      return this;
+    }
+
+    /**
+     * Идентификатор обособленного подразделения пользователя
+     *
+     * @param sepDepId Идентификатор обособленного подразделения пользователя
+     * @return Builder
+     */
+    public Builder sepDepId(String sepDepId) {
+      this.sepDepId = sepDepId;
       return this;
     }
 

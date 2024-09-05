@@ -125,6 +125,15 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
   }
 
   /**
+   * Если не настроен доступ на разрешение, но есть запрет, то по умолчанию разрешено
+   *
+   * @return Да/Нет
+   */
+  private boolean isDefaultCheck() {
+    return permitAccess.isEmpty() && !prohibitionAccess.isEmpty();
+  }
+
+  /**
    * Проверка доступа на чтение
    *
    * @param roles Роли
@@ -132,7 +141,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    */
   @Override
   public boolean checkRead(Collection<String> roles) {
-    boolean result = false;
+    boolean result = isDefaultCheck();
     for (String role : roles) {
       JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isRead()) {
@@ -152,7 +161,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    */
   @Override
   public boolean checkDelete(Collection<String> roles) {
-    boolean result = false;
+    boolean result = isDefaultCheck();
     for (String role : roles) {
       JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isDelete()) {
@@ -172,7 +181,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    */
   @Override
   public boolean checkUpdate(Collection<String> roles) {
-    boolean result = false;
+    boolean result = isDefaultCheck();
     for (String role : roles) {
       JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isUpdate()) {
@@ -192,7 +201,7 @@ public class JPSecurityPackageBean implements JPSecurityPackage {
    */
   @Override
   public boolean checkCreate(Collection<String> roles) {
-    boolean result = false;
+    boolean result = isDefaultCheck();
     for (String role : roles) {
       JPSecurityPackageAccess prohibition = prohibitionAccess.get(role);
       if (prohibition != null && prohibition.isCreate()) {

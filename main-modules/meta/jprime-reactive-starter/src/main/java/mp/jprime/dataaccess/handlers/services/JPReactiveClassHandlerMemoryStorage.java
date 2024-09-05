@@ -2,6 +2,7 @@ package mp.jprime.dataaccess.handlers.services;
 
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
+import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.handlers.JPReactiveClassHandler;
 import mp.jprime.dataaccess.handlers.JPReactiveClassHandlerStorage;
 import mp.jprime.dataaccess.params.JPCreate;
@@ -88,11 +89,17 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     }
   }
 
-  /**
-   * Перед созданием
-   *
-   * @param query JPCreate
-   */
+  @Override
+  public Mono<JPId> find(JPCreate query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.firstWithValue(
+        handlers
+            .stream()
+            .map(x -> x.find(query))
+            .toList()
+    );
+  }
+
   @Override
   public Mono<Void> beforeCreate(JPCreate query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
@@ -104,11 +111,7 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     );
   }
 
-  /**
-   * Перед обновлением
-   *
-   * @param query JPUpdate
-   */
+  @Override
   public Mono<Void> beforeUpdate(JPUpdate query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
@@ -119,12 +122,6 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     );
   }
 
-  /**
-   * После создания
-   *
-   * @param objectId Идентификатор объекта
-   * @param query    JPCreate
-   */
   @Override
   public Mono<Void> afterCreate(Comparable objectId, JPCreate query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
@@ -136,11 +133,7 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     );
   }
 
-  /**
-   * После обновления
-   *
-   * @param query JPUpdate
-   */
+  @Override
   public Mono<Void> afterUpdate(JPUpdate query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
@@ -167,11 +160,7 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     );
   }
 
-  /**
-   * После удаления
-   *
-   * @param query JPDelete
-   */
+  @Override
   public Mono<Void> afterDelete(JPDelete query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(

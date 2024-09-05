@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * JPId -> Float
  */
 @Service
-public class JPIdToFloatParser implements TypeParser<JPId, Float>, ParserServiceAware {
+public final class JPIdToFloatParser implements TypeParser<JPId, Float>, ParserServiceAware {
   private ParserService service;
 
   @Override

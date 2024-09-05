@@ -10,15 +10,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JPYamlMapper extends JPBaseObjectMapper {
-  private static ObjectMapper yamlMapper;
+  private static ObjectMapper YAML_MAPPER;
 
   private JPYamlMapper() {
-    yamlMapper = YAMLMapper.builder().build();
+    YAML_MAPPER = YAMLMapper.builder().build();
   }
 
   @Override
   public ObjectMapper getObjectMapper() {
-    return yamlMapper;
+    return YAML_MAPPER;
   }
 
   /**
@@ -27,6 +27,6 @@ public class JPYamlMapper extends JPBaseObjectMapper {
    * @return {@link YAMLMapper}
    */
   public static ObjectMapper getMapper() {
-    return yamlMapper;
+    return YAML_MAPPER;
   }
 }

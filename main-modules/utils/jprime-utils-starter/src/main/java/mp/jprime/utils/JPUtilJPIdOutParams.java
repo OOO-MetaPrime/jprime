@@ -50,10 +50,7 @@ public final class JPUtilJPIdOutParams extends BaseJPUtilOutParams<JsonJPId> {
     }
 
     public Builder jpId(JPId jpId) {
-      this.jpId = jpId == null ? null : JsonJPId.newBuilder()
-          .classCode(jpId.getJpClass())
-          .id(jpId.getId())
-          .build();
+      this.jpId = jpId == null ? null : JsonJPId.of(jpId);
       return this;
     }
   }

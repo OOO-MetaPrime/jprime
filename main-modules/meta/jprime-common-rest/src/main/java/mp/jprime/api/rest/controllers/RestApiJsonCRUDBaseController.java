@@ -1,5 +1,6 @@
 package mp.jprime.api.rest.controllers;
 
+import mp.jprime.configurations.JPQuerySettings;
 import mp.jprime.dataaccess.*;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.beans.JPObjectAccess;
@@ -17,10 +18,7 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.requesthistory.services.RequestHistoryPublisher;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
@@ -31,19 +29,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class RestApiJsonCRUDBaseController implements JPObjectAccessServiceAware, JPReactiveObjectRepositoryServiceAware {
-  protected static final Logger LOG = LoggerFactory.getLogger(RestApiJsonCRUDController.class);
-
-  @Value("${jprime.query.queryTimeout:}")
-  protected Integer queryTimeout;
-  @Value("${jprime.api.checkLimit:true}")
-  protected boolean checkLimit;
-  /**
-   * Максимальное количество в выборке через api
-   */
-  @Value("${jprime.api.maxLimit:1000}")
-  protected Integer maxLimit;
-
+public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings implements JPObjectAccessServiceAware, JPReactiveObjectRepositoryServiceAware {
   /**
    * Интерфейс создания / обновления объекта
    */
@@ -126,7 +112,7 @@ public abstract class RestApiJsonCRUDBaseController implements JPObjectAccessSer
       JsonSelect jsonSelect = queryService.getQuery(query);
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -138,16 +124,6 @@ public abstract class RestApiJsonCRUDBaseController implements JPObjectAccessSer
   }
 
   protected record ParsedQuery(JPClass jpClass, JPSelect.Builder builder, boolean access, AuthInfo auth) {
-  }
-
-  protected JPSelect checkAndBuild(JPSelect.Builder builder) {
-    Integer limit = builder.limit();
-
-    if (checkLimit && limit != null && limit > maxLimit) {
-      LOG.error("Warning. Select query limit for {} exceeded: {}", builder.getJpClass(), limit);
-      builder.limit(maxLimit);
-    }
-    return builder.build();
   }
 
   /**
@@ -191,7 +167,9 @@ public abstract class RestApiJsonCRUDBaseController implements JPObjectAccessSer
     Map<Comparable, JPObjectAccess> mapAccess = access ?
         objectAccessService.objectsChangeAccess(
                 jpClass,
-                list.stream().map(o -> o.getJpId().getId()).collect(Collectors.toList()),
+                list.stream()
+                    .map(o -> o.getJpId().getId())
+                    .collect(Collectors.toList()),
                 auth
             )
             .stream()

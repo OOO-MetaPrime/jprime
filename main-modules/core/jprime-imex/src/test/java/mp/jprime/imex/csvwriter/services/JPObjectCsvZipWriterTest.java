@@ -1,5 +1,6 @@
 package mp.jprime.imex.csvwriter.services;
 
+import mp.jprime.concurrent.JPCompletableFuture;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.beans.JPObjectBase;
@@ -16,7 +17,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -64,7 +64,7 @@ public class JPObjectCsvZipWriterTest {
             "fileName")
         .build()
     ) {
-      CompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
+      JPCompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
     }
 
     try (ZipInputStream actual = new ZipInputStream(new ByteArrayInputStream(baos.toByteArray()));) {
@@ -96,7 +96,7 @@ public class JPObjectCsvZipWriterTest {
         .maxFileSize(1)
         .build()
     ) {
-      CompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
+      JPCompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
     }
 
     try (ZipInputStream actual = new ZipInputStream(new ByteArrayInputStream(baos.toByteArray()));) {

@@ -282,7 +282,7 @@ class MyClass extends JPKafkaDeadLetterConsumerService<String, String> {
 
 | Настройка                 | Обязательность | По умолчанию | Описание                                |
 |---------------------------|----------------|--------------|-----------------------------------------|
-| jprime.cache.load.timeout | -              | 5            | Таймаут инициализации кэша (в секундах) |
+| jprime.cache.load.timeout | -              | 20           | Таймаут инициализации кэша (в секундах) |
 
 ### Использование
 
@@ -374,6 +374,9 @@ public class MyPublisher extends JPKafkaStringBasePublisher<MyEvent, JsonMyEvent
   }
 }
 ```
+> При необходимости проверки события в `JPKafkaBasePublisher` имеется метод `validateEvent`, который 
+> необходимо переопределить в своем классе наследнике `JPKafkaStringBasePublisher<E, J>`. По умолчанию
+> все события считаются валидными.
 
 > По умолчанию используется базовая конфигурация `JPBaseStringKafkaProducerConfig`.
 > При необходимости можно изменить это, переопределив метод `getKafkaOperations()`.
@@ -403,6 +406,7 @@ public class MyService {
 ## Вспомогательные классы
 
 ### JPForkJoinPoolService
+
 ForkJoinPool для решений на базе JPrime. Рекомендуется к использованию для запуска асинхронных операций
 
 ```java
@@ -414,7 +418,15 @@ class MyService {
   }
 }
 ```
+или использовать реализацию `JPCompletableFuture`
 
+```java
+class MyService {  
+  public voin run() {
+    JPCompletableFuture.runAsync(() -> {});
+  }
+}
+```
 
 ### NamedThreadFactory
 
@@ -437,7 +449,7 @@ class MyService {
 Однако в Spring Boot приложениях используется собственный загрузчик классов, что можен привести к ошибке загрузки классов.
 Например, выполнив код CompletableFuture.runAsync(() -> ...)
 
-Для исправления ошибки, рекомендуется создать собственный пулл и выполнить асинхронную операцию в нем
+Для исправления ошибки, рекомендуется создать собственный пул и выполнить асинхронную операцию в нем
 
 ```java
 class MyService {
@@ -448,7 +460,7 @@ class MyService {
       )
   );
   
-  public voin doSamething() {
+  public voin doSomething() {
     CompletableFuture.runAsync(() -> {}, EXECUTOR);
   }
 }

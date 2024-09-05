@@ -1,11 +1,11 @@
 package mp.jprime.dataaccess.services;
 
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
 import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.meta.services.JPMetaStorage;
@@ -51,7 +51,7 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
     this.securityManager = securityManager;
   }
 
-  protected boolean isCreateCheck(String classCode, JPMutableData createData, AuthInfo auth) {
+  protected boolean isCreateCheck(String classCode, JPMap createData, AuthInfo auth) {
     if (classCode == null || auth == null) {
       return false;
     }
@@ -127,7 +127,7 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
     return filter;
   }
 
-  protected boolean checkData(Filter filter, JPMutableData data, AuthInfo auth, boolean notContainsDefaultValue) {
+  protected boolean checkData(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
     return dataCheckService.check(filter, data, auth, notContainsDefaultValue);
   }
 }

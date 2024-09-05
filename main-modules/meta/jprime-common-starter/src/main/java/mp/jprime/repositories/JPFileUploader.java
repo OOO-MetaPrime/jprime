@@ -69,4 +69,12 @@ public interface JPFileUploader {
   default Mono<JPUpdate.Builder> asyncUpload(JPUpdate.Builder builder, String attr, String fileName, InputStream is) {
     return Mono.fromCallable(() -> upload(builder, attr, fileName, is));
   }
+
+  /**
+   * Заменяет ключевые слова в пути, если они присутствуют
+   *
+   * @param path Путь
+   * @return Измененный путь
+   */
+  String getStoragePath(String path);
 }

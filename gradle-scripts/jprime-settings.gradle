@@ -71,9 +71,10 @@ task copyDefault(type: Copy, description: "Подготовка application.yml"
     }
   }
 }
-bootJar.dependsOn copyDefault
-compileTestJava.dependsOn copyDefault
-test.dependsOn copyDefault
+bootJar.dependsOn(copyDefault)
+compileTestJava.dependsOn(copyDefault)
+test.dependsOn(copyDefault)
 
 copyDefault.dependsOn(copyDistrib)
+copyDistrib.dependsOn(resolveMainClassName)
 processResources.finalizedBy(copyDefault)

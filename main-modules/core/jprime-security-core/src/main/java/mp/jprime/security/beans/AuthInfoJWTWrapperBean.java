@@ -1,6 +1,7 @@
 package mp.jprime.security.beans;
 
 import mp.jprime.security.AuthInfo;
+import mp.jprime.security.AuthBaseParams;
 import mp.jprime.security.jwt.JWTInfo;
 
 import java.util.Collection;
@@ -8,7 +9,7 @@ import java.util.Collection;
 /**
  * Данные авторизации
  */
-public class AuthInfoJWTWrapperBean implements AuthInfo {
+public class AuthInfoJWTWrapperBean extends AuthBaseParams implements AuthInfo {
   private final String userIP;
   private final JWTInfo jwtInfo;
 
@@ -52,14 +53,29 @@ public class AuthInfoJWTWrapperBean implements AuthInfo {
     return jwtInfo.getUserId();
   }
 
+  public String getUserGuid() {
+    return jwtInfo.getUserGuid();
+  }
+
   @Override
   public String getOktmo() {
     return jwtInfo.getOktmo();
   }
 
+
   @Override
-  public String getAdministration() {
-    return jwtInfo.getAdministration();
+  public Collection<String> getOktmoList() {
+    return jwtInfo.getOktmoList();
+  }
+
+  @Override
+  public Collection<String> getOktmoPrefixList() {
+    return jwtInfo.getOktmoPrefixList();
+  }
+
+  @Override
+  public Collection<String> getOktmoTreeList() {
+    return jwtInfo.getOktmoTreeList();
   }
 
   @Override
@@ -70,6 +86,11 @@ public class AuthInfoJWTWrapperBean implements AuthInfo {
   @Override
   public String getOrgId() {
     return jwtInfo.getOrgId();
+  }
+
+  @Override
+  public String getSepDepId() {
+    return jwtInfo.getSepDepId();
   }
 
   @Override

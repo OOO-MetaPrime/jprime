@@ -11,11 +11,10 @@ public class XmlJpProperty {
   private String shortName;
   private String description;
   private boolean mandatory;
-  private boolean multiple;
   private String type;
   private Integer length;
-  private String refJpClassCode;
-  private String refJpAttrCode;
+  private String refJpClass;
+  private String refJpAttr;
   @JacksonXmlProperty(localName = "jpProps")
   private XmlJpProps schemaProps;
 
@@ -41,14 +40,6 @@ public class XmlJpProperty {
 
   public void setLength(Integer length) {
     this.length = length;
-  }
-
-  public boolean isMultiple() {
-    return multiple;
-  }
-
-  public void setMultiple(boolean multiple) {
-    this.multiple = multiple;
   }
 
   public boolean isMandatory() {
@@ -91,20 +82,20 @@ public class XmlJpProperty {
     this.qName = qName;
   }
 
-  public String getRefJpClassCode() {
-    return refJpClassCode;
+  public String getRefJpClass() {
+    return refJpClass;
   }
 
-  public void setRefJpClassCode(String refJpClassCode) {
-    this.refJpClassCode = refJpClassCode;
+  public void setRefJpClass(String refJpClass) {
+    this.refJpClass = refJpClass;
   }
 
-  public String getRefJpAttrCode() {
-    return refJpAttrCode;
+  public String getRefJpAttr() {
+    return refJpAttr;
   }
 
-  public void setRefJpAttrCode(String refJpAttrCode) {
-    this.refJpAttrCode = refJpAttrCode;
+  public void setRefJpAttr(String refJpAttrCode) {
+    this.refJpAttr = refJpAttr;
   }
 
   public XmlJpProps getSchemaProps() {
@@ -121,14 +112,13 @@ public class XmlJpProperty {
         "code='" + code + '\'' +
         ", type=" + type +
         (length != null ? ", length='" + length + '\'' : "") +
-        ", multiple=" + multiple +
         ", mandatory=" + mandatory +
         ", name='" + name + '\'' +
         ", shortName='" + shortName + '\'' +
         ", description='" + description + '\'' +
         ", qName='" + qName + '\'' +
-        ", refJpClassCode='" + refJpClassCode + '\'' +
-        ", refJpAttrCode='" + refJpAttrCode + '\'' +
+        ", refJpClass='" + refJpClass + '\'' +
+        ", refJpAttr='" + refJpAttr + '\'' +
         ", schemaProps=" + schemaProps +
         '}';
   }

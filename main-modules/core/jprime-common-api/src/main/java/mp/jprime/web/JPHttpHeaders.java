@@ -26,4 +26,9 @@ public class JPHttpHeaders {
    * Заголовок для передачи кода подсистемы для кросс-системных запросов
    */
   public static final String X_JPRIME_SYSTEM_CODE = "X-JPrime-System-Code";
+
+  /**
+   * Заголовок для передачи кода авторизации
+   */
+  public static final String X_JPRIME_AUTH_CODE = "X-JPrime-Auth-Code";
 }

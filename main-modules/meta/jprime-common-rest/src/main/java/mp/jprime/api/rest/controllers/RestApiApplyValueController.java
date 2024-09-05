@@ -14,7 +14,6 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -42,9 +41,6 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
    * Обработчик JWT
    */
   private JWTService jwtService;
-
-  @Value("${jprime.query.queryTimeout:}")
-  private Integer queryTimeout;
 
   @Autowired
   private void setQueryService(QueryService queryService) {

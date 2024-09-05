@@ -2,9 +2,9 @@ package mp.jprime.dataaccess.handlers.services;
 
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
+import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
-import mp.jprime.dataaccess.handlers.JPClassHandlerStorageAware;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -24,16 +24,6 @@ import java.util.Map;
 public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage, JPClassesLinkFilter<JPClassHandler> {
   private Map<String, Collection<JPClassHandler>> jpClassHandlers = new HashMap<>();
   private Collection<JPClassHandler> uniHandlers = new ArrayList<>();
-
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPClassHandlerStorageAware> awares) {
-    for (JPClassHandlerStorageAware aware : awares) {
-      aware.setJPClassHandlerStorage(this);
-    }
-  }
 
   /**
    * Считываем аннотации
@@ -97,11 +87,20 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * Перед созданием
-   *
-   * @param query JPCreate
-   */
+  @Override
+  public JPId find(JPCreate query) {
+    Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
+    if (handlers != null) {
+      for (JPClassHandler handler : handlers) {
+        JPId id = handler.find(query);
+        if (id != null) {
+          return id;
+        }
+      }
+    }
+    return null;
+  }
+
   @Override
   public void beforeCreate(JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
@@ -110,11 +109,7 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * Перед обновлением
-   *
-   * @param query JPUpdate
-   */
+  @Override
   public void beforeUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
@@ -122,12 +117,6 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * После создания
-   *
-   * @param objectId Идентификатор объекта
-   * @param query    JPCreate
-   */
   @Override
   public void afterCreate(Comparable objectId, JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
@@ -136,11 +125,7 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * После обновления
-   *
-   * @param query JPUpdate
-   */
+  @Override
   public void afterUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
@@ -148,11 +133,6 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * Перед удалением
-   *
-   * @param query JPDelete
-   */
   @Override
   public void beforeDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
@@ -161,11 +141,7 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
     }
   }
 
-  /**
-   * После удаления
-   *
-   * @param query JPDelete
-   */
+  @Override
   public void afterDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {

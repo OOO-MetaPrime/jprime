@@ -7,6 +7,7 @@ import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.security.AuthInfo;
@@ -63,7 +64,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    * @return Да/Нет
    */
   @Override
-  public Mono<Boolean> checkCreate(String classCode, JPMutableData createData, AuthInfo auth) {
+  public Mono<Boolean> checkCreate(String classCode, JPMap createData, AuthInfo auth) {
     return Mono.fromCallable(() -> isCreateCheck(classCode, createData, auth));
   }
 
@@ -148,7 +149,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    * @return Да/Нет
    */
   @Override
-  public Mono<Boolean> checkUpdate(JPId id, JPMutableData updateData, AuthInfo auth) {
+  public Mono<Boolean> checkUpdate(JPId id, JPMap updateData, AuthInfo auth) {
     return checkUpdate(id, updateData, Boolean.FALSE, auth);
   }
 
@@ -197,7 +198,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    * @return Да/Нет
    */
   @Override
-  public Mono<Boolean> checkUpdateExists(JPId id, JPMutableData updateData, AuthInfo auth) {
+  public Mono<Boolean> checkUpdateExists(JPId id, JPMap updateData, AuthInfo auth) {
     return checkUpdate(id, updateData, Boolean.TRUE, auth);
   }
 
@@ -244,7 +245,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
     return Mono.just(true);
   }
 
-  private Mono<Boolean> checkUpdate(JPId id, JPMutableData updateData, boolean checkExists, AuthInfo auth) {
+  private Mono<Boolean> checkUpdate(JPId id, JPMap updateData, boolean checkExists, AuthInfo auth) {
     if (id == null || auth == null) {
       return Mono.just(false);
     }

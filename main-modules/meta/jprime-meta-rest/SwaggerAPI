@@ -412,18 +412,6 @@ components:
           type: string
           format: string
           description: Название свойства
-        shortName:
-          type: string
-          format: string
-          description: Короткое название свойства
-        description:
-          type: string
-          format: string
-          description: Описание свойства
-        multiple:
-          type: boolean
-          format: boolean
-          description: Признак множественности (массива)
         mandatory:
           type: boolean
           format: boolean
@@ -514,3 +502,19 @@ components:
           type: integer
           description: ID of the Spatial Reference System
           example: 3857
+
+    jpVirtualPath:
+      type: object
+      properties:
+        refAttrCode:
+          type: string
+          format: string
+          description: Кодовое имя ссылочного атрибута, по которому строится ссылка
+        targerAttrCode:
+          type: string
+          format: string
+          description: Кодовое имя целевого атрибута, на который строится ссылка
+        virtualType:
+          type: string
+          format: string
+          description: Тип виртуальной ссылки

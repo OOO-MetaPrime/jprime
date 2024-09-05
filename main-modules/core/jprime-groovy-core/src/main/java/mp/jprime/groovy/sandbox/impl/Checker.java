@@ -23,14 +23,11 @@ import static org.codehaus.groovy.runtime.MetaClassHelper.convertToTypeArray;
  * Intercepted Groovy script calls into this class.
  */
 public class Checker {
-  /*TODO: specify the proper owner value*/
   private static CallSite fakeCallSite(String method) {
     CallSiteArray csa = new CallSiteArray(Checker.class, new String[]{method});
     return csa.array[0];
   }
 
-
-  // TODO: we need an owner class
   public static Object checkedCall(Object _receiver, boolean safe, boolean spread, String _method, Object[] _args) throws Throwable {
     if (safe && _receiver == null) return null;
     _args = fixNull(_args);
@@ -558,7 +555,6 @@ public class Checker {
         } else if (exp instanceof Map) {
           args = new Object[]{exp};
         } else { // arrays
-          // TODO tricky to determine which constructor will actually be called; array might be expanded, or might not
           throw new UnsupportedOperationException("casting arrays to types via constructor is not yet supported");
         }
         if (args != null) {
@@ -587,7 +583,6 @@ public class Checker {
         }.call(clazz, null, args);
       }
     }
-    // TODO what does ignoreAutoboxing do?
     return strict ? clazz.cast(exp) : coerce ? ScriptBytecodeAdapter.asType(exp, clazz) : ScriptBytecodeAdapter.castToType(exp, clazz);
   }
 

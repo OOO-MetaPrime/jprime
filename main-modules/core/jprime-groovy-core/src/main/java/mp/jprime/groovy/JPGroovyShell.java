@@ -1,5 +1,6 @@
 package mp.jprime.groovy;
 
+import java.net.URI;
 import java.util.Map;
 
 /**
@@ -56,6 +57,14 @@ public interface JPGroovyShell {
    * @return Результат выполнения скрипта
    */
   <T> T evaluate(String script);
+
+  /**
+   * Выполняет Groovy скрипт с возможностью дебага
+   *
+   * @param script Groovy скрипт
+   * @return Результат выполнения скрипта
+   */
+  <T> T evaluateWithDebug(URI script);
 
   /**
    * Выполняет Groovy скрипт с кешированием

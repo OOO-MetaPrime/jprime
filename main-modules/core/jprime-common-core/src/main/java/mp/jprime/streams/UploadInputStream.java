@@ -12,11 +12,8 @@ import java.io.SequenceInputStream;
  */
 public class UploadInputStream implements AutoCloseable {
   private final String name;
-
   private final String extension;
-
   private final String nameWithoutExtension;
-
   private InputStream is;
 
   public UploadInputStream(String name) {

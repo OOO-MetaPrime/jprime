@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * JPId -> Integer
  */
 @Service
-public class JPIdToIntegerParser implements TypeParser<JPId, Integer>, ParserServiceAware {
+public final class JPIdToIntegerParser implements TypeParser<JPId, Integer>, ParserServiceAware {
   private ParserService service;
 
   @Override

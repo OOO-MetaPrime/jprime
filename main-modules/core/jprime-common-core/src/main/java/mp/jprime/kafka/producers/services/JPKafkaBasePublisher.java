@@ -1,5 +1,6 @@
 package mp.jprime.kafka.producers.services;
 
+import jakarta.annotation.PostConstruct;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.kafka.producers.JPKafkaPublisher;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -10,7 +11,6 @@ import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.concurrent.FailureCallback;
 
-import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,8 +65,20 @@ public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<
 
   private Collection<ProducerRecord<K, V>> toProducerRecord(Collection<E> events) {
     return events.stream()
+        .filter(this::validateEvent)
         .map(event -> toProducerRecord(getTopic(event), event))
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Валидация события перед отправкой в кафку
+   *
+   * @param e Событие
+   *
+   * @return Признак успешной валидации
+   */
+  protected boolean validateEvent(E e) {
+    return true;
   }
 
   private ProducerRecord<K, V> toProducerRecord(String topic, E event) {
@@ -84,6 +96,7 @@ public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<
    * Конвертируем событие в ключ {@link ProducerRecord}
    *
    * @param event событие
+   *
    * @return ключ {@link ProducerRecord}
    */
   protected K toKey(E event) {
@@ -94,6 +107,7 @@ public abstract class JPKafkaBasePublisher<E, K, V> implements JPKafkaPublisher<
    * Конвертируем событие в значение {@link ProducerRecord}
    *
    * @param event событие
+   *
    * @return значение {@link ProducerRecord}
    */
   protected abstract V toValue(E event);

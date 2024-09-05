@@ -6,7 +6,7 @@ REST-методы публикации настроек доступа на чт
 
 ### 1. Получение всего списка настроек доступа
 
-``GET /access/v1/jpPackages/``
+``GET /access/v1/jpPackages``
 
 * роль AUTH_ACCESS
 

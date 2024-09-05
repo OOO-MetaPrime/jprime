@@ -19,4 +19,15 @@ public class JPUnsupportedOperationException extends JPAppRuntimeException {
   public JPUnsupportedOperationException(String messageCode) {
     super(messageCode, "Данная операция не поддерживается");
   }
+
+  /**
+   * Конструктор
+   *
+   * @param messageCode Код ошибки
+   * @param message     Ошибка
+   */
+  public JPUnsupportedOperationException(String messageCode, String message) {
+    super(messageCode, message);
+  }
+
 }

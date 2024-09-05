@@ -8,9 +8,19 @@ import mp.jprime.security.AuthInfo;
 public interface TemplateValue {
   /**
    * Возвращает шаблон
+   *
    * @return Шаблон
    */
   String getTemplate();
+
+  /**
+   * Возвращает описание шаблона
+   *
+   * @return описание
+   */
+  default String getPattern() {
+    return "{" + getTemplate() + "}";
+  }
 
   /**
    * Форматируем шаблонное значение

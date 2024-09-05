@@ -1,5 +1,6 @@
 package mp.jprime.imex.csvwriter.services;
 
+import mp.jprime.concurrent.JPCompletableFuture;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.beans.JPObjectBase;
@@ -13,7 +14,6 @@ import java.io.ByteArrayOutputStream;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 public class JPObjectCsvWriterTest {
   private static final Collection<JPObject> TEST_VALUES = List.of(
@@ -53,7 +53,7 @@ public class JPObjectCsvWriterTest {
             )
         )
         .build()) {
-      CompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
+      JPCompletableFuture.runAsync(() -> writer.write(TEST_VALUES)).join();
     }
     Assertions.assertEquals(EXPECTED_RESULT, baos.toString());
   }

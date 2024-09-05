@@ -1,9 +1,9 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.15.3"
-jacksonDataformatXmlVersion = "2.15.3"
-jacksonDataformatYamlVersion = "2.15.3"
-jacksonDatatypeJsr310Version = "2.15.3"
+jacksonAnnotationsVersion = "2.17.1"
+jacksonDataformatXmlVersion = "2.17.1"
+jacksonDataformatYamlVersion = "2.17.1"
+jacksonDatatypeJsr310Version = "2.17.1"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
@@ -18,7 +18,7 @@ lombokPluginVersion = "6.6.1"
 # Apache velocity
 apacheVelocityVersion = "2.3"
 # Opencsv parser
-opencsvParserVersion = "5.8"
+opencsvParserVersion = "5.9"
 # Bucket4j (Java rate-limiting library based on token-bucket algorithm)
 bucket4jVersion = "8.3.0"
 

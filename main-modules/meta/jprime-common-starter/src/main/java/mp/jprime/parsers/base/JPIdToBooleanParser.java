@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * JPId -> Boolean
  */
 @Service
-public class JPIdToBooleanParser implements TypeParser<JPId, Boolean>, ParserServiceAware {
+public final class JPIdToBooleanParser implements TypeParser<JPId, Boolean>, ParserServiceAware {
   private ParserService service;
 
   @Override

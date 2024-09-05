@@ -1,6 +1,9 @@
 package mp.jprime.meta;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
+import mp.jprime.common.JPEnum;
+import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.meta.beans.JPStringFormat;
 
 import java.util.Collection;
 
@@ -23,18 +26,25 @@ public interface JPProperty {
   boolean isMandatory();
 
   /**
-   * Возвращает признак множественности
-   *
-   * @return Да/Нет
-   */
-  boolean isMultiple();
-
-  /**
    * Тип свойства
    *
    * @return Тип свойства
    */
-  PropertyType getType();
+  JPPropertyType getType();
+
+  /**
+   * Тип строкового поля
+   *
+   * @return Тип строкового поля
+   */
+  JPStringFormat getStringFormat();
+
+  /**
+   * Маска строкового поля
+   *
+   * @return Маска строкового поля
+   */
+  String getStringMask();
 
   /**
    * Возвращает длину
@@ -51,20 +61,6 @@ public interface JPProperty {
   String getName();
 
   /**
-   * Короткое название свойства
-   *
-   * @return Короткое название свойства
-   */
-  String getShortName();
-
-  /**
-   * Описание свойства
-   *
-   * @return Описание свойства
-   */
-  String getDescription();
-
-  /**
    * Уникальный qName свойства
    *
    * @return Уникальный qName свойства
@@ -76,19 +72,33 @@ public interface JPProperty {
    *
    * @return Код класса, на который ссылается
    */
-  String getRefJpClassCode();
+  String getRefJpClass();
 
   /**
    * Код атрибута, на который ссылается
    *
    * @return Код атрибута, на который ссылается
    */
-  String getRefJpAttrCode();
+  String getRefJpAttr();
+
+  /**
+   * Условие, на объекты класса
+   *
+   * @return Условие
+   */
+  Filter getFilter();
+
+  /**
+   * Возвращает перечислимые значения
+   *
+   * @return Перечислимые значения
+   */
+  Collection<JPEnum> getEnums();
 
   /**
    * Список вложенных свойств
    *
    * @return список вложенных свойств
    */
-  Collection<JPProperty> getSchemaProps();
+  Collection<JPProperty> getJpProps();
 }

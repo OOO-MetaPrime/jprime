@@ -57,7 +57,7 @@ public final class JPMoneyBean implements JPMoney {
     /**
      * Атрибут для хранения
      */
-    private String attrCode;
+    private final String attrCode;
     /**
      * Код валюты
      */

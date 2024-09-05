@@ -227,8 +227,7 @@ public abstract class DownloadFileRestController implements DownloadFile, JPReac
                 }
                 fileCounter.put(title, i);
 
-                ZipEntry zipEntry = new ZipEntry((i > 0 ? i + "_" : "") + title);
-                zipOut.putNextEntry(zipEntry);
+                zipOut.putNextEntry(new ZipEntry((i > 0 ? i + "_" : "") + title));
 
                 byte[] bytes = new byte[1024];
                 int length;

@@ -1,5 +1,8 @@
 package mp.jprime.concurrent;
 
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
+
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public final class JPForkJoinPoolService {
   private final static int MAX_POOL_PARALLELISM = 64;
   private final static ForkJoinPool POOL = ofThreads("JPForkJoinWorker", MAX_POOL_PARALLELISM);
+  private final static Scheduler REACTOR_SCHEDULER = Schedulers.fromExecutorService(POOL, "JPForkJoinScheduler");
 
   private static ForkJoinPool ofThreads(String prefix, int parallelism) {
     return new ForkJoinPool(
@@ -29,6 +33,15 @@ public final class JPForkJoinPoolService {
    */
   public static ForkJoinPool pool() {
     return POOL;
+  }
+
+  /**
+   * Возвращает {@link Scheduler}
+   *
+   * @return {@link Scheduler}
+   */
+  public static Scheduler reactorScheduler() {
+    return REACTOR_SCHEDULER;
   }
 
   /**

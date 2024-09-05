@@ -29,8 +29,8 @@ public final class JPAttrBean implements JPAttr {
   private final String description;
   private final String qName;
   private final String jpPackage;
-  private final String refJpClassCode;
-  private final String refJpAttrCode;
+  private final String refJpClass;
+  private final String refJpAttr;
   private final JPFile refJpFile;
   private final JPSimpleFraction simpleFraction;
   private final JPMoney money;
@@ -43,7 +43,7 @@ public final class JPAttrBean implements JPAttr {
                      boolean mandatory,
                      String name, String shortName, String description,
                      String qName, String jpPackage, Collection<JPProperty> schemaProps,
-                     String refJpClassCode, String refJpAttrCode,
+                     String refJpClass, String refJpAttr,
                      JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money,
                      JPGeometry geometry, JPVirtualPath virtualReference, String signAttrCode) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
@@ -55,8 +55,8 @@ public final class JPAttrBean implements JPAttr {
     this.description = description != null && !description.isEmpty() ? description : this.name;
     this.qName = qName != null && !qName.isEmpty() ? qName : null;
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
-    this.refJpClassCode = refJpClassCode != null && !refJpClassCode.isEmpty() ? refJpClassCode : null;
-    this.refJpAttrCode = refJpAttrCode != null && !refJpAttrCode.isEmpty() ? refJpAttrCode : null;
+    this.refJpClass = refJpClass != null && !refJpClass.isEmpty() ? refJpClass : null;
+    this.refJpAttr = refJpAttr != null && !refJpAttr.isEmpty() ? refJpAttr : null;
     this.refJpFile = refJpFile;
     this.simpleFraction = simpleFraction;
     this.money = money;
@@ -211,8 +211,8 @@ public final class JPAttrBean implements JPAttr {
    * @return Код класса, на который ссылается
    */
   @Override
-  public String getRefJpClassCode() {
-    return refJpClassCode;
+  public String getRefJpClass() {
+    return refJpClass;
   }
 
   /**
@@ -221,8 +221,8 @@ public final class JPAttrBean implements JPAttr {
    * @return Код атрибута, на который ссылается
    */
   @Override
-  public String getRefJpAttrCode() {
-    return refJpAttrCode;
+  public String getRefJpAttr() {
+    return refJpAttr;
   }
 
   /**
@@ -315,8 +315,8 @@ public final class JPAttrBean implements JPAttr {
         ", shortName='" + shortName + '\'' +
         ", name='" + description + '\'' +
         ", qName='" + qName + '\'' +
-        ", refJpClassCode='" + refJpClassCode + '\'' +
-        ", refJpAttrCode='" + refJpAttrCode + '\'' +
+        ", refJpClass='" + refJpClass + '\'' +
+        ", refJpAttr='" + refJpAttr + '\'' +
         (refJpFile != null ? ", refJpFile='" + refJpFile + '\'' : "") +
         (simpleFraction != null ? ", simpleFraction='" + simpleFraction + '\'' : "") +
         (money != null ? ", money='" + money + '\'' : "") +
@@ -343,8 +343,8 @@ public final class JPAttrBean implements JPAttr {
     private String description;
     private String qName;
     private String jpPackage;
-    private String refJpClassCode;
-    private String refJpAttrCode;
+    private String refJpClass;
+    private String refJpAttr;
     private JPFile refJpFile;
     private JPSimpleFraction simpleFraction;
     private JPMoney money;
@@ -364,7 +364,7 @@ public final class JPAttrBean implements JPAttr {
     public JPAttrBean build() {
       return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage, schemaProps,
-          refJpClassCode, refJpAttrCode, refJpFile, simpleFraction, money, geometry, virtualReference, signAttrCode);
+          refJpClass, refJpAttr, refJpFile, simpleFraction, money, geometry, virtualReference, signAttrCode);
     }
 
     /**
@@ -381,22 +381,22 @@ public final class JPAttrBean implements JPAttr {
     /**
      * Код класса, на который ссылается
      *
-     * @param refJpClassCode Код класса, на который ссылается
+     * @param refJpClass Код класса, на который ссылается
      * @return Builder
      */
-    public Builder refJpClassCode(String refJpClassCode) {
-      this.refJpClassCode = refJpClassCode;
+    public Builder refJpClass(String refJpClass) {
+      this.refJpClass = refJpClass;
       return this;
     }
 
     /**
      * Код атрибута, на который ссылается
      *
-     * @param refJpAttrCode Код атрибута, на который ссылается
+     * @param refJpAttr Код атрибута, на который ссылается
      * @return Builder
      */
-    public Builder refJpAttrCode(String refJpAttrCode) {
-      this.refJpAttrCode = refJpAttrCode;
+    public Builder refJpAttr(String refJpAttr) {
+      this.refJpAttr = refJpAttr;
       return this;
     }
 

@@ -1,9 +1,7 @@
 package mp.jprime.dataaccess;
 
 import mp.jprime.dataaccess.beans.JPMutableData;
-import mp.jprime.dataaccess.params.JPBatchUpdate;
-import mp.jprime.dataaccess.params.JPCreate;
-import mp.jprime.dataaccess.params.JPUpdate;
+import mp.jprime.dataaccess.params.*;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -38,6 +36,8 @@ public interface JPAttrValidator {
           JPAttr jpAttr = jpClass.getAttr(entry.getKey());
           if (jpAttr == null) {
             return true;
+          } else if (query.isSystemAttr(jpAttr.getCode())) {
+            return false;
           } else {
             return query.getSource() == Source.USER && authInfo != null &&
                 !getSecurityStorage().checkCreate(jpAttr.getJpPackage(), authInfo.getRoles());
@@ -55,8 +55,29 @@ public interface JPAttrValidator {
    * @param query   Запрос
    */
   default void validateAttr(JPClass jpClass, JPUpdate query) {
+    validateAttrForUpdate(jpClass, query);
+  }
+
+  /**
+   * Проверка прав доступа к атрибутам при обновлении
+   *
+   * @param jpClass JPClass
+   * @param query   Запрос
+   */
+  default void validateAttr(JPClass jpClass, JPConditionalUpdate query) {
+    validateAttrForUpdate(jpClass, query);
+  }
+
+  /**
+   * Проверка прав доступа к атрибутам при обновлении
+   *
+   * @param jpClass JPClass
+   * @param query   JPSave
+   */
+  default void validateAttrForUpdate(JPClass jpClass, JPSave query) {
     JPMutableData data = query.getData();
     AuthInfo authInfo = query.getAuth();
+    Source qSource = query.getSource();
 
     data.entrySet()
         .stream()
@@ -64,8 +85,10 @@ public interface JPAttrValidator {
           JPAttr jpAttr = jpClass.getAttr(entry.getKey());
           if (jpAttr == null) {
             return true;
+          } else if (query.isSystemAttr(jpAttr.getCode())) {
+            return false;
           } else {
-            return query.getSource() == Source.USER && authInfo != null &&
+            return qSource == Source.USER && authInfo != null &&
                 !getSecurityStorage().checkUpdate(jpAttr.getJpPackage(), authInfo.getRoles());
           }
         })

@@ -17,16 +17,18 @@ public class JPCreate extends JPSave {
   /**
    * Конструктор
    *
-   * @param jpClass    Кодовое имя класса
-   * @param data       Значение атрибута при создании
-   * @param linkedData параметры для создания ссылочного объекта
-   * @param auth       Данные аутентификации
-   * @param source     Источник данных
+   * @param jpClass     Кодовое имя класса
+   * @param data        Значение атрибута при создании
+   * @param systemAttrs Атрибуты, значения которых, указаны от имени системы
+   * @param linkedData  параметры для создания ссылочного объекта
+   * @param auth        Данные аутентификации
+   * @param source      Источник данных
    */
   private JPCreate(String jpClass, Map<String, Object> data,
+                   Collection<String> systemAttrs,
                    Map<String, Collection<JPCreate>> linkedData,
                    AuthInfo auth, Source source) {
-    super(data, source, auth);
+    super(data, systemAttrs, source, auth);
     this.jpClass = jpClass;
     this.linkedData = linkedData;
   }
@@ -74,8 +76,8 @@ public class JPCreate extends JPSave {
    * Построитель JPCreate
    */
   public static final class Builder extends JPSave.Builder<Builder> {
-    private String jpClass;
-    private Map<String, Collection<JPCreate>> linkedData = new HashMap<>();
+    private final String jpClass;
+    private final Map<String, Collection<JPCreate>> linkedData = new HashMap<>();
 
     private Builder(String jpClass) {
       this.jpClass = jpClass;
@@ -88,7 +90,7 @@ public class JPCreate extends JPSave {
      */
     @Override
     public JPCreate build() {
-      return new JPCreate(jpClass, data, linkedData, auth, source);
+      return new JPCreate(jpClass, data, systemAttrs, linkedData, auth, source);
     }
 
     /**

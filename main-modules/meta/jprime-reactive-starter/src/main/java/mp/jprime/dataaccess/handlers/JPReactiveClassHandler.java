@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.handlers;
 
+import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -9,6 +10,14 @@ import reactor.core.publisher.Mono;
  * Интерфейс хендлера
  */
 public interface JPReactiveClassHandler {
+  /**
+   * Перед созданием производим поиск на совпадение
+   *
+   * @param query JPCreate
+   * @return Идентификатор найденного объекта
+   */
+  Mono<JPId> find(JPCreate query);
+
   /**
    * Перед созданием
    *

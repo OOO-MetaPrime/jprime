@@ -4,6 +4,9 @@ import mp.jprime.dataaccess.JPAction;
 import mp.jprime.dataaccess.conds.CollectionCond;
 import mp.jprime.dataaccess.enums.FilterOperation;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.dataaccess.templatevalues.AuthOktmoTemplateValue;
+import mp.jprime.dataaccess.templatevalues.AuthOktmoTreeTemplateValue;
+import mp.jprime.dataaccess.templatevalues.AuthSubjectGroupIdTemplateValue;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
@@ -21,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 /**
  * Реализация JPResourceAccessService
@@ -37,6 +41,12 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
   private JPSecurityStorage securityStorage;
   // Хранилище настроек ABAC
   private JPAbacStorage abacStorage;
+  // Шаблон ОКТМО
+  private static final String AUTH_OKTMO_PATTERN = "{" + AuthOktmoTemplateValue.CODE + "}";
+  // Шаблон дерева ОКТМО
+  private static final String AUTH_OKTMO_TREE_PATTERN = "{" + AuthOktmoTreeTemplateValue.CODE + "}";
+  // Шаблон предметных групп
+  private static final String AUTH_SUBJECT_GROUP_PATTERN = "{" + AuthSubjectGroupIdTemplateValue.CODE + "}";
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
@@ -146,7 +156,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     if (checks.isEmpty()) {
       return JPResourceAccessBean.from(Boolean.FALSE);
     }
-    return JPResourceAccessBean.from(Boolean.TRUE, getFilter(checks));
+    return JPResourceAccessBean.from(Boolean.TRUE, getFilter(checks, auth));
   }
 
   private RESULT prePIP(Policy policy, AuthInfo auth) {
@@ -208,7 +218,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     }
   }
 
-  private Filter getFilter(Collection<Policy> policies) {
+  private Filter getFilter(Collection<Policy> policies, AuthInfo auth) {
     if (policies == null || policies.isEmpty()) {
       return null;
     }
@@ -225,7 +235,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
         Collection<Filter> disallowFilters = new ArrayList<>();
 
         for (ResourceRule rule : policy.getResourceRules()) {
-          Filter filter = getFilter(rule);
+          Filter filter = getFilter(rule, auth);
           if (JPAccessType.PERMIT == rule.getEffect()) {
             allowFilters.add(filter);
           } else {
@@ -256,7 +266,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
     );
   }
 
-  private Filter getFilter(ResourceRule rule) {
+  private Filter getFilter(ResourceRule rule, AuthInfo auth) {
     JPAccessType accessType = rule.getEffect();
     String attrCode = rule.getAttrCode();
     CollectionCond<String> cond = rule.getCond();
@@ -278,10 +288,10 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
 
     if (JPAccessType.PERMIT == accessType) {
       if (inValues != null && !inValues.isEmpty()) {
-        return Filter.attr(attrCode).in(inValues);
+        return in(attrCode, inValues, auth);
       }
       if (notInValues != null && !notInValues.isEmpty()) {
-        return Filter.attr(attrCode).notIn(notInValues);
+        return notIn(attrCode, notInValues, auth);
       }
       if (isNullValue) {
         return Filter.attr(attrCode).isNull();
@@ -292,10 +302,10 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
 
     } else if (JPAccessType.PROHIBITION == accessType) {
       if (inValues != null && !inValues.isEmpty()) {
-        return Filter.attr(attrCode).notIn(inValues);
+        return notIn(attrCode, inValues, auth);
       }
       if (notInValues != null && !notInValues.isEmpty()) {
-        return Filter.attr(attrCode).in(notInValues);
+        return in(attrCode, notInValues, auth);
       }
       if (isNullValue) {
         return Filter.attr(attrCode).isNotNull();
@@ -305,5 +315,71 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
       }
     }
     return null;
+  }
+
+  private Filter in(String attrCode, Collection<String> values, AuthInfo auth) {
+    boolean isOktmoPattern = values.contains(AUTH_OKTMO_PATTERN);
+    boolean isOktmoTreePattern = values.contains(AUTH_OKTMO_TREE_PATTERN);
+    boolean isSubjectGroupPattern = values.contains(AUTH_SUBJECT_GROUP_PATTERN);
+    if (isOktmoPattern || isOktmoTreePattern) {
+      Collection<String> oktmoPrefixList = auth != null ? auth.getOktmoPrefixList() : null;
+      if (auth != null) {
+        if (isOktmoPattern) {
+          oktmoPrefixList = auth.getOktmoPrefixList();
+        } else {
+          oktmoPrefixList = auth.getOktmoTreeList();
+        }
+      }
+      if (oktmoPrefixList != null && !oktmoPrefixList.isEmpty()) {
+        return Filter.or(
+            oktmoPrefixList.stream()
+                .map(x -> Filter.attr(attrCode).startWith(x))
+                .collect(Collectors.toList())
+        );
+      } else {
+        return Filter.attr(attrCode).isNull();
+      }
+    }
+    if (isSubjectGroupPattern) {
+      Collection<Integer> subjectGroups = auth != null ? auth.getSubjectGroups() : null;
+      if (subjectGroups == null || subjectGroups.isEmpty()) {
+        return null;
+      }
+      return Filter.attr(attrCode).in(subjectGroups);
+    }
+    return Filter.attr(attrCode).in(values);
+  }
+
+  private Filter notIn(String attrCode, Collection<String> values, AuthInfo auth) {
+    boolean isOktmoPattern = values.contains(AUTH_OKTMO_PATTERN);
+    boolean isOktmoTreePattern = values.contains(AUTH_OKTMO_TREE_PATTERN);
+    boolean isSubjectGroupPattern = values.contains(AUTH_SUBJECT_GROUP_PATTERN);
+    if (isOktmoPattern || isOktmoTreePattern) {
+      Collection<String> oktmoPrefixList = auth != null ? auth.getOktmoPrefixList() : null;
+      if (auth != null) {
+        if (isOktmoPattern) {
+          oktmoPrefixList = auth.getOktmoPrefixList();
+        } else {
+          oktmoPrefixList = auth.getOktmoTreeList();
+        }
+      }
+      if (oktmoPrefixList != null && !oktmoPrefixList.isEmpty()) {
+        return Filter.and(
+            oktmoPrefixList.stream()
+                .map(x -> Filter.attr(attrCode).notStartWith(x))
+                .collect(Collectors.toList())
+        );
+      } else {
+        return Filter.attr(attrCode).isNotNull();
+      }
+    }
+    if (isSubjectGroupPattern) {
+      Collection<Integer> subjectGroups = auth != null ? auth.getSubjectGroups() : null;
+      if (subjectGroups == null || subjectGroups.isEmpty()) {
+        return Filter.attr(attrCode).isNotNull();
+      }
+      return Filter.attr(attrCode).notIn(subjectGroups);
+    }
+    return Filter.attr(attrCode).notIn(values);
   }
 }

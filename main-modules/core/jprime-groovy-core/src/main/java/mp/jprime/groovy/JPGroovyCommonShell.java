@@ -1,18 +1,24 @@
 package mp.jprime.groovy;
 
-import groovy.lang.*;
+import groovy.lang.Binding;
+import groovy.lang.GroovyClassLoader;
+import groovy.lang.GroovyCodeSource;
+import groovy.lang.GroovyShell;
 import groovy.util.Eval;
 import mp.jprime.groovy.exceptions.JPGroovyRestrictiveException;
 import mp.jprime.groovy.interceptors.JPGroovyRestrictiveInterceptor;
+import mp.jprime.groovy.sandbox.SandboxTransformer;
 import org.codehaus.groovy.control.CompilationFailedException;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.MultipleCompilationErrorsException;
+import org.codehaus.groovy.control.customizers.CompilationCustomizer;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.control.customizers.SecureASTCustomizer;
 import org.codehaus.groovy.runtime.EncodingGroovyMethods;
 import org.codehaus.groovy.runtime.InvokerHelper;
-import mp.jprime.groovy.sandbox.SandboxTransformer;
 
+import java.io.IOException;
+import java.net.URI;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,10 +36,20 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
   private final Binding binding = new Binding();
   private final JPGroovyRestrictiveInterceptor interceptor;
   private final GroovyClassLoader loader;
+  private final GroovyShell shell;
 
   private JPGroovyCommonShell(CompilerConfiguration conf, JPGroovyRestrictiveInterceptor interceptor) {
+    ClassLoader classLoader = GroovyShell.class.getClassLoader();
+
     this.interceptor = interceptor;
-    this.loader = new GroovyClassLoader(GroovyShell.class.getClassLoader(), conf);
+    this.loader = new GroovyClassLoader(classLoader, conf);
+
+    CompilerConfiguration debugConf = new CompilerConfiguration(conf);
+    debugConf.setDebug(true);
+    for (CompilationCustomizer customizers : conf.getCompilationCustomizers()) {
+      debugConf.addCompilationCustomizers(customizers);
+    }
+    this.shell = new GroovyShell(classLoader, binding, debugConf);
   }
 
   /**
@@ -105,21 +121,40 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
   }
 
   @Override
+  public <T> T evaluateWithDebug(URI script) {
+    return this.debug(script);
+  }
+
+  @Override
   public <T> T evaluateByCache(String script) {
     return this.evaluate(script, true);
   }
 
-  private <T> T evaluate(String codeScript, boolean cachable) {
+
+  private <T> T debug(URI script) {
     interceptor.register();
     try {
-      GroovyCodeSource groovyCodeSource = new GroovyCodeSource(codeScript, generateScriptName(), DEFAULT_CODE_BASE);
+      GroovyCodeSource groovyCodeSource = new GroovyCodeSource(script);
+
+      return (T) shell.parse(groovyCodeSource).run();
+    } catch (IOException | MultipleCompilationErrorsException e) {
+      throw new JPGroovyRestrictiveException(e.getMessage(), e);
+    } finally {
+      interceptor.unregister();
+    }
+  }
+
+  private <T> T evaluate(String script, boolean cachable) {
+    interceptor.register();
+    try {
+      GroovyCodeSource groovyCodeSource = new GroovyCodeSource(script, generateScriptName(), DEFAULT_CODE_BASE);
       groovyCodeSource.setCachable(cachable);
 
       Class<?> cls = null;
       if (cachable) {
         try {
-          StringBuilder strToDigest = new StringBuilder((int) (codeScript.length() * 1.2));
-          strToDigest.append("scriptText:").append(codeScript);
+          StringBuilder strToDigest = new StringBuilder((int) (script.length() * 1.2));
+          strToDigest.append("scriptText:").append(script);
           String key = EncodingGroovyMethods.md5(strToDigest);
 
           cls = CLASS_CACHE.computeIfAbsent(key, x -> parseClass(groovyCodeSource));
@@ -131,8 +166,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
         cls = parseClass(groovyCodeSource);
       }
 
-      Script script = InvokerHelper.createScript(cls, binding);
-      return (T) script.run();
+      return (T) InvokerHelper.createScript(cls, binding).run();
     } catch (MultipleCompilationErrorsException e) {
       throw new JPGroovyRestrictiveException(e.getMessage(), e);
     } finally {
@@ -308,6 +342,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
                   "groovy.json.JsonSlurper",
                   "java.time.LocalDate",
                   "java.time.Period",
+                  "groovy.xml.slurpersupport.GPathResult",
                   "org.apache.commons.lang3.StringUtils"
               )
               .addStarImports(

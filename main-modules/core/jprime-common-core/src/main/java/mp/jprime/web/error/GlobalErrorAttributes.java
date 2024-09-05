@@ -23,7 +23,9 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     Map<String, Object> map = super.getErrorAttributes(request, options);
     Throwable error = getError(request);
     if (error instanceof CompositeException) {
-      map.put("details", ((CompositeException) error).getExceptions().stream().map(x -> fill((Exception) x)).collect(Collectors.toList()));
+      map.put("details", ((CompositeException) error).getExceptions().stream()
+          .map(x -> fill((Exception) x))
+          .collect(Collectors.toList()));
     } else if (error instanceof Exception) {
       map.put("details", Collections.singleton(fill((Exception) error)));
       if (error instanceof ConnectException) {

@@ -6,7 +6,7 @@ import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.beans.JPClassAttrBean;
 import mp.jprime.common.annotations.JPEnum;
 import mp.jprime.common.annotations.JPParam;
-import mp.jprime.common.beans.JPEnumBase;
+import mp.jprime.concurrent.JPForkJoinPoolService;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPBadFormatException;
 import mp.jprime.exceptions.JPQueryException;
@@ -32,6 +32,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -119,7 +120,7 @@ public final class JPUtilCommonService implements JPUtilService {
               isUni,
               utilJpClasses,
               utilJpClassTags,
-              !StringUtils.hasText(anno.jpPackage()) ? anno.jpPackage() : util.getJpPackage(),
+              StringUtils.hasText(anno.jpPackage()) ? anno.jpPackage() : util.getJpPackage(),
               anno.authRoles().length > 0 ? anno.authRoles() : util.getAuthRoles(),
               anno
           );
@@ -252,8 +253,8 @@ public final class JPUtilCommonService implements JPUtilService {
     return getUtils(authInfo)
         .filter(
             x -> x.isUni() ||
-            x.getJpClasses().contains(jpClass.getCode()) ||
-            !Collections.disjoint(x.getJpClassTags(), jpClass.getTags())
+                x.getJpClasses().contains(jpClass.getCode()) ||
+                !Collections.disjoint(x.getJpClassTags(), jpClass.getTags())
         );
   }
 
@@ -295,6 +296,15 @@ public final class JPUtilCommonService implements JPUtilService {
       return securityManager.checkRead(jpPackage, authInfo.getRoles());
     }
     return true;
+  }
+
+  /**
+   * Scheduler для обработки логики
+   *
+   * @return Scheduler
+   */
+  private Scheduler getReactorScheduler() {
+    return JPForkJoinPoolService.reactorScheduler();
   }
 
   /**
@@ -397,13 +407,14 @@ public final class JPUtilCommonService implements JPUtilService {
                 }
               }
             }
-        );
+        )
+        .subscribeOn(getReactorScheduler());
   }
 
   /**
    * Описание утилит
    */
-  private class UtilInfo {
+  private static class UtilInfo {
     private final JPUtil util;
     private final Map<String, ModeInfo> modes = new HashMap<>();
 
@@ -415,7 +426,7 @@ public final class JPUtilCommonService implements JPUtilService {
   /**
    * Описание шагов
    */
-  private class ModeInfo implements JPUtilMode {
+  private static class ModeInfo implements JPUtilMode {
     private final JPUtil util;
     private final String utilCode;
     private final String modeCode;
@@ -491,24 +502,15 @@ public final class JPUtilCommonService implements JPUtilService {
       this.jpClasses = Collections.unmodifiableCollection(jpClassList);
       this.jpClassTags = Collections.unmodifiableCollection(jpClassTagList);
       this.type = anno.type();
-      this.jpAttrs = Collections.unmodifiableCollection(
-          Stream.of(anno.jpAttrs())
-              .map(this::toJPClassAttr)
-              .collect(Collectors.toList())
-      );
+      this.jpAttrs = Stream.of(anno.jpAttrs())
+          .map(this::toJPClassAttr).toList();
       this.title = anno.title();
       this.qName = anno.qName();
       this.actionLog = anno.actionLog();
-      this.inParams = Collections.unmodifiableCollection(
-          Stream.of(anno.inParams())
-              .map(this::toJPUtilParam)
-              .collect(Collectors.toList())
-      );
-      this.outCustomParams = Collections.unmodifiableCollection(
-          Stream.of(anno.outCustomParams())
-              .map(this::toJPUtilParam)
-              .collect(Collectors.toList())
-      );
+      this.inParams = Stream.of(anno.inParams())
+          .map(this::toJPUtilParam).toList();
+      this.outCustomParams = Stream.of(anno.outCustomParams())
+          .map(this::toJPUtilParam).toList();
       this.jpPackage = StringUtils.hasText(jpPackage) ? jpPackage : null;
       this.authRoles = authRoles;
 
@@ -545,7 +547,7 @@ public final class JPUtilCommonService implements JPUtilService {
     }
 
     private mp.jprime.common.JPEnum toJPEnum(JPEnum paramEnum) {
-      return JPEnumBase.of(paramEnum.value(), paramEnum.description(), paramEnum.qName());
+      return mp.jprime.common.JPEnum.of(paramEnum.value(), paramEnum.description(), paramEnum.qName());
     }
 
     private JPClassAttr toJPClassAttr(mp.jprime.common.annotations.JPClassAttr classAttr) {

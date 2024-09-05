@@ -107,14 +107,14 @@ public interface JPAttr {
    *
    * @return Код класса, на который ссылается
    */
-  String getRefJpClassCode();
+  String getRefJpClass();
 
   /**
    * Код атрибута, на который ссылается
    *
    * @return Код атрибута, на который ссылается
    */
-  String getRefJpAttrCode();
+  String getRefJpAttr();
 
   /**
    * Возвращает описание файла

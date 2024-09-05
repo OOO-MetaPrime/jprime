@@ -96,7 +96,7 @@ public class PolicyBean implements Policy {
   }
 
   public static final class Builder {
-    private String name;
+    private final String name;
     private String qName;
     private Collection<JPAction> actions;
     private Collection<SubjectRule> subjectRules;

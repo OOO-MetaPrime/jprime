@@ -147,14 +147,16 @@ public class JPAbacAnnoLoader implements JPAbacLoader {
     if (cond == null) {
       return null;
     }
-    if (cond.in().length == 0 && cond.notIn().length == 0 &&
+    String[] in = cond.in();
+    String[] notIn = cond.notIn();
+    if (in.length == 0 && notIn.length == 0 &&
         !cond.isNull() && !cond.isNotNull()) {
       return null;
     }
-    if (cond.in().length > 0) {
-      return InCond.from(Arrays.asList(cond.in()));
-    } else if (cond.notIn().length > 0) {
-      return NotInCond.from(Arrays.asList(cond.notIn()));
+    if (in.length > 0) {
+      return InCond.from(Arrays.asList(in));
+    } else if (notIn.length > 0) {
+      return NotInCond.from(Arrays.asList(notIn));
     } else if (cond.isNull()) {
       return IsNullCond.newInstance();
     } else {

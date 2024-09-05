@@ -15,6 +15,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 import static mp.jprime.security.Role.AUTH_ACCESS;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -89,6 +90,16 @@ class JPSecurityManagerTest {
     assertFalse(securityManager.checkCreate(jpPackage, roles));
     assertFalse(securityManager.checkDelete(jpPackage, roles));
     assertFalse(securityManager.checkUpdate(jpPackage, roles));
+  }
+
+  @Test
+  void testDeleteDenied() {
+    String jpPackage = "deleteDenied";
+    Collection<String> roles = List.of("AUTH_ACCESS");
+    assertTrue(securityManager.checkRead(jpPackage, roles));
+    assertTrue(securityManager.checkCreate(jpPackage, roles));
+    assertTrue(securityManager.checkUpdate(jpPackage, roles));
+    assertFalse(securityManager.checkDelete(jpPackage, roles));
   }
 }
 

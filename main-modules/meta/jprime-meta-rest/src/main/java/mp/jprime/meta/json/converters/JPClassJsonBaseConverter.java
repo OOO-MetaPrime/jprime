@@ -1,6 +1,8 @@
 package mp.jprime.meta.json.converters;
 
+import mp.jprime.beans.JPPropertyType;
 import mp.jprime.meta.*;
+import mp.jprime.meta.beans.JPStringFormat;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.*;
 import org.springframework.stereotype.Service;
@@ -70,8 +72,8 @@ public class JPClassJsonBaseConverter implements JPClassJsonConverter {
         .updatable(jpAttr.isUpdatable())
         .length(jpAttr.getLength())
         // Настройка ссылки класс+атрибут
-        .refJpClass(jpAttr.getRefJpClassCode())
-        .refJpAttr(jpAttr.getRefJpAttrCode())
+        .refJpClass(jpAttr.getRefJpClass())
+        .refJpAttr(jpAttr.getRefJpAttr())
         // Код атрибута-подписи
         .signAttr(jpAttr.getSignAttrCode())
         // Настройка файла
@@ -140,24 +142,26 @@ public class JPClassJsonBaseConverter implements JPClassJsonConverter {
 
   @Override
   public Collection<JsonJPProperty> toJsonJPProperty(Collection<JPProperty> properties) {
-    return properties == null ? null :
+    return properties == null || properties.isEmpty() ? null :
         properties.stream().map(this::toJsonJPProperty).collect(Collectors.toList());
   }
 
   private JsonJPProperty toJsonJPProperty(JPProperty property) {
+    JPPropertyType type = property.getType();
+    JPStringFormat stringFormat = property.getStringFormat();
+
     return JsonJPProperty.builder()
         .code(property.getCode())
-        .type(property.getType() == null ? null : property.getType().getCode())
+        .type(type != null ? type.getCode() : null)
+        .stringFormat(stringFormat != null ? stringFormat.getCode() : null)
+        .stringMask(property.getStringMask())
         .length(property.getLength())
-        .multiple(property.isMultiple())
         .mandatory(property.isMandatory())
         .name(property.getName())
-        .shortName(property.getShortName())
-        .description(property.getDescription())
         .qName(property.getQName())
-        .refJpClassCode(property.getRefJpClassCode())
-        .refJpAttrCode(property.getRefJpAttrCode())
-        .schemaProps(toJsonJPProperty(property.getSchemaProps()))
+        .refJpClass(property.getRefJpClass())
+        .refJpAttr(property.getRefJpAttr())
+        .jpProps(toJsonJPProperty(property.getJpProps()))
         .build();
   }
 }

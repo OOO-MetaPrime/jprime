@@ -6,7 +6,7 @@ import mp.jprime.dataaccess.enums.OrderDirection;
 import java.util.Objects;
 
 /**
- * Подрядок сортировки атрибута
+ * Порядок сортировки атрибута
  */
 public class Order {
   private final String attr;
@@ -21,6 +21,34 @@ public class Order {
   public Order(String attr, OrderDirection order) {
     this.attr = attr;
     this.order = order;
+  }
+
+  /**
+   * Создание настройки порядка сортировки
+   *
+   * @param attr  Кодовое имя атрибута
+   * @param order Направление сортировки
+   */
+  public static Order of(String attr, OrderDirection order) {
+    return new Order(attr, order);
+  }
+
+  /**
+   * Создание настройки порядка сортировки (ASC)
+   *
+   * @param attr Кодовое имя атрибута
+   */
+  public static Order asc(String attr) {
+    return new Order(attr, OrderDirection.ASC);
+  }
+
+  /**
+   * Создание настройки порядка сортировки (DESC)
+   *
+   * @param attr Кодовое имя атрибута
+   */
+  public static Order desc(String attr) {
+    return new Order(attr, OrderDirection.DESC);
   }
 
   /**

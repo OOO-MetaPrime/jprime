@@ -1,7 +1,7 @@
 package mp.jprime.meta.xmlloader.services;
 
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
@@ -102,8 +102,8 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                   .code(code)
                   .jpClassCode(cls.getCode())
                   // Настройка ссылки класс+атрибут
-                  .refJpClassCode(attr.getRefJpClass())
-                  .refJpAttrCode(attr.getRefJpAttr())
+                  .refJpClass(attr.getRefJpClass())
+                  .refJpAttr(attr.getRefJpAttr())
                   // Настройка виртуальной ссылки
                   .virtualReference(
                       JPVirtualPathBean.newInstance(
@@ -196,7 +196,9 @@ public class JPMetaXmlLoader implements JPMetaLoader {
 
   private Collection<JPProperty> toJPProperty(XmlJpProps schemaProps) {
     if (schemaProps != null && schemaProps.getJpProperties() != null) {
-      return Arrays.stream(schemaProps.getJpProperties()).map(this::toJPProperty).collect(Collectors.toList());
+      return Arrays.stream(schemaProps.getJpProperties())
+          .map(this::toJPProperty)
+          .collect(Collectors.toList());
     } else {
       return null;
     }
@@ -205,17 +207,14 @@ public class JPMetaXmlLoader implements JPMetaLoader {
   private JPProperty toJPProperty(XmlJpProperty property) {
     return JPPropertyBean.builder()
         .code(property.getCode())
-        .type(PropertyType.getType(property.getType()))
+        .type(JPPropertyType.getType(property.getType()))
         .length(property.getLength())
-        .multiple(property.isMultiple())
         .mandatory(property.isMandatory())
         .name(property.getName())
-        .shortName(property.getShortName())
-        .description(property.getDescription())
         .qName(property.getqName())
-        .refJpClassCode(property.getRefJpClassCode())
-        .refJpAttrCode(property.getRefJpAttrCode())
-        .schemaProps(toJPProperty(property.getSchemaProps()))
+        .refJpClass(property.getRefJpClass())
+        .refJpAttr(property.getRefJpAttr())
+        .jpProps(toJPProperty(property.getSchemaProps()))
         .build();
   }
 }

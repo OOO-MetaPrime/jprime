@@ -26,7 +26,8 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
-import javax.annotation.PostConstruct;
+import jakarta.annotation.PostConstruct;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -76,7 +77,7 @@ public class JPObjectCsvWriterServiceTest {
   private static final int OBJECTS_IN_FILE = 50;
 
   @Autowired
-  private JPObjectCsvWriterBaseService service;
+  private JPObjectCsvWriterCommonService service;
   @MockBean
   private JPObjectRepositoryService mockRepo;
   @MockBean

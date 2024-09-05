@@ -11,5 +11,10 @@
         <jpAccess  read="false" create="true" update="true" delete="true" role="USER"/>
       </jpProhibitionAccess>
     </jpPackage>
+    <jpPackage code="deleteDenied">
+      <jpProhibitionAccess>
+        <jpAccess  read="false" create="false" update="false" delete="true" role="AUTH_ACCESS"/>
+      </jpProhibitionAccess>
+    </jpPackage>
   </jpPackages>
 </jpSecurity>

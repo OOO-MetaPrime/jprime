@@ -3,12 +3,17 @@ package mp.jprime.dataaccess;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.params.*;
+import mp.jprime.exceptions.JPDeleteCondNotSpecifiedException;
+import mp.jprime.exceptions.JPUpdateCondNotSpecifiedException;
 import mp.jprime.exceptions.JPIdNotSpecifiedException;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.exceptions.JPCreateRightException;
 import mp.jprime.security.exceptions.JPDeleteRightException;
 import mp.jprime.security.exceptions.JPUpdateRightException;
+
+import java.util.Collection;
+import java.util.function.Supplier;
 
 /**
  * Проверка операций создания, изменения, удаления
@@ -66,6 +71,20 @@ public interface JPCUDValidator extends JPAttrValidator {
     validateAttr(jpClass, query);
   }
 
+  default void validate(JPClass jpClass, JPConditionalUpdate query) {
+    String classCode = query.getJpClass();
+    if (query.getAuth() != null && query.getSource() == Source.USER
+        && !getJPObjectAccessService().checkUpdate(classCode, query.getAuth())) {
+      throw new JPUpdateRightException(classCode);
+    }
+    if (query.getWhere() == null) {
+      throw new JPUpdateCondNotSpecifiedException();
+    }
+
+    // Убираем значения атрибутов, к которым нет доступа
+    validateAttr(jpClass, query);
+  }
+
   default void validate(JPClass jpClass, JPBatchUpdate query) {
     String classCode = query.getJpClass();
     if (classCode == null) {
@@ -97,6 +116,17 @@ public interface JPCUDValidator extends JPAttrValidator {
         && authInfo != null
         && !getJPObjectAccessService().checkDeleteExists(query.getJpId(), authInfo)) {
       throw new JPDeleteRightException(classCode);
+    }
+  }
+
+  default void validate(JPConditionalDelete query) {
+    String classCode = query.getJpClass();
+    if (query.getAuth() != null && query.getSource() == Source.USER
+        && !getJPObjectAccessService().checkDelete(classCode, query.getAuth())) {
+      throw new JPUpdateRightException(classCode);
+    }
+    if (query.getWhere() == null) {
+      throw new JPDeleteCondNotSpecifiedException();
     }
   }
 }

@@ -25,6 +25,9 @@ public class CheckStartsWith extends CheckBaseFilter<StartsWith> {
     if (attrValue != null) {
       String parseAttrValue = parseTo(String.class, attrValue, auth);
       String parseFilterValue = parseTo(String.class, filterValue, auth);
+      if (parseFilterValue == null) {
+        parseFilterValue = "";
+      }
       return parseAttrValue != null && StringUtils.startsWithIgnoreCase(parseAttrValue, parseFilterValue);
     }
     return Boolean.FALSE;

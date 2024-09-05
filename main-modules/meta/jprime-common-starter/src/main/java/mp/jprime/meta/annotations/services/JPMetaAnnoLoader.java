@@ -1,6 +1,6 @@
 package mp.jprime.meta.annotations.services;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.meta.JPMeta;
 import mp.jprime.meta.JPMetaLoader;
@@ -79,8 +79,8 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
             .code(code)
             .jpClassCode(cls.code())
             // Настройка ссылки класс+атрибут
-            .refJpClassCode(attr.refJpClass())
-            .refJpAttrCode(attr.refJpAttr())
+            .refJpClass(attr.refJpClass())
+            .refJpAttr(attr.refJpAttr())
             // Настройка виртуальной ссылки
             .virtualReference(
                 JPVirtualPathBean.newInstance(
@@ -163,7 +163,9 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
     if (schemaProps == null || schemaProps.length == 0) {
       return null;
     }
-    return Arrays.stream(schemaProps).map(p -> toJPProperty(p, schemas)).collect(Collectors.toList());
+    return Arrays.stream(schemaProps)
+        .map(p -> toJPProperty(p, schemas))
+        .collect(Collectors.toList());
   }
 
   private JPProperty toJPProperty(mp.jprime.meta.annotations.JPProperty property,
@@ -172,21 +174,18 @@ public class JPMetaAnnoLoader implements JPMetaLoader {
         .code(property.code())
         .type(property.type())
         .length(property.length())
-        .multiple(property.multiple())
         .mandatory(property.mandatory())
         .name(property.name())
-        .shortName(property.shortName())
-        .description(property.description())
         .qName(property.qName())
-        .refJpClassCode(property.refJpClass())
-        .refJpAttrCode(property.refJpAttr());
-    if (PropertyType.ELEMENT.equals(property.type())) {
+        .refJpClass(property.refJpClass())
+        .refJpAttr(property.refJpAttr());
+    if (JPPropertyType.ELEMENT.equals(property.type()) || JPPropertyType.ELEMENT_ARRAY.equals(property.type())) {
       JPPropertySchema schema = schemas.get(property.schemaCode());
       if (schema == null) {
         throw new JPRuntimeException("Invalid property schema code: '" + property.schemaCode() + '\'' +
             " in the JPProperty{code='" + property.code() + "', qName='" + property.qName() + "'}");
       }
-      jpProp.schemaProps(toJPProperty(schema.jpProps(), schemas));
+      jpProp.jpProps(toJPProperty(schema.jpProps(), schemas));
     }
     return jpProp.build();
   }

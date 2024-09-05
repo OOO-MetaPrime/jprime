@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
  * JPId -> Double
  */
 @Service
-public class JPIdToDoubleParser implements TypeParser<JPId, Double>, ParserServiceAware {
+public final class JPIdToDoubleParser implements TypeParser<JPId, Double>, ParserServiceAware {
   private ParserService service;
 
   @Override

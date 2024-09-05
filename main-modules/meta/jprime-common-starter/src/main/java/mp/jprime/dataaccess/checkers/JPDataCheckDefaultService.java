@@ -41,16 +41,6 @@ public final class JPDataCheckDefaultService implements JPDataCheckService, JPRe
     this.resourceAccessService = accessService;
   }
 
-  /**
-   * Указание ссылок
-   */
-  @Autowired(required = false)
-  private void setAwares(Collection<JPDataCheckServiceAware> awares) {
-    for (JPDataCheckServiceAware aware : awares) {
-      aware.setJpDataCheckService(this);
-    }
-  }
-
   @Autowired(required = false)
   private void setFilters(Collection<CheckFilter> filters) {
     if (filters == null) {

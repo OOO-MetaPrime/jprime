@@ -3,12 +3,12 @@
 Содержит типовую логику, API и базовые реализации основных функций системы
 
 ## Описание
- 
+
 Содержит логику работы с метой + основные интерфейсы
 
 * Загружает метаописание из xml в момент старта
 * Предоставляет базовое
-* Загружает маппинг метаописания из xml в момент старта 
+* Загружает маппинг метаописания из xml в момент старта
 
 ### Содержимое ресурсов
 
@@ -59,7 +59,7 @@
 Для полноценной работы виртуальной ссылки необходимо также указать `virtualReference` (путь виртуальной ссылки) +
 `virtualType` (тип итогового значения виртуальной ссылки)
 
-Пример: 
+Пример:
 
 `sprWorker`
 
@@ -91,7 +91,8 @@
 
 ### Денежное
 
-Физически в атрибуте типа `денежное` хранится размер, но для полноценной работы атрибута необходимо корректное заполнение `money` свойства
+Физически в атрибуте типа `денежное` хранится размер, но для полноценной работы атрибута необходимо корректное
+заполнение `money` свойства
 ,где
 
 | Код          | Описание   | Обязательное |
@@ -101,16 +102,17 @@
 * пример через xml:
 
 ```xml
-      <jpAttr>
-        <guid>69269c0d-e8a6-49bc-aebe-f71e4242640c</guid>
-        <code>moneyAttr</code>
-        <type>money</type>
-        <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
-        <description>Деньги</description>
-        <money>
-          <currencyCode>RUR</currencyCode>
-        </money>
-      </jpAttr>
+
+<jpAttr>
+  <guid>69269c0d-e8a6-49bc-aebe-f71e4242640c</guid>
+  <code>moneyAttr</code>
+  <type>money</type>
+  <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
+  <description>Деньги</description>
+  <money>
+    <currencyCode>RUR</currencyCode>
+  </money>
+</jpAttr>
 ```
 
 ### Обратная ссылка
@@ -122,12 +124,14 @@
 Обратная ссылка не является полноценным свойством объекта: у него нет значения, хранящегося отдельно.
 Это, скорее визуальная настройка, позволяющяя вывести все объекты другого класса, связанные с текущим объектом
 
-Для полноценной работы обратной ссылки необходимо указать `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя атрибута соответственно),
-где указанный `refJpAttr` - является прямой ссылкой на идентификатор текущего класса 
+Для полноценной работы обратной ссылки необходимо указать `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя
+атрибута соответственно),
+где указанный `refJpAttr` - является прямой ссылкой на идентификатор текущего класса
 
-### Простая дробь 
+### Простая дробь
 
-Физически в атрибуте типа `простая дробь` хранится числетель, а для полноценной работы атрибута необходимо корректное заполнение `simpleFraction` свойства
+Физически в атрибуте типа `простая дробь` хранится числетель, а для полноценной работы атрибута необходимо корректное
+заполнение `simpleFraction` свойства
 ,где
 
 | Код                 | Описание                                          | Обязательное |
@@ -138,30 +142,33 @@
 * пример через xml:
 
 ```xml
-      <jpAttr>
-        <guid>69269c0d-e8a6-49bc-aebe-f71e4142640c</guid>
-        <code>simpleFract</code>
-        <type>simpleFraction</type>
-        <qName>jpClass.className1.PersonalCard.simpleFract</qName>
-        <description>Доля</description>
-        <simpleFraction>
-          <integerAttrCode>integerAttr</integerAttrCode>
-          <denominatorAttrCode>denominatorAttr</denominatorAttrCode>
-        </simpleFraction>
-      </jpAttr>
+
+<jpAttr>
+  <guid>69269c0d-e8a6-49bc-aebe-f71e4142640c</guid>
+  <code>simpleFract</code>
+  <type>simpleFraction</type>
+  <qName>jpClass.className1.PersonalCard.simpleFract</qName>
+  <description>Доля</description>
+  <simpleFraction>
+    <integerAttrCode>integerAttr</integerAttrCode>
+    <denominatorAttrCode>denominatorAttr</denominatorAttrCode>
+  </simpleFraction>
+</jpAttr>
 ```
 
 ### Прямая ссылка (Nx1)
 
 Прямая ссылка не реализуется отдельным типом, а расширяет свойства атрибута полями `refJpClass` и `refJpAttr`
-Тип атрибута указывается один из простых (строка, целочисленное и т.д.), важно, что тип поля соответствовал типу атрибута класса, 
+Тип атрибута указывается один из простых (строка, целочисленное и т.д.), важно, что тип поля соответствовал типу
+атрибута класса,
 указанного в настройках  `refJpClass` и `refJpAttr` (кодовое имя класса и кодовое имя атрибута соответственно)
 
 ### Строка
 
-### Файл 
+### Файл
 
-Физически в атрибуте типа `файл` хранится имя файла в целевом хранилище, а для полноценной работы атрибута необходимо корректное заполнение `refJpFile` свойства
+Физически в атрибуте типа `файл` хранится имя файла в целевом хранилище, а для полноценной работы атрибута необходимо
+корректное заполнение `refJpFile` свойства
 ,где
 
 | Код                     | Описание                                                             | Обязательное |
@@ -180,25 +187,26 @@
 * пример через xml:
 
 ```xml
-      <jpAttr>
-        <code>scanCopy</code>
-        <type>file</type>
-        <qName>jpClass.className1.PersonalCard.scanCopy</qName>
-        <description>Скан копия гражданина</description>
-        <refJpFile>
-          <storageCode>fileStorage</storageCode>
-          <storageFilePath>filePath</storageFilePath>
-          <storageCodeAttrCode>attr1</storageCodeAttrCode>
-          <storageFilePathAttrCode>attr2</storageFilePathAttrCode>
-          <fileTitleAttrCode>attr4</fileTitleAttrCode>
-          <fileExtAttrCode>attr5</fileExtAttrCode>
-          <fileSizeAttrCode>attr6</fileSizeAttrCode>
-          <fileDateAttrCode>attr7</fileDateAttrCode>
-          <fileInfoAttrCode>attr8</fileInfoAttrCode>
-          <fileInfoAttrCode>attr8</fileInfoAttrCode>
-          <fileStampAttrCode>attr9</fileStampAttrCode>
-        </refJpFile>
-      </jpAttr>
+
+<jpAttr>
+  <code>scanCopy</code>
+  <type>file</type>
+  <qName>jpClass.className1.PersonalCard.scanCopy</qName>
+  <description>Скан копия гражданина</description>
+  <refJpFile>
+    <storageCode>fileStorage</storageCode>
+    <storageFilePath>filePath</storageFilePath>
+    <storageCodeAttrCode>attr1</storageCodeAttrCode>
+    <storageFilePathAttrCode>attr2</storageFilePathAttrCode>
+    <fileTitleAttrCode>attr4</fileTitleAttrCode>
+    <fileExtAttrCode>attr5</fileExtAttrCode>
+    <fileSizeAttrCode>attr6</fileSizeAttrCode>
+    <fileDateAttrCode>attr7</fileDateAttrCode>
+    <fileInfoAttrCode>attr8</fileInfoAttrCode>
+    <fileInfoAttrCode>attr8</fileInfoAttrCode>
+    <fileStampAttrCode>attr9</fileStampAttrCode>
+  </refJpFile>
+</jpAttr>
 ```
 
 #### Генерация пути в ФС хранилища с файлом
@@ -240,11 +248,13 @@
   }
 ```
 
-Само преобразование описывается наследником от `mp.jprime.parsers.TypeParser`. Причем справочник может расширятся, как в коде JPrime, так и в прикладном коде 
+Само преобразование описывается наследником от `mp.jprime.parsers.TypeParser`. Причем справочник может расширятся, как в
+коде JPrime, так и в прикладном коде
 
 ## Преобразование значений по типу атрибута
 
-Для преобразования к значению, соответствующему типу атрибута, рекомендуется использовать `mp.jprime.attrparsers.AttrParserService` 
+Для преобразования к значению, соответствующему типу атрибута, рекомендуется
+использовать `mp.jprime.attrparsers.AttrParserService`
 
 ```
   private AttrParserService attrParserService;
@@ -260,11 +270,13 @@
   }
 ```
 
-Само преобразование описывается наследником от `mp.jprime.attrparsers.AttrTypeParser`. Причем справочник может расширятся, как в коде JPrime, так и в прикладном коде 
+Само преобразование описывается наследником от `mp.jprime.attrparsers.AttrTypeParser`. Причем справочник может
+расширятся, как в коде JPrime, так и в прикладном коде
 
 ## Метаописание
 
-Описание структуры данных и их взаимосвязей. Позволяет статически или динамически описывать классы, их свойства (атрибуты) и связи между ними. 
+Описание структуры данных и их взаимосвязей. Позволяет статически или динамически описывать классы, их свойства (
+атрибуты) и связи между ними.
 
 ### Структура меты
 
@@ -315,10 +327,7 @@
 | code        | Кодовое имя свойства                                               |
 | qName       | Полный код свойства                                                |
 | name        | Название свойства                                                  |
-| shortName   | Короткое название свойства                                         |
-| description | Описание свойства                                                  |
 | mandatory   | Признак обязательности                                             |
-| multiple    | Признак множественности                                            |
 | type        | Тип свойства                                                       |
 | length      | Длина (для строковых полей, в том числе для строковых виртуальных) |
 | refJpClass  | Кодовое имя класса, на который ссылается                           |
@@ -332,8 +341,9 @@
 | code     | Кодовое имя свойства |
 | jpProps  | Свойства псевдо-меты |
 
-* При описании свойства ``JPProperty`` с типом ``ELEMENT`` необходимо так же описать его схему в свойстве ``schemaProps``
-у ``@JPAttr`` с помощью ``@JPPropertySchema`` и указать код этой схемы в поле ``schemaCode`` аннотации ``JPProperty``
+* При описании свойства ``JPProperty`` с типом ``element`` необходимо так же описать его схему в
+  свойстве ``schemaProps``
+  у ``@JPAttr`` с помощью ``@JPPropertySchema`` и указать код этой схемы в поле ``schemaCode`` аннотации ``JPProperty``
 
 * Схемы свойств можно переиспользовать в пределах одного атрибута.
 
@@ -342,7 +352,7 @@
 #### Аннотации
 
 * Аннотация детализирует наследника от ``mp.jprime.meta.JPMeta``
- 
+
  ```
 @JPClass(
     guid = "cc53f898-ceec-49b3-81a3-43eb3fdc43f0",
@@ -401,7 +411,7 @@
     }
 )
 ```    
-        
+
 #### XML
 
 * xml файл, указанной структуры, должен быть размещен в src/main/resources/meta
@@ -456,7 +466,6 @@
 | userEditorId         | Пользователь, изменивший объект | Заполняется userId при создании и изменении |
 | changeDate           | Дата редактирования             | Заполняется датой создания и изменения      |
 | jpPackage            | Настройка доступа к объекту     | Содержит код настройки доступа к объекту    |
-
 
 ## Описание маппинга
 
@@ -666,12 +675,12 @@
 
 #### Условие
 
-| Свойство   | Описание        |
-|------------|-----------------|
-| in         | Список значений |
-| notIn      | Список значений |
-| isNull     | Флаг boolean    |
-| isNotNull  | Флаг boolean    |
+| Свойство  | Описание        |
+|-----------|-----------------|
+| in        | Список значений |
+| notIn     | Список значений |
+| isNull    | Флаг boolean    |
+| isNotNull | Флаг boolean    |
 
 ### Способы описания настроек
 
@@ -886,7 +895,6 @@
 </jpAbac>
 ```
 
-
 ## JPrime API
 
 Взаимодействие с объектами происходит через метамодель и кодовые имена классов/атрибутов
@@ -894,6 +902,7 @@
 ### Чтение данных
 
 Пример:
+
 ```
   @Autowired
   private JPObjectRepository repo;
@@ -913,6 +922,7 @@
 ### Создание данных
 
 Пример:
+
 ```
   @Autowired
   private JPObjectRepository repo;
@@ -930,6 +940,7 @@
 ### Обновление данных
 
 Пример:
+
 ```
   @Autowired
   private JPObjectRepository repo;
@@ -944,9 +955,27 @@
   return repo.asyncUpdate(jpUpdate)  
 ```
 
+### Обновление данных по условию
+
+Пример:
+
+```
+  @Autowired
+  private JPObjectRepository repo;
+  
+  JPConditionalUpdate jpUpdate = JPConditionalUpdate.update("jpClass", Filter.attr("condAttr").eq("1"))
+        .auth(authInfo)
+        .set(attrCode1, value1)
+        .set(attrCode2, value2)
+        .build();
+
+  return repo.asyncUpdate(jpUpdate);  
+```
+
 ### Удаление данных
 
 Пример:
+
 ```
   @Autowired
   private JPObjectRepository repo;
@@ -959,8 +988,22 @@
   return repo.asyncDelete(jpDelete)  
 ```
 
-### Поиск данных
+### Удаление данных по условию
 
+Пример:
+
+```
+  @Autowired
+  private JPObjectRepository repo;
+  
+  JPDelete jpDelete = JPConditionalDelete.delete("jpClass", Filter.attr("condAttr").eq("1"))
+        .auth(authInfo)
+        .build();
+
+  return repo.asyncDelete(jpDelete)  
+```
+
+### Поиск данных
 
 #### Критерии поиска
 
@@ -1042,7 +1085,8 @@ public class AddressBean extends JPObjectBase {
 }
 ``` 
 
-Если на метаописание настроены два разных бина, один из которых является наследником другого, то для обработки будет использоваться наследник
+Если на метаописание настроены два разных бина, один из которых является наследником другого, то для обработки будет
+использоваться наследник
 
 ### Аннотация `mp.jprime.annotations.JPBeanInfo`
 
@@ -1050,9 +1094,10 @@ public class AddressBean extends JPObjectBase {
 
 #### Свойство `defaultJpAttrCollection`
 
-Указывает набор атрибутов, которые будут всегда получаться из хранилища в случае ссылки на текущий класс  
+Указывает набор атрибутов, которые будут всегда получаться из хранилища в случае ссылки на текущий класс
 
 Пример:
+
 ```
 @JPClassesLink(
     jpClasses = {Users.CLASS_CODE}
@@ -1067,41 +1112,68 @@ public class UsersBean extends JPObject {
 
 Пояснение:
 
-При наличии в любом классе атрибута, ссылающегося на users, при получении объекта этого класса, всегда будет дополнительно заполнятся linkedData
+При наличии в любом классе атрибута, ссылающегося на users, при получении объекта этого класса, всегда будет
+дополнительно заполнятся linkedData
 
 ```json
 {
-    "id": 9970000303,
-    "classCode": "companyJobFair",
-    "data": {
-        "..."
-    },
-    "linkedData": {
-        "userOwnerId": {
-            "id": 9999999912,
-            "classCode": "users",
-            "data": {
-                "fullName": "Роман",
-                "userId": 11111
-            }
-        }
-    }   
+  "id": 9970000303,
+  "classCode": "companyJobFair",
+  "data": {
+    "..."
+  },
+  "linkedData": {
+    "userOwnerId": {
+      "id": 9999999912,
+      "classCode": "users",
+      "data": {
+        "fullName": "Роман",
+        "userId": 11111
+      }
+    }
+  }
 }    
 ``` 
+
+### Получение уникальных значений
+
+Для получения уникальных значений объектов можно использовать `mp.jprime.dataaccess.uniquevalues.JPUniqueValuesService`
+
+При этом базовую логику можно переопределить для определенных классов через
+
+* реализацию`mp.jprime.dataaccess.uniquevalues.JPUniqueValuesHandler` с аннотацией `JPClassesLink`
+
+На один класс может быть настроен только один обработчик
+
+```
+@JPClassesLink(
+    jpClasses = {TestClass.CLASS_CODE}
+)
+public class TestClassUniqueValuesHandler implements JPUniqueValuesHandler { 
+  @Override
+  public Mono<Collection<JPUniqueValue>> getUniqueValues(JPSelect select, List<String> hierarchy) {
+    return Mono.empty();
+  }
+}
+```
+
+В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
 
 ## Валидаторы
 
 Перед действиями над объектами есть возможность произвести проверки с помощью валидаторов:
- 
+
 * `mp.jprime.dataaccess.validators.JPClassValidator` для обычного использования
 * `mp.jprime.dataaccess.validators.JPReactiveClassValidator` для реактивного кода
 
-
-Вызов валидатора происходит перед всеми остальными действиями и по умолчанию производится перед открытием транзакции (если она не была принудительно открыта ранее)
+Вызов валидатора происходит перед всеми остальными действиями и по умолчанию производится перед открытием транзакции (
+если она не была принудительно открыта ранее)
 
 ### Реализация валидатора на примере jprime.dataaccess.validators.JPClassValidator
 
-Валидатор реализует указанный выше интерфейс, обычно является наследником класса `mp.jprime.dataaccess.validators.JPClassValidatorBase` и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+Валидатор реализует указанный выше интерфейс, обычно является наследником
+класса `mp.jprime.dataaccess.validators.JPClassValidatorBase` и применяется к объектам класса, указанных в
+аннотации `JPClassesLink`
 
 На один класс может быть настроено множество валидаторов, а один валидатор может применятся ко многим классам
 
@@ -1122,7 +1194,8 @@ public class ContactValidator extends JPClassValidatorBase {
 
 В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
 
-Если на метаописание настроены два разных валидатора, один из которых является наследником другого, то для обработки будет использоваться наследник
+Если на метаописание настроены два разных валидатора, один из которых является наследником другого, то для обработки
+будет использоваться наследник
 
 ### Вызов валидации в прикладном коде
 
@@ -1152,7 +1225,8 @@ public class ContactValidator extends JPClassValidatorBase {
 
 ### Реализация расчета
 
-Расчетный класс реализует указанный выше интерфейс и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+Расчетный класс реализует указанный выше интерфейс и применяется к объектам класса, указанных в
+аннотации `JPClassesLink`
 
 На один класс может быть настроено множество расчетных блоков, а один расчет может применятся ко многим классам
 
@@ -1170,7 +1244,8 @@ public class TestClassDefValue implements JPObjectDefValue {
 
 В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
 
-Если на метаописание настроены два разных расчетных блока, один из которых является наследником другого, то для обработки будет использоваться наследник
+Если на метаописание настроены два разных расчетных блока, один из которых является наследником другого, то для
+обработки будет использоваться наследник
 
 ### Вызов расчета в прикладном коде
 
@@ -1197,11 +1272,13 @@ public class TestClassDefValue implements JPObjectDefValue {
 
 ## Дополнение значений
 
-В JPrime есть возможность рассчитать значения атрибутов на основании имеющихся данных с помощью `mp.jprime.dataaccess.applyvalues.JPObjectApplyValue`
+В JPrime есть возможность рассчитать значения атрибутов на основании имеющихся данных с
+помощью `mp.jprime.dataaccess.applyvalues.JPObjectApplyValue`
 
 ### Реализация расчета
 
-Расчетный класс реализует указанный выше интерфейс и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+Расчетный класс реализует указанный выше интерфейс и применяется к объектам класса, указанных в
+аннотации `JPClassesLink`
 
 На один класс может быть настроено множество расчетных блоков, а один расчет может применятся ко многим классам
 
@@ -1219,7 +1296,8 @@ public class TestClassDefValue implements JPObjectApplyValue {
 
 В случае некорректных ситуаций реализация обычно выбрасывает JPRuntimeException
 
-Если на метаописание настроены два разных расчетных блока, один из которых является наследником другого, то для обработки будет использоваться наследник
+Если на метаописание настроены два разных расчетных блока, один из которых является наследником другого, то для
+обработки будет использоваться наследник
 
 ### Вызов расчета в прикладном коде
 
@@ -1245,15 +1323,19 @@ public class TestClassDefValue implements JPObjectApplyValue {
 
 ## Определение дополнительных сведений по объекту
 
-В JPrime есть возможность возвратить набор информационных подсказок с  помощью `mp.jprime.dataaccess.addinfos.JPObjectAddInfoService`
+В JPrime есть возможность возвратить набор информационных подсказок с
+помощью `mp.jprime.dataaccess.addinfos.JPObjectAddInfoService`
 
 ## Поддержка разных форматов json для хранения и отображения
 
-Реализация интерфейса `mp.jprime.attrparsers.jpjsonnode.JPJsonAttrValueConverter` позволяет использовать разные форматы для хранения и отображения (при конвертации в JsonJPObject)
+Реализация интерфейса `mp.jprime.attrparsers.jpjsonnode.JPJsonAttrValueConverter` позволяет использовать разные форматы
+для хранения и отображения (при конвертации в JsonJPObject)
 
-Для этого необходимо реализовать класс, указав с помощью аннотации `mp.jprime.annotations.JPClassAttrsLink` атрибуты, для которых поддерживается конвертация
+Для этого необходимо реализовать класс, указав с помощью аннотации `mp.jprime.annotations.JPClassAttrsLink` атрибуты,
+для которых поддерживается конвертация
 
 ```java
+
 @JPClassAttrsLink(
     jpAttrs = {
         @JPClassAttr(
@@ -1283,11 +1365,13 @@ public class JsonSignsConverter implements JPJsonAttrValueConverter {
 
 ### Реализация источника данных
 
-Источником данных являются реализации `mp.jprime.dataaccess.addinfos.JPObjectAddInfoProvider`, данных которых складываются
+Источником данных являются реализации `mp.jprime.dataaccess.addinfos.JPObjectAddInfoProvider`, данных которых
+складываются
 
 ## Источник данных - java код
 
-Источник данных через java реализует интерфейс `mp.jprime.dataaccess.addinfos.JPObjectAddInfo` и применяется к объектам класса, указанных в аннотации `JPClassesLink`
+Источник данных через java реализует интерфейс `mp.jprime.dataaccess.addinfos.JPObjectAddInfo` и применяется к объектам
+класса, указанных в аннотации `JPClassesLink`
 
 На один класс может быть настроено множество реализаций, , данных которых в итоге складываются
 
@@ -1309,7 +1393,8 @@ public class TestObjectAddInfo implements JPObjectAddInfo {
 
 ## Источник данных - SQL
 
-Одной из реализаций провайдера является определение дополнительных свойств через SQL запрос. Подробнее см. модуль `jprime-dataaccess-jdbc-addinfos`
+Одной из реализаций провайдера является определение дополнительных свойств через SQL запрос. Подробнее см.
+модуль `jprime-dataaccess-jdbc-addinfos`
 
 ## Хендлера операций над объектами
 
@@ -1318,7 +1403,8 @@ public class TestObjectAddInfo implements JPObjectAddInfo {
 * `mp.jprime.dataaccess.handlers.JPClassHandler` для обычного использования
 * `mp.jprime.dataaccess.handlers.JPReactiveClassHandler` для реактивного кода
 
- и позволяет обработать следущие события
+и позволяет обработать следущие события
+
 ```
   beforeCreate(JPCreate query);
 
@@ -1332,7 +1418,7 @@ public class TestObjectAddInfo implements JPObjectAddInfo {
 
   afterDelete(JPDelete query);
 ```
- 
+
 ### Связь java-хендлера и метаописания класса
 
 Хендлер используется для обработки событий над объектами класса, указанных в аннотации `JPClassesLink`
@@ -1357,25 +1443,25 @@ public class CommonHandler extends JPClassHandlerBase {
 }
 ```
 
-Если на метаописание настроены два разных хендлера, один из которых является наследником другого, то для обработки будет использоваться наследник 
-
+Если на метаописание настроены два разных хендлера, один из которых является наследником другого, то для обработки будет
+использоваться наследник
 
 ## События
 
-Все события в системе являются ассинхронными. 
+Все события в системе являются ассинхронными.
 
 ## Системные события
 
 События инициируются и обрабатываются программным кодом и используются для передачи информации между сервисами
 
-Описание в модуле `jprime-common-core` 
+Описание в модуле `jprime-common-core`
 
 ## Пользовательские события
 
 Событие является наследником класса ``mp.jprime.events.userevents.JPUserEvent``
-и может быть инициировано в любом сервисе системы 
+и может быть инициировано в любом сервисе системы
 
-События инициируются программным кодом и используются для отображении информации конечному пользователю 
+События инициируются программным кодом и используются для отображении информации конечному пользователю
 
 ### Инициализация события
 
@@ -1420,37 +1506,51 @@ public class CommonHandler extends JPClassHandlerBase {
 
 ## Авторизация
 
-Данные о пользователе предоставлены реализацией `mp.jprime.security.AuthInfo`, содержащей информацию о идентикаторе пользователя,
+Данные о пользователе предоставлены реализацией `mp.jprime.security.AuthInfo`, содержащей информацию о идентикаторе
+пользователя,
 его имени, организации и подразделении
 
-## Использование шаблонных параметров 
+## Использование шаблонных параметров
 
-В различных частях системы, например, блоке filter в search-запросах, возможно использование шаблоны с динамической подстановкой
+В различных частях системы, например, блоке filter в search-запросах, возможно использование шаблоны с динамической
+подстановкой
 
-| Свойство     | Описание                   |
-|--------------|----------------------------|
-| AUTH_USERID  | Идентификатор пользователя |
-| AUTH_ORGID   | Организация пользователя   |
-| AUTH_DEPID   | Подразделение пользователя |
-| CUR_DATE     | Текущий день               |
-| CUR_DATETIME | Текущее дата+время         |
+| Свойство           | Описание                                |
+|--------------------|-----------------------------------------|
+| AUTH_USERID        | Идентификатор пользователя              |
+| AUTH_ORGID         | Организация пользователя                |
+| AUTH_SEPDEPID      | Обособленное подразделение пользователя |
+| AUTH_DEPID         | Подразделение пользователя              |
+| AUTH_SUBJECT_GROUP | Предметные группы пользователя          |
+| AUTH_OKTMO         | ОКТМО пользователя                      |
+| AUTH_OKTMO_TREE    | Дерево ОКТМО пользователя               |
+| CUR_DATE           | Текущий день                            |
+| CUR_DATETIME       | Текущее дата+время                      |
 
 Пример:
 
 ```json
 {
-    "totalCount": true,
-    "offset": 0,
-    "limit": 50,
-    "filter": {
-        "and": [
-            {
-                "cond": {
-                    "attr": "org",
-                    "eq": "{AUTH_ORGID}"
-                }
-            }
-        ]
-    }
+  "totalCount": true,
+  "offset": 0,
+  "limit": 50,
+  "filter": {
+    "and": [
+      {
+        "cond": {
+          "attr": "org",
+          "eq": "{AUTH_ORGID}"
+        }
+      }
+    ]
+  }
 }
 ```
+
+## Настройки REST работы с данными
+
+| Настройка                 | Описание                                            | По умолчанию |
+|---------------------------|-----------------------------------------------------|--------------|
+| jprime.query.queryTimeout | Время ожидания запроса                              | -            |
+| jprime.api.checkLimit     | Проверка максимального количества (limit) в выборке | true         |
+| jprime.api.maxLimit       | Максимальное количество в выборке через api         | 1000         |

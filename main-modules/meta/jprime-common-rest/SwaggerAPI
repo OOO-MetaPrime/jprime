@@ -776,6 +776,53 @@ paths:
         '409':
           description: an existing item already exists
 
+    patch:
+      tags:
+        - create
+        - update
+      summary: add or update an object of metaClass
+      operationId: patchObject
+      description: Метод поддерживается только для меты, где определена логика уникального ключа
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+            format: string
+          description: The object's metaClass multiple code
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/objectData'
+              example:
+                - classCode: 'testClass'
+                  data:
+                    attr1: value1
+                    attr2: value2
+                  linkedData:
+                    attr3:
+                      create:
+                        - classCode: 'testClass2'
+                          data:
+                            attr3: value3
+                            attr4: value4
+
+        description: object to add
+      responses:
+        '201':
+          description: item created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/objectInfo'
+        '400':
+          description: 'invalid input, object invalid'
+        '409':
+          description: an existing item already exists
+
   '/api/v1/{code}/{objectId}/file/{attrCode}/{bearer}':
     get:
       tags:

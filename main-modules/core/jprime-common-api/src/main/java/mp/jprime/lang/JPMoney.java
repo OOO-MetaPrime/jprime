@@ -1,13 +1,24 @@
 package mp.jprime.lang;
 
+import mp.jprime.utils.CurrencyCode;
+import org.javamoney.moneta.CurrencyUnitBuilder;
 import org.javamoney.moneta.Money;
 
+import javax.money.CurrencyUnit;
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Map;
 import java.util.Objects;
 
 public final class JPMoney implements Comparable<JPMoney>, Serializable {
   private static final long serialVersionUID = -2489049794554399911L;
+
+  private static final Map<String, CurrencyUnit> CURRENCY_LIST = Map.of(
+      CurrencyCode.RUB, CurrencyUnitBuilder.of(CurrencyCode.RUB, "jpCurrencyBuilder")
+          .setNumericCode(643)
+          .build()
+  );
 
   private final Money money;
 
@@ -16,11 +27,21 @@ public final class JPMoney implements Comparable<JPMoney>, Serializable {
   }
 
   private JPMoney(Number number, String currencyCode) {
-    this.money = Money.of(number, currencyCode);
+    CurrencyUnit unit = CURRENCY_LIST.get(currencyCode);
+    if (unit != null) {
+      this.money = Money.of(number, unit);
+    } else {
+      this.money = Money.of(number, currencyCode);
+    }
   }
 
   private JPMoney(BigDecimal number, String currencyCode) {
-    this.money = Money.of(number, currencyCode);
+    CurrencyUnit unit = CURRENCY_LIST.get(currencyCode);
+    if (unit != null) {
+      this.money = Money.of(number, unit);
+    } else {
+      this.money = Money.of(number, currencyCode);
+    }
   }
 
   /**
@@ -150,6 +171,13 @@ public final class JPMoney implements Comparable<JPMoney>, Serializable {
     return new JPMoney(this.money.scaleByPowerOfTen(power));
   }
 
+  public JPMoney round(int value) {
+    return new JPMoney(
+        this.money.getNumberStripped().setScale(value, RoundingMode.HALF_EVEN),
+        this.getCurrencyCode()
+    );
+  }
+
   public int signum() {
     return money.signum();
   }
@@ -230,5 +258,15 @@ public final class JPMoney implements Comparable<JPMoney>, Serializable {
    */
   public static JPMoney of(BigDecimal number, String currencyCode) {
     return new JPMoney(number, currencyCode);
+  }
+
+  /**
+   * Static factory method for creating a new instance of {@link JPMoney}.
+   *
+   * @param number The numeric part, not null.
+   * @return A new instance of {@link Money}.
+   */
+  public static JPMoney ofRub(BigDecimal number) {
+    return of(number, CurrencyCode.RUB);
   }
 }

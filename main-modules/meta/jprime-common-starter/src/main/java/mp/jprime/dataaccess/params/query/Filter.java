@@ -3,7 +3,9 @@ package mp.jprime.dataaccess.params.query;
 import mp.jprime.dataaccess.params.query.data.KeyValuePair;
 import mp.jprime.dataaccess.params.query.data.Pair;
 import mp.jprime.dataaccess.params.query.filters.*;
+import mp.jprime.dataaccess.params.query.filters.array.OverlapsArray;
 import mp.jprime.dataaccess.params.query.filters.range.*;
+import mp.jprime.lang.JPArray;
 import mp.jprime.lang.JPRange;
 import mp.jprime.meta.JPAttr;
 
@@ -572,6 +574,16 @@ public abstract class Filter {
      */
     public OverlapsRange overlapsRange(JPRange<?> value) {
       return new OverlapsRange(attrCode, value);
+    }
+
+    /**
+     * Этот массив содержится в массиве
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public OverlapsArray overlapsArray(JPArray<?> value) {
+      return new OverlapsArray(attrCode, value);
     }
 
     /**

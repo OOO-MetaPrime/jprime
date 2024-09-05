@@ -1,8 +1,7 @@
 dependencies {
   api project(":jprime-utils-starter")
 
-  testImplementation('org.springframework.boot:spring-boot-starter-test')
-  testImplementation('org.springframework.security:spring-security-test')
+  testImplementation project(":jprime-test")
 }
 
 bootJar {

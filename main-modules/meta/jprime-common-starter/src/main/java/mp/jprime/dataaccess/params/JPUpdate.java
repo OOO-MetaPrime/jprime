@@ -24,6 +24,7 @@ public class JPUpdate extends JPSave {
    *
    * @param jpId         Идентификатор объекта
    * @param data         Значение атрибута при обновлении
+   * @param systemAttrs  Атрибуты, значения которых, указаны от имени системы
    * @param linkedCreate параметры для создания ссылочного объекта
    * @param linkedUpdate параметры для обновления ссылочного объекта
    * @param linkedDelete параметры для удаления ссылочного объекта
@@ -31,11 +32,12 @@ public class JPUpdate extends JPSave {
    * @param source       Источник данных
    */
   private JPUpdate(JPId jpId, Map<String, Object> data,
+                   Collection<String> systemAttrs,
                    Map<String, Collection<JPCreate>> linkedCreate,
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
                    Filter where, AuthInfo auth, Source source, boolean autoChangeDate) {
-    super(data, source, auth);
+    super(data, systemAttrs, source, auth);
     this.jpId = jpId;
     this.linkedCreate = linkedCreate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedCreate);
     this.linkedUpdate = linkedUpdate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedUpdate);
@@ -151,7 +153,7 @@ public class JPUpdate extends JPSave {
      */
     @Override
     public JPUpdate build() {
-      return new JPUpdate(jpId, data, linkedCreate, linkedUpdate, linkedDelete, where, auth, source, autoChangeDate);
+      return new JPUpdate(jpId, data, systemAttrs, linkedCreate, linkedUpdate, linkedDelete, where, auth, source, autoChangeDate);
     }
 
     /**

@@ -21,7 +21,7 @@ public class JPTemplateValueDefaultService implements JPTemplateValueService {
       return;
     }
     for (TemplateValue value : values) {
-      qValues.put("{" + value.getTemplate() + "}", value);
+      qValues.put(value.getPattern(), value);
     }
   }
 
@@ -34,7 +34,7 @@ public class JPTemplateValueDefaultService implements JPTemplateValueService {
    */
   @Override
   public Object getValue(Object value, AuthInfo authInfo) {
-    TemplateValue qValue = value instanceof String && ((String) value).startsWith("{") ? qValues.get(value) : null;
+    TemplateValue qValue = value instanceof String x && x.length() > 1 && x.charAt(0) == '{' ? qValues.get(value) : null;
     if (qValue != null) {
       return qValue.getValue(value, authInfo);
     } else {

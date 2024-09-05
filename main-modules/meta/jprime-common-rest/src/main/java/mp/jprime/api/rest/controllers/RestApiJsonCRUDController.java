@@ -60,7 +60,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
         .offset(offset != null ? offset : 0)
         .limit(limit != null ? limit : QueryService.MAX_LIMIT)
         .orderByDesc(jpClass.getPrimaryKeyAttr())
-        .timeout(queryTimeout)
+        .timeout(getQueryTimeout())
         .useDefaultJpAttrs(Boolean.TRUE)
         .source(Source.USER)
         .auth(auth);
@@ -100,7 +100,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
           .andWhere(Filter.attr(attrCode).eq(attrValue))
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -135,12 +135,12 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                   @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByCode(code);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    if (jpAttr == null || jpAttr.getRefJpClassCode() == null || jpClass.isInner()) {
+    if (jpAttr == null || jpAttr.getRefJpAttr() == null || jpClass.isInner()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    JPClass refClass = metaStorage.getJPClassByCode(jpAttr.getRefJpClassCode());
-    JPAttr refAttr = refClass != null && jpAttr.getRefJpAttrCode() != null ?
-        refClass.getAttr(jpAttr.getRefJpAttrCode()) : null;
+    JPClass refClass = metaStorage.getJPClassByCode(jpAttr.getRefJpAttr());
+    JPAttr refAttr = refClass != null && jpAttr.getRefJpAttr() != null ?
+        refClass.getAttr(jpAttr.getRefJpAttr()) : null;
     if (refAttr == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -151,9 +151,9 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     try {
       JsonSelect jsonSelect = queryService.getQuery(query);
       access = jsonSelect != null && jsonSelect.isAccess();
-      builder = queryService.getSelect(jpAttr.getRefJpClassCode(), jsonSelect, auth)
-          .andWhere(Filter.attr(jpAttr.getRefJpAttrCode()).eq(attrValue))
-          .timeout(queryTimeout)
+      builder = queryService.getSelect(jpAttr.getRefJpAttr(), jsonSelect, auth)
+          .andWhere(Filter.attr(jpAttr.getRefJpAttr()).eq(attrValue))
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -186,11 +186,11 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                            @RequestBody String query) {
     JPClass jpClass = metaStorage.getJPClassByCode(code);
     JPAttr jpAttr = jpClass == null || jpClass.isInner() ? null : jpClass.getAttr(attrCode);
-    JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClassCode() == null || jpAttr.getType() != JPType.BACKREFERENCE
-        ? null : metaStorage.getJPClassByCode(jpAttr.getRefJpClassCode());
-    JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttrCode());
-    JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttrCode());
-    if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClassCode())) {
+    JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClass() == null || jpAttr.getType() != JPType.BACKREFERENCE
+        ? null : metaStorage.getJPClassByCode(jpAttr.getRefJpClass());
+    JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttr());
+    JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttr());
+    if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClass())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return Mono.just(objectId)
@@ -222,7 +222,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
             access = jsonSelect != null && jsonSelect.isAccess();
             builder = queryService.getSelect(refJpClass.getCode(), jsonSelect, auth)
                 .andWhere(Filter.attr(refJpAttr.getCode()).eq(key))
-                .timeout(queryTimeout)
+                .timeout(getQueryTimeout())
                 .source(Source.USER);
           } catch (JPRuntimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -250,7 +250,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     JPSelect jpSelect = JPSelect
         .from(jpClass)
         .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(objectId))
-        .timeout(queryTimeout)
+        .timeout(getQueryTimeout())
         .useDefaultJpAttrs(Boolean.TRUE)
         .auth(auth)
         .source(Source.USER)
@@ -356,6 +356,36 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   }
 
   @ResponseBody
+  @PatchMapping(value = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
+  @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
+  @ResponseStatus(HttpStatus.OK)
+  public Mono<JsonJPObject> patchObject(ServerWebExchange swe,
+                                         @PathVariable("code") String code,
+                                         @RequestBody String query) {
+    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    if (jpClass == null || jpClass.isInner()) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    AuthInfo authInfo = jwtService.getAuthInfo(swe);
+
+    JPCreate jpCreate;
+    try {
+      jpCreate = queryService.getCreate(query, Source.USER, authInfo)
+          .build();
+    } catch (JPRuntimeException e) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    if (!jpClass.getCode().equals(jpCreate.getJpClass())) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
+    return repo.asyncPatchAndGet(jpCreate)
+        .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+        .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
+        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
+        .map(object -> jsonJPObjectService.toJsonJPObject(object, swe));
+  }
+
+  @ResponseBody
   @PostMapping(value = "/{code}/search/anonymous", produces = MediaType.APPLICATION_JSON_VALUE)
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonJPObjectList> getObjectListAnonymous(ServerWebExchange swe,
@@ -372,7 +402,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
       JsonSelect jsonSelect = queryService.getQuery(query);
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, null)
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -397,7 +427,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     JPSelect jpSelect = JPSelect
         .from(jpClass)
         .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(objectId))
-        .timeout(queryTimeout)
+        .timeout(getQueryTimeout())
         .useDefaultJpAttrs(Boolean.TRUE)
         .auth(null)
         .source(Source.USER)
@@ -430,7 +460,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, null)
           .andWhere(Filter.attr(attrCode).eq(attrValue))
-          .timeout(queryTimeout)
+          .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);

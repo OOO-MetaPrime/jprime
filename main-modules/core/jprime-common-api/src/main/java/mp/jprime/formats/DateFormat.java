@@ -28,6 +28,10 @@ public final class DateFormat {
    */
   public static final String DDdMMdYYYY = "dd.MM.yyyy";
   /**
+   * день.месяц.год
+   */
+  public static final String DDdMMdYYYY_HH_MM = "dd.MM.yyyy HH:mm";
+  /**
    * Формат ИСО 8601 (полное время)
    */
   public static final String ISO8601 = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";

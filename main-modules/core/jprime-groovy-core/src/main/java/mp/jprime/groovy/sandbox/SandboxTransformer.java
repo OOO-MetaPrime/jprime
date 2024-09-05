@@ -95,7 +95,7 @@ public class SandboxTransformer extends CompilationCustomizer {
 
     @Override
     public void call(final SourceUnit source, GeneratorContext context, ClassNode classNode) {
-        if (classNode == null) { // TODO is this even possible? CpsTransformer implies it is not.
+        if (classNode == null) {
             return;
         }
 
@@ -540,7 +540,6 @@ public class SandboxTransformer extends CompilationCustomizer {
                 } else
                 if (interceptMethodCall) {
                     // normally binary operators like a+b
-                    // TODO: check what other weird binary operators land here
                     return makeCheckedCall("checkedBinaryOp",
                             transform(be.getLeftExpression()),
                             intExp(be.getOperation().getType()),

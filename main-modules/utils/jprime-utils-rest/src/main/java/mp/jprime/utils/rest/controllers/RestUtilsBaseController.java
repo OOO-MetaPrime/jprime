@@ -2,7 +2,7 @@ package mp.jprime.utils.rest.controllers;
 
 import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.JPEnum;
-import mp.jprime.json.beans.JsonEnum;
+import mp.jprime.json.beans.JsonJPEnum;
 import mp.jprime.json.beans.JsonParam;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.parsers.exceptions.JPParseException;
@@ -13,7 +13,7 @@ import mp.jprime.streams.services.UploadInputStreamService;
 import mp.jprime.utils.*;
 import mp.jprime.utils.exceptions.JPUtilNotFoundException;
 import mp.jprime.utils.json.*;
-import mp.jprime.utils.services.JPUtilService;
+import mp.jprime.utils.JPUtilService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -339,8 +339,8 @@ public abstract class RestUtilsBaseController {
         .build();
   }
 
-  private JsonEnum toUtilEnum(JPEnum paramEnum) {
-    return JsonEnum.of(paramEnum.getValue(), paramEnum.getDescription(), paramEnum.getQName());
+  private JsonJPEnum toUtilEnum(JPEnum paramEnum) {
+    return JsonJPEnum.of(paramEnum.getValue(), paramEnum.getDescription(), paramEnum.getQName());
   }
 
   private JsonUtilClassAttr toUtilClassAttr(JPClassAttr classAttr) {

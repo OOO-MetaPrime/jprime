@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Map;
-import java.util.function.Supplier;
+import java.util.function.BooleanSupplier;
 
 /**
  * Базовая реализация кэша
@@ -19,7 +19,7 @@ public abstract class JPBaseCache<C, V> implements JPCache<C, V> {
 
   private volatile Map<C, V> cache;
 
-  @Value("${jprime.cache.load.timeout:5}")
+  @Value("${jprime.cache.load.timeout:20}")
   private int timeout;
 
   @Override
@@ -67,22 +67,25 @@ public abstract class JPBaseCache<C, V> implements JPCache<C, V> {
    * Если кэш не был проинициализирован до истечения таймаута, бросается {@link JPRuntimeException}
    */
   protected void waitForInit() {
-    waitForInit(() -> cache);
+    waitForInit(() -> cache != null);
   }
 
   /**
    * Неблокирующее ожидание инициализации кэша до {@link JPBaseCache#getLoadTimeout() таймаута}.
    * Если кэш не был проинициализирован до истечения таймаута, бросается {@link JPRuntimeException}
    *
-   * @param cacheSupplier функция получения проверяемого кэша
+   * @param cacheEnabled функция проверки загрузки кеша
    */
-  protected void waitForInit(Supplier<?> cacheSupplier) {
+  protected void waitForInit(BooleanSupplier cacheEnabled) {
+    if (cacheEnabled.getAsBoolean()) {
+      return;
+    }
     LocalDateTime deadLine = LocalDateTime.now().plusSeconds(getLoadTimeout());
-    while (cacheSupplier.get() == null) {
+    while (!cacheEnabled.getAsBoolean()) {
       if (deadLine.isBefore(LocalDateTime.now())) {
         throw new JPRuntimeException("jp.cache.load.timeout", "Истекло время ожидания загрузки кэша \"" + getCode() + '"');
       }
-      //Ждём первичной инициализации кэша
+      // Ждём первичной инициализации кэша
       Thread.onSpinWait();
     }
   }

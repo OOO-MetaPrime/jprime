@@ -14,6 +14,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +41,38 @@ class JPDataCheckServiceTest {
   @Test
   void testEmptyDataWithEmptyFilter() {
     Object out = jpDataCheckServiceTest.check(Filter.and(Collections.emptyList()), JPMutableData.empty());
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testStartWith() {
+    Map<String, Object> data = new HashMap<>() {{
+      put("attr1", "Мама");
+      put("attr2", "Папа");
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.or(
+            Filter.attr("attr1").startWith("М"),
+            Filter.attr("attr2").startWith("М")
+        ),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testNotStartWith() {
+    Map<String, Object> data = new HashMap<>() {{
+      put("attr1", "Мама");
+      put("attr2", "Папа");
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.and(
+            Filter.attr("attr1").notStartWith("А"),
+            Filter.attr("attr2").notStartWith("А")
+        ),
+        JPMutableData.of(data)
+    );
     assertEquals(Boolean.TRUE, out);
   }
 
@@ -107,6 +140,39 @@ class JPDataCheckServiceTest {
     );
     assertEquals(Boolean.TRUE, out);
   }
+
+  @Test
+  void testListInData() {
+    Map<String, Object> data = new HashMap<>() {{
+      put("attr1", List.of(1,2));
+      put("attr2", List.of(2,3));
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.and(
+            Filter.attr("attr1").in(List.of(0,2)),
+            Filter.attr("attr2").in(List.of(0,2))
+        ),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
+  @Test
+  void testListNotInData() {
+    Map<String, Object> data = new HashMap<>() {{
+      put("attr1", List.of(1,2));
+      put("attr2", List.of(2,3));
+    }};
+    Object out = jpDataCheckServiceTest.check(
+        Filter.and(
+            Filter.attr("attr1").notIn(List.of(4,5)),
+            Filter.attr("attr2").notIn(List.of(6,7))
+        ),
+        JPMutableData.of(data)
+    );
+    assertEquals(Boolean.TRUE, out);
+  }
+
 
   @Test
   void testSimpleNotInData() {

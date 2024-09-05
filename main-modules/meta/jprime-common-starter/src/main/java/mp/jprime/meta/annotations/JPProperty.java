@@ -1,6 +1,6 @@
 package mp.jprime.meta.annotations;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
 
 /**
  * Аннотация описания свойства псевдо-меты
@@ -50,18 +50,11 @@ public @interface JPProperty {
   boolean mandatory() default false;
 
   /**
-   * Признак множественности
-   *
-   * @return Да/Нет
-   */
-  boolean multiple() default false;
-
-  /**
    * Тип свойства
    *
    * @return Тип свойства
    */
-  PropertyType type();
+  JPPropertyType type();
 
   /**
    * Длина (для строковых полей)

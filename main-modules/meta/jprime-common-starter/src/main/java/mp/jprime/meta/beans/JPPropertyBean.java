@@ -1,6 +1,8 @@
 package mp.jprime.meta.beans;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
+import mp.jprime.common.JPEnum;
+import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPProperty;
 
 import java.util.Collection;
@@ -11,153 +13,102 @@ import java.util.Collections;
  */
 public final class JPPropertyBean implements JPProperty {
   private final String code;
-  private final PropertyType type;
+  private final JPPropertyType type;
+  private final JPStringFormat stringFormat;
+  private final String stringMask;
   private final Integer length;
-  private final boolean multiple;
   private final boolean mandatory;
   private final String name;
-  private final String shortName;
-  private final String description;
   private final String qName;
-  private final String refJpClassCode;
-  private final String refJpAttrCode;
-  private final Collection<JPProperty> schemaProps;
+  private final String refJpClass;
+  private final String refJpAttr;
+  private final Filter filter;
+  private final Collection<JPEnum> enums;
+  private final Collection<JPProperty> jpProps;
 
-  private JPPropertyBean(String code, PropertyType type, Integer length, boolean multiple,
-                         boolean mandatory, String name, String shortName, String description, String qName,
-                         String refJpClassCode, String refJpAttrCode, Collection<JPProperty> schemaProps) {
+  private JPPropertyBean(String code, JPPropertyType type,
+                         JPStringFormat stringFormat, String stringMask, Integer length,
+                         boolean mandatory, String name, String qName,
+                         String refJpClass, String refJpAttr, Filter filter,
+                         Collection<JPEnum> enums, Collection<JPProperty> jpProps) {
     this.code = code;
     this.type = type;
+    this.stringFormat = stringFormat;
+    this.stringMask = stringMask;
     this.length = length;
-    this.multiple = multiple;
     this.mandatory = mandatory;
     this.name = name;
-    this.shortName = shortName;
-    this.description = description;
     this.qName = qName;
-    this.refJpClassCode = refJpClassCode;
-    this.refJpAttrCode = refJpAttrCode;
-    this.schemaProps = schemaProps == null ? null : Collections.unmodifiableCollection(schemaProps);
+    this.refJpClass = refJpClass;
+    this.refJpAttr = refJpAttr;
+    this.filter = filter;
+    this.enums = enums == null ? Collections.emptyList() : Collections.unmodifiableCollection(enums);
+    this.jpProps = jpProps == null ? Collections.emptyList() : Collections.unmodifiableCollection(jpProps);
   }
 
-  /**
-   * Кодовое имя свойства
-   *
-   * @return Кодовое имя свойства
-   */
   @Override
   public String getCode() {
     return code;
   }
 
-  /**
-   * Возвращает признак обязательности
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean isMandatory() {
     return mandatory;
   }
 
-  /**
-   * Возвращает признак множественности
-   *
-   * @return Да/Нет
-   */
   @Override
-  public boolean isMultiple() {
-    return multiple;
-  }
-
-  /**
-   * Тип свойства
-   *
-   * @return Тип свойства
-   */
-  @Override
-  public PropertyType getType() {
+  public JPPropertyType getType() {
     return type;
   }
 
-  /**
-   * Возвращает длину
-   *
-   * @return Длина
-   */
+  @Override
+  public JPStringFormat getStringFormat() {
+    return stringFormat;
+  }
+
+  @Override
+  public String getStringMask() {
+    return stringMask;
+  }
+
   @Override
   public Integer getLength() {
     return length;
   }
 
-  /**
-   * Название свойства
-   *
-   * @return Название свойства
-   */
   @Override
   public String getName() {
     return name;
   }
 
-  /**
-   * Короткое название свойства
-   *
-   * @return Короткое название свойства
-   */
-  @Override
-  public String getShortName() {
-    return shortName;
-  }
-
-  /**
-   * Описание свойства
-   *
-   * @return Описание свойства
-   */
-  @Override
-  public String getDescription() {
-    return description;
-  }
-
-  /**
-   * Уникальный qName свойства
-   *
-   * @return Уникальный qName свойства
-   */
   @Override
   public String getQName() {
     return qName;
   }
 
-  /**
-   * Код класса, на который ссылается
-   *
-   * @return Код класса, на который ссылается
-   */
   @Override
-  public String getRefJpClassCode() {
-    return refJpClassCode;
+  public String getRefJpClass() {
+    return refJpClass;
   }
 
-  /**
-   * Код атрибута, на который ссылается
-   *
-   * @return Код атрибута, на который ссылается
-   */
   @Override
-  public String getRefJpAttrCode() {
-    return refJpAttrCode;
+  public String getRefJpAttr() {
+    return refJpAttr;
   }
 
-  /**
-   * Список вложенных свойств
-   *
-   * @return список вложенных свойств
-   */
   @Override
-  public Collection<JPProperty> getSchemaProps() {
-    return schemaProps;
+  public Filter getFilter() {
+    return filter;
+  }
+
+  @Override
+  public Collection<JPEnum> getEnums() {
+    return enums;
+  }
+
+  @Override
+  public Collection<JPProperty> getJpProps() {
+    return jpProps;
   }
 
   public static Builder builder() {
@@ -166,17 +117,18 @@ public final class JPPropertyBean implements JPProperty {
 
   public static final class Builder {
     private String code;
-    private PropertyType type;
+    private JPPropertyType type;
+    private JPStringFormat stringFormat;
+    private String stringMask;
     private Integer length;
-    private boolean multiple;
     private boolean mandatory;
     private String name;
-    private String shortName;
-    private String description;
     private String qName;
-    private String refJpClassCode;
-    private String refJpAttrCode;
-    private Collection<JPProperty> schemaProps;
+    private String refJpClass;
+    private String refJpAttr;
+    private Filter filter;
+    private Collection<JPEnum> enums;
+    private Collection<JPProperty> jpProps;
 
     private Builder() {
     }
@@ -194,8 +146,24 @@ public final class JPPropertyBean implements JPProperty {
     /**
      * Тип свойства
      */
-    public Builder type(PropertyType type) {
+    public Builder type(JPPropertyType type) {
       this.type = type;
+      return this;
+    }
+
+    /**
+     * Тип строкового поля
+     */
+    public Builder stringFormat(JPStringFormat stringFormat) {
+      this.stringFormat = stringFormat;
+      return this;
+    }
+
+    /**
+     * Маска строкового поля
+     */
+    public Builder stringMask(String stringMask) {
+      this.stringMask = stringMask;
       return this;
     }
 
@@ -207,13 +175,6 @@ public final class JPPropertyBean implements JPProperty {
       return this;
     }
 
-    /**
-     * Признак множественности
-     */
-    public Builder multiple(boolean multiple) {
-      this.multiple = multiple;
-      return this;
-    }
 
     /**
      * Признак обязательности
@@ -232,22 +193,6 @@ public final class JPPropertyBean implements JPProperty {
     }
 
     /**
-     * Короткое название свойства
-     */
-    public Builder shortName(String shortName) {
-      this.shortName = shortName;
-      return this;
-    }
-
-    /**
-     * Описание свойства
-     */
-    public Builder description(String description) {
-      this.description = description;
-      return this;
-    }
-
-    /**
      * Уникальный qName свойства
      */
     public Builder qName(String qName) {
@@ -258,30 +203,46 @@ public final class JPPropertyBean implements JPProperty {
     /**
      * Код класса, на который ссылается
      */
-    public Builder refJpClassCode(String refJpClassCode) {
-      this.refJpClassCode = refJpClassCode;
+    public Builder refJpClass(String refJpClass) {
+      this.refJpClass = refJpClass;
       return this;
     }
 
     /**
      * Код атрибута, на который ссылается
      */
-    public Builder refJpAttrCode(String refJpAttrCode) {
-      this.refJpAttrCode = refJpAttrCode;
+    public Builder refJpAttr(String refJpAttr) {
+      this.refJpAttr = refJpAttr;
+      return this;
+    }
+
+    /**
+     * Условие, на объекты класса
+     */
+    public Builder filter(Filter filter) {
+      this.filter = filter;
+      return this;
+    }
+
+    /**
+     * Перечислимые значения
+     */
+    public Builder enums(Collection<JPEnum> enums) {
+      this.enums = enums;
       return this;
     }
 
     /**
      * Список вложенных свойств
      */
-    public Builder schemaProps(Collection<JPProperty> schemaProps) {
-      this.schemaProps = schemaProps;
+    public Builder jpProps(Collection<JPProperty> jpProps) {
+      this.jpProps = jpProps;
       return this;
     }
 
     public JPPropertyBean build() {
-      return new JPPropertyBean(code, type, length, multiple, mandatory, name, shortName,
-          description, qName, refJpClassCode, refJpAttrCode, schemaProps);
+      return new JPPropertyBean(code, type, stringFormat, stringMask, length,
+          mandatory, name, qName, refJpClass, refJpAttr, filter, enums, jpProps);
     }
   }
 }

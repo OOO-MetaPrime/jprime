@@ -9,7 +9,7 @@ public interface JPObjectRepositoryServiceAware extends Aware {
   /**
    * Устанавливает   JPObjectRepositoryService
    *
-   * @param repositoryService JPObjectRepositoryService
+   * @param repo JPObjectRepositoryService
    */
-  void setJpObjectRepositoryService(JPObjectRepositoryService repositoryService);
+  void setJpObjectRepositoryService(JPObjectRepositoryService repo);
 }

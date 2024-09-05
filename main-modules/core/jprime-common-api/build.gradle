@@ -10,10 +10,11 @@ dependencies {
   api(commons.moneta.core)
   api(libs.bundles.jackson.v1)
 
-  api project(':jprime-security-core')
+  api project(':jprime-common-consts')
   api project(':jprime-common-exceptions')
+  api project(':jprime-security-core')
 
-  testImplementation('org.springframework.boot:spring-boot-starter-test')
+  testImplementation project(":jprime-test")
 }
 
 bootJar {

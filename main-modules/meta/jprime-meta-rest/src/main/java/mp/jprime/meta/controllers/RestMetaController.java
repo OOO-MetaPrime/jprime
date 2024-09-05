@@ -1,6 +1,6 @@
 package mp.jprime.meta.controllers;
 
-import mp.jprime.beans.PropertyType;
+import mp.jprime.beans.JPPropertyType;
 import mp.jprime.controllers.DownloadFile;
 import mp.jprime.exceptions.JPForbiddenException;
 import mp.jprime.meta.JPAttrCsvWriterService;
@@ -124,7 +124,7 @@ public class RestMetaController implements DownloadFile {
   @GetMapping(value = "propertyTypes", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonPropertyType> getPropertyTypes() {
-    return Flux.fromArray(PropertyType.values())
+    return Flux.fromArray(JPPropertyType.values())
         .map(JsonPropertyType::from);
   }
 

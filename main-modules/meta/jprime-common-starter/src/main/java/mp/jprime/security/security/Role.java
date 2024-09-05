@@ -15,6 +15,10 @@ public class Role extends mp.jprime.security.Role {
    * Конфигурирование: создание/редактирование внутри организации
    */
   public final static String AUTH_ORG_ADMIN  = "AUTH_ORG_ADMIN";
+  /**
+   * Конфигурирование: создание/редактирование внутри обособленного подразделения
+   */
+  public final static String AUTH_SEPDEP_ADMIN  = "AUTH_SEPDEP_ADMIN";
 
   /**
    * ДКонфигурирование: настройка прав доступа
@@ -32,6 +36,15 @@ public class Role extends mp.jprime.security.Role {
    */
   public String getAuthOrgAdmin() {
     return AUTH_ORG_ADMIN;
+  }
+
+  /**
+   * Конфигурирование: создание/редактирование внутри обособленного подразделения
+   *
+   * @return Код роли
+   */
+  public String getAuthSepDepAdmin() {
+    return AUTH_SEPDEP_ADMIN;
   }
 }
 
