@@ -17,15 +17,15 @@ import java.util.List;
  */
 @Service
 public final class StringToJPLongArray implements TypeParser<String, JPLongArray>, ParserServiceAware {
-  private final TypeReference<List<Long>> TYPE_REF = new TypeReference<List<Long>>() {
+  private final TypeReference<List<Long>> TYPE_REF = new TypeReference<>() {
   };
 
-  private JPJsonMapper jpJsonMapper;
+  private JPJsonMapper jsonMapper;
   private ParserService service;
 
   @Autowired
-  private void setJPJsonMapper(JPJsonMapper jpJsonMapper) {
-    this.jpJsonMapper = jpJsonMapper;
+  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+    this.jsonMapper = jsonMapper;
   }
 
   @Override
@@ -44,7 +44,7 @@ public final class StringToJPLongArray implements TypeParser<String, JPLongArray
       return null;
     }
     if (value.startsWith("[")) {
-      return JPLongArray.of(jpJsonMapper.toObject(TYPE_REF, value));
+      return JPLongArray.of(jsonMapper.toObject(TYPE_REF, value));
     }
     return JPLongArray.of(Collections.singletonList(service.parseTo(Long.class, value)));
   }

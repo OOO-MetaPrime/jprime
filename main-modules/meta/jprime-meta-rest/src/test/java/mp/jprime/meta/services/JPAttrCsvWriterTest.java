@@ -5,7 +5,7 @@ import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.*;
-import mp.jprime.meta.json.converters.JPClassJsonBaseConverter;
+import mp.jprime.meta.json.converters.JPClassJsonCommonConverter;
 import mp.jprime.parsers.ParserServiceAwareConfiguration;
 import mp.jprime.parsers.base.BooleanToStringParser;
 import mp.jprime.parsers.base.IntegerToStringParser;
@@ -26,7 +26,7 @@ import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-@SpringBootTest(classes = {JPAttrCsvWriterCommonService.class, JPClassJsonBaseConverter.class, JPJsonMapper.class,
+@SpringBootTest(classes = {JPAttrCsvWriterCommonService.class, JPClassJsonCommonConverter.class, JPJsonMapper.class,
     ParserCommonService.class, ParserServiceAwareConfiguration.class,
     IntegerToStringParser.class, BooleanToStringParser.class})
 @ActiveProfiles("JPAttrCsvWriterTest")

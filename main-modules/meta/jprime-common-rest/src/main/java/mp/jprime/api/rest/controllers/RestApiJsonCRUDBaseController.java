@@ -14,7 +14,7 @@ import mp.jprime.json.beans.JsonSelect;
 import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.requesthistory.services.RequestHistoryPublisher;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
@@ -43,13 +43,13 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
    */
   protected JPObjectAccessService objectAccessService;
   /**
-   * Хранилище метаинформации
-   */
-  protected JPMetaStorage metaStorage;
-  /**
    * Обработчик JWT
    */
   protected JWTService jwtService;
+  /**
+   * Фильтр меты
+   */
+  protected JPMetaFilter jpMetaFilter;
   /**
    * Формирование JsonJPObject
    */
@@ -75,13 +75,13 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
   }
 
   @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
   }
 
   @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @Autowired
@@ -100,11 +100,11 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
   }
 
   protected ParsedQuery parseQuery(ServerWebExchange swe, String code, String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
 
     JPSelect.Builder builder;
     boolean access;

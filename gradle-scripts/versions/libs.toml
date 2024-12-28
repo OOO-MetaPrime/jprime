@@ -1,13 +1,13 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.17.1"
-jacksonDataformatXmlVersion = "2.17.1"
-jacksonDataformatYamlVersion = "2.17.1"
-jacksonDatatypeJsr310Version = "2.17.1"
+jacksonAnnotationsVersion = "2.18.2"
+jacksonDataformatXmlVersion = "2.18.2"
+jacksonDataformatYamlVersion = "2.18.2"
+jacksonDatatypeJsr310Version = "2.18.2"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.7"
+jodconverterLocalVersion = "4.4.8"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
 # sshj

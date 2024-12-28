@@ -205,7 +205,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "pers",
                     "refJpAttr": "reg_num",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 },
                 {
                     "code": "specCopy",
@@ -216,7 +218,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "",
                     "refJpAttr": "",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 },
                 ...
             ],
@@ -231,7 +235,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "pers",
                     "refJpAttr": "reg_num",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 }
             ]
         },
@@ -292,7 +298,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "pers",
                     "refJpAttr": "reg_num",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 },
                 {
                     "code": "specCopy",
@@ -303,7 +311,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "",
                     "refJpAttr": "",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 },
                 ...
             ],
@@ -318,7 +328,9 @@ REST-методы работы утилит
                     "multiple": false,
                     "refJpClass": "pers",
                     "refJpAttr": "reg_num",
-                    "length": null
+                    "length": null,
+                    "stringFormat": null,
+                    "stringMask": null
                 }
             ]
         },

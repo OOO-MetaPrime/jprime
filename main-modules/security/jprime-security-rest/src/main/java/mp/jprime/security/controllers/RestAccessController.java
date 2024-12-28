@@ -7,7 +7,6 @@ import mp.jprime.dataaccess.conds.CollectionCond;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
-import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.abac.*;
@@ -39,10 +38,6 @@ import java.util.stream.Stream;
 @RequestMapping("access/v1")
 public class RestAccessController implements JPObjectAccessServiceAware {
   /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
    * Хранилище настроек RBAC
    */
   private JPSecurityStorage securityManager;
@@ -62,11 +57,6 @@ public class RestAccessController implements JPObjectAccessServiceAware {
    * Фильтр меты
    */
   private JPMetaFilter jpMetaFilter;
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
-  }
 
   @Autowired
   private void setSecurityManager(JPSecurityStorage securityManager) {
@@ -100,12 +90,12 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   public Mono<JsonJPObjectAccess> getObjectAccess(ServerWebExchange swe,
                                                   @PathVariable("code") String code,
                                                   @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (!jpMetaFilter.filter(jpClass)) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
-    return getAccessList(Collections.singletonList(objectId), jpClass, authInfo)
+    return getAccessList(Collections.singletonList(objectId), jpClass, auth)
         .map(accessList -> accessList.iterator().next());
   }
 
@@ -115,14 +105,14 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPObjectAccessList> getObjectAccess(ServerWebExchange swe,
                                                       @RequestBody JsonJPObjectAccessBatchQuery batchQuery) {
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
+    AuthInfo auth = jwtService.getAuthInfo(swe);
     return Flux.fromIterable(batchQuery.getIds())
         .flatMap(query -> {
-          JPClass jpClass = metaStorage.getJPClassByCode(query.getObjectClassCode());
-          if (!jpMetaFilter.filter(jpClass)) {
+          JPClass jpClass = jpMetaFilter.get(query.getObjectClassCode(), auth);
+          if (jpClass == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
           }
-          return getAccessList(query.getObjectIds(), jpClass, authInfo);
+          return getAccessList(query.getObjectIds(), jpClass, auth);
         })
         .reduce(
             JsonJPObjectAccessList.builder(),
@@ -138,12 +128,12 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonJPClassAccess> getClassAccess(ServerWebExchange swe,
                                                 @PathVariable("classCode") String classCode) {
-    JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.filter(jpClass)) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(classCode, auth);
+    if (jpClass == null) {
       return Mono.empty();
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
-    return Mono.just(toJPClassAccessModel(jpClass, authInfo));
+    return Mono.just(toJPClassAccessModel(jpClass, auth));
   }
 
   @ResponseBody
@@ -154,13 +144,12 @@ public class RestAccessController implements JPObjectAccessServiceAware {
                                                       @PathVariable("classCode") String classCode,
                                                       @PathVariable("attrCode") String attrCode,
                                                       @PathVariable("attrValue") String attrValue) {
-    JPClass jpClass = metaStorage.getJPClassByCode(classCode);
-    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.filter(jpClass)) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(classCode, auth);
+    if (jpClass == null) {
       return Mono.empty();
     }
-
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
-    return Mono.just(toJPClassAccessModel(jpClass, attrCode, attrValue, authInfo));
+    return Mono.just(toJPClassAccessModel(jpClass, attrCode, attrValue, auth));
   }
 
   @ResponseBody
@@ -168,15 +157,13 @@ public class RestAccessController implements JPObjectAccessServiceAware {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonJPClassAccess> getClassAccessList(ServerWebExchange swe) {
-    Collection<JPClass> classes = metaStorage.getJPClasses();
-    if (classes == null) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    Collection<JPClass> classes = jpMetaFilter.getList(auth);
+    if (classes == null || classes.isEmpty()) {
       return Flux.empty();
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
     return Flux.fromIterable(classes)
-        .filter(x -> !x.isInner())
-        .filter(jpClass -> jpMetaFilter.filter(jpClass))
-        .map(x -> toJPClassAccessModel(x, authInfo));
+        .map(x -> toJPClassAccessModel(x, auth));
   }
 
   @ResponseBody
@@ -254,7 +241,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
   }
 
   private Mono<Collection<JsonJPObjectAccess>> getAccessList(Collection<String> objectIds, JPClass jpClass, AuthInfo authInfo) {
-    if (jpClass == null || jpClass.isInner() || CollectionUtils.isEmpty(objectIds)) {
+    if (jpClass == null || CollectionUtils.isEmpty(objectIds)) {
       return Mono.empty();
     } else {
       return Mono.just(

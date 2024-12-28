@@ -12,7 +12,7 @@ info:
     email: info@metaprime.ru
   license:
     name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+    url: 'https://github.com/OOO-MetaPrime/jprime/blob/master/LICENSE'
 security:
   - password:
       - read
@@ -882,6 +882,59 @@ paths:
             enum: [ true, false ]
             example: true
           description: признак необходимости файла-подписи
+      responses:
+        '200':
+          description: Файл скачан
+        '400':
+          description: Bad request.
+        '401':
+          description: Authorization information is missing or invalid.
+        '404':
+          description: An object with the specified ID was not found.
+        '5XX':
+          description: Unexpected error.
+
+  '/api/v1/{code}/{objectId}/thumbnail/{attrCode}/{width}/{bearer}':
+    get:
+      tags:
+        - files
+      description: Получение миниатюры из файлового атрибута
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema:
+            type: string
+            format: string
+          description: код метаописания
+        - in: path
+          name: objectId
+          required: true
+          schema:
+            type: string
+            format: string
+          description: Идентификатор объекта
+        - in: path
+          name: attrCode
+          required: true
+          schema:
+            type: string
+            format: string
+          description: кодовое имя атрибута типа файл
+        - in: path
+          name: width
+          required: true
+          schema:
+            type: integer
+            format: integer
+          description: ширина миниатюры
+        - in: path
+          name: bearer
+          required: true
+          schema:
+            type: string
+            format: string
+          description: токен авторизации
       responses:
         '200':
           description: Файл скачан

@@ -1,9 +1,6 @@
 dependencies {
   api project(':jprime-common-core')
-
-  api('org.springframework.security:spring-security-core')
-  api(commons.tika.core)
-  api(libs.nio.multipart.parser)
+  api project(':jprime-common-synchronous-starter')
 
   testImplementation project(":jprime-test")
 }

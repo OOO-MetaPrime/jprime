@@ -71,7 +71,7 @@ public class JPRestTemplate {
               new MappingJackson2XmlHttpMessageConverter(xmlMapper.getObjectMapper()),
               new MappingJackson2HttpMessageConverter(jsonMapper.getObjectMapper())
           )
-          .setConnectTimeout(Duration.ofSeconds(connectTimeout))
+          .connectTimeout(Duration.ofSeconds(connectTimeout))
           .requestFactory(() -> factory)
           .build();
     } catch (Exception e) {

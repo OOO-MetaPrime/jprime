@@ -1,7 +1,7 @@
 [versions]
 disruptorVersion = "3.4.4"
-kafkaLog4JAppenderVersion = "3.7.0"
-log4JCoreVersion = "2.23.1"
+kafkaLog4JAppenderVersion = "3.9.0"
+log4JCoreVersion = "2.24.3"
 
 [libraries]
 disruptor = { module="com.lmax:disruptor", version.ref="disruptorVersion" }

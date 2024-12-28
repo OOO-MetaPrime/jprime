@@ -17,15 +17,15 @@ import java.util.List;
  */
 @Service
 public final class StringToJPIntegerArray implements TypeParser<String, JPIntegerArray>, ParserServiceAware {
-  private final TypeReference<List<Integer>> TYPE_REF = new TypeReference<List<Integer>>() {
+  private final TypeReference<List<Integer>> TYPE_REF = new TypeReference<>() {
   };
 
-  private JPJsonMapper jpJsonMapper;
+  private JPJsonMapper jsonMapper;
   private ParserService service;
 
   @Autowired
-  private void setJPJsonMapper(JPJsonMapper jpJsonMapper) {
-    this.jpJsonMapper = jpJsonMapper;
+  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+    this.jsonMapper = jsonMapper;
   }
 
   @Override
@@ -44,7 +44,7 @@ public final class StringToJPIntegerArray implements TypeParser<String, JPIntege
       return null;
     }
     if (value.startsWith("[")) {
-      return JPIntegerArray.of(jpJsonMapper.toObject(TYPE_REF, value));
+      return JPIntegerArray.of(jsonMapper.toObject(TYPE_REF, value));
     }
     return JPIntegerArray.of(Collections.singletonList(service.parseTo(Integer.class, value)));
   }

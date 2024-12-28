@@ -165,9 +165,9 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   private class Info {
-    private JPClass jpClass;
-    private JPAttr jpAttr;
-    private JPFileStorage fileStorage;
+    private final JPClass jpClass;
+    private final JPAttr jpAttr;
+    private final JPFileStorage fileStorage;
 
     private Info(JPClass jpClass, JPAttr jpAttr, JPFileStorage fileStorage) {
       this.jpClass = jpClass;

@@ -4,7 +4,6 @@ package mp.jprime.log;
  * Интерфейс события
  */
 public interface Event {
-
   /**
    * Код события
    *

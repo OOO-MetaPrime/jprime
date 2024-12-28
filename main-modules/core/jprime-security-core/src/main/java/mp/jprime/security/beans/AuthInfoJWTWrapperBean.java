@@ -99,6 +99,11 @@ public class AuthInfoJWTWrapperBean extends AuthBaseParams implements AuthInfo {
   }
 
   @Override
+  public String getEmplId() {
+    return jwtInfo.getEmplId();
+  }
+
+  @Override
   public String getUserIP() {
     return userIP;
   }

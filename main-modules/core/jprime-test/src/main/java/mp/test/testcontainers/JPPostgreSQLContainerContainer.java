@@ -27,10 +27,17 @@ public final class JPPostgreSQLContainerContainer {
       throw new ScriptUtils.UncategorizedScriptException("Error while executing init script: " + path, e);
     }
   };
+  public static PostgreSQLContainer initPostgis(Collection<String> sqlPaths){
+    return init(sqlPaths, "postgis/postgis");
+  }
 
   public static PostgreSQLContainer init(Collection<String> sqlPaths) {
-    PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(
-        DockerImageName.parse("mirror.gcr.io/library/postgres:latest")
+    return init(sqlPaths, "mirror.gcr.io/library/postgres:latest");
+  }
+
+  private static PostgreSQLContainer init(Collection<String> sqlPaths, String fullimageName) {
+    PostgreSQLContainer container = new PostgreSQLContainer(
+        DockerImageName.parse(fullimageName)
             .asCompatibleSubstituteFor("postgres")) {
       @Override
       protected void runInitScriptIfRequired() {
@@ -43,9 +50,9 @@ public final class JPPostgreSQLContainerContainer {
         .withUsername("postgres")
         .withPassword("postgres");
 
-    postgreSQLContainer.withInitScript("sql");
+    container.withInitScript("sql");
 
-    postgreSQLContainer.start();
-    return postgreSQLContainer;
+    container.start();
+    return container;
   }
 }

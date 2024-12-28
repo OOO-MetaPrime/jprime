@@ -6,8 +6,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.lang.JPJsonNode;
+import mp.jprime.lang.JPMap;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 
 /**
@@ -64,6 +66,21 @@ public abstract class JPBaseObjectMapper {
     }
   }
 
+  public JPJsonNode toJPJsonNode(JPMap map) {
+    return map == null ? null : toJPJsonNode(map.toMap());
+  }
+
+  public JPJsonNode toJPJsonNode(Object value) {
+    if (value == null) {
+      return null;
+    }
+    try {
+      return JPJsonNode.from(getObjectMapper().valueToTree(value));
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
   public <T> T toObject(Class<T> to, String value) {
     if (value == null) {
       return null;
@@ -91,17 +108,6 @@ public abstract class JPBaseObjectMapper {
     }
     try {
       return getObjectMapper().treeToValue(value, to);
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
-    }
-  }
-
-  public JPJsonNode toJPJsonNode(Object value) {
-    if (value == null) {
-      return null;
-    }
-    try {
-      return JPJsonNode.from(getObjectMapper().valueToTree(value));
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -139,6 +145,14 @@ public abstract class JPBaseObjectMapper {
     }
     try {
       return getObjectMapper().readValue(value, to);
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  public void writeTo(OutputStream value, Object object) {
+    try {
+      getObjectMapper().writeValue(value, object);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }

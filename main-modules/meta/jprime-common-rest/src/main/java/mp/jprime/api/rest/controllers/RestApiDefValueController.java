@@ -1,16 +1,17 @@
 package mp.jprime.api.rest.controllers;
 
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
-import mp.jprime.dataaccess.defvalues.JPObjectDefValueParamsBean;
+import mp.jprime.dataaccess.defvalues.beans.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonDefValueResult;
 import mp.jprime.json.beans.JsonDefValuesQuery;
-import mp.jprime.json.services.QueryService;
+import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +26,14 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("api/v1")
 public class RestApiDefValueController implements JPObjectDefValueServiceAware {
-  /**
-   * Заполнение запросов на основе JSON
-   */
-  private QueryService queryService;
-  /**
-   * Логика вычисления значений по умолчанию
-   */
+  private JPJsonMapper jpJsonMapper;
   private JPObjectDefValueService jpObjectDefValueService;
-  /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
-   * Обработчик JWT
-   */
   private JWTService jwtService;
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
-  private void setQueryService(QueryService queryService) {
-    this.queryService = queryService;
+  private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
+    this.jpJsonMapper = jpJsonMapper;
   }
 
   @Override
@@ -53,13 +42,13 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
   }
 
   @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
   }
 
   @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @ResponseBody
@@ -69,29 +58,29 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
   public Mono<JsonDefValueResult> getDefValue(ServerWebExchange swe,
                                               @PathVariable("code") String code,
                                               @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    JsonDefValuesQuery jsonDefValuesQuery;
+    JsonDefValuesQuery jsonQuery;
     try {
-      jsonDefValuesQuery = queryService.getDefValuesQuery(query);
+      jsonQuery = jpJsonMapper.toObject(JsonDefValuesQuery.class, query);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    return jpObjectDefValueService
-        .getAsyncDefValues(
+    return Mono.fromCallable(() -> jpObjectDefValueService.getDefValues(
             jpClass.getCode(),
             JPObjectDefValueParamsBean.newBuilder()
-                .rootId(jsonDefValuesQuery.getId())
-                .rootJpClassCode(jsonDefValuesQuery.getClassCode())
-                .rootData(JPData.of(jsonDefValuesQuery.getData()))
-                .refAttrCode(jsonDefValuesQuery.getRefAttrCode())
+                .rootId(jsonQuery.getId())
+                .rootJpClassCode(jsonQuery.getClassCode())
+                .rootData(JPData.of(jsonQuery.getData()))
+                .refAttrCode(jsonQuery.getRefAttrCode())
                 .auth(auth)
                 .source(Source.USER)
                 .build()
-        )
+        ))
+        .subscribeOn(JPReactorScheduler.reactorScheduler())
         .map(x -> JsonDefValueResult.of(jpClass.getCode(), x.toMap()));
   }
 }

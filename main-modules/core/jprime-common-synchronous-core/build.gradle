@@ -1,0 +1,21 @@
+dependencies {
+  api(commons.codec)
+  api(commons.io)
+  api(commons.guava)
+  api(commons.fasterxml.uuid)
+
+  api('org.springframework.boot:spring-boot-starter-aop')
+  api('org.springframework.kafka:spring-kafka')
+
+  api project(':jprime-common-api')
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}

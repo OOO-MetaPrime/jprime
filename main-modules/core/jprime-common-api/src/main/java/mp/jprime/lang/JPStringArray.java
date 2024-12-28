@@ -1,7 +1,6 @@
 package mp.jprime.lang;
 
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 public final class JPStringArray extends JPArray<String> {
   private JPStringArray(List<String> values) {
@@ -64,5 +63,25 @@ public final class JPStringArray extends JPArray<String> {
    */
   public static JPStringArray of(String[] values) {
     return new JPStringArray(values);
+  }
+
+  /**
+   * Создать JPStringArray
+   *
+   * @param values Массив значений
+   * @return JPStringArray
+   */
+  public static JPStringArray of(JPStringArray... values) {
+    if (values == null) {
+      return new JPStringArray(Collections.emptyList());
+    }
+    Collection<String> result = new LinkedHashSet<>();
+    for (JPStringArray value : values) {
+      if (value == null) {
+        continue;
+      }
+      result.addAll(value.toList());
+    }
+    return JPStringArray.of(result);
   }
 }

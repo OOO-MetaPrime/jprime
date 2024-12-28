@@ -6,7 +6,7 @@ import mp.jprime.common.JPClassAttr;
 import mp.jprime.common.beans.JPClassAttrBean;
 import mp.jprime.common.annotations.JPEnum;
 import mp.jprime.common.annotations.JPParam;
-import mp.jprime.concurrent.JPForkJoinPoolService;
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPBadFormatException;
 import mp.jprime.exceptions.JPQueryException;
@@ -14,6 +14,7 @@ import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
+import mp.jprime.meta.beans.JPStringFormat;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPSecurityStorage;
@@ -304,7 +305,7 @@ public final class JPUtilCommonService implements JPUtilService {
    * @return Scheduler
    */
   private Scheduler getReactorScheduler() {
-    return JPForkJoinPoolService.reactorScheduler();
+    return JPReactorScheduler.reactorScheduler();
   }
 
   /**
@@ -526,13 +527,19 @@ public final class JPUtilCommonService implements JPUtilService {
     }
 
     private JPUtilParam toJPUtilParam(JPParam param) {
+      JPStringFormat stringFormat = param.stringFormat();
+      String stringMask = param.stringMask();
+      String qName = param.qName();
+
       return JPUtilParam.newBuilder()
           .code(param.code())
           .type(param.type())
+          .stringFormat(stringFormat != JPStringFormat.NONE ? stringFormat : null)
+          .stringMask(stringMask != null && !stringMask.isBlank() ? stringMask : null)
           .length(param.length())
           .mandatory(param.mandatory())
           .description(param.description())
-          .qName(param.qName())
+          .qName(qName != null && !qName.isBlank() ? qName : null)
           .multiple(param.multiple())
           .refJpClass(param.refJpClass())
           .refJpAttr(param.refJpAttr())

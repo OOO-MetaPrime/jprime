@@ -1,6 +1,6 @@
 package mp.jprime.streams.services;
 
-import mp.jprime.concurrent.JPForkJoinPoolService;
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.streams.UploadInputStream;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -39,7 +39,7 @@ public class UploadInputStreamCommonService implements UploadInputStreamService 
       PipedInputStream isPipe = new PipedInputStream(osPipe);
 
       DataBufferUtils.write(buffers, osPipe)
-          .subscribeOn(JPForkJoinPoolService.reactorScheduler())
+          .subscribeOn(JPReactorScheduler.reactorScheduler())
           .doOnComplete(() -> {
             try {
               osPipe.close();

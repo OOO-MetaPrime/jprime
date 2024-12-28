@@ -54,6 +54,15 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
     return values;
   }
 
+  /**
+   * Признак пустого массива
+   *
+   * @return Да/Нет
+   */
+  public boolean isEmpty() {
+    return values.isEmpty();
+  }
+
   @Override
   public int compareTo(JPArray<T> o) {
     if (o == null) {

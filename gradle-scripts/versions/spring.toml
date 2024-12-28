@@ -1,10 +1,10 @@
 [versions]
 # Spring
-springBootVersion = "3.3.1"
-springCloudVersion = "2023.0.2"
-dependencyManagement = "1.1.5"
-springBootAdminStarterServer = "3.3.2"
-springKerberosVersion = "1.0.1.RELEASE"
+springBootVersion = "3.4.1"
+springCloudVersion = "2024.0.0"
+dependencyManagement = "1.1.7"
+springBootAdminStarterServer = "3.4.1"
+springKerberosVersion = "2.1.1.RELEASE"
 
 [libraries]
 oauth2-authorization-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-authorization-server", version.ref = "springBootVersion"}

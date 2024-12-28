@@ -65,7 +65,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
 
 
   /**
-   * Устанавливает  значение переменной
+   * Устанавливает значение переменной
    *
    * @param name  Имя переменной
    * @param value Значение переменной
@@ -320,7 +320,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
     public JPGroovyCommonShell build() {
 
       SecureASTCustomizer customizer = new SecureASTCustomizer();
-      customizer.setReceiversBlackList(
+      customizer.setDisallowedReceivers(
           Arrays.asList(
               Eval.class.getName(),
               System.class.getName()

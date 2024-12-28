@@ -9,7 +9,7 @@ import mp.jprime.utils.test.beans.In;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
@@ -25,13 +25,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JPUtilTest.Config.class)
 public class JPUtilTest {
-  @Autowired
-  private JPUtilService jpUtilService;
-
   @Lazy(value = false)
   @Configuration
   @ComponentScan(
-      basePackages = {"mp.jprime.log", "mp.jprime.json", "mp.jprime.parsers", "mp.jprime.utils"},
+      basePackages = {
+          "mp.jprime.log",
+          "mp.jprime.json",
+          "mp.jprime.parsers",
+          "mp.jprime.utils"
+      },
       excludeFilters = {
           @ComponentScan.Filter(
               type = FilterType.ASSIGNABLE_TYPE,
@@ -42,11 +44,15 @@ public class JPUtilTest {
       }
   )
   public static class Config {
-    @MockBean
-    private JPSecurityStorage jpSecurityStorage;
-    @MockBean
-    private JPMetaStorage jpMetaStorage;
+
   }
+
+  @Autowired
+  private JPUtilService jpUtilService;
+  @MockitoBean
+  private JPSecurityStorage jpSecurityStorage;
+  @MockitoBean
+  private JPMetaStorage jpMetaStorage;
 
   @Test
   public void testTestUtilExists() {

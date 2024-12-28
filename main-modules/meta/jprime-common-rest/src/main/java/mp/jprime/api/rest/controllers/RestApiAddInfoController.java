@@ -1,14 +1,14 @@
 package mp.jprime.api.rest.controllers;
 
 import mp.jprime.dataaccess.Source;
-import mp.jprime.dataaccess.addinfos.JPObjectAddInfoParamsBean;
+import mp.jprime.dataaccess.addinfos.beans.JPObjectAddInfoParamsBean;
 import mp.jprime.dataaccess.addinfos.JPObjectAddInfoService;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonAddInfo;
 import mp.jprime.json.beans.JsonIdentityData;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
@@ -32,13 +33,13 @@ public class RestApiAddInfoController {
    */
   private JPObjectAddInfoService jpObjectAddInfoService;
   /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
    * Обработчик JWT
    */
   private JWTService jwtService;
+  /**
+   * Фильтр меты
+   */
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -51,13 +52,13 @@ public class RestApiAddInfoController {
   }
 
   @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
   }
 
   @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @ResponseBody
@@ -67,24 +68,25 @@ public class RestApiAddInfoController {
   public Flux<JsonAddInfo> getAddInfo(ServerWebExchange swe,
                                       @PathVariable("code") String code,
                                       @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
+
     JsonIdentityData jsonIdentityData;
     try {
       jsonIdentityData = queryService.getIdentityData(query);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    return jpObjectAddInfoService
-        .getAsyncAddInfo(
+    return Mono.fromCallable(() -> jpObjectAddInfoService.getAddInfo(
             JPObjectAddInfoParamsBean.newBuilder(jpClass.getCode(), jsonIdentityData.getId())
                 .auth(auth)
                 .source(Source.USER)
                 .build()
-        )
+        ))
+        .flatMapMany(Flux::fromIterable)
         .map(x -> JsonAddInfo.newBuilder()
             .code(x.getCode())
             .info(x.getInfo())

@@ -16,10 +16,8 @@ import mp.jprime.json.beans.JsonSelect;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.security.AuthInfo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,15 +31,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("api/v1")
 public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
-  /**
-   * Фильтр меты
-   */
-  private JPMetaFilter jpMetaFilter;
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
-    this.jpMetaFilter = jpMetaFilter;
-  }
 
   @ResponseBody
   @GetMapping(value = "/{code}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -51,11 +40,12 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                               @PathVariable("code") String code,
                                               @RequestParam(value = "offset", required = false) Integer offset,
                                               @RequestParam(value = "limit", required = false) Integer limit) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
+
     JPSelect.Builder builder = JPSelect.from(jpClass.getCode())
         .offset(offset != null ? offset : 0)
         .limit(limit != null ? limit : QueryService.MAX_LIMIT)
@@ -86,12 +76,12 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                               @PathVariable("attrCode") String attrCode,
                                               @PathVariable("attrValue") String attrValue,
                                               @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    if (jpClass == null || jpClass.isInner() || jpAttr == null) {
+    if (jpClass == null || jpAttr == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
 
     JPSelect.Builder builder;
     boolean access;
@@ -133,18 +123,18 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                   @PathVariable("attrCode") String attrCode,
                                                   @PathVariable("attrValue") String attrValue,
                                                   @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    if (jpAttr == null || jpAttr.getRefJpAttr() == null || jpClass.isInner()) {
+    if (jpAttr == null || jpAttr.getRefJpAttr() == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    JPClass refClass = metaStorage.getJPClassByCode(jpAttr.getRefJpAttr());
+    JPClass refClass = jpMetaFilter.get(jpAttr.getRefJpAttr(), auth);
     JPAttr refAttr = refClass != null && jpAttr.getRefJpAttr() != null ?
         refClass.getAttr(jpAttr.getRefJpAttr()) : null;
     if (refAttr == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
 
     JPSelect.Builder builder;
     boolean access;
@@ -184,15 +174,18 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                            @PathVariable("objectId") String objectId,
                                                            @PathVariable("attrCode") String attrCode,
                                                            @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    JPAttr jpAttr = jpClass == null || jpClass.isInner() ? null : jpClass.getAttr(attrCode);
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
     JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClass() == null || jpAttr.getType() != JPType.BACKREFERENCE
-        ? null : metaStorage.getJPClassByCode(jpAttr.getRefJpClass());
+        ? null : jpMetaFilter.get(jpAttr.getRefJpClass(), auth);
+
     JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttr());
     JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttr());
     if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClass())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
+
     return Mono.just(objectId)
         .flatMap(key -> {
               if (targetAttr.isIdentifier()) {
@@ -213,8 +206,6 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
             }
         )
         .flatMap(key -> {
-          AuthInfo auth = jwtService.getAuthInfo(swe);
-
           JPSelect.Builder builder;
           boolean access;
           try {
@@ -241,11 +232,11 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<JsonJPObject> getObject(ServerWebExchange swe,
                                       @PathVariable("code") String code,
                                       @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
 
     JPSelect jpSelect = JPSelect
         .from(jpClass)
@@ -270,11 +261,11 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<Void> deleteObject(ServerWebExchange swe,
                                  @PathVariable("code") String code,
                                  @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
 
     JPDelete jpDelete = JPDelete
         .delete(JPId.get(jpClass.getCode(), objectId))
@@ -295,8 +286,9 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
@@ -325,8 +317,9 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
                                          @PathVariable("code") String code,
                                          @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
@@ -360,10 +353,11 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonJPObject> patchObject(ServerWebExchange swe,
-                                         @PathVariable("code") String code,
-                                         @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+                                        @PathVariable("code") String code,
+                                        @RequestBody String query) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);
@@ -391,8 +385,8 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<JsonJPObjectList> getObjectListAnonymous(ServerWebExchange swe,
                                                        @PathVariable("code") String code,
                                                        @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+    JPClass jpClass = jpMetaFilter.getAnonymous(code);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
@@ -419,8 +413,8 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
   public Mono<JsonJPObject> getObjectAnonymous(ServerWebExchange swe,
                                                @PathVariable("code") String code,
                                                @PathVariable("objectId") String objectId) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass)) {
+    JPClass jpClass = jpMetaFilter.getAnonymous(code);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
@@ -447,9 +441,9 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                        @PathVariable("attrCode") String attrCode,
                                                        @PathVariable("attrValue") String attrValue,
                                                        @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
+    JPClass jpClass = jpMetaFilter.getAnonymous(code);
     JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    if (jpClass == null || jpClass.isInner() || !jpMetaFilter.anonymousFilter(jpClass) || jpAttr == null) {
+    if (jpClass == null || jpAttr == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 

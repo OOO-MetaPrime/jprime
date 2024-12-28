@@ -45,7 +45,8 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
         .addDeserializer(String.class, new StdScalarDeserializer<>(String.class) {
           @Override
           public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-            return jsonParser.getValueAsString().trim();
+            String str = jsonParser.getValueAsString();
+            return str != null ? str.trim() : null;
           }
         })
         // String to Double
@@ -81,14 +82,6 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           public JPSimpleFraction deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonSimpleFraction fraction = ctxt.readValue(p, JsonSimpleFraction.class);
             return JPSimpleFraction.of(fraction.getPositive(), fraction.getInteger(), fraction.getNumerator(), fraction.getDenominator());
-          }
-        })
-        // String to Money
-        .addDeserializer(JPMoney.class, new StdDeserializer<>(JPMoney.class) {
-          @Override
-          public JPMoney deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            JsonMoney money = ctxt.readValue(p, JsonMoney.class);
-            return JPMoney.of(money.getValue(), money.getCurrencyCode());
           }
         })
         // String to IntegerRange
@@ -179,10 +172,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             new JsonSerializer<>() {
               @Override
               public void serialize(JPMoney v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
-                JsonMoney json = new JsonMoney();
-                json.setValue(v.getNumberStripped());
-                json.setCurrencyCode(v.getCurrencyCode());
-                jGen.writeObject(json);
+                jGen.writeObject(v.getNumberStripped());
               }
             })
         // IntegerRange to String

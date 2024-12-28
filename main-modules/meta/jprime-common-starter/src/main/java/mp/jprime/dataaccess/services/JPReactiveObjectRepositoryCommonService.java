@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPReactiveObjectRepository;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
+import mp.jprime.dataaccess.JPSyncObjectRepository;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -23,38 +24,52 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @Service
 public final class JPReactiveObjectRepositoryCommonService implements JPReactiveObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPReactiveObjectRepositoryCommonService.class);
 
-  private final Map<Class, JPReactiveObjectRepository> repoMap = new ConcurrentHashMap<>();
+  private final Map<Class<?>, JPReactiveObjectRepository> repoMap = new ConcurrentHashMap<>();
 
   private JPMetaStorageService storageService;
 
-  /**
-   * Считываем аннотации
-   */
   @Autowired(required = false)
-  private void setRepos(Collection<JPReactiveObjectRepository> repos) {
-    if (repos == null) {
-      return;
+  private void setAsyncRepos(Collection<JPReactiveObjectRepository> asyncRepos) {
+    if (asyncRepos != null) {
+      for (JPReactiveObjectRepository repo : asyncRepos) {
+        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, repo));
+      }
     }
-    for (JPReactiveObjectRepository repo : repos) {
-      try {
-        ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
-        if (anno == null) {
+  }
+
+  @Autowired(required = false)
+  private void setSyncRepos(Collection<JPSyncObjectRepository> syncRepos) {
+    if (syncRepos != null) {
+      for (JPSyncObjectRepository repo : syncRepos) {
+        if (repo instanceof JPReactiveObjectRepository) {
           continue;
         }
-        for (Class javaClass : anno.classes()) {
-          if (javaClass == null) {
-            continue;
-          }
-          repoMap.put(javaClass, repo);
-        }
-      } catch (Exception e) {
-        throw JPRuntimeException.wrapException(e);
+        JPReactiveObjectRepository wrapRepo = JPReactiveObjectSyncWrapRepository.of(repo);
+        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, wrapRepo));
       }
+    }
+  }
+
+  private void fill(Class<?> repoClass, Consumer<Class<?>> func) {
+    try {
+      ClassesLink anno = repoClass.getAnnotation(ClassesLink.class);
+      if (anno == null) {
+        return;
+      }
+      for (Class<?> javaClass : anno.classes()) {
+        if (javaClass == null) {
+          continue;
+        }
+        func.accept(javaClass);
+      }
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
     }
   }
 
@@ -69,7 +84,7 @@ public final class JPReactiveObjectRepositoryCommonService implements JPReactive
       if (!(storage instanceof JPObjectStorage)) {
         throw new JPClassMapNotFoundException(classCode);
       }
-      Class storageClass = storage.getClass();
+      Class<?> storageClass = storage.getClass();
       JPReactiveObjectRepository rep = null;
       while (rep == null && storageClass != null) {
         rep = repoMap.get(storageClass);

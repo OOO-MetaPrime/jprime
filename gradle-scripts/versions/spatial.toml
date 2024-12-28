@@ -3,7 +3,7 @@
 geotoolsVersion = "27.2"
 orgLocationtechVersion = "1.19.0"
 orgPostgisJdbcVersion = "1.3.3"
-querydslSqlVersion = "5.0.0"
+querydslSqlVersion = "5.1.0"
 
 [libraries]
 gt-shapefile = { module = "org.geotools:gt-shapefile", version.ref = "geotoolsVersion" }

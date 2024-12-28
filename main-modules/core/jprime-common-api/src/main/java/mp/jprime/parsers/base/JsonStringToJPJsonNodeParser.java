@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public final class JsonStringToJPJsonNodeParser implements TypeParser<JPJsonString, JPJsonNode> {
-  private JPJsonMapper jpJsonMapper;
+  private JPJsonMapper jsonMapper;
 
   @Autowired
-  private void setJPJsonMapper(JPJsonMapper jpJsonMapper) {
-    this.jpJsonMapper = jpJsonMapper;
+  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+    this.jsonMapper = jsonMapper;
   }
 
   /**
@@ -28,7 +28,7 @@ public final class JsonStringToJPJsonNodeParser implements TypeParser<JPJsonStri
    */
   public JPJsonNode parse(JPJsonString value) {
     try {
-      return value == null ? null : JPJsonNode.from(jpJsonMapper.getObjectMapper().readTree(value.toString()));
+      return value == null ? null : JPJsonNode.from(jsonMapper.getObjectMapper().readTree(value.toString()));
     } catch (Exception e) {
       throw new JPRuntimeException(e.getMessage(), e);
     }

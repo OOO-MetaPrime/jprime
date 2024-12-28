@@ -25,7 +25,7 @@ public final class JPDateRange extends JPRange<LocalDate> {
    *
    * @return The upper bound.
    */
-  public LocalDate geToDate() {
+  public LocalDate getToDate() {
     return upper;
   }
 

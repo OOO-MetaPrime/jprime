@@ -1,6 +1,6 @@
 package mp.jprime.repositories;
 
-import mp.jprime.concurrent.JPForkJoinPoolService;
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.files.JPIdFileInfo;
@@ -21,7 +21,7 @@ public interface JPFileLoader {
    * @return Scheduler
    */
   default Scheduler getReactorScheduler() {
-    return JPForkJoinPoolService.reactorScheduler();
+    return JPReactorScheduler.reactorScheduler();
   }
 
   /**
@@ -56,7 +56,8 @@ public interface JPFileLoader {
    * @return {@link JPIdFileInfo}
    */
   default Flux<JPIdFileInfo> asyncGetInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
-    return Flux.fromIterable(getInfos(classCode, filter, attr, auth))
+    return Mono.fromCallable(() -> getInfos(classCode, filter, attr, auth))
+        .flatMapMany(Flux::fromIterable)
         .subscribeOn(getReactorScheduler());
   }
 

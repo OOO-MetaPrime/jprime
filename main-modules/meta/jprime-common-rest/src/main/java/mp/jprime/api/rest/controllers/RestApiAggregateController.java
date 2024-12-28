@@ -9,7 +9,7 @@ import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonAggregateResult;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,13 +33,13 @@ public class RestApiAggregateController extends JPQuerySettings implements JPObj
    */
   private JPObjectRepositoryService repo;
   /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
    * Обработчик JWT
    */
   private JWTService jwtService;
+  /**
+   * Фильтр меты
+   */
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
@@ -52,13 +52,13 @@ public class RestApiAggregateController extends JPQuerySettings implements JPObj
   }
 
   @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
   }
 
   @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @ResponseBody
@@ -68,8 +68,9 @@ public class RestApiAggregateController extends JPQuerySettings implements JPObj
   public Mono<JsonAggregateResult> getAggregate(ServerWebExchange swe,
                                                 @PathVariable("code") String code,
                                                 @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
+    AuthInfo auth = jwtService.getAuthInfo(swe);
+    JPClass jpClass = jpMetaFilter.get(code, auth);
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     AuthInfo authInfo = jwtService.getAuthInfo(swe);

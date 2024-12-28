@@ -322,6 +322,8 @@ public abstract class RestUtilsBaseController {
     return JsonParam.newBuilder()
         .code(utilParam.getCode())
         .type(utilParam.getType() != null ? utilParam.getType().getCode() : null)
+        .stringFormat(utilParam.getStringFormat() != null ? utilParam.getStringFormat().getCode() : null)
+        .stringMask(utilParam.getStringMask())
         .length(utilParam.getLength())
         .description(utilParam.getDescription())
         .qName(utilParam.getQName())

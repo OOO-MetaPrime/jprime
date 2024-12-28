@@ -1,16 +1,27 @@
 package mp.jprime.dataaccess;
 
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 /**
  * Интерфейс реактивного создания/изменения объекта
  */
 public interface JPReactiveObjectRepository {
+  /**
+   * Scheduler для обработки логики
+   *
+   * @return Scheduler
+   */
+  default Scheduler getReactorScheduler() {
+    return JPReactorScheduler.reactorScheduler();
+  }
+
   /**
    * Возвращает объект
    *
@@ -18,7 +29,9 @@ public interface JPReactiveObjectRepository {
    * @return Объект
    */
   default Mono<JPObject> getAsyncObject(JPSelect query) {
-    return getAsyncList(query).singleOrEmpty();
+    return getAsyncList(query)
+        .subscribeOn(getReactorScheduler())
+        .singleOrEmpty();
   }
 
   /**
@@ -28,7 +41,8 @@ public interface JPReactiveObjectRepository {
    * @return Объект
    */
   default Mono<JPObject> getAsyncObjectAndLock(JPSelect query) {
-    return getAsyncObject(query);
+    return getAsyncObject(query)
+        .subscribeOn(getReactorScheduler());
   }
 
   /**
@@ -50,11 +64,12 @@ public interface JPReactiveObjectRepository {
   /**
    * Возвращает список объектов и блокирует на время транзакции
    *
-   * @param query Параметры для выборки
+   * @param query ёПараметры для выборки
    * @return Список объектов
    */
   default Flux<JPObject> getAsyncListAndLock(JPSelect query) {
-    return getAsyncList(query);
+    return getAsyncList(query)
+        .subscribeOn(getReactorScheduler());
   }
 
   /**

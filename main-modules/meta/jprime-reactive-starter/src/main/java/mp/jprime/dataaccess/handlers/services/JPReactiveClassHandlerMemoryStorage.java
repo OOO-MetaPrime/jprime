@@ -101,6 +101,39 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
   }
 
   @Override
+  public Mono<Void> beforeCommitCreate(JPCreate query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.beforeCommitCreate(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> beforeCommitUpdate(JPUpdate query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.beforeCommitUpdate(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> beforeCommitDelete(JPDelete query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.beforeCommitDelete(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
   public Mono<Void> beforeCreate(JPCreate query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
     return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
@@ -118,6 +151,17 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
         handlers
             .stream()
             .map(x -> x.beforeUpdate(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> beforeDelete(JPDelete query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.beforeDelete(query))
             .collect(Collectors.toList())
     );
   }
@@ -144,22 +188,6 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
     );
   }
 
-  /**
-   * Перед удалением
-   *
-   * @param query JPDelete
-   */
-  @Override
-  public Mono<Void> beforeDelete(JPDelete query) {
-    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
-    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
-        handlers
-            .stream()
-            .map(x -> x.beforeDelete(query))
-            .collect(Collectors.toList())
-    );
-  }
-
   @Override
   public Mono<Void> afterDelete(JPDelete query) {
     Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
@@ -167,6 +195,39 @@ public final class JPReactiveClassHandlerMemoryStorage implements JPReactiveClas
         handlers
             .stream()
             .map(x -> x.afterDelete(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> afterCommitCreate(Comparable objectId, JPCreate query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.afterCommitCreate(objectId, query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> afterCommitUpdate(JPUpdate query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.afterCommitUpdate(query))
+            .collect(Collectors.toList())
+    );
+  }
+
+  @Override
+  public Mono<Void> afterCommitDelete(JPDelete query) {
+    Collection<JPReactiveClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
+    return handlers == null || handlers.isEmpty() ? Mono.empty() : Mono.when(
+        handlers
+            .stream()
+            .map(x -> x.afterCommitDelete(query))
             .collect(Collectors.toList())
     );
   }

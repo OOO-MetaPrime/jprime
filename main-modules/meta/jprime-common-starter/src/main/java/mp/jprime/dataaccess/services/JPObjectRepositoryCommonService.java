@@ -3,6 +3,7 @@ package mp.jprime.dataaccess.services;
 import mp.jprime.annotations.ClassesLink;
 import mp.jprime.dataaccess.JPObjectRepository;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.JPSyncObjectRepository;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -25,38 +26,52 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 @Service
 public final class JPObjectRepositoryCommonService implements JPObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPObjectRepositoryCommonService.class);
 
-  private Map<Class, JPObjectRepository> repoMap = new ConcurrentHashMap<>();
+  private final Map<Class<?>, JPObjectRepository> repoMap = new ConcurrentHashMap<>();
 
   private JPMetaStorageService storageService;
 
-  /**
-   * Считываем аннотации
-   */
   @Autowired(required = false)
-  private void setRepos(Collection<JPObjectRepository> repos) {
-    if (repos == null) {
-      return;
+  private void setAsyncRepos(Collection<JPObjectRepository> asyncRepos) {
+    if (asyncRepos != null) {
+      for (JPObjectRepository repo : asyncRepos) {
+        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, repo));
+      }
     }
-    for (JPObjectRepository repo : repos) {
-      try {
-        ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
-        if (anno == null) {
+  }
+
+  @Autowired(required = false)
+  private void setSyncRepos(Collection<JPSyncObjectRepository> syncRepos) {
+    if (syncRepos != null) {
+      for (JPSyncObjectRepository repo : syncRepos) {
+        if (repo instanceof JPObjectRepository) {
           continue;
         }
-        for (Class javaClass : anno.classes()) {
-          if (javaClass == null) {
-            continue;
-          }
-          repoMap.put(javaClass, repo);
-        }
-      } catch (Exception e) {
-        throw JPRuntimeException.wrapException(e);
+        JPObjectRepository wrapRepo = JPObjectSyncWrapRepository.of(repo);
+        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, wrapRepo));
       }
+    }
+  }
+
+  private void fill(Class<?> repoClass, Consumer<Class<?>> func) {
+    try {
+      ClassesLink anno = repoClass.getAnnotation(ClassesLink.class);
+      if (anno == null) {
+        return;
+      }
+      for (Class<?> javaClass : anno.classes()) {
+        if (javaClass == null) {
+          continue;
+        }
+        func.accept(javaClass);
+      }
+    } catch (Exception e) {
+      throw JPRuntimeException.wrapException(e);
     }
   }
 
@@ -71,7 +86,7 @@ public final class JPObjectRepositoryCommonService implements JPObjectRepository
       if (!(storage instanceof JPObjectStorage)) {
         throw new JPClassMapNotFoundException(classCode);
       }
-      Class storageClass = storage.getClass();
+      Class<?> storageClass = storage.getClass();
       JPObjectRepository rep = null;
       while (rep == null && storageClass != null) {
         rep = repoMap.get(storageClass);
@@ -112,12 +127,6 @@ public final class JPObjectRepositoryCommonService implements JPObjectRepository
     return getRepository(query.getJpClass()).getObject(query);
   }
 
-  /**
-   * Возвращает объект и блокирует его на время транзакции
-   *
-   * @param query Параметры для выборки
-   * @return Объект
-   */
   @Override
   public JPObject getObjectAndLock(JPSelect query) {
     return getRepository(query.getJpClass()).getObjectAndLock(query);

@@ -18,7 +18,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
@@ -78,11 +78,11 @@ public class JPObjectCsvWriterServiceTest {
 
   @Autowired
   private JPObjectCsvWriterCommonService service;
-  @MockBean
+  @MockitoBean
   private JPObjectRepositoryService mockRepo;
-  @MockBean
+  @MockitoBean
   private ParserService mockParser;
-  @MockBean
+  @MockitoBean
   private JPMetaStorage mockMetaStorage;
 
   @PostConstruct

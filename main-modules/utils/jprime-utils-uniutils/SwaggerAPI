@@ -6,7 +6,7 @@ info:
     email: info@metaprime.ru
   license:
     name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    url: https://github.com/OOO-MetaPrime/jprime/blob/master/LICENSE
   version: 1.0.0
 security:
 - password:

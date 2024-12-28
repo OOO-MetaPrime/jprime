@@ -1,16 +1,17 @@
 package mp.jprime.api.rest.controllers;
 
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.Source;
-import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueParamsBean;
+import mp.jprime.dataaccess.applyvalues.beans.JPObjectApplyValueParamsBean;
 import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueService;
 import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueServiceAware;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonApplyValueResult;
 import mp.jprime.json.beans.JsonApplyValuesQuery;
-import mp.jprime.json.services.QueryService;
+import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,26 +26,14 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequestMapping("api/v1")
 public class RestApiApplyValueController implements JPObjectApplyValueServiceAware {
-  /**
-   * Заполнение запросов на основе JSON
-   */
-  private QueryService queryService;
-  /**
-   * Логика для дополнения значений
-   */
+  private JPJsonMapper jpJsonMapper;
   private JPObjectApplyValueService jpObjectApplyValueService;
-  /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage metaStorage;
-  /**
-   * Обработчик JWT
-   */
   private JWTService jwtService;
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
-  private void setQueryService(QueryService queryService) {
-    this.queryService = queryService;
+  private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
+    this.jpJsonMapper = jpJsonMapper;
   }
 
   @Override
@@ -53,13 +42,13 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
   }
 
   @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
   }
 
   @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
   }
 
   @ResponseBody
@@ -67,37 +56,39 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonApplyValueResult> getApplyValue(ServerWebExchange swe,
-                                                @PathVariable("code") String code,
-                                                @RequestBody String query) {
-    JPClass jpClass = metaStorage.getJPClassByCode(code);
-    if (jpClass == null || jpClass.isInner()) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    JsonApplyValuesQuery jsonApplyValuesQuery;
-    try {
-      jsonApplyValuesQuery = queryService.getApplyValuesQuery(query);
-    } catch (JPRuntimeException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-    Object id = jsonApplyValuesQuery.getId();
-    String classCode = jsonApplyValuesQuery.getClassCode();
-    if (!jpClass.getCode().equals(classCode)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-    return jpObjectApplyValueService
-        .getAsyncApplyValues(
-            JPObjectApplyValueParamsBean.newBuilder(id, classCode, JPData.of(jsonApplyValuesQuery.getData()))
-                .attrs(jsonApplyValuesQuery.getAttrs())
-                .auth(auth)
-                .source(Source.USER)
-                .build()
-        )
-        .map(x -> JsonApplyValueResult.newBuilder()
-            .id(id)
-            .classCode(classCode)
-            .data(x.toMap())
-            .build()
-        );
+                                                  @PathVariable("code") String code,
+                                                  @RequestBody String query) {
+
+    return Mono.fromCallable(() -> {
+          AuthInfo auth = jwtService.getAuthInfo(swe);
+          JPClass jpClass = jpMetaFilter.get(code, auth);
+          if (jpClass == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+          }
+          JsonApplyValuesQuery jsonQuery;
+          try {
+            jsonQuery = jpJsonMapper.toObject(JsonApplyValuesQuery.class, query);
+          } catch (JPRuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          Object id = jsonQuery.getId();
+          String classCode = jsonQuery.getClassCode();
+          if (!jpClass.getCode().equals(classCode)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          JPData data = jpObjectApplyValueService.getApplyValues(
+              JPObjectApplyValueParamsBean.newBuilder(id, classCode, JPData.of(jsonQuery.getData()))
+                  .attrs(jsonQuery.getAttrs())
+                  .auth(auth)
+                  .source(Source.USER)
+                  .build()
+          );
+          return JsonApplyValueResult.newBuilder()
+              .id(id)
+              .classCode(classCode)
+              .data(data.toMap())
+              .build();
+        })
+        .subscribeOn(JPReactorScheduler.reactorScheduler());
   }
 }

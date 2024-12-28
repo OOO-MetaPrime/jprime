@@ -35,6 +35,7 @@ subprojects {
   }
 
   configurations {
+    all*.exclude module: 'commons-logging'
     all*.exclude module: 'logback-classic'
     all*.exclude module: 'logback-core'
     all*.exclude module: 'slf4j-log4j12'

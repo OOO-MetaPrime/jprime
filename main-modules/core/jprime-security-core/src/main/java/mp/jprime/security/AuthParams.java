@@ -7,6 +7,27 @@ import java.util.HashSet;
 
 public interface AuthParams extends ConnectionInfo {
   /**
+   * Возвращает логин пользователя
+   *
+   * @return логин пользователя
+   */
+  String getUsername();
+
+  /**
+   * Возвращает ФИО пользователя
+   *
+   * @return ФИО пользователя
+   */
+  String getFio();
+
+  /**
+   * Возвращает роли пользователя
+   *
+   * @return Роли
+   */
+  Collection<String> getRoles();
+
+  /**
    * Возвращает идентификатор пользователя
    *
    * @return идентификатор пользователя
@@ -97,23 +118,9 @@ public interface AuthParams extends ConnectionInfo {
   String getDepId();
 
   /**
-   * Возвращает логин пользователя
+   * Возвращает сотрудника пользователя
    *
-   * @return логин пользователя
+   * @return сотрудника пользователя
    */
-  String getUsername();
-
-  /**
-   * Возвращает ФИО пользователя
-   *
-   * @return ФИО пользователя
-   */
-  String getFio();
-
-  /**
-   * Возвращает роли пользователя
-   *
-   * @return Роли
-   */
-  Collection<String> getRoles();
+  String getEmplId();
 }

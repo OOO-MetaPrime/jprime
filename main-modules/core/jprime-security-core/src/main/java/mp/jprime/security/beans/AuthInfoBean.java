@@ -5,59 +5,49 @@ import mp.jprime.security.AuthBaseParams;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Set;
 
 /**
  * Данные авторизации
  */
 public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
-  private final String userIP;
-  private final String userId;
-  private final String userGuid;
-  private final String oktmo;
-  private final Collection<String> oktmoList;
-  private final Collection<Integer> subjectGroups;
   private final String username;
   private final String fio;
   private final Collection<String> roles;
+  private final String userId;
+  private final String userGuid;
+
+  private final String oktmo;
+  private final Collection<String> oktmoList;
+  private final Collection<Integer> subjectGroups;
+
   private final String orgId;
   private final String sepDepId;
   private final String depId;
-  private final String token;
+  private final String emplId;
 
-  /**
-   * Конструктор
-   *
-   * @param userIP        IP пользователя
-   * @param userId        Идентификатор пользователя
-   * @param userGuid      Глобальный идентификатор пользователя
-   * @param oktmo         Основной ОКТМО пользователя
-   * @param oktmoList     ОКТМО пользователя
-   * @param subjectGroups предметные группы пользователя
-   * @param orgId         Идентификатор организации пользователя
-   * @param sepDepId      Идентификатор обособленного подразделения пользователя
-   * @param depId         Идентификатор подразделения пользователя
-   * @param username      Логин пользователя
-   * @param fio           ФИО пользователя
-   * @param roles         Роли пользователя
-   * @param token         Токен
-   */
+  private final String token;
+  private final String userIP;
+
   private AuthInfoBean(String userIP, String userId, String userGuid,
                        String oktmo, Collection<String> oktmoList,
                        Collection<Integer> subjectGroups,
-                       String orgId, String sepDepId, String depId, String username, String fio,
+                       String orgId, String sepDepId, String depId, String emplId,
+                       String username, String fio,
                        Collection<String> roles, String token) {
     this.userIP = userIP;
     this.userId = userId;
     this.userGuid = userGuid;
     this.oktmo = oktmo;
-    this.oktmoList = oktmoList == null ? Collections.emptyList() : Collections.unmodifiableCollection(oktmoList);
-    this.subjectGroups = subjectGroups == null ? Collections.emptyList() : Collections.unmodifiableCollection(subjectGroups);
+    this.oktmoList = oktmoList == null || oktmoList.isEmpty() ? Collections.emptySet() : Set.copyOf(oktmoList);
+    this.subjectGroups = subjectGroups == null || subjectGroups.isEmpty() ? Collections.emptySet() : Set.copyOf(subjectGroups);
     this.orgId = orgId;
     this.sepDepId = sepDepId;
     this.depId = depId;
+    this.emplId = emplId;
     this.username = username;
     this.fio = fio;
-    this.roles = roles == null ? Collections.emptyList() : Collections.unmodifiableCollection(roles);
+    this.roles = roles == null || roles.isEmpty() ? Collections.emptySet() : Set.copyOf(roles);
     this.token = token;
   }
 
@@ -116,6 +106,11 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
   }
 
   @Override
+  public String getEmplId() {
+    return emplId;
+  }
+
+  @Override
   public String getUserIP() {
     return userIP;
   }
@@ -145,8 +140,9 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
     private Collection<String> oktmoList;
     private Collection<Integer> subjectGroups;
     private String orgId;
-    private String depId;
     private String sepDepId;
+    private String depId;
+    private String emplId;
     private String username;
     private String fio;
     private Collection<String> roles;
@@ -161,7 +157,7 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
      * @return AuthInfoImpl
      */
     public AuthInfoBean build() {
-      return new AuthInfoBean(userIP, userId, userGuid, oktmo, oktmoList, subjectGroups, orgId, sepDepId, depId, username, fio, roles, token);
+      return new AuthInfoBean(userIP, userId, userGuid, oktmo, oktmoList, subjectGroups, orgId, sepDepId, depId, emplId, username, fio, roles, token);
     }
 
     /**
@@ -249,6 +245,17 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
      */
     public Builder depId(String depId) {
       this.depId = depId;
+      return this;
+    }
+
+    /**
+     * Идентификатор сотрудника пользователя
+     *
+     * @param emplId Идентификатор сотрудника пользователя
+     * @return Builder
+     */
+    public Builder emplId(String emplId) {
+      this.emplId = emplId;
       return this;
     }
 

@@ -1,7 +1,7 @@
 package mp.jprime.meta.controllers;
 
 import mp.jprime.beans.JPPropertyType;
-import mp.jprime.controllers.DownloadFile;
+import mp.jprime.files.DownloadFile;
 import mp.jprime.exceptions.JPForbiddenException;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
@@ -13,7 +13,6 @@ import mp.jprime.meta.json.beans.JsonJPClassList;
 import mp.jprime.meta.json.beans.JsonPropertyType;
 import mp.jprime.meta.json.beans.JsonType;
 import mp.jprime.meta.security.Role;
-import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,10 +34,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("meta/v1")
 public class RestMetaController implements DownloadFile {
-  /**
-   * Хранилище метаинформации
-   */
-  private JPMetaStorage jpMetaStorage;
   /**
    * Фильтр меты
    */
@@ -64,11 +59,6 @@ public class RestMetaController implements DownloadFile {
   }
 
   @Autowired
-  private void setJpMetaStorage(JPMetaStorage jpMetaStorage) {
-    this.jpMetaStorage = jpMetaStorage;
-  }
-
-  @Autowired
   private void setConverter(JPClassJsonConverter converter) {
     this.converter = converter;
   }
@@ -86,9 +76,10 @@ public class RestMetaController implements DownloadFile {
   @ResponseBody
   @GetMapping(value = "/jpClasses/{classCode}", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
-  public Mono<JsonJPClass> getClass(@PathVariable("classCode") String classCode) {
-    JPClass jpClass = jpMetaStorage.getJPClassByCode(classCode);
-    if (!jpMetaFilter.filter(jpClass)) {
+  public Mono<JsonJPClass> getClass(ServerWebExchange swe,
+                                    @PathVariable("classCode") String classCode) {
+    JPClass jpClass = jpMetaFilter.get(classCode, jwtService.getAuthInfo(swe));
+    if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return Mono.just(converter.toJson(jpClass));
@@ -97,11 +88,9 @@ public class RestMetaController implements DownloadFile {
   @ResponseBody
   @GetMapping(value = "/jpClasses", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
-  public Mono<JsonJPClassList> getClassList() {
-    Collection<JPClass> classes = jpMetaStorage.getJPClasses();
-    List<JsonJPClass> list = classes == null || classes.isEmpty() ? Collections.emptyList() : classes
-        .stream()
-        .filter(jpClass -> jpMetaFilter.filter(jpClass))
+  public Mono<JsonJPClassList> getClassList(ServerWebExchange swe) {
+    Collection<JPClass> classes = jpMetaFilter.getList(jwtService.getAuthInfo(swe));
+    List<JsonJPClass> list = classes == null || classes.isEmpty() ? Collections.emptyList() : classes.stream()
         .map(converter::toJson)
         .collect(Collectors.toList());
     return Mono.just(JsonJPClassList.newBuilder()
@@ -134,13 +123,11 @@ public class RestMetaController implements DownloadFile {
                            @PathVariable("classCode") String classCode,
                            @PathVariable("bearer") String bearer,
                            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    AuthInfo authInfo = jwtService.getAuthInfo(bearer, swe);
-    if (!authInfo.getRoles().contains(Role.META_ADMIN)) {
+    AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
+    if (!auth.getRoles().contains(Role.META_ADMIN)) {
       return Mono.error(new JPForbiddenException());
     }
-
-    return Mono.justOrEmpty(jpMetaStorage.getJPClassByCode(classCode))
-        .filter(jpMetaFilter::filter)
+    return Mono.justOrEmpty(jpMetaFilter.get(classCode, auth))
         .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .flatMap(jpClass -> writeTo(swe, writerService.of(jpClass), jpClass.getCode() + " (" + jpClass.getName() + ").csv", userAgent));
   }

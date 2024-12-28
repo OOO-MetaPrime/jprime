@@ -21,21 +21,11 @@ public enum Event implements mp.jprime.log.Event {
     this.success = success;
   }
 
-  /**
-   * Код события
-   *
-   * @return Код события
-   */
   @Override
   public String getCode() {
     return code;
   }
 
-  /**
-   * Признак успешности
-   *
-   * @return Признак успешности
-   */
   @Override
   public boolean isSuccess() {
     return success;

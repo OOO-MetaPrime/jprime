@@ -1,0 +1,18 @@
+dependencies {
+  api(commons.tika.core)
+  api(libs.nio.multipart.parser)
+
+  api('org.springframework.security:spring-security-core')
+
+  api project(':jprime-common-synchronous-core')
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}

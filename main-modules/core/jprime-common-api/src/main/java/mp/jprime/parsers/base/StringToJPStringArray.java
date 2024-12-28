@@ -15,13 +15,13 @@ import java.util.List;
  */
 @Service
 public final class StringToJPStringArray implements TypeParser<String, JPStringArray> {
-  private final TypeReference<List<String>> TYPE_REF = new TypeReference<List<String>>() {};
+  private final TypeReference<List<String>> TYPE_REF = new TypeReference<>() {};
 
-  private JPJsonMapper jpJsonMapper;
+  private JPJsonMapper jsonMapper;
 
   @Autowired
-  private void setJPJsonMapper(JPJsonMapper jpJsonMapper) {
-    this.jpJsonMapper = jpJsonMapper;
+  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+    this.jsonMapper = jsonMapper;
   }
 
   /**
@@ -35,7 +35,7 @@ public final class StringToJPStringArray implements TypeParser<String, JPStringA
       return null;
     }
     if (value.startsWith("[")) {
-      return JPStringArray.of(jpJsonMapper.toObject(TYPE_REF, value));
+      return JPStringArray.of(jsonMapper.toObject(TYPE_REF, value));
     }
     return JPStringArray.of(Collections.singletonList(value));
   }
