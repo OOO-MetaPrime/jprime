@@ -178,6 +178,26 @@ public abstract class Filter {
     }
 
     /**
+     * Мягкое равно строк (без учета регистра, например)
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public SoftEQ softEq(String value) {
+      return new SoftEQ(attrCode, value);
+    }
+
+    /**
+     * Строгое равенство строки
+     *
+     * @param value Значение
+     * @return Условие
+     */
+    public StrictEQ strictEq(String value) {
+      return new StrictEQ(attrCode, value);
+    }
+
+    /**
      * Не равно
      *
      * @param value Значение
@@ -496,6 +516,7 @@ public abstract class Filter {
     public IN in(Collection<? extends Comparable> value) {
       return new IN(attrCode, value);
     }
+
     /**
      * В указанном списке
      *
@@ -587,7 +608,7 @@ public abstract class Filter {
     }
 
     /**
-     * Этот диапазон содержится в диапазон
+     * Этот диапазон пересекается с диапазоном
      *
      * @param value Значение
      * @return Условие
@@ -597,7 +618,7 @@ public abstract class Filter {
     }
 
     /**
-     * Этот массив содержится в массиве
+     * Этот массив пересекается с массивом
      *
      * @param value Значение
      * @return Условие

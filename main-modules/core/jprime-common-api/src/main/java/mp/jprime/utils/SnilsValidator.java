@@ -22,7 +22,7 @@ public class SnilsValidator {
       int contrSumma;
       int summa = 0;
       try {
-        contrSumma = Integer.valueOf(snils.substring(snils.length() - 2));
+        contrSumma = Integer.parseInt(snils.substring(snils.length() - 2));
       } catch (Exception e) {
         return false;
       }
@@ -30,7 +30,7 @@ public class SnilsValidator {
       int chast;
       for (int i = 0; i < (snils.length() - 2); i++) {
         try {
-          chast = Integer.valueOf("" + snils.charAt(i));
+          chast = Integer.parseInt("" + snils.charAt(i));
         } catch (Exception e) {
           return false;
         }

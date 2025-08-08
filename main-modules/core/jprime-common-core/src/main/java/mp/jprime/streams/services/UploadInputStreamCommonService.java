@@ -1,6 +1,7 @@
 package mp.jprime.streams.services;
 
 import mp.jprime.concurrent.JPReactorScheduler;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.streams.UploadInputStream;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -26,7 +27,7 @@ public class UploadInputStreamCommonService implements UploadInputStreamService 
    * @return Читаем UploadInputStream
    */
   public Mono<UploadInputStream> read(FilePart filePart) {
-    return Mono.fromCallable(() -> new UploadInputStream(filePart.filename())
+    return JPMono.fromCallable(() -> new UploadInputStream(filePart.filename())
         .collectInputStream(
             readAsInputStream(filePart.content())
         )

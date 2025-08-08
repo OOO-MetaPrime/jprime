@@ -59,13 +59,7 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
     }
   }
 
-  /**
-   * Возвращает количество объектов, удовлетворяющих выборке
-   *
-   * @param select  JPSelect
-   * @param objects Полный список объектов
-   * @return Количество в выборке
-   */
+
   @Override
   public Long getTotalCount(JPSelect select, Collection<JPObject> objects) {
     if (objects == null || objects.isEmpty()) {
@@ -75,34 +69,31 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
     return stream.count();
   }
 
-  /**
-   * Фильтрует переданный список объектов по условию JPSelect
-   *
-   * @param select  JPSelect
-   * @param objects Полный список объектов
-   * @return Результирующий список
-   */
   @Override
   public Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects) {
     if (objects == null || objects.isEmpty()) {
       return Collections.emptyList();
     }
     Stream<JPObject> stream = getListStream(select, objects);
-    stream = stream
-        .sorted((o1, o2) -> {
-          for (JPOrder order : select.getOrderBy()) {
-            Comparable v1 = o1.getAttrValue(order.getAttr());
-            Comparable v2 = o2.getAttrValue(order.getAttr());
-            if (v1 instanceof String s1 && v2 instanceof String s2) {
-              return (order.getOrder() == JPOrderDirection.ASC ? 1 : -1) * s1.compareToIgnoreCase(s2);
+
+    Collection<JPOrder> orders = select.getOrderBy();
+    if (orders != null && !orders.isEmpty()) {
+      stream = stream
+          .sorted((o1, o2) -> {
+            for (JPOrder order : orders) {
+              Comparable v1 = o1.getAttrValue(order.getAttr());
+              Comparable v2 = o2.getAttrValue(order.getAttr());
+              if (v1 instanceof String s1 && v2 instanceof String s2) {
+                return (order.getOrder() == JPOrderDirection.ASC ? 1 : -1) * s1.compareToIgnoreCase(s2);
+              }
+              int compare = ObjectUtils.compare(v1, v2);
+              if (compare != 0) {
+                return order.getOrder() == JPOrderDirection.ASC ? compare : -1 * compare;
+              }
             }
-            int compare = ObjectUtils.compare(v1, v2);
-            if (compare != 0) {
-              return order.getOrder() == JPOrderDirection.ASC ? compare : -1 * compare;
-            }
-          }
-          return 0;
-        });
+            return 0;
+          });
+    }
     if (select.getOffset() != null) {
       stream = stream.skip(select.getOffset());
     }
@@ -110,6 +101,15 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
       stream = stream.limit(select.getLimit());
     }
     return stream.collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean check(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
+    if (filter == null) {
+      return Boolean.TRUE;
+    }
+    CheckFilter checkFilter = checkFilters.get(filter.getClass());
+    return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth, notContainsDefaultValue);
   }
 
   private Stream<JPObject> getListStream(JPSelect select, Collection<JPObject> objects) {
@@ -127,23 +127,5 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
           .filter(x -> check(filter, x.getData(), select.getAuth(), false));
     }
     return stream;
-  }
-
-  /**
-   * Проверяем условие по переданным данным
-   *
-   * @param filter                  Условие
-   * @param data                    Данные
-   * @param auth                    AuthInfo
-   * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data
-   * @return Да/Нет
-   */
-  @Override
-  public boolean check(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
-    if (filter == null) {
-      return Boolean.TRUE;
-    }
-    CheckFilter checkFilter = checkFilters.get(filter.getClass());
-    return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth, notContainsDefaultValue);
   }
 }

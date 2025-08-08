@@ -1,5 +1,6 @@
 package mp.jprime.meta.annotations;
 
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.beans.JPType;
 
 /**
@@ -77,6 +78,20 @@ public @interface JPAttr {
   JPType type();
 
   /**
+   * Тип строкового поля
+   *
+   * @return Тип строкового поля
+   */
+  JPStringFormat stringFormat() default JPStringFormat.NONE;
+
+  /**
+   * Маска строкового поля
+   *
+   * @return Маска строкового поля
+   */
+  String stringMask() default "";
+
+  /**
    * Длина (для строковых полей)
    *
    * @return Длина
@@ -138,20 +153,6 @@ public @interface JPAttr {
    * @return Тип виртуальной ссылки
    */
   JPType virtualType() default JPType.NONE;
-
-  /**
-   * Свойства псевдо-меты
-   *
-   * @return свойства псевдо-меты
-   */
-  JPProperty[] jpProps() default {};
-
-  /**
-   * Схемы вложенных свойств псевдо-меты
-   *
-   * @return вложенные свойства псевдо-меты
-   */
-  JPPropertySchema[] schemaProps() default {};
 
   /**
    * Код атрибута, содержащего подпись

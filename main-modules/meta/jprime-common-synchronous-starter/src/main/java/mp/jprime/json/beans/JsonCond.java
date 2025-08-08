@@ -17,6 +17,8 @@ public class JsonCond {
   private Boolean isNull;
   private Boolean isNotNull;
   private String eq;
+  private String softEq;
+  private String strictEq;
   private String neq;
   private String gt;
   private String gte;
@@ -108,6 +110,14 @@ public class JsonCond {
 
   public String getEq() {
     return eq;
+  }
+
+  public String getSoftEq() {
+    return softEq;
+  }
+
+  public String getStrictEq() {
+    return strictEq;
   }
 
   public String getNeq() {
@@ -318,6 +328,16 @@ public class JsonCond {
 
   public JsonCond eq(String eq) {
     this.eq = eq;
+    return this;
+  }
+
+  public JsonCond softEq(String softEq) {
+    this.softEq = softEq;
+    return this;
+  }
+
+  public JsonCond strictEq(String strictEq) {
+    this.strictEq = strictEq;
     return this;
   }
 

@@ -65,31 +65,15 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
     this.jpBeans = jpBeans;
   }
 
-  /**
-   * Создает объект
-   *
-   * @param jpClass Метаописание класса
-   * @param data    Данные объекта
-   * @return Новый объект
-   */
   @Override
   public JPObject newInstance(JPClass jpClass, Map<String, Object> data) {
     return newInstance(jpClass, JPData.newBuilder().data(data).build(), null);
   }
 
-  /**
-   * Создает объект
-   *
-   * @param jpClassCode        Кодовое имя класса
-   * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
-   * @param data               Данные объекта
-   * @return Новый объект
-   */
   @Override
-  public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, Map<String, Object> data) {
+  public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData) {
     JPObject jpObj = jpBeans.get(jpClassCode);
 
-    JPData jpData = JPData.newBuilder().data(data).build();
     if (jpObj == null) {
       return JPObjectBase.newBaseInstance(jpClassCode, primaryKeyAttrCode, jpData);
     } else {
@@ -97,14 +81,6 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
     }
   }
 
-  /**
-   * Создает объект
-   *
-   * @param jpClass      Метаописание класса
-   * @param jpData       Данные объекта
-   * @param jpLinkedData Данные связанных объектов
-   * @return Новый объект
-   */
   @Override
   public JPObject newInstance(JPClass jpClass, JPData jpData, JPLinkedData jpLinkedData) {
     JPAttr primaryKeyAttr = jpClass.getPrimaryKeyAttr();

@@ -1523,22 +1523,11 @@ components:
                 sex: M
                 address: Спб
                 citezenships: 1
-              links:
-                - rel: self
-                  href: 'http://192.168.1.1:8008/api/v1/personCards/id1'
-                  path: 'api/v1/personCards/id1'
             - id: id2
               classCode: personCard
               data:
                 sex: M
                 address: Мск
-              links:
-                - rel: self
-                  href: 'http://192.168.1.1:8008/api/v1/personCards/id2'
-                  path: 'api/v1/personCards/id2'
-                - rel: citezenships
-                  href: 'http://192.168.1.1:8008/api/v1/citezenships/1'
-                  path: 'api/v1/citezenships/1'
 
     linkInfo:
       type: object
@@ -1608,14 +1597,6 @@ components:
             $ref: '#/components/schemas/objectInfo'
           example:
             sex: { "id": "1", "name": "M" }
-        links:
-          description: RESTFul ссылки
-          type: array
-          items:
-            $ref: '#/components/schemas/linkInfo'
-          example:
-            - rel: self
-              href: 'http://192.168.1.87:8095/api/v1/personalCards/9990030490'
 
     changeAccess:
       type: object

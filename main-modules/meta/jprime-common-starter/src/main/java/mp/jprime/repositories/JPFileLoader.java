@@ -1,29 +1,21 @@
 package mp.jprime.repositories;
 
-import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.files.JPFileInfo;
 import mp.jprime.files.JPIdFileInfo;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
+import java.io.InputStream;
 import java.util.Collection;
 
 /**
  * Данные файлов объекта
  */
 public interface JPFileLoader {
-  /**
-   * Scheduler для обработки логики
-   *
-   * @return Scheduler
-   */
-  default Scheduler getReactorScheduler() {
-    return JPReactorScheduler.reactorScheduler();
-  }
-
   /**
    * Данные файла
    *
@@ -56,9 +48,8 @@ public interface JPFileLoader {
    * @return {@link JPIdFileInfo}
    */
   default Flux<JPIdFileInfo> asyncGetInfos(String classCode, Filter filter, String attr, AuthInfo auth) {
-    return Mono.fromCallable(() -> getInfos(classCode, filter, attr, auth))
-        .flatMapMany(Flux::fromIterable)
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getInfos(classCode, filter, attr, auth))
+        .flatMapMany(Flux::fromIterable);
   }
 
   /**
@@ -66,11 +57,10 @@ public interface JPFileLoader {
    *
    * @param id   Идентификатор объекта
    * @param attr Атрибут типа файл
-   * @param auth AuthInfo
-   * @return {@link JPIdFileInfo}
+   * @return FileInfo
    */
-  default JPIdFileInfo getInfo(JPId id, String attr, AuthInfo auth) {
-    return getInfo(id, null, attr, auth);
+  default Mono<JPIdFileInfo> asyncGetInfo(JPId id, String attr) {
+    return JPMono.fromCallable(() -> getInfo(id, attr, null));
   }
 
   /**
@@ -82,8 +72,28 @@ public interface JPFileLoader {
    * @return FileInfo
    */
   default Mono<JPIdFileInfo> asyncGetInfo(JPId id, String attr, AuthInfo auth) {
-    return Mono.fromCallable(() -> getInfo(id, attr, auth))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getInfo(id, attr, auth));
+  }
+
+  /**
+   * Данные файла
+   *
+   * @param id   Идентификатор объекта
+   * @param attr Атрибут типа файл
+   * @return FileInfo
+   */
+  JPIdFileInfo getInfo(JPId id, String attr);
+
+  /**
+   * Данные файла
+   *
+   * @param id   Идентификатор объекта
+   * @param attr Атрибут типа файл
+   * @param auth AuthInfo
+   * @return FileInfo
+   */
+  default JPIdFileInfo getInfo(JPId id, String attr, AuthInfo auth) {
+    return getInfo(id, null, attr, auth);
   }
 
   /**
@@ -100,6 +110,26 @@ public interface JPFileLoader {
   /**
    * Данные файла
    *
+   * @param id   Идентификатор объекта
+   * @param attr Атрибут типа файл
+   * @param auth AuthInfo
+   * @return {@link JPIdFileInfo}
+   */
+  default InputStream getInputStream(JPId id, String attr, AuthInfo auth) {
+    return getInputStream(getInfo(id, attr, auth));
+  }
+
+  /**
+   * Содержимое файла файла
+   *
+   * @param info Данные файла
+   * @return FileInfo
+   */
+  InputStream getInputStream(JPFileInfo<?> info);
+
+  /**
+   * Данные файла
+   *
    * @param id     Идентификатор объекта
    * @param filter Условие выборки
    * @param attr   Атрибут типа файл
@@ -107,7 +137,6 @@ public interface JPFileLoader {
    * @return FileInfo
    */
   default Mono<JPIdFileInfo> asyncGetInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
-    return Mono.fromCallable(() -> getInfo(id, filter, attr, auth))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getInfo(id, filter, attr, auth));
   }
 }

@@ -1,15 +1,15 @@
 # Базы данных
 [versions]
-postgresqlVersion = "42.7.4"
+postgresqlVersion = "42.7.7"
 r2dbcPoolVersion = { strictly = "1.0.2.RELEASE" }
-r2dbcProxyVersion = { strictly = "1.1.5.RELEASE" }
+r2dbcProxyVersion = { strictly = "1.1.6.RELEASE" }
 r2dbcSpiVersion = { strictly = "1.0.0.RELEASE" }
 r2dbcPostgresqlVersion = { strictly = "1.0.7.RELEASE" }
-mssqlJdbcVersion = "12.8.1.jre11"
-clickhouseJdbcVersion = "0.4.6"
+mssqlJdbcVersion = "12.10.1.jre11"
+clickhouseJdbcVersion = "0.9.0"
 jtdsVersion = "1.3.1"
 querydslSqlVersion = "5.1.0"
-minioVersion = "8.5.14"
+minioVersion = "8.5.17"
 
 [libraries]
 postgresql = { module="org.postgresql:postgresql", version.ref="postgresqlVersion" }

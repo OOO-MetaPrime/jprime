@@ -43,15 +43,15 @@
 | stringArray      | JPStringArray    | Массив строк                           | 
 | timestamp        | LocalDateTime    | Полная дата (без учета часового пояса) |
 | time             | LocalTime        | Время                                  |
-| uuid             | UUID             | Глобальный идентификатор               |
+| uuid             | UUID             | Универсальный идентификатор            |
 | xml              | String           | XML-элемент                            |    
 | virtualReference | -                | Виртуальное значение                   |
 
 ### Виртуальное значение
 
-| Код              | Java тип | Описание                 |
-|------------------|----------|--------------------------|
-| virtualReference | -        | Глобальный идентификатор |
+| Код              | Java тип | Описание              |
+|------------------|----------|-----------------------|
+| virtualReference | -        | Виртуальное значение  |
 
 Виртуальное значение позволяет отобразить значение связанного объекта, как свойство текущего объекта
 Для построения виртуальной ссылки необходима прямая ссылка на класс, свойство которого хотим виртуализировать
@@ -83,11 +83,11 @@
  <jpAttr><code>directorFIO</code><type>virtualReference</type><virtualReference>director.fio</virtualReference><virtualType>string</virtualType><length>100</length><description>ФИО директора</description></jpAttr>
 ```
 
-### Глобальный идентификатор
+### Универсальный идентификатор
 
-| Код  | Java тип       | Описание                 |
-|------|----------------|--------------------------|
-| uuid | java.util.UUID | Глобальный идентификатор |
+| Код  | Java тип       | Описание                    |
+|------|----------------|-----------------------------|
+| uuid | java.util.UUID | Универсальный идентификатор |
 
 ### Денежное
 
@@ -110,16 +110,16 @@
   <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
   <description>Деньги</description>
   <money>
-    <currencyCode>RUR</currencyCode>
+    <currencyCode>RUB</currencyCode>
   </money>
 </jpAttr>
 ```
 
 ### Обратная ссылка
 
-| Код           | Java тип | Описание                 |
-|---------------|----------|--------------------------|
-| backReference | -        | Глобальный идентификатор |
+| Код           | Java тип | Описание        |
+|---------------|----------|-----------------|
+| backReference | -        | Обратная ссылка |
 
 Обратная ссылка не является полноценным свойством объекта: у него нет значения, хранящегося отдельно.
 Это, скорее визуальная настройка, позволяющяя вывести все объекты другого класса, связанные с текущим объектом
@@ -254,13 +254,13 @@
 ## Преобразование значений по типу атрибута
 
 Для преобразования к значению, соответствующему типу атрибута, рекомендуется
-использовать `mp.jprime.attrparsers.AttrParserService`
+использовать `mp.jprime.attrparsers.AttrTypeParserService`
 
 ```
-  private AttrParserService attrParserService;
+  private AttrTypeParserService attrParserService;
 
   @Autowired
-  private void setPAttrParserService(AttrParserService attrParserService) {
+  private void setAttrParserService(AttrTypeParserService attrParserService) {
     this.attrParserService = attrParserService;
   }
   ...
@@ -282,23 +282,23 @@
 
 Описание класса ``JPClass``
 
-| Свойство    | Описание                 |
-|-------------|--------------------------|
-| guid        | Глобальный идентификатор |
-| code        | Кодовое имя класса       |
-| qName       | Полный код класса        |
-| tags        | Теги класса              |
-| name        | Название класса          |
-| shortName   | Короткое название класса |
-| description | Описание класса          |
-| jpPackage   | Настройки доступа        |
-| attrs       | Список атрибутов класса  |
+| Свойство    | Описание                    |
+|-------------|-----------------------------|
+| guid        | Универсальный идентификатор |
+| code        | Кодовое имя класса          |
+| qName       | Полный код класса           |
+| tags        | Теги класса                 |
+| name        | Название класса             |
+| shortName   | Короткое название класса    |
+| description | Описание класса             |
+| jpPackage   | Настройки доступа           |
+| attrs       | Список атрибутов класса     |
 
 Описание атрибута класса ``JPAttr``
 
 | Свойство         | Описание                                                           |
 |------------------|--------------------------------------------------------------------|
-| guid             | Глобальный идентификатор                                           |
+| guid             | Универсальный идентификатор                                        |
 | code             | Кодовое имя атрибута                                               |
 | qName            | Полный код атрибута                                                |
 | name             | Название атрибута                                                  |
@@ -316,36 +316,7 @@
 | virtualReference | Путь виртуальной ссылки                                            |
 | virtualType      | Тип виртуальной ссылки                                             |
 | length           | Длина (для строковых полей, в том числе для строковых виртуальных) |
-| jpProps          | Свойства псевдо-меты                                               |
-| schemaProps      | Схемы вложенных свойств псевдо-меты                                |
 | signAttrCode     | Атрибут для хранения подписи                                       |
-
-Описание свойства псевдо-меты ``JPProperty``
-
-| Свойство    | Описание                                                           |
-|-------------|--------------------------------------------------------------------|
-| code        | Кодовое имя свойства                                               |
-| qName       | Полный код свойства                                                |
-| name        | Название свойства                                                  |
-| mandatory   | Признак обязательности                                             |
-| type        | Тип свойства                                                       |
-| length      | Длина (для строковых полей, в том числе для строковых виртуальных) |
-| refJpClass  | Кодовое имя класса, на который ссылается                           |
-| refJpAttr   | Кодовое имя атрибута ссылочного класса                             |
-| schemaCode  | Код схемы, описывающей структуру свойства                          |
-
-Описание схемы свойств псевдо-меты ``JPPropertySchema``
-
-| Свойство | Описание             |
-|----------|----------------------|
-| code     | Кодовое имя свойства |
-| jpProps  | Свойства псевдо-меты |
-
-* При описании свойства ``JPProperty`` с типом ``element`` необходимо так же описать его схему в
-  свойстве ``schemaProps``
-  у ``@JPAttr`` с помощью ``@JPPropertySchema`` и указать код этой схемы в поле ``schemaCode`` аннотации ``JPProperty``
-
-* Схемы свойств можно переиспользовать в пределах одного атрибута.
 
 ### Способы описания меты
 
@@ -378,35 +349,7 @@
             code = "event",
             type = JPType.JSON,
             qName = "common.userevent.event",
-            name = "JSON-описание события",
-            shortName = null,
-            description = null,
-            jpProps = {
-                @JPProperty(
-                    code = "event_desc",
-                    type = PropertyType.ELEMENT,
-                    qName = "common.userevent.prop",
-                    name = "JSON-описание события",
-                    shortName = null,
-                    description = null,
-                    schemaCode = "test_schema"
-                )
-            },
-            schemaProps = {
-                @JPPropertySchema(
-                    code = "test_schema",
-                    jpProps = {
-                        @JPProperty(
-                            code = "event_string",
-                            type = PropertyType.STRING,
-                            qName = "common.userevent.string",
-                            name = "поле-описание события",
-                            shortName = null,
-                            description = null
-                        )
-                    }
-                )
-            }         
+            name = "JSON-описание события"
         )
     }
 )
@@ -429,26 +372,12 @@
         <guid>a6f40c06-e41f-4003-a4df-a72d304adc7e</guid>
         <code>eventGuid</code>
         <type>uuid</type>
+        <stringFormat></stringFormat>
+        <stringMask></stringMask>        
         <length>0</length>
         <identifier>true</identifier>
         <qName>common.userevent.eventGuid</qName>
         <name>Гуид события</name>
-        <jpProps>
-          <jpProperty>
-            <code>testprop</code>
-            <name>Test Prop</name>
-            <qName>egu.eguApplication.jsonattr.jsonprop</qName>
-            <type>element</type>
-            <jpProps>
-              <jpProperty>
-                <code>innertestprop</code>
-                <name>Inner Test Prop</name>
-                <qName>egu.eguApplication.jsonattr.injsonprop</qName>
-                <type>string</type>
-              </jpProperty>
-            </jpProps>
-          </jpProperty>
-        </jpProps>
       </jpAttr>
     </jpAttrs>
   </jpClass>
@@ -909,7 +838,7 @@
   
   JPSelect jpSelect = JPSelect
         .from(jpClass.getCode())
-        .auth(authInfo)
+        .auth(auth)
         .where(Filter.attr(attrCode1).eq(value1))
         .limit(limit)
         .offset(offset)
@@ -929,7 +858,7 @@
   
   JPCreate jpCreate = JPCreate
         .create(jpClass.getCode())
-        .auth(authInfo)
+        .auth(auth)
         .set(attrCode1, value1)
         .set(attrCode2, value2)
         .build()
@@ -947,7 +876,7 @@
   
   JPUpdate jpUpdate = JPUpdate
         .update(JPId.get(jpClass.getCode(), objectId))
-        .auth(authInfo)
+        .auth(auth)
         .set(attrCode1, value1)
         .set(attrCode2, value2)
         .build()
@@ -964,7 +893,7 @@
   private JPObjectRepository repo;
   
   JPConditionalUpdate jpUpdate = JPConditionalUpdate.update("jpClass", Filter.attr("condAttr").eq("1"))
-        .auth(authInfo)
+        .auth(auth)
         .set(attrCode1, value1)
         .set(attrCode2, value2)
         .build();
@@ -982,7 +911,7 @@
   
   JPDelete jpDelete = JPDelete
         .delete(JPId.get(jpClass.getCode(), objectId))
-        .auth(authInfo)
+        .auth(auth)
         .build();
 
   return repo.asyncDelete(jpDelete)  
@@ -997,65 +926,13 @@
   private JPObjectRepository repo;
   
   JPDelete jpDelete = JPConditionalDelete.delete("jpClass", Filter.attr("condAttr").eq("1"))
-        .auth(authInfo)
+        .auth(auth)
         .build();
 
   return repo.asyncDelete(jpDelete)  
 ```
 
 ### Поиск данных
-
-#### Критерии поиска
-
-| Свойство        | Описание                                                    | backReference | biginteger | boolean | date | datetime | double | float | integer | long | string | timestamp | time | uuid | range | array |
-|-----------------|-------------------------------------------------------------|---------------|------------|---------|------|----------|--------|-------|---------|------|--------|-----------|------|------|-------|-------|
-| isNull          | Значение не указано                                         | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | +     | +     |
-| isNotNull       | Значение указано                                            | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | +     | +     |
-| eq              | Значение равно указанному                                   | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| neq             | Значение не равно указанному                                | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| gt              | Значение больше указанного                                  | -             | +          | -       | -    | -        | +      | +     | +       | +    | -      | -         | -    | -    | -     | -     |
-| gte             | Значение больше или равно указанному                        | -             | +          | -       | -    | -        | +      | +     | +       | +    | -      | -         | -    | -    | -     | -     |
-| lt              | Значение меньше указанному                                  | -             | +          | -       | -    | -        | +      | +     | +       | +    | -      | -         | -    | -    | -     | -     |
-| lte             | Значение меньше или равно указанному                        | -             | +          | -       | -    | -        | +      | +     | +       | +    | -      | -         | -    | -    | -     | -     |
-| eqYear          | Значение равно указанному году                              | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| neqYear         | Значение не равно указанному году                           | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gtYear          | Значение больше указанного года                             | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gteYear         | Значение больше или равно указанному года                   | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| ltYear          | Значение меньше указанного года                             | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| lteYear         | Значение меньше или равно указанного года                   | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| eqMonth         | Значение равно указанному месяцу                            | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| neqMonth        | Значение не равно указанному месяцу                         | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gtMonth         | Значение больше указанного месяца                           | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gteMonth        | Значение больше или равно указанному месяца                 | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| ltMonth         | Значение меньше указанного месяца                           | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| lteMonth        | Значение меньше или равно указанного месяца                 | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| eqDay           | Значение равно указанному дню                               | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| neqDay          | Значение не равно указанному дню                            | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gtDay           | Значение больше указанного дня                              | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| gteDay          | Значение больше или равно указанному дню                    | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| ltDay           | Значение меньше указанного дня                              | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| lteDay          | Значение меньше или равно указанного дню                    | -             | -          | -       | +    | +        | -      | -     | -       | -    | -      | +         | -    | -    | -     | -     |
-| between         | Значение находится в указанном диапазоне                    | -             | +          | -       | -    | -        | +      | +     | +       | +    | -      | -         | -    | -    | -     | -     |
-| exists          | Ссылочный атрибут содержит объекты по указанному условию    | +             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | -     | -     |
-| notExists       | Ссылочный атрибут не содержит объекты по указанному условию | +             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | -     | -     |
-| like            | Значение содержит указанное                                 | -             | -          | -       | -    | -        | -      | -     | -       | -    | +      | -         | -    | -    | -     | -     |
-| fuzzyLike       | Нечеткий поиск                                              | -             | -          | -       | -    | -        | -      | -     | -       | -    | +      | -         | -    | -    | -     | -     |
-| fuzzyOrderLike  | Нечеткий поиск с учетом порядка слов                        | -             | -          | -       | -    | -        | -      | -     | -       | -    | +      | -         | -    | -    | -     | -     |
-| startsWith      | Начинается с указанного                                     | -             | -          | -       | -    | -        | -      | -     | -       | -    | +      | -         | -    | -    | -     | -     |
-| notStartsWith   | Не начинается с указанного                                  | -             | -          | -       | -    | -        | -      | -     | -       | -    | +      | -         | -    | -    | -     | -     |
-| in              | Значение находится в указанном списке                       | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| notIn           | Значение не находится в указанном списке                    | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| inQuery         | Значение находится в указанном подзапросе                   | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| notInQuery      | Значение не находится в указанном подзапросе                | -             | +          | +       | +    | +        | +      | +     | +       | +    | +      | +         | +    | +    | -     | -     |
-| containsRange   | Значение(диапазон) содержит указанный диапазон              | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| containsElement | Значение(диапазон) содержит указанный элемент               | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | +     |
-| overlapsRange   | Значение(диапазон) содержится в указанном диапазоне         | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| eqRange         | Значение равно указаному диапазону                          | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| neqRange        | Значение не равно указаному диапазону                       | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| gtRange         | Значение больше указанного диапазона                        | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| gteRange        | Значение больше или равно указанному диапазону              | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| ltRange         | Значение меньше указанного диапазона                        | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
-| lteRange        | Значение больше или равно указанному диапазону              | -             | -          | -       | -    | -        | -      | -     | -       | -    | -      | -         | -    | -    | +     | -     |
 
 #### Подзапросы
 
@@ -1275,8 +1152,6 @@ public class TestClassDefValue implements JPObjectDefValue {
   private void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
     this.jpObjectDefValueService = jpObjectDefValueService;
   }
-
-  ...
   
   @Override
   public void beforeCreate(JPCreate query) {
@@ -1492,7 +1367,7 @@ public class CommonHandler extends JPClassHandlerBase {
 
   ...
   
-  private void publishEvent(Report r, AuthInfo authInfo) {
+  private void publishEvent(Report r, AuthInfo auth) {
     if (eventPublisher == null) {
       return;
     }
@@ -1502,8 +1377,8 @@ public class CommonHandler extends JPClassHandlerBase {
         .description("Отчет " + r.getFileTitle() + " сформирован")
         .objectClassCode("file")
         .objectId(r.getGuid())
-        .userId(authInfo != null ? authInfo.getUserId() : null)
-        .userDescription(authInfo != null ? authInfo.getUsername() : null)
+        .userId(auth != null ? auth.getUserId() : null)
+        .userDescription(auth != null ? auth.getUsername() : null)
         .build()
     );
   }
@@ -1532,18 +1407,39 @@ public class CommonHandler extends JPClassHandlerBase {
 В различных частях системы, например, блоке filter в search-запросах, возможно использование шаблоны с динамической
 подстановкой
 
-| Свойство           | Описание                                |
-|--------------------|-----------------------------------------|
-| AUTH_USERID        | Идентификатор пользователя              |
-| AUTH_ORGID         | Организация пользователя                |
-| AUTH_SEPDEPID      | Обособленное подразделение пользователя |
-| AUTH_DEPID         | Подразделение пользователя              |
-| AUTH_EMPLID        | Штатная единица пользователя            |
-| AUTH_SUBJECT_GROUP | Предметные группы пользователя          |
-| AUTH_OKTMO         | ОКТМО пользователя                      |
-| AUTH_OKTMO_TREE    | Дерево ОКТМО пользователя               |
-| CUR_DATE           | Текущий день                            |
-| CUR_DATETIME       | Текущее дата+время                      |
+| Свойство              | Описание                                |
+|-----------------------|-----------------------------------------|
+| AUTH_USERID           | Идентификатор пользователя              |
+| AUTH_ORGID            | Организация пользователя                |
+| AUTH_SEPDEPID         | Обособленное подразделение пользователя |
+| AUTH_DEPID            | Подразделение пользователя              |
+| AUTH_EMPLID           | Штатная единица пользователя            |
+| AUTH_SUBJECT_GROUP    | Предметные группы пользователя          |
+| AUTH_OKTMO            | ОКТМО пользователя                      |
+| AUTH_OKTMO_TREE       | Дерево ОКТМО пользователя               |
+| CUR_DATE              | Текущий день                            |
+| CUR_DATETIME          | Текущее дата+время                      |
+| CUR_TIME              | Текущее время                           |
+| CUR_MONTH_BEGIN_DATE  | 1 число текущего месяца                 |
+| CUR_MONTH_END_DATE    | Последнее число текущего месяца         |
+| CUR_YEAR_BEGIN_DATE   | 1 число текущего года                   |
+| CUR_YEAR_END_DATE     | Последнее число текущего года           |
+| PREV_DATE             | Предыдущий день                         |
+| PREV_MONTH_BEGIN_DATE | 1 число предыдущего месяца              |
+| PREV_MONTH_END_DATE   | Последнее число предыдущего месяца      |
+| PREV_YEAR_BEGIN_DATE  | 1 число предыдущего года                |
+| PREV_YEAR_END_DATE    | Последнее число предыдущего года        |
+| NEXT_DATE             | Следующий день                          |
+| NEXT_MONTH_BEGIN_DATE | 1 число следующего месяца               |
+| NEXT_MONTH_END_DATE   | Последнее число следующего месяца       |
+| NEXT_YEAR_BEGIN_DATE  | 1 число следующего года                 |
+| NEXT_YEAR_END_DATE    | Последнее число следующего года         |
+| CUR_MONTH             | Текущий месяц                           |
+| CUR_YEAR              | Текущий год                             |
+| PREV_MONTH            | Предыдущий месяц                        |
+| PREV_YEAR             | Предыдущий год                          |
+| NEXT_MONTH            | Следующий месяц                         |
+| NEXT_YEAR             | Следующий год                           |
 
 Пример:
 
@@ -1572,3 +1468,21 @@ public class CommonHandler extends JPClassHandlerBase {
 | jprime.query.queryTimeout | Время ожидания запроса                              | -            |
 | jprime.api.checkLimit     | Проверка максимального количества (limit) в выборке | true         |
 | jprime.api.maxLimit       | Максимальное количество в выборке через api         | 1000         |
+
+## Работа с переопределенной метой
+
+Доступ к мете на основании переопределенных настроек
+
+Подключение к сервисам jprime через настройки application.yml
+
+```
+jprime:
+  storage:
+    <уникальный код хранилища>:
+      title: <описание хранилища>
+      type: jpwrapped       
+      aliases:
+        <синоним 1>: <описание хранилища>
+        <синоним 2>: <описание хранилища>
+        <синоним 3>: <описание хранилища>         
+```

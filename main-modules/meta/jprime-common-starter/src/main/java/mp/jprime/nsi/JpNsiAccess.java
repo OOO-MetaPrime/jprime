@@ -22,8 +22,8 @@ public interface JpNsiAccess {
     }
 
     @Override
-    public boolean accept(AuthInfo authInfo) {
-      return authInfo != null;
+    public boolean accept(AuthInfo auth) {
+      return auth != null;
     }
 
     @Override
@@ -49,10 +49,10 @@ public interface JpNsiAccess {
   /**
    * Проверка доступа
    *
-   * @param authInfo AuthInfo
+   * @param auth AuthInfo
    * @return Да/Нет
    */
-  boolean accept(AuthInfo authInfo);
+  boolean accept(AuthInfo auth);
 
   /**
    * Признак отсутствия настроек

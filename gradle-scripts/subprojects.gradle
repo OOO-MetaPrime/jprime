@@ -39,6 +39,7 @@ subprojects {
     all*.exclude module: 'logback-classic'
     all*.exclude module: 'logback-core'
     all*.exclude module: 'slf4j-log4j12'
+    all*.exclude module: 'slf4j-reload4j'
     all*.exclude module: 'spring-boot-starter-logging'
   }
 
@@ -55,4 +56,5 @@ subprojects {
 
 wrapper {
   gradleVersion = "8.7"
+  distributionUrl="https://nexus.metaprime.ru/repository/gradle-release/gradle-8.7-bin.zip"
 }

@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.params.query.filters.ValueFilter;
 import mp.jprime.lang.JPRange;
 
 /**
- * Диапазон содержит диапазон
+ * Диапазон пересекается c диапазоном
  */
 public class OverlapsRange extends ValueFilter<JPRange<?>> {
   /**

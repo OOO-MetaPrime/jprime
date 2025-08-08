@@ -1,26 +1,23 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.18.2"
-jacksonDataformatXmlVersion = "2.18.2"
-jacksonDataformatYamlVersion = "2.18.2"
-jacksonDatatypeJsr310Version = "2.18.2"
+jacksonAnnotationsVersion = "2.19.2"
+jacksonDataformatXmlVersion = "2.19.2"
+jacksonDataformatYamlVersion = "2.19.2"
+jacksonDatatypeJsr310Version = "2.19.2"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.8"
+jodconverterLocalVersion = "4.4.10"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
 # sshj
-sshjVersion = "0.35.0"
-# lombok
-lombokVersion = "1.18.26"
-lombokPluginVersion = "6.6.1"
+sshjVersion = "0.40.0"
 # Apache velocity
-apacheVelocityVersion = "2.3"
+apacheVelocityVersion = "2.4.1"
 # Opencsv parser
-opencsvParserVersion = "5.9"
+opencsvParserVersion = "5.12.0"
 # Bucket4j (Java rate-limiting library based on token-bucket algorithm)
-bucket4jVersion = "8.3.0"
+bucket4jVersion = "8.14.0"
 
 [libraries]
 jackson-annotations = { module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonAnnotationsVersion" }
@@ -31,13 +28,9 @@ javapoet = { module="com.squareup:javapoet", version.ref="javapoetVersion" }
 jodconverter-local = { module="org.jodconverter:jodconverter-local", version.ref="jodconverterLocalVersion" }
 nio-multipart-parser = { module="org.synchronoss.cloud:nio-multipart-parser", version.ref="nioMultipartParserVersion" }
 sshj ={ module="com.hierynomus:sshj", version.ref="sshjVersion" }
-lombok ={ module="org.projectlombok:lombok", version.ref="lombokVersion" }
 apacheVelocity ={ module="org.apache.velocity:velocity-engine-core", version.ref="apacheVelocityVersion" }
 opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsvParserVersion" }
-bucket4j ={ module="com.bucket4j:bucket4j-core", version.ref="bucket4jVersion"}
-
-[plugins]
-lombok = { id = "io.freefair.lombok", version.ref="lombokPluginVersion" }
+bucket4j ={ module="com.bucket4j:bucket4j_jdk17-core", version.ref="bucket4jVersion"}
 
 [bundles]
 jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310', 'jackson-dataformat-yaml']

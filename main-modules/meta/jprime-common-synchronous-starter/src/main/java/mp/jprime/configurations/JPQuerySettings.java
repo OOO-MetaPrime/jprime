@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
  * jprime.query.queryTimeout - Время ожидания запроса
  * jprime.api.checkLimit     - Проверка максимального количества (limit) в выборке
  * jprime.api.maxLimit       - Максимальное количество в выборке через api
- * jprime.api.addLinks       - Признак добавления в ответ hateoas ссылок для ссылочных объектов
  */
 public abstract class JPQuerySettings {
   protected static final Logger LOG = LoggerFactory.getLogger(JPQuerySettings.class);

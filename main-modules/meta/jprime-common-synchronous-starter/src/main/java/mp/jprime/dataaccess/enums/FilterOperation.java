@@ -204,9 +204,17 @@ public enum FilterOperation {
    */
   OVERLAPS_ARRAY("overlapsArray"),
   /**
+   * Мягкое равно строк (без учета регистра, например)
+   */
+  SOFT_EQ("softEq"),
+  /**
    * Начинается С
    */
-  STARTS_WITH("startsWith");
+  STARTS_WITH("startsWith"),
+  /**
+   * Строгое равно строк
+   */
+  STRICT_EQ("strictEq");
 
   private static final Map<String, FilterOperation> BY_CODE = new HashMap<>();
 

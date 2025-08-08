@@ -52,7 +52,7 @@ public @interface JPUtilModeLink {
   /**
    * Признак логирования действий
    *
-   * @return Признак логирования действи
+   * @return Признак логирования действия
    */
   boolean actionLog() default true;
 
@@ -83,6 +83,11 @@ public @interface JPUtilModeLink {
   JPParam[] inParams() default {};
 
   /**
+   * Дополнительные свойства утилиты
+   */
+  JPUtilProperties properties() default @JPUtilProperties();
+
+  /**
    * Выходной класс параметров
    *
    * @return Выходной класс параметров
@@ -95,4 +100,25 @@ public @interface JPUtilModeLink {
    * @return Список кастомных исходящих параметров
    */
   JPParam[] outCustomParams() default {};
+
+  /**
+   * Признак наличия значений по умолчанию
+   *
+   * @return Признак наличия значений по умолчанию
+   */
+  boolean inParamsDefValues() default false;
+
+  /**
+   * Сообщение на форму утилиты
+   *
+   * @return Сообщение на форму утилиты
+   */
+  String infoMessage() default "";
+
+  /**
+   * Признак необходимости валидации
+   *
+   * @return Признак необходимости валидации
+   */
+  boolean validate() default false;
 }

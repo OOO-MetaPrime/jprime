@@ -20,7 +20,7 @@ public interface JPAbacStorage {
   /**
    * Возвращает загруженные настройки ABAC для указанного класса по указанному действию
    *
-   * @param jpClass Кодовое имя класс
+   * @param jpClass Кодовое имя класса
    * @param action  Действие
    * @return Настройки ABAC для указанного класса
    */
@@ -32,4 +32,12 @@ public interface JPAbacStorage {
    * @return список кодов ABAC
    */
   Collection<String> getSettingsCodes();
+
+  /**
+   * Признак наличия ABAC настроек для указанного класса
+   *
+   * @param jpClass Кодовое имя класса
+   * @return Да/Нет
+   */
+  boolean hasSettings(String jpClass);
 }

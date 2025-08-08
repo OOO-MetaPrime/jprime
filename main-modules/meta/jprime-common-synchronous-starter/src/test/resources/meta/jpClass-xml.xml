@@ -62,7 +62,7 @@
         <qName>jpClass.className1.PersonalCard.moneyAttr</qName>
         <description>Деньги</description>
         <money>
-          <currencyCode>RUR</currencyCode>
+          <currencyCode>RUB</currencyCode>
         </money>
       </jpAttr>
       <jpAttr>

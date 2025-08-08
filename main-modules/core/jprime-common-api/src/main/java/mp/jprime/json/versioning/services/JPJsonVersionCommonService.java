@@ -186,7 +186,7 @@ public class JPJsonVersionCommonService implements JPJsonVersionService {
   @Override
   public <T> JPJsonBeanVersion<T> toLatestBeanVersion(String groupCode, JPJsonVersion value) {
     TreeMap<Integer, JPJsonVersionConverter<?>> convs = CACHE.get(groupCode);
-    if (convs == null) {
+    if (convs == null || value == null) {
       return null;
     }
     Integer version = value.getVersion();

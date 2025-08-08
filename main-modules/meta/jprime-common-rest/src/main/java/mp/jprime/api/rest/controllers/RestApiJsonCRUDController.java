@@ -17,6 +17,7 @@ import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -186,7 +187,7 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
-    return Mono.just(objectId)
+    return JPMono.fromCallable(() -> objectId)
         .flatMap(key -> {
               if (targetAttr.isIdentifier()) {
                 return Mono.just(key).cast(Object.class);
@@ -250,7 +251,8 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     return repo.getAsyncObject(jpSelect)
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
-        .doOnSuccess(x -> sendObject(code, objectId, x, auth, swe))
+        .doOnSuccess(result -> sendObject(code, objectId, result, auth, swe))
+        .doOnError(e -> sendObject(code, objectId, null, auth, swe))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
@@ -291,11 +293,10 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
 
     JPCreate jpCreate;
     try {
-      jpCreate = queryService.getCreate(query, Source.USER, authInfo)
+      jpCreate = queryService.getCreate(query, Source.USER, auth)
           .build();
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -322,11 +323,9 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
-
     JPUpdate jpUpdate;
     try {
-      JPUpdate.Builder jpUpdateBuilder = queryService.getUpdate(query, Source.USER, authInfo);
+      JPUpdate.Builder jpUpdateBuilder = queryService.getUpdate(query, Source.USER, auth);
       if (jpUpdateBuilder != null) {
         jpUpdate = jpUpdateBuilder.build();
       } else {
@@ -360,11 +359,10 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
 
     JPCreate jpCreate;
     try {
-      jpCreate = queryService.getCreate(query, Source.USER, authInfo)
+      jpCreate = queryService.getCreate(query, Source.USER, auth)
           .build();
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);

@@ -166,7 +166,7 @@ TODO
 ## Предварительная настройка окружения
 
 Для использования данного скрипта, необходимо в корневом проекте создать папку `services-settings`, в которой необходимо
-разместить файл `jprime..config-properties` с настройками, вида:
+разместить файл `jprime.config-properties` с настройками, вида:
 
 ```properties
 JPRIME_SERVICE_PORT=8081
@@ -174,6 +174,19 @@ JPRIME_APPLICATION_NAME=sandbox-service
 ```
 
 Эти настройки будут автоматически подставляться в итоговый `application.yml`.
+
+Если необходимо использовать файл отличный по имени от `jprime.config-properties` и `jprime-distrib.config-properties`,
+то можно задать ext-параметр проекта `project_config_properties` и/или `project_distrib_config_properties`  перед подключением скрипта:
+
+Например
+```groovy
+apply plugin: 'application'
+
+project.ext.project_config_properties = 'jprime-esrn'
+project.ext.project_distrib_config_properties = 'jprime-esrn-distrib'
+
+apply from: "${rootProject.projectDir}/jprime/gradle-scripts/jprime-settings.gradle"
+```
 
 ## Предварительная настройка `application.yml`
 

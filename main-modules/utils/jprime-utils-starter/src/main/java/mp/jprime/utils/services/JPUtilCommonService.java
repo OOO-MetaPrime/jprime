@@ -3,23 +3,28 @@ package mp.jprime.utils.services;
 import com.fasterxml.jackson.core.JsonParseException;
 import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPClassAttr;
-import mp.jprime.common.beans.JPClassAttrBean;
 import mp.jprime.common.annotations.JPEnum;
+import mp.jprime.meta.annotations.JPMoney;
 import mp.jprime.common.annotations.JPParam;
-import mp.jprime.concurrent.JPReactorScheduler;
+import mp.jprime.common.beans.JPClassAttrBean;
+import mp.jprime.common.beans.JPParamBase;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPBadFormatException;
 import mp.jprime.exceptions.JPQueryException;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.beans.JPStringFormat;
+import mp.jprime.meta.beans.JPMoneyBean;
+import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPSecurityStorage;
 import mp.jprime.utils.*;
 import mp.jprime.utils.annotations.JPUtilModeLink;
+import mp.jprime.utils.annotations.JPUtilProperties;
 import mp.jprime.utils.annotations.JPUtilResultType;
 import mp.jprime.utils.exceptions.JPUtilModeNotFoundException;
 import mp.jprime.utils.exceptions.JPUtilNotFoundException;
@@ -33,7 +38,6 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -48,8 +52,15 @@ import java.util.stream.Stream;
 public final class JPUtilCommonService implements JPUtilService {
   private static final Logger LOG = LoggerFactory.getLogger(JPUtilCommonService.class);
 
+  private static final Collection<String> SYSTEM_MODES = Set.of(
+      JPUtil.Mode.CHECK_MODE,
+      JPUtil.Mode.IN_PARAMS_DEF_VALUES,
+      JPUtil.Mode.VALIDATE_MODE
+  );
+
   private final Map<String, UtilInfo> jpUtils = new HashMap<>();
   private final Map<String, UtilInfo> jpUniUtils = new HashMap<>();
+
   // Системный журнал
   private AppLogger appLogger;
   // Хранилище настроек RBAC
@@ -129,7 +140,7 @@ public final class JPUtilCommonService implements JPUtilService {
         }
         // Добавляем болванку шага check
         utilInfo.modes.putIfAbsent(
-            CHECK_MODE,
+            JPUtil.Mode.CHECK_MODE,
             new ModeInfo(util, isUni, utilJpClasses, utilJpClassTags, util.getJpPackage(), util.getAuthRoles())
         );
 
@@ -164,12 +175,6 @@ public final class JPUtilCommonService implements JPUtilService {
     return jpUniUtils.keySet();
   }
 
-  /**
-   * Возвращает утилиту по ее коду
-   *
-   * @param utilCode Код утилиты
-   * @return Утилита
-   */
   @Override
   public JPUtil getUtil(String utilCode) {
     UtilInfo info = jpUtils.get(utilCode);
@@ -177,6 +182,12 @@ public final class JPUtilCommonService implements JPUtilService {
       info = jpUniUtils.get(utilCode);
     }
     return info != null ? info.util : null;
+  }
+
+  @Override
+  public JPUtilMode getMode(String utilCode, String methodCode) {
+    UtilInfo util = jpUtils.get(utilCode);
+    return util != null ? util.modes.get(methodCode) : null;
   }
 
   /**
@@ -198,7 +209,7 @@ public final class JPUtilCommonService implements JPUtilService {
         .stream()
         .map(x -> x.modes.values())
         .flatMap(Collection::stream)
-        .filter(x -> !CHECK_MODE.equals(x.getModeCode()));
+        .filter(x -> !SYSTEM_MODES.contains(x.getModeCode()));
   }
 
   /**
@@ -211,47 +222,29 @@ public final class JPUtilCommonService implements JPUtilService {
         .stream()
         .map(x -> x.modes.values())
         .flatMap(Collection::stream)
-        .filter(x -> !CHECK_MODE.equals(x.getModeCode()));
+        .filter(x -> !SYSTEM_MODES.contains(x.getModeCode()));
   }
 
-  /**
-   * Возвращает все утилиты
-   *
-   * @return Утилиты
-   */
   @Override
-  public Flux<JPUtilMode> getUtils() {
-    return Flux.fromStream(utilsStream());
+  public Flux<? extends JPUtilMode> getUtils() {
+    return JPMono.fromCallable(this::utilsStream)
+        .flatMapMany(Flux::fromStream);
   }
 
-  /**
-   * Возвращает все утилиты, доступные данной авторизации
-   *
-   * @param authInfo Данные авторизации
-   * @return Утилиты
-   */
   @Override
-  public Flux<JPUtilMode> getUtils(AuthInfo authInfo) {
-    return Flux.fromStream(
-        utilsStream()
-            .filter(x -> checkSecurity(x, authInfo))
-    );
+  public Flux<? extends JPUtilMode> getUtils(AuthInfo auth) {
+    return JPMono.fromCallable(this::utilsStream)
+        .flatMapMany(Flux::fromStream)
+        .filter(x -> checkSecurity(x, auth));
   }
 
-  /**
-   * Возвращает все утилиты для указанного класса, доступные данной авторизации
-   *
-   * @param className Код метакласса
-   * @param authInfo  Данные авторизации
-   * @return Утилиты
-   */
   @Override
-  public Flux<JPUtilMode> getUtils(String className, AuthInfo authInfo) {
+  public Flux<? extends JPUtilMode> getUtils(String className, AuthInfo auth) {
     JPClass jpClass = metaStorage.getJPClassByCode(className);
     if (jpClass == null) {
       return Flux.empty();
     }
-    return getUtils(authInfo)
+    return getUtils(auth)
         .filter(
             x -> x.isUni() ||
                 x.getJpClasses().contains(jpClass.getCode()) ||
@@ -259,66 +252,39 @@ public final class JPUtilCommonService implements JPUtilService {
         );
   }
 
-  /**
-   * Выполняет метод утилиты
-   *
-   * @param utilCode   Код утилиты
-   * @param methodCode Код метода
-   * @param in         Входящие параметры
-   * @param swe        ServerWebExchange
-   * @param authInfo   Данные авторизации
-   * @return Исходящие параметры
-   */
   @Override
-  public Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo) {
-    return apply(utilCode, methodCode, authInfo)
-        .flatMap(x -> apply(x, in, swe, authInfo));
+  public Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo auth) {
+    return apply(utilCode, methodCode, auth)
+        .flatMap(x -> apply(x, in, swe, auth));
   }
 
   /**
    * Проверка доступа
    *
-   * @param mode     Шаг утилиты
-   * @param authInfo Доступ
+   * @param mode Шаг утилиты
+   * @param auth Доступ
    * @return Да/Нет
    */
-  private boolean checkSecurity(ModeInfo mode, AuthInfo authInfo) {
+  private boolean checkSecurity(ModeInfo mode, AuthInfo auth) {
     if (mode == null) {
       return true;
     }
     String[] methodRoles = mode.getAuthRoles();
     if (methodRoles != null && methodRoles.length > 0) {
-      if (authInfo == null || Collections.disjoint(authInfo.getRoles(), Arrays.asList(methodRoles))) {
+      if (auth == null || Collections.disjoint(auth.getRoles(), Arrays.asList(methodRoles))) {
         return false;
       }
     }
     String jpPackage = mode.getJpPackage();
     if (jpPackage != null) {
-      return securityManager.checkRead(jpPackage, authInfo.getRoles());
+      return securityManager.checkRead(jpPackage, auth.getRoles());
     }
     return true;
   }
 
-  /**
-   * Scheduler для обработки логики
-   *
-   * @return Scheduler
-   */
-  private Scheduler getReactorScheduler() {
-    return JPReactorScheduler.reactorScheduler();
-  }
-
-  /**
-   * Выполняет метод утилиты
-   *
-   * @param utilCode   Код утилиты
-   * @param methodCode Код метода
-   * @param authInfo   Данные авторизации
-   * @return Исходящие параметры
-   */
   @Override
-  public Mono<ModeInfo> apply(String utilCode, String methodCode, AuthInfo authInfo) {
-    return Mono.justOrEmpty(jpUtils.get(utilCode))
+  public Mono<ModeInfo> apply(String utilCode, String methodCode, AuthInfo auth) {
+    return JPMono.fromCallable(() -> jpUtils.get(utilCode))
         .switchIfEmpty(Mono.justOrEmpty(jpUniUtils.get(utilCode)))
         .switchIfEmpty(Mono.error(new JPUtilNotFoundException(utilCode)))
         .filter(x -> x.util != null)
@@ -331,51 +297,46 @@ public final class JPUtilCommonService implements JPUtilService {
               return info;
             }
         )
-        .filter(x -> checkSecurity(x, authInfo))
+        .filter(x -> checkSecurity(x, auth))
         .switchIfEmpty(Mono.error(new JPUtilRunRightException(utilCode)));
   }
 
-  /**
-   * Выполняет метод утилиты
-   *
-   * @param mode     Шаг утилиты
-   * @param in       Входящие параметры
-   * @param swe      ServerWebExchange
-   * @param authInfo Данные авторизации
-   * @return Исходящие параметры
-   */
   @Override
-  public Mono<JPUtilOutParams> apply(final JPUtilMode mode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo) {
-    return Mono.just(mode)
+  public Mono<JPUtilOutParams> apply(final JPUtilMode mode, JPUtilInParams in, ServerWebExchange swe, AuthInfo auth) {
+    return JPMono.fromCallable(() -> mode)
         .switchIfEmpty(Mono.error(new JPUtilNotFoundException("")))
-        .flatMap(x -> apply(x.getUtilCode(), x.getModeCode(), authInfo))
+        .flatMap(x -> apply(x.getUtilCode(), x.getModeCode(), auth))
         .flatMap(x -> {
               JPUtil util = x.util;
               String utilCode = x.utilCode;
               String modeCode = x.modeCode;
               String methodName = x.methodName;
-              Class[] inClasses = x.allInClasses;
+              Collection<String> actionLogIgnoreParams = x.actionLogIgnoreParams;
+              Class<?>[] inClasses = x.allInClasses;
               String resultType = x.resultType;
 
               // По умолчанию метод check, если не переопределен отрабатывает корректно
-              if (methodName == null && CHECK_MODE.equals(modeCode)) {
+              if (methodName == null && JPUtil.Mode.CHECK_MODE.equals(modeCode)) {
                 return Mono.just(JPUtilCheckOutParams.newBuilder().build());
+              }
+              if (methodName == null && JPUtil.Mode.IN_PARAMS_DEF_VALUES.equals(modeCode)) {
+                return Mono.just(JPUtilDefValuesOutParams.newBuilder().build());
               }
               if (methodName == null || inClasses == null || inClasses.length == 0 || resultType == null) {
                 return Mono.error(new JPUtilModeNotFoundException(utilCode, modeCode));
               }
-              String subject = authInfo.getUsername();
+              String subject = auth.getUsername();
               try {
-                if (!CHECK_MODE.equals(modeCode) && x.isActionLog()) { // не логируем чеки
-                  String s = jpJsonMapper.toString(in);
-                  appLogger.debug(Event.UTIL_RUN, subject, utilCode + "/mode/" + modeCode, s, authInfo);
+                if (!SYSTEM_MODES.contains(modeCode) && x.isActionLog()) { // не логируем типовые режимы утилит
+                  String s = jpJsonMapper.toString(in, actionLogIgnoreParams);
+                  appLogger.debug(Event.UTIL_RUN, subject, utilCode + "/mode/" + modeCode, s, auth);
                 }
 
                 Object[] inParams = new Object[inClasses.length];
                 for (int i = 0; i < inClasses.length; i++) {
-                  Class cls = inClasses[i];
+                  Class<?> cls = inClasses[i];
                   if (AuthInfo.class.isAssignableFrom(cls)) {
-                    inParams[i] = authInfo;
+                    inParams[i] = auth;
                   } else if (ServerWebExchange.class.isAssignableFrom(cls)) {
                     inParams[i] = swe;
                   } else if (JPUtilInParams.class.isAssignableFrom(cls)) {
@@ -408,8 +369,7 @@ public final class JPUtilCommonService implements JPUtilService {
                 }
               }
             }
-        )
-        .subscribeOn(getReactorScheduler());
+        );
   }
 
   /**
@@ -424,6 +384,41 @@ public final class JPUtilCommonService implements JPUtilService {
     }
   }
 
+
+  private static class JPUtilModeProperties implements JPUtilMode.Properties {
+    private final Collection<String> linkModes;
+    private final Collection<UUID> compConfCodes;
+
+    private JPUtilModeProperties(Collection<String> linkModes, Collection<UUID> compConfCodes) {
+      this.linkModes = linkModes != null ? linkModes : Collections.emptyList();
+      this.compConfCodes = compConfCodes != null ? compConfCodes : Collections.emptyList();
+    }
+
+    private static JPUtilModeProperties of(JPUtilProperties properties) {
+      if (properties == null) {
+        return null;
+      }
+      String[] linkModes = properties.linkModes();
+      String[] compConfCodes = properties.compConfCodes();
+      return new JPUtilModeProperties(
+          linkModes != null ? Arrays.asList(linkModes) : null,
+          compConfCodes != null ? Arrays.stream(compConfCodes)
+              .map(UUID::fromString)
+              .toList() : null
+      );
+    }
+
+    @Override
+    public Collection<String> getLinkModes() {
+      return linkModes;
+    }
+
+    @Override
+    public Collection<UUID> getCompConfCodes() {
+      return compConfCodes;
+    }
+  }
+
   /**
    * Описание шагов
    */
@@ -434,7 +429,7 @@ public final class JPUtilCommonService implements JPUtilService {
     private final String title;
     private final String qName;
     private final String methodName;
-    private final Class[] allInClasses;
+    private final Class<?>[] allInClasses;
     private final String jpPackage;
     private final String[] authRoles;
     private final String confirmMessage;
@@ -443,11 +438,16 @@ public final class JPUtilCommonService implements JPUtilService {
     private final Collection<String> jpClassTags;
     private final JPAppendType type;
     private final Collection<JPClassAttr> jpAttrs;
-    private final Class paramInClass;
+    private final Class<?> paramInClass;
     private final Collection<JPUtilParam> inParams;
+    private final Collection<String> actionLogIgnoreParams;
+    private final boolean inParamsDefValues;
     private final String resultType;
     private final Collection<JPUtilParam> outCustomParams;
     private final boolean actionLog;
+    private final String infoMessage;
+    private final boolean validate;
+    private final Properties properties;
 
     private ModeInfo(JPUtil util, boolean uni, String[] jpClasses, String[] jpClassTags,
                      String jpPackage, String[] authRoles) {
@@ -459,7 +459,7 @@ public final class JPUtilCommonService implements JPUtilService {
       if (jpClassTags != null) {
         Collections.addAll(jpClassTagList, jpClassTags);
       }
-      this.modeCode = CHECK_MODE;
+      this.modeCode = JPUtil.Mode.CHECK_MODE;
       this.util = util;
       this.utilCode = util.getUrl();
       this.methodName = null;
@@ -474,14 +474,19 @@ public final class JPUtilCommonService implements JPUtilService {
       this.title = null;
       this.qName = null;
       this.inParams = Collections.emptyList();
+      this.actionLogIgnoreParams = Collections.emptyList();
+      this.inParamsDefValues = false;
       this.outCustomParams = Collections.emptyList();
       this.jpPackage = StringUtils.hasText(jpPackage) ? jpPackage : null;
       this.authRoles = authRoles;
       this.paramInClass = null;
       this.actionLog = true;
+      this.infoMessage = null;
+      this.validate = false;
+      this.properties = null;
     }
 
-    private ModeInfo(JPUtil util, String methodName, Class[] inClasses, String resultType,
+    private ModeInfo(JPUtil util, String methodName, Class<?>[] inClasses, String resultType,
                      boolean uni, String[] jpClasses, String[] jpClassTags,
                      String jpPackage, String[] authRoles, JPUtilModeLink anno) {
       Collection<String> jpClassList = new HashSet<>();
@@ -510,32 +515,50 @@ public final class JPUtilCommonService implements JPUtilService {
       this.actionLog = anno.actionLog();
       this.inParams = Stream.of(anno.inParams())
           .map(this::toJPUtilParam).toList();
+      this.actionLogIgnoreParams = this.inParams.stream()
+          .filter(param -> !param.isActionLog())
+          .map(JPParamBase::getCode)
+          .toList();
+      this.inParamsDefValues = anno.inParamsDefValues();
       this.outCustomParams = Stream.of(anno.outCustomParams())
           .map(this::toJPUtilParam).toList();
       this.jpPackage = StringUtils.hasText(jpPackage) ? jpPackage : null;
       this.authRoles = authRoles;
+      this.infoMessage = StringUtils.hasText(anno.infoMessage()) ? anno.infoMessage() : null;
+      this.validate = anno.validate();
 
-      Class paramInClass = null;
+      Class<?> paramInClass = null;
       if (allInClasses != null) {
-        for (Class cls : this.allInClasses) {
+        for (Class<?> cls : this.allInClasses) {
           if (JPUtilInParams.class.isAssignableFrom(cls)) {
             paramInClass = cls;
           }
         }
       }
       this.paramInClass = paramInClass;
+
+      JPUtilProperties properties = anno.properties();
+      this.properties = JPUtilModeProperties.of(properties);
     }
 
     private JPUtilParam toJPUtilParam(JPParam param) {
-      JPStringFormat stringFormat = param.stringFormat();
-      String stringMask = param.stringMask();
+      String code = param.code();
+      JPType type = param.type();
       String qName = param.qName();
 
+      JPStringFormat stringFormat = param.stringFormat();
+      String stringMask = param.stringMask();
+
+      JPMoney money = param.money();
+
       return JPUtilParam.newBuilder()
-          .code(param.code())
-          .type(param.type())
+          .code(code)
+          .type(type)
           .stringFormat(stringFormat != JPStringFormat.NONE ? stringFormat : null)
           .stringMask(stringMask != null && !stringMask.isBlank() ? stringMask : null)
+          .fileTypes(Stream.of(param.fileTypes())
+              .collect(Collectors.toList())
+          )
           .length(param.length())
           .mandatory(param.mandatory())
           .description(param.description())
@@ -544,12 +567,18 @@ public final class JPUtilCommonService implements JPUtilService {
           .refJpClass(param.refJpClass())
           .refJpAttr(param.refJpAttr())
           .refFilter(param.refFilter())
+          // Настройка денежного типа
+          .money(
+              type != JPType.MONEY ? null : JPMoneyBean.of(money.currency())
+          )
           .external(true)
           .enums(Stream.of(param.enums())
               .map(this::toJPEnum)
               .collect(Collectors.toList())
           )
           .clientSearch(param.clientSearch())
+          .actionLog(param.actionLog())
+          .readOnly(param.readOnly())
           .build();
     }
 
@@ -564,172 +593,105 @@ public final class JPUtilCommonService implements JPUtilService {
           .build();
     }
 
-    /**
-     * Кодовое имя утилиты
-     *
-     * @return Кодовое имя утилиты
-     */
     @Override
     public String getUtilCode() {
       return utilCode;
     }
 
-    /**
-     * Кодовое имя шага
-     *
-     * @return Кодовое имя шага
-     */
     @Override
     public String getModeCode() {
       return modeCode;
     }
 
-    /**
-     * Возвращает название шага утилиты
-     *
-     * @return название шага утилиты
-     */
     @Override
     public String getTitle() {
       return title;
     }
 
-    /**
-     * Возвращает QName шага утилиты
-     *
-     * @return QName шага утилиты
-     */
     @Override
     public String getQName() {
       return qName;
     }
 
-    /**
-     * Возвращает  Признак логирования действий
-     *
-     * @return Да/Нет
-     */
     @Override
     public boolean isActionLog() {
       return actionLog;
     }
 
-    /**
-     * Сообщение для подтверждения
-     *
-     * @return Сообщение для подтверждения
-     */
     @Override
     public String getConfirmMessage() {
       return confirmMessage;
     }
 
-    /**
-     * Признак универсального (для всех классов) шага
-     *
-     * @return Да/Нет
-     */
     @Override
     public boolean isUni() {
       return uni;
     }
 
-    /**
-     * Классы, обрабатываемые этой утилитой
-     *
-     * @return Классы, обрабатываемые этой утилитой
-     */
     @Override
     public Collection<String> getJpClasses() {
       return jpClasses;
     }
 
-    /**
-     * Теги классов, обрабатываемые этой утилитой
-     *
-     * @return Теги классов, обрабатываемые этой утилитой
-     */
     @Override
     public Collection<String> getJpClassTags() {
       return jpClassTags;
     }
 
-    /**
-     * Возвращает тип утилиты
-     *
-     * @return Тип утилиты
-     */
     @Override
     public JPAppendType getType() {
       return type;
     }
 
-    /**
-     * Атрибуты, обрабатываемые этой утилитой
-     *
-     * @return Атрибуты, обрабатываемые этой утилитой
-     */
     @Override
     public Collection<JPClassAttr> getJpAttrs() {
       return jpAttrs;
     }
 
-    /**
-     * Класс входящих параметров
-     *
-     * @return Входящие параметры
-     */
     @Override
-    public Class getInClass() {
+    public Class<?> getInClass() {
       return paramInClass;
     }
 
-    /**
-     * Описание входных параметров
-     *
-     * @return Описание входных параметров
-     */
     @Override
     public Collection<JPUtilParam> getInParams() {
       return inParams;
     }
 
-    /**
-     * Описание итоговых параметров
-     *
-     * @return Описание итоговых параметров
-     */
+    @Override
+    public boolean isInParamsDefValues() {
+      return inParamsDefValues;
+    }
+
     @Override
     public Collection<JPUtilParam> getOutCustomParams() {
       return outCustomParams;
     }
 
-    /**
-     * Тип итогового результата
-     *
-     * @return Тип итогового результата
-     */
     @Override
     public String getResultType() {
       return resultType;
     }
 
-    /**
-     * Настройки доступа
-     *
-     * @return Настройки доступа
-     */
     private String getJpPackage() {
       return jpPackage;
     }
 
-    /**
-     * Роли, имеющиеся доступ к этой утилите
-     *
-     * @return Роли, имеющиеся доступ к этой утилите
-     */
     private String[] getAuthRoles() {
       return authRoles;
+    }
+
+    @Override
+    public Properties getProperties() {
+      return properties;
+    }
+
+    public String getInfoMessage() {
+      return infoMessage;
+    }
+
+    public boolean isValidate() {
+      return validate;
     }
   }
 }

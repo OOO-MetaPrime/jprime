@@ -4,6 +4,7 @@ import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPClassAttr;
 
 import java.util.Collection;
+import java.util.UUID;
 
 /**
  * Интерфейс шага утилиты
@@ -93,7 +94,7 @@ public interface JPUtilMode {
    *
    * @return Входящие параметры
    */
-  Class getInClass();
+  Class<?> getInClass();
 
   /**
    * Описание входных параметров
@@ -101,6 +102,36 @@ public interface JPUtilMode {
    * @return Описание входных параметров
    */
   Collection<JPUtilParam> getInParams();
+
+  /**
+   * Признак наличия значений по умолчанию
+   *
+   * @return Признак наличия значений по умолчанию
+   */
+  default boolean isInParamsDefValues() {
+    return false;
+  }
+
+  /**
+   * Дополнительные свойства утилиты
+   *
+   * @return Дополнительные свойства утилиты
+   */
+  Properties getProperties();
+
+  /**
+   * Сообщение на форму утилиты
+   *
+   * @return Сообщение на форму утилиты
+   */
+  String getInfoMessage();
+
+  /**
+   * Признак необходимости валидации
+   *
+   * @return Признак необходимости валидации
+   */
+  boolean isValidate();
 
   /**
    * Тип итогового результата
@@ -115,4 +146,19 @@ public interface JPUtilMode {
    * @return Список кастомных итоговых параметров
    */
   Collection<JPUtilParam> getOutCustomParams();
+
+  /**
+   * Дополнительные свойства утилиты
+   */
+  interface Properties {
+    /**
+     * Используемые шаги утилиты
+     */
+    Collection<String> getLinkModes();
+
+    /**
+     * Используемые настройки конфигуратора компонент
+     */
+    Collection<UUID> getCompConfCodes();
+  }
 }

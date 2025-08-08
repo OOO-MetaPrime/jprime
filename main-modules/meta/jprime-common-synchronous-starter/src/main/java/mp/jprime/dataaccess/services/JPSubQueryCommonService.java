@@ -16,8 +16,8 @@ import java.util.HashSet;
 
 @Service
 public final class JPSubQueryCommonService implements JPSubQueryService, JPSyncObjectRepositoryServiceAware {
-  // Ограничиваем 100 объектами
-  private final static int LIMIT = 100;
+  // Ограничиваем 300 объектами
+  private final static int LIMIT = 300;
 
   private JPSyncObjectRepositoryService repo;
 

@@ -33,36 +33,21 @@ public final class StringToJPIntegerArray implements TypeParser<String, JPIntege
     this.service = service;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
   public JPIntegerArray parse(String value) {
     if (value == null) {
       return null;
     }
     if (value.startsWith("[")) {
-      return JPIntegerArray.of(jsonMapper.toObject(TYPE_REF, value));
+      List<Integer> values = jsonMapper.toObject(TYPE_REF, value);
+      return values == null || values.isEmpty() ? null : JPIntegerArray.of(values);
     }
     return JPIntegerArray.of(Collections.singletonList(service.parseTo(Integer.class, value)));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   public Class<JPIntegerArray> getOutputType() {
     return JPIntegerArray.class;
   }

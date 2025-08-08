@@ -1,6 +1,7 @@
 package mp.jprime.dataaccess.defvalues.services;
 
 import mp.jprime.annotations.JPClassesLink;
+import mp.jprime.attrparsers.AttrTypeParserService;
 import mp.jprime.common.JPClassesLinkFilter;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPMutableData;
@@ -36,6 +37,9 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
   // Хранилище настроек безопасности
   private JPSecurityStorage securityManager;
 
+  // Сервис парсеров типов атрибутов
+  private AttrTypeParserService attrParserService;
+
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
@@ -44,6 +48,11 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
   @Autowired
   private void setSecurityManager(JPSecurityStorage securityManager) {
     this.securityManager = securityManager;
+  }
+
+  @Autowired
+  private void setAttrParserService(AttrTypeParserService attrParserService) {
+    this.attrParserService = attrParserService;
   }
 
   /**
@@ -144,7 +153,17 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
       }
       removes.forEach(data::remove);
     }
-    return data;
+
+    JPMutableData checkData = JPMutableData.empty();
+    data.forEach((key, value) -> {
+          JPAttr jpAttr = jpClass.getAttr(key);
+          if (jpAttr != null && value != null) {
+            Object parsedValue = attrParserService.parseTo(jpAttr, value);
+            checkData.put(jpAttr, parsedValue);
+          }
+        }
+    );
+    return checkData;
   }
 
   protected JPClass getJPClassWithChecking(String jpClassCode, JPObjectDefValueParams params) {

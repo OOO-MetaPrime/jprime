@@ -11,8 +11,8 @@ public interface JPEventStream {
   /**
    * Возвращает stream событий
    *
-   * @param authInfo AuthInfo
+   * @param auth AuthInfo
    * @return Поток события
    */
-  Flux<JPEventInfo> stream(AuthInfo authInfo);
+  Flux<JPEventInfo> stream(AuthInfo auth);
 }

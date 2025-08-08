@@ -2,7 +2,8 @@ package mp.jprime.repositories;
 
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPUpdate;
-import mp.jprime.files.JPFileInfo;
+import mp.jprime.files.JPFileCommonInfo;
+import mp.jprime.reactor.core.publisher.JPMono;
 import reactor.core.publisher.Mono;
 
 import java.io.InputStream;
@@ -20,7 +21,7 @@ public interface JPFileUploader {
    * @param is          InputStream
    * @return JPFileInfo
    */
-  JPFileInfo upload(String storageCode, String storagePath, String fileName, InputStream is);
+  JPFileCommonInfo upload(String storageCode, String storagePath, String fileName, InputStream is);
 
   /**
    * Загружает файл и сохраняет данные в JPCreate.Builder
@@ -43,7 +44,7 @@ public interface JPFileUploader {
    * @return JPCreate.Builder
    */
   default Mono<JPCreate.Builder> asyncUpload(JPCreate.Builder builder, String attr, String fileName, InputStream is) {
-    return Mono.fromCallable(() -> upload(builder, attr, fileName, is));
+    return JPMono.fromCallable(() -> upload(builder, attr, fileName, is));
   }
 
   /**
@@ -67,7 +68,7 @@ public interface JPFileUploader {
    * @return JPUpdate.Builder
    */
   default Mono<JPUpdate.Builder> asyncUpload(JPUpdate.Builder builder, String attr, String fileName, InputStream is) {
-    return Mono.fromCallable(() -> upload(builder, attr, fileName, is));
+    return JPMono.fromCallable(() -> upload(builder, attr, fileName, is));
   }
 
   /**

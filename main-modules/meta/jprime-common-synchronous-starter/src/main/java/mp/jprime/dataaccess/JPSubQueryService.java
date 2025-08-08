@@ -10,8 +10,8 @@ public interface JPSubQueryService {
    * Возвращает значения согласно запросу
    *
    * @param subQuery JPSubQuery
-   * @param auth
-   * @return auth
+   * @param auth     AuthInfo
+   * @return Список значений
    */
   Collection<Comparable> getValues(JPSubQuery subQuery, AuthInfo auth);
 }

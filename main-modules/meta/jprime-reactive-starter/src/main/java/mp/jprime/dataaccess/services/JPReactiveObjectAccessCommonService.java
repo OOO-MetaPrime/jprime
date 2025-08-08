@@ -10,6 +10,7 @@ import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMeta;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
 import org.springframework.stereotype.Service;
@@ -38,7 +39,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkCreate(String classCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> isCreateCheck(classCode, null, auth));
+    return JPMono.fromCallable(() -> isCreateCheck(classCode, null, auth));
   }
 
   /**
@@ -52,7 +53,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkCreate(String classCode, String refAttrCode, Comparable value, AuthInfo auth) {
-    return Mono.fromCallable(() -> isCreateCheck(classCode, JPMutableData.of(refAttrCode, value), auth));
+    return JPMono.fromCallable(() -> isCreateCheck(classCode, JPMutableData.of(refAttrCode, value), auth));
   }
 
   /**
@@ -65,7 +66,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkCreate(String classCode, JPMap createData, AuthInfo auth) {
-    return Mono.fromCallable(() -> isCreateCheck(classCode, createData, auth));
+    return JPMono.fromCallable(() -> isCreateCheck(classCode, createData, auth));
   }
 
   /**
@@ -77,7 +78,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkRead(String classCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> isReadCheck(classCode, auth));
+    return JPMono.fromCallable(() -> isReadCheck(classCode, auth));
   }
 
   /**
@@ -101,7 +102,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkDelete(String classCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> isDeleteCheck(classCode, auth));
+    return JPMono.fromCallable(() -> isDeleteCheck(classCode, auth));
   }
 
   /**
@@ -125,7 +126,7 @@ public class JPReactiveObjectAccessCommonService extends JPObjectAccessBaseServi
    */
   @Override
   public Mono<Boolean> checkUpdate(String classCode, AuthInfo auth) {
-    return Mono.fromCallable(() -> isUpdateCheck(classCode, auth));
+    return JPMono.fromCallable(() -> isUpdateCheck(classCode, auth));
   }
 
   /**

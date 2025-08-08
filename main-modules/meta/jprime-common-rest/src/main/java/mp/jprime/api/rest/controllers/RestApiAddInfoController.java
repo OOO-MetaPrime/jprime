@@ -9,6 +9,7 @@ import mp.jprime.json.beans.JsonIdentityData;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
@@ -80,7 +80,7 @@ public class RestApiAddInfoController {
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    return Mono.fromCallable(() -> jpObjectAddInfoService.getAddInfo(
+    return JPMono.fromCallable(() -> jpObjectAddInfoService.getAddInfo(
             JPObjectAddInfoParamsBean.newBuilder(jpClass.getCode(), jsonIdentityData.getId())
                 .auth(auth)
                 .source(Source.USER)

@@ -13,11 +13,6 @@ import java.util.Collection;
  */
 public interface JPUtilService {
   /**
-   * Режим проверки доступности по умолчанию
-   */
-  String CHECK_MODE = "check";
-
-  /**
    * Возвращает список всех кодовых имен утилит
    *
    * @return список всех кодовых имен утилит
@@ -40,61 +35,58 @@ public interface JPUtilService {
   JPUtil getUtil(String utilCode);
 
   /**
+   * Возвращает метод утилиты
+   *
+   * @param utilCode   Код утилиты
+   * @param methodCode Код метода
+   * @return метод утилиты
+   */
+  JPUtilMode getMode(String utilCode, String methodCode);
+
+  /**
    * Возвращает все утилиты
    *
    * @return Утилиты
    */
-  Flux<JPUtilMode> getUtils();
+  Flux<? extends JPUtilMode> getUtils();
 
   /**
    * Возвращает все утилиты, доступные данной авторизации
    *
-   * @param authInfo Данные авторизации
+   * @param auth Данные авторизации
    * @return Утилиты
    */
-  Flux<JPUtilMode> getUtils(AuthInfo authInfo);
+  Flux<? extends JPUtilMode> getUtils(AuthInfo auth);
 
   /**
    * Возвращает все утилиты для указанного класса, доступные данной авторизации
    *
    * @param className Код метакласса
-   * @param authInfo  Данные авторизации
+   * @param auth      Данные авторизации
    * @return Утилиты
    */
-  Flux<JPUtilMode> getUtils(String className, AuthInfo authInfo);
+  Flux<? extends JPUtilMode> getUtils(String className, AuthInfo auth);
 
   /**
    * Выполняет метод утилиты
    *
    * @param utilCode   Код утилиты
    * @param methodCode Код метода
-   * @param authInfo   Данные авторизации
+   * @param auth       Данные авторизации
    * @return Исходящие параметры
    */
-  Mono<? extends JPUtilMode> apply(String utilCode, String methodCode, AuthInfo authInfo);
+  Mono<? extends JPUtilMode> apply(String utilCode, String methodCode, AuthInfo auth);
 
   /**
    * Выполняет метод утилиты
    *
-   * @param mode     Шаг утилиты
-   * @param in       Входящие параметры
-   * @param swe      ServerWebExchange
-   * @param authInfo Данные авторизации
+   * @param mode Шаг утилиты
+   * @param in   Входящие параметры
+   * @param swe  ServerWebExchange
+   * @param auth Данные авторизации
    * @return Исходящие параметры
    */
-  Mono<JPUtilOutParams> apply(JPUtilMode mode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo);
-
-  /**
-   * Выполняет метод утилиты
-   *
-   * @param utilCode   Код утилиты
-   * @param methodCode Код метода
-   * @param in         Входящие параметры
-   * @param swe        ServerWebExchange
-   * @param authInfo   Данные авторизации
-   * @return Исходящие параметры
-   */
-  Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo);
+  Mono<JPUtilOutParams> apply(JPUtilMode mode, JPUtilInParams in, ServerWebExchange swe, AuthInfo auth);
 
   /**
    * Выполняет метод утилиты
@@ -103,11 +95,23 @@ public interface JPUtilService {
    * @param methodCode Код метода
    * @param in         Входящие параметры
    * @param swe        ServerWebExchange
-   * @param authInfo   Данные авторизации
+   * @param auth       Данные авторизации
    * @return Исходящие параметры
    */
-  default Mono<JPUtilCheckOutParams> check(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo authInfo) {
-    return apply(utilCode, methodCode, in, swe, authInfo)
+  Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo auth);
+
+  /**
+   * Выполняет метод утилиты
+   *
+   * @param utilCode   Код утилиты
+   * @param methodCode Код метода
+   * @param in         Входящие параметры
+   * @param swe        ServerWebExchange
+   * @param auth       Данные авторизации
+   * @return Исходящие параметры
+   */
+  default Mono<JPUtilCheckOutParams> check(String utilCode, String methodCode, JPUtilInParams in, ServerWebExchange swe, AuthInfo auth) {
+    return apply(utilCode, methodCode, in, swe, auth)
         .cast(JPUtilCheckOutParams.class)
         .onErrorResume(JPRuntimeException.class, e -> Mono.just(JPUtilCheckOutParams.newBuilder()
             .denied(true)
@@ -129,11 +133,11 @@ public interface JPUtilService {
    * @param utilCode   Код утилиты
    * @param methodCode Код метода
    * @param in         Входящие параметры
-   * @param authInfo   Данные авторизации
+   * @param auth       Данные авторизации
    * @return Исходящие параметры
    */
-  default Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, AuthInfo authInfo) {
-    return apply(utilCode, methodCode, in, null, authInfo);
+  default Mono<JPUtilOutParams> apply(String utilCode, String methodCode, JPUtilInParams in, AuthInfo auth) {
+    return apply(utilCode, methodCode, in, null, auth);
   }
 
   /**

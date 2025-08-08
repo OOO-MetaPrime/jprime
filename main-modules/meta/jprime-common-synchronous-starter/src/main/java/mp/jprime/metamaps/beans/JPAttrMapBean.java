@@ -18,7 +18,7 @@ public final class JPAttrMapBean implements JPAttrMap {
    * Конструктор
    *
    * @param code     Кодовое имя атрибута
-   * @param map      Мап на БД
+   * @param map      Мап на хранилище
    * @param fuzzyMap Мап на поле с индексами нечеткого поиска
    * @param cs       Регистр значений
    * @param readOnly Запрет на изменение значений
@@ -29,6 +29,17 @@ public final class JPAttrMapBean implements JPAttrMap {
     this.fuzzyMap = fuzzyMap != null && !fuzzyMap.isEmpty() ? fuzzyMap : null;
     this.cs = cs != null && !cs.isEmpty() ? cs : null;
     this.readOnly = readOnly != null && readOnly;
+  }
+
+  /**
+   * Создание
+   *
+   * @param code Кодовое имя атрибута
+   * @param map  Мап на хранилище
+   * @return JPAttrMap
+   */
+  public static JPAttrMap of(String code, String map) {
+    return new JPAttrMapBean(code, map, null, null, null);
   }
 
   /**

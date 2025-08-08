@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 @Service
 public class JavaClassCache {
-  private ConcurrentMap<String, Class<?>> classForNames = new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, Class<?>> classForNames = new ConcurrentHashMap<>();
 
   /**
    * Возвращает класс по имени

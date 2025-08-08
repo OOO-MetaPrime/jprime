@@ -11,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Фильтр меты
@@ -36,17 +33,17 @@ public final class JPMetaCommonFilter implements JPMetaFilter, JPObjectAccessSer
 
   @Value("${jprime.meta.api.filter.jpClassCodes:#{null}}")
   private void setClassCodes(String[] jpClassCodes) {
-    this.jpClassCodes = jpClassCodes != null ? Arrays.asList(jpClassCodes) : null;
+    this.jpClassCodes = jpClassCodes != null ? Set.of(jpClassCodes) : null;
   }
 
   @Value("${jprime.meta.api.filter.anonymous.jpClassCodes:#{null}}")
   private void setAnonymousClassCodes(String[] jpClassCodes) {
-    this.anonymousJpClassCodes = jpClassCodes != null ? Arrays.asList(jpClassCodes) : null;
+    this.anonymousJpClassCodes = jpClassCodes != null ? Set.of(jpClassCodes) : null;
   }
 
   @Value("${jprime.meta.api.filter.jpStorageCodes:#{null}}")
   private void setStorageCodes(String[] jpStorageCodes) {
-    this.jpStorageCodes = jpStorageCodes != null ? Arrays.asList(jpStorageCodes) : null;
+    this.jpStorageCodes = jpStorageCodes != null ? Set.of(jpStorageCodes) : null;
   }
 
   private JPMetaStorage jpMetaStorage;
@@ -70,15 +67,46 @@ public final class JPMetaCommonFilter implements JPMetaFilter, JPObjectAccessSer
 
   @Override
   public Collection<JPClass> getList() {
-    return getList(null);
+    return getListByAuth(null);
+  }
+
+  @Override
+  public Collection<JPClass> getList(Collection<String> jpClassCodeList) {
+    return getList(jpClassCodeList, null);
+  }
+
+  @Override
+  public Collection<JPClass> getList(Collection<String> jpClassCodeList, AuthInfo auth) {
+    if (jpClassCodeList == null || jpClassCodeList.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Collection<JPClass> result = new ArrayList<>(jpClassCodeList.size());
+    for (String jpClassCode : jpClassCodeList) {
+      JPClass jpClass = get(jpClassCode, auth);
+      if (jpClass != null) {
+        result.add(jpClass);
+      }
+    }
+    return result;
   }
 
   @Override
   public Collection<JPClass> getList(AuthInfo auth) {
+    return getListByAuth(auth);
+  }
+
+  private Collection<JPClass> getListByAuth(AuthInfo auth) {
     Collection<JPClass> classes = jpMetaStorage.getJPClasses();
-    return classes == null || classes.isEmpty() ? Collections.emptyList() : classes.stream()
-        .filter(jpClass -> filter(jpClass, auth))
-        .collect(Collectors.toList());
+    if (classes == null || classes.isEmpty()) {
+      return Collections.emptyList();
+    }
+    Collection<JPClass> result = new ArrayList<>(classes.size());
+    for (JPClass jpClass : classes) {
+      if (filter(jpClass, auth)) {
+        result.add(jpClass);
+      }
+    }
+    return result;
   }
 
   @Override

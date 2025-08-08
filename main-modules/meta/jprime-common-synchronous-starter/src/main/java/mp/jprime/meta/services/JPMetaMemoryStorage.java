@@ -4,10 +4,9 @@ import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaDynamicMultiLoader;
-import mp.jprime.meta.annotations.services.JPMetaAnnoLoader;
+import mp.jprime.meta.JPMetaLoader;
 import mp.jprime.meta.events.JPMetaLoadFinishEvent;
 import mp.jprime.meta.log.Event;
-import mp.jprime.meta.xmlloader.services.JPMetaXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Lazy;
@@ -44,13 +43,11 @@ public final class JPMetaMemoryStorage implements JPMetaStorage {
    */
   private JPMetaMemoryStorage(@Autowired AppLogger appLogger,
                               @Autowired ApplicationEventPublisher eventPublisher,
-                              @Autowired JPMetaAnnoLoader annoLoader,
-                              @Autowired JPMetaXmlLoader xmlLoader) {
+                              @Autowired Collection<JPMetaLoader> loaders) {
     this.appLogger = appLogger;
     this.eventPublisher = eventPublisher;
 
-    applyJPClasses(annoLoader.load());
-    applyJPClasses(xmlLoader.load());
+    loaders.forEach(x-> applyJPClasses(x.load()));
   }
 
   @Autowired(required = false)

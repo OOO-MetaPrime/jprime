@@ -13,7 +13,7 @@ import mp.jprime.repositories.JPObjectStorage;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.metastorage.JPMetaStorageService;
 import mp.jprime.repositories.exceptions.JPRepositoryNotFoundException;
-import mp.jprime.util.JPApplicationShutdownManager;
+import mp.jprime.utils.JPApplicationShutdownManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

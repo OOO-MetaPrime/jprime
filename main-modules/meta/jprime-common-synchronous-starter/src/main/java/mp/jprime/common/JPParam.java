@@ -1,6 +1,8 @@
 package mp.jprime.common;
 
-import mp.jprime.meta.beans.JPStringFormat;
+import mp.jprime.files.FileType;
+import mp.jprime.formats.JPStringFormat;
+import mp.jprime.meta.JPMoney;
 import mp.jprime.meta.beans.JPType;
 
 import java.util.Collection;
@@ -66,6 +68,13 @@ public interface JPParam {
   String getStringMask();
 
   /**
+   * Расширения файлов для выбора
+   *
+   * @return Список расширений
+   */
+  Collection<FileType> getFileTypes();
+
+  /**
    * Возвращает длину
    *
    * @return Длина
@@ -108,6 +117,13 @@ public interface JPParam {
   String getRefFilter();
 
   /**
+   * Возвращает описание денежного типа
+   *
+   * @return Описание денежного типа
+   */
+  JPMoney getMoney();
+
+  /**
    * Разрешен множественный выбор
    *
    * @return Да/Нет
@@ -141,4 +157,18 @@ public interface JPParam {
    * @return Да/Нет
    */
   boolean isClientSearch();
+
+  /**
+   * Признак логирования значения
+   *
+   * @return Да/Нет
+   */
+  boolean isActionLog();
+
+  /**
+   * Признак только для чтения
+   *
+   * @return Признак только для чтения
+   */
+  boolean isReadOnly();
 }

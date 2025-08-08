@@ -12,7 +12,6 @@ import mp.jprime.utils.annotations.JPUtilResultType;
 public final class JPUtilJPObjectOutParams extends BaseJPUtilOutParams<JsonJPObject> {
   private final JsonJPObject jpObject;
 
-
   private JPUtilJPObjectOutParams(String description, String qName, boolean changeData, boolean deleteData, JsonJPObject jpObject) {
     super(description, qName, changeData, deleteData);
     this.jpObject = jpObject;

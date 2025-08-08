@@ -1,15 +1,23 @@
-# Отчёты
+#  Отчёты
+
+# Проблема с jmixVersion. Тащит старые либы, видимо, надо скоро избавляться
 [versions]
-jasperreportsVersion = "7.0.1"
-jasperreportsFontsVersion = "7.0.1"
+boxVersion = "2.0.30"  # При повышении версии конфликт с версиями из jmixVersion
+fopVersion = "2.10" # Проблема: 2.11 тащит новые openhtmltopdf-pdfbox и идет конфликт с jmixVersion
+jasperreportsVersion = "7.0.3"
+jasperreportsFontsVersion = "7.0.3"
 jasperreportsFontsLiberationVersion = "2.1.2"
-jmixVersion = "2.4.1" # Jmix yarg генератор отчетов
+jmixVersion = "2.4.5" # Jmix yarg генератор отчетов. Проблема: тащит старые openhtmltopdf-pdfbox + org.apache.pdfbox.*
 openpdfVersion = "2.0.3"
 jsonSimpleVersion = "1.1.1"
 olap4JVersion = "1.2.0"
-poiVersion = "5.3.0" # Работа с XLS. Повышать надо вместе с jmixVersion
+poiVersion = "5.4.1" # Работа с XLS. Повышать надо вместе с jmixVersion
 
 [libraries]
+fontbox = { module="org.apache.pdfbox:fontbox", version.ref = "boxVersion" }
+pdfbox = { module="org.apache.pdfbox:pdfbox", version.ref = "boxVersion" }
+xmpbox = { module="org.apache.pdfbox:xmpbox", version.ref = "boxVersion" }
+fop = { module="org.apache.xmlgraphics:fop", version.ref = "fopVersion" }
 jasperreports = { module="net.sf.jasperreports:jasperreports", version.ref="jasperreportsVersion" }
 jasperreports-fonts = { module="net.sf.jasperreports:jasperreports-fonts", version.ref="jasperreportsFontsVersion" }
 jasperreports-fonts-liberation = { module="com.mpobjects.jasperreports.font:jasperreports-fonts-liberation", version.ref="jasperreportsFontsLiberationVersion" }
@@ -20,5 +28,7 @@ olap4j = { module="org.olap4j:olap4j", version.ref="olap4JVersion" }
 poi = { module="org.apache.poi:poi", version.ref="poiVersion" }
 poi-ooxml = { module="org.apache.poi:poi-ooxml", version.ref="poiVersion" }
 
+
 [bundles]
-jasperreports-v1 = ['jasperreports', 'jasperreports-fonts', 'jasperreports-fonts-liberation']
+jasperreports = ['jasperreports', 'jasperreports-fonts', 'jasperreports-fonts-liberation']
+pdfbox = ['fontbox', 'pdfbox', 'xmpbox']

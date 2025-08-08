@@ -252,6 +252,13 @@ components:
           description: Список входных параметров
           items:
             $ref: '#/components/schemas/utilParam'
+        inParamsDefValues:
+          type: boolean
+          description: Признак наличия значений по умолчанию
+        infoMessage:
+          type: string
+          description: Сообщение на форму утилиты
+          example: Внимание! Важное сообщение!
         resultType:
           type: string
           description: Тип выходных параметров (message, jpId, jpObject, jpObjectList, custom)

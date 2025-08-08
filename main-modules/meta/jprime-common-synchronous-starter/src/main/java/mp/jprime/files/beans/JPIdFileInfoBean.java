@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * Информация о файле, связанном с объектом мета-класса
  */
-public final class JPIdFileInfoBean extends JPFileInfoBase implements JPIdFileInfo {
+public final class JPIdFileInfoBean extends JPFileInfoBase<String> implements JPIdFileInfo {
   private final JPId jpId;
 
   private JPIdFileInfoBean(String fileCode, String storageCode, String storageFilePath, String storageFileName, String fileTitle, String fileExt, Long fileSize, LocalDateTime fileDate, JPId jpId) {
@@ -36,7 +36,7 @@ public final class JPIdFileInfoBean extends JPFileInfoBase implements JPIdFileIn
   /**
    * Построитель {@link JPIdFileInfoBean}
    */
-  public final static class Builder extends JPFileInfoBase.Builder<JPIdFileInfoBean.Builder> {
+  public final static class Builder extends JPFileInfoBase.Builder<String, JPIdFileInfoBean.Builder> {
     private final JPId jpId;
 
     private Builder(JPId jpId) {

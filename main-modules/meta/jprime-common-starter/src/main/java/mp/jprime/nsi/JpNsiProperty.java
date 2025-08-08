@@ -1,5 +1,7 @@
 package mp.jprime.nsi;
 
+import mp.jprime.formats.JPStringFormat;
+
 /**
  * Дополнительное поле НСИ справочника
  */
@@ -17,6 +19,20 @@ public interface JpNsiProperty {
    * @return Тип
    */
   JpNsiPropertyType getType();
+
+  /**
+   * Тип строкового поля
+   *
+   * @return Тип строкового поля
+   */
+  JPStringFormat getStringFormat();
+
+  /**
+   * Маска строкового поля
+   *
+   * @return Маска строкового поля
+   */
+  String getStringMask();
 
   /**
    * Признак обязательности

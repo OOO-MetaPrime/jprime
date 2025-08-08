@@ -36,8 +36,9 @@ public class JPUpdate extends JPSave {
                    Map<String, Collection<JPCreate>> linkedCreate,
                    Map<String, Collection<JPUpdate>> linkedUpdate,
                    Map<String, Collection<JPDelete>> linkedDelete,
-                   Filter where, AuthInfo auth, Source source, boolean autoChangeDate) {
-    super(data, systemAttrs, source, auth);
+                   Filter where, AuthInfo auth, Source source, boolean autoChangeDate,
+                   Map<String, String> props) {
+    super(data, systemAttrs, source, auth, props);
     this.jpId = jpId;
     this.linkedCreate = linkedCreate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedCreate);
     this.linkedUpdate = linkedUpdate == null ? Collections.emptyMap() : Collections.unmodifiableMap(linkedUpdate);
@@ -153,7 +154,8 @@ public class JPUpdate extends JPSave {
      */
     @Override
     public JPUpdate build() {
-      return new JPUpdate(jpId, data, systemAttrs, linkedCreate, linkedUpdate, linkedDelete, where, auth, source, autoChangeDate);
+      return new JPUpdate(jpId, data, systemAttrs, linkedCreate, linkedUpdate, linkedDelete, where,
+          auth, source, autoChangeDate, props);
     }
 
     /**

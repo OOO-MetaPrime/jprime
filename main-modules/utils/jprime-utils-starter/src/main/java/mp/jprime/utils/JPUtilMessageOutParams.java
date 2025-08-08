@@ -14,7 +14,6 @@ public final class JPUtilMessageOutParams extends BaseJPUtilOutParams<Void> {
     super(description, qName, changeData, deleteData);
   }
 
-
   /**
    * Результата
    *

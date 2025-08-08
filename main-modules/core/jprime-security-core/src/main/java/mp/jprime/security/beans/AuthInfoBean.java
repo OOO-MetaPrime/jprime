@@ -26,6 +26,8 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
   private final String depId;
   private final String emplId;
 
+  private final Esia esia;
+
   private final String token;
   private final String userIP;
 
@@ -34,7 +36,7 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
                        Collection<Integer> subjectGroups,
                        String orgId, String sepDepId, String depId, String emplId,
                        String username, String fio,
-                       Collection<String> roles, String token) {
+                       Collection<String> roles, Esia esia, String token) {
     this.userIP = userIP;
     this.userId = userId;
     this.userGuid = userGuid;
@@ -48,6 +50,7 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
     this.username = username;
     this.fio = fio;
     this.roles = roles == null || roles.isEmpty() ? Collections.emptySet() : Set.copyOf(roles);
+    this.esia = esia;
     this.token = token;
   }
 
@@ -111,6 +114,11 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
   }
 
   @Override
+  public Esia getEsia() {
+    return esia;
+  }
+
+  @Override
   public String getUserIP() {
     return userIP;
   }
@@ -146,6 +154,7 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
     private String username;
     private String fio;
     private Collection<String> roles;
+    private Esia esia;
     private String token;
 
     private Builder() {
@@ -157,7 +166,8 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
      * @return AuthInfoImpl
      */
     public AuthInfoBean build() {
-      return new AuthInfoBean(userIP, userId, userGuid, oktmo, oktmoList, subjectGroups, orgId, sepDepId, depId, emplId, username, fio, roles, token);
+      return new AuthInfoBean(userIP, userId, userGuid, oktmo, oktmoList, subjectGroups,
+          orgId, sepDepId, depId, emplId, username, fio, roles, esia, token);
     }
 
     /**
@@ -302,6 +312,18 @@ public class AuthInfoBean extends AuthBaseParams implements AuthInfo {
       this.roles = roles;
       return this;
     }
+
+    /**
+     * Данные ЕСИА
+     *
+     * @param esia Данные ЕСИА
+     * @return Builder
+     */
+    public Builder esia(Esia esia) {
+      this.esia = esia;
+      return this;
+    }
+
 
     /**
      * Токен

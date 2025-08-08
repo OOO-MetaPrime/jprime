@@ -5,14 +5,15 @@ import mp.jprime.files.DownloadFile;
 import mp.jprime.exceptions.JPForbiddenException;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPClassJsonConverter;
 import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.JsonJPClass;
 import mp.jprime.meta.json.beans.JsonJPClassList;
 import mp.jprime.meta.json.beans.JsonPropertyType;
 import mp.jprime.meta.json.beans.JsonType;
+import mp.jprime.meta.json.converters.JPClassJsonConverter;
 import mp.jprime.meta.security.Role;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,7 +128,7 @@ public class RestMetaController implements DownloadFile {
     if (!auth.getRoles().contains(Role.META_ADMIN)) {
       return Mono.error(new JPForbiddenException());
     }
-    return Mono.justOrEmpty(jpMetaFilter.get(classCode, auth))
+    return JPMono.fromCallable(() -> jpMetaFilter.get(classCode, auth))
         .switchIfEmpty(Mono.error(() -> new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .flatMap(jpClass -> writeTo(swe, writerService.of(jpClass), jpClass.getCode() + " (" + jpClass.getName() + ").csv", userAgent));
   }

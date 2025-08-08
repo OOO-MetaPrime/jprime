@@ -12,9 +12,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 /**
- * Базовые класс для создания/обновления
+ * Базовый класс для создания/обновления
  */
-public abstract class JPSave extends JPBaseParams {
+public abstract class JPSave extends JPBaseOperation {
   private final JPMutableData data;
   private final Collection<String> systemAttrs;
 
@@ -25,8 +25,9 @@ public abstract class JPSave extends JPBaseParams {
    * @param source Источник данных
    * @param auth   Данные аутентификации
    */
-  protected JPSave(Map<String, Object> data, Collection<String> systemAttrs, Source source, AuthInfo auth) {
-    super(source, auth);
+  protected JPSave(Map<String, Object> data, Collection<String> systemAttrs, Source source,
+                   AuthInfo auth, Map<String, String> props) {
+    super(source, auth, props);
     this.data = JPMutableData.of(data);
     this.systemAttrs = systemAttrs;
   }
@@ -53,21 +54,9 @@ public abstract class JPSave extends JPBaseParams {
   /**
    * Построитель JPSave
    */
-  public abstract static class Builder<T extends Builder> {
+  public abstract static class Builder<T extends Builder<?>> extends JPBaseOperation.Builder<T> {
     protected Map<String, Object> data = new HashMap<>();
     protected Collection<String> systemAttrs = null;
-    protected AuthInfo auth;
-    protected Source source;
-
-    protected Builder() {
-    }
-
-    /**
-     * Создаем JPSave
-     *
-     * @return JPSave
-     */
-    abstract public JPSave build();
 
     /**
      * Возвращает кодовое имя класса
@@ -75,35 +64,6 @@ public abstract class JPSave extends JPBaseParams {
      * @return Кодовое имя класса
      */
     abstract public String getJpClass();
-
-    /**
-     * Аутентификация
-     *
-     * @return Аутентификация
-     */
-    public AuthInfo getAuth() {
-      return auth;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @return Источник данных
-     */
-    public Source getSource() {
-      return source;
-    }
-
-    /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public T auth(AuthInfo auth) {
-      this.auth = auth;
-      return (T) this;
-    }
 
     /**
      * Значение атрибута
@@ -161,15 +121,5 @@ public abstract class JPSave extends JPBaseParams {
       return (T) this;
     }
 
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public T source(Source source) {
-      this.source = source;
-      return (T) this;
-    }
   }
 }

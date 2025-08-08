@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Парсер типов
+ * Парсер типов атрибутов
  */
 public interface AttrTypeParser<T> {
   Logger LOG = LoggerFactory.getLogger(AttrTypeParser.class);

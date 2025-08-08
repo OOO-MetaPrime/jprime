@@ -65,9 +65,9 @@ public class JPUtilTest {
 
   @Test
   public void testTestUtilMethodWithBean() {
-    AuthInfo authInfo = AuthInfoBean.newBuilder()
+    AuthInfo auth = AuthInfoBean.newBuilder()
         .roles(Collections.singleton(AUTH_ACCESS))
         .build();
-    assertEquals("custom", jpUtilService.apply("test/testutil", "print", In.newInstance("t"), authInfo).block().getResultType());
+    assertEquals("custom", jpUtilService.apply("test/testutil", "print", In.newInstance("t"), auth).block().getResultType());
   }
 }

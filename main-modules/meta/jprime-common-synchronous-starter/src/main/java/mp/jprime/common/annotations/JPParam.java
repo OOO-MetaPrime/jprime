@@ -1,6 +1,8 @@
 package mp.jprime.common.annotations;
 
-import mp.jprime.meta.beans.JPStringFormat;
+import mp.jprime.files.FileType;
+import mp.jprime.formats.JPStringFormat;
+import mp.jprime.meta.annotations.JPMoney;
 import mp.jprime.meta.beans.JPType;
 
 /**
@@ -50,6 +52,13 @@ public @interface JPParam {
   JPStringFormat stringFormat() default JPStringFormat.NONE;
 
   /**
+   * Типы файлов для выбора
+   *
+   * @return Типы файлов
+   */
+  FileType[] fileTypes() default {};
+
+  /**
    * Маска строкового поля
    *
    * @return Маска строкового поля
@@ -85,6 +94,13 @@ public @interface JPParam {
   String refFilter() default "";
 
   /**
+   * Настройки хранения денежного типа
+   *
+   * @return Настройки денежного типа
+   */
+  JPMoney money() default @JPMoney(currency = "");
+
+  /**
    * Разрешен множественный выбор
    *
    * @return Да/Нет
@@ -104,4 +120,18 @@ public @interface JPParam {
    * @return Да/Нет
    */
   boolean clientSearch() default false;
+
+  /**
+   * Признак логирования значения
+   *
+   * @return Признак логирования значения
+   */
+  boolean actionLog() default true;
+
+  /**
+   * Признак только для чтения
+   *
+   * @return Признак только для чтения
+   */
+  boolean readOnly() default false;
 }

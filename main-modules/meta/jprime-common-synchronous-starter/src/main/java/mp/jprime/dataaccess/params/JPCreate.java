@@ -5,7 +5,10 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Запрос создания
@@ -27,8 +30,8 @@ public class JPCreate extends JPSave {
   private JPCreate(String jpClass, Map<String, Object> data,
                    Collection<String> systemAttrs,
                    Map<String, Collection<JPCreate>> linkedData,
-                   AuthInfo auth, Source source) {
-    super(data, systemAttrs, source, auth);
+                   AuthInfo auth, Source source, Map<String, String> props) {
+    super(data, systemAttrs, source, auth, props);
     this.jpClass = jpClass;
     this.linkedData = linkedData;
   }
@@ -90,7 +93,7 @@ public class JPCreate extends JPSave {
      */
     @Override
     public JPCreate build() {
-      return new JPCreate(jpClass, data, systemAttrs, linkedData, auth, source);
+      return new JPCreate(jpClass, data, systemAttrs, linkedData, auth, source, props);
     }
 
     /**

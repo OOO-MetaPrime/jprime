@@ -1,5 +1,6 @@
 package mp.jprime.utils.testutils;
 
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.utils.JPUtil;
 import mp.jprime.utils.annotations.JPUtilLink;
 import mp.jprime.utils.annotations.JPUtilModeLink;
@@ -22,6 +23,6 @@ public class HelloUtil implements JPUtil {
       outClass = Out.class
   )
   public Mono<Out> printData(In s) {
-    return Mono.fromCallable(() -> Out.newInstance("Thanx for " + s.getRequest()));
+    return JPMono.fromCallable(() -> Out.newInstance("Thanx for " + s.getRequest()));
   }
 }

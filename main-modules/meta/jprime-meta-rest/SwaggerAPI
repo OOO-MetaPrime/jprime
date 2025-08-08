@@ -334,6 +334,14 @@ components:
           format: string
           description: Описание атрибута
           example: 'Имя гражданина'
+        stringFormat:
+          type: string
+          description: Тип строкового поля (для строковых полей). Код JPStringFormat
+          example: snils
+        stringMask:
+          type: string
+          description: Маска строкового поля (для строковых полей)
+          example: xxxx
         length:
           type: number
           format: number
@@ -380,7 +388,7 @@ components:
           items:
             $ref: '#/components/schemas/jpMoney'
           example: {
-                "currencyCode": "RUR"
+                "currencyCode": "RUB"
             }
         geometry:
           type: object
@@ -390,53 +398,6 @@ components:
           example: {
                 "SRID": 3857
             }
-        jpProps:
-          type: array
-          description: Список свойств псевдо-меты (json)
-          items:
-            $ref: '#/components/schemas/jpProperty'
-
-    jpProperty:
-      type: object
-      description: Свойство псевдо-меты
-      properties:
-        code:
-          type: string
-          format: string
-          description: Кодовое имя свойства
-        qName:
-          type: string
-          format: string
-          description: Полный код свойства
-        name:
-          type: string
-          format: string
-          description: Название свойства
-        mandatory:
-          type: boolean
-          format: boolean
-          description: Признак обязательности
-        type:
-          type: string
-          format: string
-          description:  Тип свойства
-        length:
-          type: number
-          format: number
-          description: Длина (для строковых полей)
-        refJpClass:
-          type: string
-          format: string
-          description: Кодовое имя класса, на который ссылается
-        refJpAttr:
-          type: string
-          format: string
-          description: Кодовое имя атрибута ссылочного класса
-        jpProps:
-          type: array
-          description: Список свойств псевдо-меты (json)
-          items:
-            $ref: '#/components/schemas/jpProperty'
 
     jpFile:
       type: object
@@ -493,7 +454,7 @@ components:
           type: string
           format: string
           description: Код валюты
-          example: RUR
+          example: RUB
 
     jpGeometry:
       type: object

@@ -42,7 +42,7 @@ public class QueryService {
   public static final int MAX_LIMIT = 50;
 
   private final Function<String, String> CLASS_MAP_FUNCTION = (classCode) -> classCode;
-  private final BiFunction<String, String, String> REFCLASS_FUNCTION = (classCode, refAttrCode) -> null;
+  private final BiFunction<String, String, String> REF_CLASS_FUNCTION = (classCode, refAttrCode) -> null;
   private final BiFunction<String, String, String> ATTR_MAP_FUNCTION = (classCode, attrCode) -> attrCode;
 
   /**
@@ -252,7 +252,7 @@ public class QueryService {
    * @return Описание выборки
    */
   public JsonAggrQuery getAggrQuery(JPAggregate aggregate) {
-    return getAggrQuery(aggregate, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return getAggrQuery(aggregate, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**
@@ -287,7 +287,7 @@ public class QueryService {
    * @return Описание выборки
    */
   public JsonSelect getQuery(JPSelect select) {
-    return getQuery(select, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return getQuery(select, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**
@@ -547,7 +547,7 @@ public class QueryService {
    * @return Описание создания
    */
   public JsonObjectData toObjectData(JPCreate query) {
-    return toObjectData(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return toObjectData(query, CLASS_MAP_FUNCTION, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**
@@ -845,7 +845,7 @@ public class QueryService {
    * @return Описание обновления
    */
   public JsonUpdate toJsonUpdate(JPUpdate query) {
-    return toJsonUpdate(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return toJsonUpdate(query, CLASS_MAP_FUNCTION, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
 
@@ -856,7 +856,7 @@ public class QueryService {
    * @return Описание обновления
    */
   public JsonUpdate toJsonUpdate(JPConditionalUpdate query) {
-    return toJsonUpdate(query, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return toJsonUpdate(query, CLASS_MAP_FUNCTION, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**
@@ -941,7 +941,7 @@ public class QueryService {
    * @return Описание обновления
    */
   public JsonConditionalDelete toJsonConditionalDelete(JPConditionalDelete delete) {
-    return toJsonConditionalDelete(delete, CLASS_MAP_FUNCTION, REFCLASS_FUNCTION, ATTR_MAP_FUNCTION);
+    return toJsonConditionalDelete(delete, CLASS_MAP_FUNCTION, REF_CLASS_FUNCTION, ATTR_MAP_FUNCTION);
   }
 
   /**

@@ -1,9 +1,9 @@
 package mp.jprime.dataaccess.params;
 
-import mp.jprime.dataaccess.Source;
-import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.common.JPOrder;
 import mp.jprime.common.JPOrderDirection;
+import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * Запрос получения данных
  */
-public class JPSelect extends JPBaseParams {
+public class JPSelect extends JPBaseOperation {
   private final String jpClass;
   private final Integer offset;
   private final Integer limit;
@@ -41,8 +41,8 @@ public class JPSelect extends JPBaseParams {
    */
   private JPSelect(String jpClass, Integer offset, Integer limit, boolean totalCount, boolean useDefaultJpAttrs,
                    Map<String, Collection<String>> select, Filter where, List<JPOrder> orderBy, AuthInfo auth,
-                   Integer timeout, Source source) {
-    super(source, auth);
+                   Integer timeout, Source source, Map<String, String> props) {
+    super(source, auth, props);
     this.offset = offset;
     this.limit = limit;
     this.totalCount = totalCount;
@@ -169,7 +169,7 @@ public class JPSelect extends JPBaseParams {
   /**
    * Построитель JPSelect
    */
-  public static final class Builder {
+  public static final class Builder extends JPBaseOperation.Builder<Builder> {
     private String jpClass;
     private Integer offset;
     private Integer limit;
@@ -178,9 +178,7 @@ public class JPSelect extends JPBaseParams {
     private final Map<String, Collection<String>> select = new HashMap<>();
     private final List<JPOrder> orderBy = new ArrayList<>();
     private Filter where;
-    private AuthInfo auth;
     private Integer timeout;
-    private Source source;
 
     private Builder(String jpClass) {
       this.jpClass = jpClass;
@@ -193,7 +191,7 @@ public class JPSelect extends JPBaseParams {
      */
     public JPSelect build() {
       return new JPSelect(jpClass, offset, limit, totalCount, useDefaultJpAttrs, select, where, orderBy, auth,
-          timeout, source);
+          timeout, source, props);
     }
 
     /**
@@ -389,7 +387,7 @@ public class JPSelect extends JPBaseParams {
      * @return Builder
      */
     public Builder attrs(Collection<String> attrsCodeList) {
-      if (attrsCodeList != null) {
+      if (attrsCodeList != null && !attrsCodeList.isEmpty()) {
         attrsCodeList.forEach(this::attr);
       }
       return this;
@@ -526,26 +524,6 @@ public class JPSelect extends JPBaseParams {
     }
 
     /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
-    }
-
-    /**
-     * Аутентификация
-     *
-     * @return Аутентификация
-     */
-    public AuthInfo auth() {
-      return auth;
-    }
-
-    /**
      * Время ожидания запроса
      *
      * @param timeout Время ожидания запроса
@@ -554,26 +532,6 @@ public class JPSelect extends JPBaseParams {
     public Builder timeout(Integer timeout) {
       this.timeout = timeout;
       return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @return Источник данных
-     */
-    public Source source() {
-      return source;
     }
   }
 }

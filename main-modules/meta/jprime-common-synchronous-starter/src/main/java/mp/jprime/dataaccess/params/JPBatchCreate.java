@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * Запрос множественного создания
  */
-public class JPBatchCreate extends JPBatchSave {
+public class  JPBatchCreate extends JPBatchSave {
   private final Collection<JPMutableData> data;
   private final boolean onConflictDoNothing;
   private final boolean upsert;
@@ -23,8 +23,9 @@ public class JPBatchCreate extends JPBatchSave {
   private final Collection<String> conflictSet;
 
   private JPBatchCreate(Collection<Map<String, Object>> data, boolean onConflictDoNothing, boolean upsert,
-                        Collection<String> conflictAttr, Collection<String> conflictSet, Source source, AuthInfo auth, String jpClass) {
-    super(jpClass, source, auth);
+                        Collection<String> conflictAttr, Collection<String> conflictSet, Source source,
+                        AuthInfo auth, String jpClass, Map<String, String> props) {
+    super(jpClass, source, auth, props);
     this.onConflictDoNothing = onConflictDoNothing;
     this.upsert = upsert;
     if (upsert) {
@@ -149,7 +150,8 @@ public class JPBatchCreate extends JPBatchSave {
      */
     @Override
     public JPBatchCreate build() {
-      return new JPBatchCreate(allData, onConflictDoNothing, upsert, conflictAttr, conflictSet, source, auth, jpClass);
+      return new JPBatchCreate(allData, onConflictDoNothing, upsert, conflictAttr, conflictSet,
+          source, auth, jpClass, props);
     }
 
     /**
@@ -245,16 +247,6 @@ public class JPBatchCreate extends JPBatchSave {
     @Override
     public int size() {
       return allData.size();
-    }
-
-    /**
-     * Возвращает кодовое имя класса
-     *
-     * @return Кодовое имя класса
-     */
-    @Override
-    public String getJpClass() {
-      return jpClass;
     }
   }
 }

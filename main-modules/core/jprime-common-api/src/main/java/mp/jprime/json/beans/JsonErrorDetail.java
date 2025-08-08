@@ -8,18 +8,19 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonErrorDetail {
-  private String message;
   private String code;
+  private String message;
 
   public JsonErrorDetail() {
   }
 
-  public String getMessage() {
-    return message;
+  private JsonErrorDetail(String code, String message) {
+    this.message = message;
+    this.code = code;
   }
 
-  public void setMessage(String message) {
-    this.message = message;
+  public static JsonErrorDetail of(String code, String message) {
+    return new JsonErrorDetail(code, message);
   }
 
   public String getCode() {
@@ -28,5 +29,13 @@ public class JsonErrorDetail {
 
   public void setCode(String code) {
     this.code = code;
+  }
+
+  public String getMessage() {
+    return message;
+  }
+
+  public void setMessage(String message) {
+    this.message = message;
   }
 }

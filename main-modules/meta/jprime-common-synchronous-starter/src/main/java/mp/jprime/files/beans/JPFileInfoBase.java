@@ -7,11 +7,11 @@ import java.time.LocalDateTime;
 /**
  * Информация о файле
  */
-public class JPFileInfoBase implements JPFileInfo {
+public class JPFileInfoBase<T> implements JPFileInfo<T> {
   /**
    * Код файла
    */
-  private final String fileCode;
+  private final T fileCode;
   /**
    * Код хранилища
    */
@@ -53,7 +53,7 @@ public class JPFileInfoBase implements JPFileInfo {
    * @param fileSize        Размер файла
    * @param fileDate        Дата файла
    */
-  protected JPFileInfoBase(String fileCode, String storageCode, String storageFilePath, String storageFileName,
+  protected JPFileInfoBase(T fileCode, String storageCode, String storageFilePath, String storageFileName,
                            String fileTitle, String fileExt, Long fileSize, LocalDateTime fileDate) {
     this.fileCode = fileCode;
     this.storageCode = storageCode;
@@ -71,7 +71,7 @@ public class JPFileInfoBase implements JPFileInfo {
    * @return Информация о файле
    */
   @Override
-  public String getFileCode() {
+  public T getFileCode() {
     return fileCode;
   }
 
@@ -158,8 +158,8 @@ public class JPFileInfoBase implements JPFileInfo {
   /**
    * Построитель JPFileInfoBase
    */
-  public static class Builder<T extends Builder> {
-    protected String fileCode;
+  public static class Builder<V, T extends Builder> {
+    protected V fileCode;
     protected String storageCode;
     protected String storageFilePath;
     protected String storageFileName;
@@ -177,7 +177,7 @@ public class JPFileInfoBase implements JPFileInfo {
      * @param fileCode Уникальный код файла
      * @return Builder
      */
-    public T fileCode(String fileCode) {
+    public T fileCode(V fileCode) {
       this.fileCode = fileCode;
       return (T) this;
     }

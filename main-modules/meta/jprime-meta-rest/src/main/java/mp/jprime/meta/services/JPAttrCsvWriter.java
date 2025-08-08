@@ -1,12 +1,12 @@
 package mp.jprime.meta.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.meta.json.beans.JsonJPGeometry;
+import mp.jprime.meta.json.beans.JsonJPMoney;
 import mp.jprime.imex.csvwriter.services.JPCsvBaseWriter;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.*;
 import mp.jprime.meta.beans.JPType;
+import mp.jprime.meta.json.converters.JPClassJsonConverter;
 import mp.jprime.parsers.ParserService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.util.Assert;
@@ -42,12 +42,11 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       "Описание пространственных данных",
       "Описание виртуальной ссылки",
       "Тип значения",
-      "Схема свойств псевдо-меты",
       "Код атрибута, содержащего подпись",
   };
 
   private final JPClassJsonConverter classConverter;
-  private final ObjectMapper mapper;
+  private final JPJsonMapper mapper;
   private final ParserService parser;
 
   private JPAttrCsvWriter(OutputStream os, JPCsvBaseWriterSettings settings, boolean needsHeaders, JPClassJsonConverter classConverter,
@@ -59,7 +58,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
 
     this.parser = parser;
     this.classConverter = classConverter;
-    this.mapper = mapper.getObjectMapper();
+    this.mapper = mapper;
     if (needsHeaders) {
       csvWriter.writeNext(HEADERS);
     }
@@ -131,8 +130,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       line[18] = geometryToString(value.getGeometry());
       line[19] = virtualReferenceToString(value.getVirtualReference());
       line[20] = jpTypeToString(value.getValueType());
-      line[21] = propsToString(value.getSchemaProps());
-      line[22] = value.getSignAttrCode();
+      line[21] = value.getSignAttrCode();
       batch.add(line);
     }
 
@@ -144,11 +142,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       return null;
     }
 
-    try {
-      return mapper.writeValueAsString(classConverter.toJson(refJpFile));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
+    return mapper.toString(classConverter.toJson(refJpFile));
   }
 
   private String simpleFractionToString(JPSimpleFraction simpleFraction) {
@@ -156,11 +150,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       return null;
     }
 
-    try {
-      return mapper.writeValueAsString(classConverter.toJson(simpleFraction));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
+    return mapper.toString(classConverter.toJson(simpleFraction));
   }
 
   private String moneyToString(JPMoney money) {
@@ -168,11 +158,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       return null;
     }
 
-    try {
-      return mapper.writeValueAsString(classConverter.toJson(money));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
+    return mapper.toString(JsonJPMoney.toJson(money));
   }
 
   private String geometryToString(JPGeometry geometry) {
@@ -180,11 +166,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       return null;
     }
 
-    try {
-      return mapper.writeValueAsString(classConverter.toJson(geometry));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
+    return mapper.toString(JsonJPGeometry.toJson(geometry));
   }
 
   private String virtualReferenceToString(JPVirtualPath reference) {
@@ -192,11 +174,7 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
       return null;
     }
 
-    try {
-      return mapper.writeValueAsString(classConverter.toJson(reference));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
+    return mapper.toString(classConverter.toJson(reference));
   }
 
   private String jpTypeToString(JPType type) {
@@ -205,17 +183,5 @@ public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
     }
 
     return type.getCode();
-  }
-
-  private String propsToString(Collection<JPProperty> props) {
-    if (CollectionUtils.isEmpty(props)) {
-      return null;
-    }
-
-    try {
-      return mapper.writeValueAsString(classConverter.toJsonJPProperty(props));
-    } catch (JsonProcessingException e) {
-      throw new JPRuntimeException(e);
-    }
   }
 }

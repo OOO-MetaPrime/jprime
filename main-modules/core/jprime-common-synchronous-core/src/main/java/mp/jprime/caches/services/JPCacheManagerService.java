@@ -4,18 +4,18 @@ import mp.jprime.caches.JPCache;
 import mp.jprime.caches.JPCacheManager;
 import mp.jprime.caches.events.JPCacheRefreshEvent;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
-import mp.jprime.util.JPApplicationShutdownManager;
+import mp.jprime.utils.JPApplicationShutdownManager;
+import mp.jprime.utils.JPApplicationStartListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-public class JPCacheManagerService implements JPCacheManager {
+public class JPCacheManagerService implements JPCacheManager, JPApplicationStartListener {
   private static final Logger LOG = LoggerFactory.getLogger(JPCacheManagerService.class);
 
   private final Map<String, JPCache> caches = new HashMap<>();
@@ -33,8 +33,8 @@ public class JPCacheManagerService implements JPCacheManager {
     this.shutdownManager = shutdownManager;
   }
 
-  @EventListener
-  private void listenContextRefresh(ContextRefreshedEvent event) {
+  @Override
+  public void applicationStart() {
     TreeMap<Integer, Collection<JPCache>> initOrder = new TreeMap<>(Collections.reverseOrder());
     caches.values()
         .forEach(x -> initOrder.computeIfAbsent(x.getOrder(), k -> new ArrayList<>()).add(x));

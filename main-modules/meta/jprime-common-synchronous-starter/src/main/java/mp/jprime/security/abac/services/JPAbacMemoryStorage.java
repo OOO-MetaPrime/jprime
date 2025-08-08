@@ -5,9 +5,9 @@ import mp.jprime.security.abac.JPAbacDynamicLoader;
 import mp.jprime.security.abac.Policy;
 import mp.jprime.security.abac.PolicySet;
 import mp.jprime.security.abac.PolicyTarget;
-import mp.jprime.security.abac.annotations.services.JPAbacAnnoLoader;
+import mp.jprime.security.abac.loaders.annotations.services.JPAbacAnnoLoader;
 import mp.jprime.security.abac.events.AbacChangeEvent;
-import mp.jprime.security.abac.xmlloader.services.JPAbacXmlLoader;
+import mp.jprime.security.abac.loaders.xml.services.JPAbacXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -96,6 +96,11 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
   @Override
   public Collection<String> getSettingsCodes() {
     return cacheRef.get().umAllSetts.keySet();
+  }
+
+  @Override
+  public boolean hasSettings(String jpClass) {
+    return cacheRef.get().classPolicies.get(jpClass) != null;
   }
 
   /**

@@ -33,6 +33,6 @@
 Для поддержки разных версий json бинов необходимо:
 
 * Создать бин, соответствующий версии
-* Реализовать наследника от `JPJsonVersionConverter` (рекомендуется `JPJsonVersionBaseConverter`)
+* Реализовать наследника от `JPJsonVersionConverter` (рекомендуется `JPJsonVersionCommonConverter`)
 
 Важно указать одинаковый `groupCode` для разных версий 

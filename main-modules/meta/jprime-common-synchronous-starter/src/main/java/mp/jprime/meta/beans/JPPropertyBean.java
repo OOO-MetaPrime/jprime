@@ -2,8 +2,9 @@ package mp.jprime.meta.beans;
 
 import mp.jprime.beans.JPPropertyType;
 import mp.jprime.common.JPEnum;
-import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.common.JPOrder;
+import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.JPMoney;
 import mp.jprime.meta.JPProperty;
 

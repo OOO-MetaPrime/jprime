@@ -26,11 +26,11 @@ public interface JPReactiveCUDValidator extends JPAttrValidator {
   default Mono<Void> validate(JPClass jpClass, JPCreate query) {
     String classCode = query.getJpClass();
     JPMutableData data = query.getData();
-    AuthInfo authInfo = query.getAuth();
+    AuthInfo auth = query.getAuth();
 
     // проверяем доступ на создание
-    if (query.getSource() == Source.USER && authInfo != null) {
-      return getJPReactiveObjectAccessService().checkCreate(classCode, data, authInfo)
+    if (query.getSource() == Source.USER && auth != null) {
+      return getJPReactiveObjectAccessService().checkCreate(classCode, data, auth)
           .map(result -> {
                 if (!result) {
                   throw new JPCreateRightException(classCode);
@@ -53,11 +53,11 @@ public interface JPReactiveCUDValidator extends JPAttrValidator {
     }
     String classCode = query.getJpClass();
     JPMutableData data = query.getData();
-    AuthInfo authInfo = query.getAuth();
+    AuthInfo auth = query.getAuth();
 
     // проверяем доступ на создание
-    if (query.getSource() == Source.USER && authInfo != null) {
-      return getJPReactiveObjectAccessService().checkUpdateExists(query.getJpId(), data, authInfo)
+    if (query.getSource() == Source.USER && auth != null) {
+      return getJPReactiveObjectAccessService().checkUpdateExists(query.getJpId(), data, auth)
           .map(result -> {
                 if (!result) {
                   throw new JPUpdateRightException(classCode);
@@ -79,11 +79,11 @@ public interface JPReactiveCUDValidator extends JPAttrValidator {
       throw new JPIdNotSpecifiedException();
     }
     String classCode = query.getJpClass();
-    AuthInfo authInfo = query.getAuth();
+    AuthInfo auth = query.getAuth();
 
     // проверяем доступ на создание
-    if (query.getSource() == Source.USER && authInfo != null) {
-      return getJPReactiveObjectAccessService().checkDeleteExists(query.getJpId(), authInfo)
+    if (query.getSource() == Source.USER && auth != null) {
+      return getJPReactiveObjectAccessService().checkDeleteExists(query.getJpId(), auth)
           .map(result -> {
                 if (!result) {
                   throw new JPUpdateRightException(classCode);

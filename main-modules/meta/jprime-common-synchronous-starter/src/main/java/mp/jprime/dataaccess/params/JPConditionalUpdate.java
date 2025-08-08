@@ -14,8 +14,9 @@ public class JPConditionalUpdate extends JPSave {
   private final Filter where;
   private final boolean autoChangeDate;
 
-  private JPConditionalUpdate(Map<String, Object> data, Source source, AuthInfo auth, String jpClass, Filter where, boolean autoChangeDate) {
-    super(data, null, source, auth);
+  private JPConditionalUpdate(Map<String, Object> data, Source source, AuthInfo auth, String jpClass,
+                              Filter where, boolean autoChangeDate, Map<String, String> props) {
+    super(data, null, source, auth, props);
     this.jpClass = jpClass;
     this.where = where;
     this.autoChangeDate = autoChangeDate;
@@ -62,7 +63,7 @@ public class JPConditionalUpdate extends JPSave {
   /**
    * Построитель JPUpdate
    */
-  public static final class Builder extends JPSave.Builder<JPConditionalUpdate.Builder> {
+  public static final class Builder extends JPSave.Builder<Builder> {
     private final String jpClass;
     private Filter where;
     private boolean autoChangeDate = true;
@@ -79,7 +80,7 @@ public class JPConditionalUpdate extends JPSave {
      */
     @Override
     public JPConditionalUpdate build() {
-      return new JPConditionalUpdate(data, source, auth, jpClass, where, autoChangeDate);
+      return new JPConditionalUpdate(data, source, auth, jpClass, where, autoChangeDate, props);
     }
 
     /**

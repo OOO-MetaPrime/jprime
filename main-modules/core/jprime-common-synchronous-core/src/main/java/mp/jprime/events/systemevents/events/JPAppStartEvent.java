@@ -23,7 +23,7 @@ public final class JPAppStartEvent {
     return JPCommonSystemEvent.newBuilder()
         .eventCode(CODE)
         .external(isExternal)
-        .data(new HashMap<String, String>() {
+        .data(new HashMap<>() {
           {
             put("appCode", appCode);
           }

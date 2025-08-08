@@ -5,11 +5,12 @@ import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.security.AuthInfo;
 
 import java.util.Collection;
+import java.util.Map;
 
 /**
  * Базовый класс для создания/обновления
  */
-public abstract class JPBatchSave extends JPBaseParams {
+public abstract class JPBatchSave extends JPBaseOperation {
   private final String jpClass;
 
   /**
@@ -19,8 +20,8 @@ public abstract class JPBatchSave extends JPBaseParams {
    * @param source  Источник данных
    * @param auth    Данные аутентификации
    */
-  protected JPBatchSave(String jpClass, Source source, AuthInfo auth) {
-    super(source, auth);
+  protected JPBatchSave(String jpClass, Source source, AuthInfo auth, Map<String, String> props) {
+    super(source, auth, props);
     this.jpClass = jpClass;
   }
 
@@ -57,56 +58,20 @@ public abstract class JPBatchSave extends JPBaseParams {
   /**
    * Построитель {@link JPBatchSave}
    */
-  public abstract static class Builder<T extends Builder<T>> {
+  public abstract static class Builder<T extends Builder<?>> extends JPBaseOperation.Builder<T> {
     protected final String jpClass;
-    protected AuthInfo auth;
-    protected Source source;
 
     protected Builder(String jpClass) {
       this.jpClass = jpClass;
     }
 
     /**
-     * Создаем JPSave
-     *
-     * @return JPSave
-     */
-    abstract public JPBatchSave build();
-
-    /**
      * Возвращает кодовое имя класса
      *
      * @return Кодовое имя класса
      */
-    abstract public String getJpClass();
-
-    /**
-     * Аутентификация
-     *
-     * @return Аутентификация
-     */
-    public AuthInfo getAuth() {
-      return auth;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @return Источник данных
-     */
-    public Source getSource() {
-      return source;
-    }
-
-    /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public T auth(AuthInfo auth) {
-      this.auth = auth;
-      return (T) this;
+    public String getJpClass() {
+      return jpClass;
     }
 
     /**
@@ -123,15 +88,5 @@ public abstract class JPBatchSave extends JPBaseParams {
      */
     public abstract int size();
 
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public T source(Source source) {
-      this.source = source;
-      return (T) this;
-    }
   }
 }

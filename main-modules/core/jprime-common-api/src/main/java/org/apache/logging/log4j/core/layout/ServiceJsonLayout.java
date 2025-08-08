@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 
 import static mp.jprime.formats.DateFormat.ISO8601;
 
@@ -31,7 +32,6 @@ import static mp.jprime.formats.DateFormat.ISO8601;
 public class ServiceJsonLayout extends AbstractStringLayout {
   private static final String DEFAULT_FOOTER = "]";
   private static final String DEFAULT_HEADER = "[";
-  private static final String CONTENT_TYPE = "application/json";
   private static final String DEFAULT_EOL = "\r\n";
   private static final String COMPACT_EOL = Strings.EMPTY;
 
@@ -128,20 +128,18 @@ public class ServiceJsonLayout extends AbstractStringLayout {
     }
   }
 
-  private void toSerializable(final LogEvent event, final Writer writer)
-      throws IOException {
+  private void toSerializable(final LogEvent event, final Writer writer) throws IOException {
     objectWriter.writeValue(writer, new Event(event));
     writer.write(eol);
     markEvent();
   }
 
-  private class Event {
-    private LogEvent event;
+  private static class Event {
+    private final LogEvent event;
 
     private Event(LogEvent event) {
       this.event = event;
     }
-
 
     public ThreadContext.ContextStack getContextStack() {
       return event.getContextStack();
@@ -151,19 +149,20 @@ public class ServiceJsonLayout extends AbstractStringLayout {
       return event.getContextData();
     }
 
-    public Throwable getThrown() {
-      return event.getThrown();
+    public StackTraceElement[] getThrownStackTrace() {
+      Throwable thrown = event.getThrown();
+      StackTraceElement[] trace = thrown != null ? thrown.getStackTrace() : null;
+      return trace != null ? Arrays.copyOf(trace, Math.min(trace.length, 10)) : null;
     }
 
     public String getThrownMessage() {
-      Throwable thrown = this.getThrown();
+      Throwable thrown = event.getThrown();
       return thrown != null ? thrown.toString() : null;
     }
 
     public Level getLevel() {
       return event.getLevel();
     }
-
 
     public String getLoggerName() {
       return event.getLoggerName();
@@ -173,11 +172,9 @@ public class ServiceJsonLayout extends AbstractStringLayout {
       return event.getMessage();
     }
 
-
     public long getTimeMillis() {
       return event.getTimeMillis();
     }
-
 
     public StackTraceElement getSource() {
       return event.getSource();
@@ -218,7 +215,6 @@ public class ServiceJsonLayout extends AbstractStringLayout {
     public String isSuccess() {
       return event.getContextData().getValue(AppLogger.SUCCESS);
     }
-
 
     public String getUserName() {
       return event.getContextData().getValue(AppLogger.USERNAME);

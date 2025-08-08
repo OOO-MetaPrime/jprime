@@ -5,13 +5,13 @@ import java.time.LocalDateTime;
 /**
  * Информация о файле
  */
-public interface JPFileInfo {
+public interface JPFileInfo<T> {
   /**
    * Информация о файле
    *
    * @return Информация о файле
    */
-  String getFileCode();
+  T getFileCode();
 
   /**
    * Заголовок файла

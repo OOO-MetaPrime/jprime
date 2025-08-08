@@ -648,4 +648,39 @@ class PeriodsTest {
 
     assertTrue(JPPeriodUtils.subtract(minuend, sub).isEmpty());
   }
+
+  @Test
+  void shouldReturnTrue_PeriodContainsInPeriod() {
+    JPPeriod period = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    JPPeriod inPeriod = JPPeriod.get(LocalDate.of(2000, 2, 1), LocalDate.of(2000, 3, 1));
+    assertTrue(period.contains(inPeriod));
+  }
+
+  @Test
+  void shouldReturnTrue_PeriodContainsInPeriodEqual() {
+    JPPeriod period = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    JPPeriod inPeriod = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    assertTrue(period.contains(inPeriod));
+  }
+
+  @Test
+  void shouldReturnFalse_PeriodNotContainsInPeriod_FailedFrom() {
+    JPPeriod period = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    JPPeriod inPeriod = JPPeriod.get(LocalDate.of(1999, 1, 1), LocalDate.of(2000, 3, 1));
+    assertFalse(period.contains(inPeriod));
+  }
+
+  @Test
+  void shouldReturnFalse_PeriodNotContainsInPeriod_FailedTo() {
+    JPPeriod period = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    JPPeriod inPeriod = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 2, 1));
+    assertFalse(period.contains(inPeriod));
+  }
+
+  @Test
+  void shouldReturnFalse_PeriodNotContainsInPeriod_FailedFromAndTo() {
+    JPPeriod period = JPPeriod.get(LocalDate.of(2000, 1, 1), LocalDate.of(2001, 1, 1));
+    JPPeriod inPeriod = JPPeriod.get(LocalDate.of(1999, 1, 1), LocalDate.of(2001, 2, 1));
+    assertFalse(period.contains(inPeriod));
+  }
 }

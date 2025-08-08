@@ -12,12 +12,16 @@ public class ConnectionInfoBean implements ConnectionInfo {
   /**
    * Конструктор
    *
-   * @param userIP   IP пользователя
    * @param username Имя пользователя
+   * @param userIP   IP пользователя*
    */
-  private ConnectionInfoBean(String userIP, String username) {
-    this.userIP = userIP;
+  private ConnectionInfoBean(String username, String userIP) {
     this.username = username;
+    this.userIP = userIP;
+  }
+
+  public static ConnectionInfo of(String username, String userIP) {
+    return new ConnectionInfoBean(username, userIP);
   }
 
   /**
@@ -65,7 +69,7 @@ public class ConnectionInfoBean implements ConnectionInfo {
      * @return JPSelect
      */
     public ConnectionInfoBean build() {
-      return new ConnectionInfoBean(userIP, username);
+      return new ConnectionInfoBean(username, userIP);
     }
 
     /**

@@ -13,7 +13,7 @@ import mp.jprime.dataaccess.params.query.filters.*;
 import mp.jprime.dataaccess.params.query.filters.range.*;
 import mp.jprime.lang.JPRange;
 import mp.jprime.lang.JPStringRange;
-import mp.jprime.utils.ParseServiceUtils;
+import mp.jprime.parsers.ValueParser;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -76,6 +76,10 @@ public class JsonExpr {
       // TODO сделать красиво
       if (c.getEq() != null) {
         return Filter.attr(c.getAttr()).eq(c.getEq());
+      } else if (c.getSoftEq() != null) {
+        return Filter.attr(c.getAttr()).softEq(c.getSoftEq());
+      } else if (c.getStrictEq() != null) {
+        return Filter.attr(c.getAttr()).strictEq(c.getStrictEq());
       } else if (c.getGt() != null) {
         return Filter.attr(c.getAttr()).gt(c.getGt());
       } else if (c.getGte() != null) {
@@ -313,6 +317,10 @@ public class JsonExpr {
       String attrName = attrCodeFunc.apply(classCode, v.getAttrCode());
       if (v.getOper() == FilterOperation.EQ) {
         cond = JsonCond.newAttrCond(attrName).eq(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.SOFT_EQ) {
+        cond = JsonCond.newAttrCond(attrName).softEq(stringValue(v.getValue()));
+      } else if (v.getOper() == FilterOperation.STRICT_EQ) {
+        cond = JsonCond.newAttrCond(attrName).strictEq(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.GT) {
         cond = JsonCond.newAttrCond(attrName).gt(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.GTE) {
@@ -462,6 +470,6 @@ public class JsonExpr {
    * @return String
    */
   private static String stringValue(Object v) {
-    return ParseServiceUtils.toString(v);
+    return ValueParser.toString(v);
   }
 }

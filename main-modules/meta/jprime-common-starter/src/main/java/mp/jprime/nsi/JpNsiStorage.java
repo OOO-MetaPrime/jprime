@@ -73,6 +73,15 @@ public interface JpNsiStorage {
   JpNsiValue<Integer> getValueById(String nsiCode, Integer id);
 
   /**
+   * Возвращает значения справочника по id
+   *
+   * @param nsiCode Код НСИ
+   * @param ids     Коды справочника
+   * @return Список значений
+   */
+  Collection<JpNsiValue<Integer>> getValueByIntegerIds(String nsiCode, Collection<Integer> ids);
+
+  /**
    * Возвращает значение справочника по id
    *
    * @param nsiCode Код НСИ
@@ -80,6 +89,15 @@ public interface JpNsiStorage {
    * @return Значение
    */
   JpNsiValue<String> getValueById(String nsiCode, String id);
+
+  /**
+   * Возвращает значения справочника по id
+   *
+   * @param nsiCode Код НСИ
+   * @param ids     Коды справочника
+   * @return Список значений
+   */
+  Collection<JpNsiValue<String>> getValueByStringIds(String nsiCode, Collection<String> ids);
 
   /**
    * Возвращает значения справочника

@@ -6,7 +6,7 @@ import mp.jprime.files.JPFileThumbnail;
 import mp.jprime.files.JPFileThumbnailService;
 import mp.jprime.files.beans.FileInfo;
 import mp.jprime.repositories.JPFileStorage;
-import mp.jprime.repositories.services.RepositoryStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,10 +56,10 @@ public class JPFileThumbnailCommonService implements JPFileThumbnailService {
   /**
    * Описание всех хранилищ системы
    */
-  private RepositoryStorage<?> repositoryStorage;
+  private RepositoryGlobalStorage repositoryStorage;
 
   @Autowired
-  private void setRepositoryStorage(RepositoryStorage<?> repositoryStorage) {
+  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 

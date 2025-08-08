@@ -7,6 +7,7 @@ import mp.jprime.dataaccess.transaction.ChainedTransactionManager;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.JPUtil;
 import mp.jprime.utils.JPUtilMessageOutParams;
@@ -114,7 +115,7 @@ public class AttrValueChangeUtil implements JPUtil {
       });
 
       transactionManager.commit(txStatus);
-      return Mono.fromCallable(() ->
+      return JPMono.fromCallable(() ->
           JPUtilMessageOutParams.newBuilder()
               .changeData(true)
               .description(UTIL_SUCCESS_USER_MESSAGE)

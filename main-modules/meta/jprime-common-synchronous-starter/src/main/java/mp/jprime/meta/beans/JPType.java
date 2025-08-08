@@ -111,9 +111,9 @@ public enum JPType {
    */
   TIME("time", "Время", LocalTime.class),
   /**
-   * Глобальный идентификатор
+   * Универсальный идентификатор
    */
-  UUID("uuid", "Глобальный идентификатор", java.util.UUID.class),
+  UUID("uuid", "Универсальный идентификатор", java.util.UUID.class),
   /**
    * XML-элемент
    */

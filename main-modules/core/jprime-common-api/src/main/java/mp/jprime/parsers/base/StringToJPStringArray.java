@@ -24,36 +24,21 @@ public final class StringToJPStringArray implements TypeParser<String, JPStringA
     this.jsonMapper = jsonMapper;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
   public JPStringArray parse(String value) {
     if (value == null) {
       return null;
     }
     if (value.startsWith("[")) {
-      return JPStringArray.of(jsonMapper.toObject(TYPE_REF, value));
+      List<String> values = jsonMapper.toObject(TYPE_REF, value);
+      return values == null || values.isEmpty() ? null : JPStringArray.of(values);
     }
     return JPStringArray.of(Collections.singletonList(value));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   public Class<JPStringArray> getOutputType() {
     return JPStringArray.class;
   }

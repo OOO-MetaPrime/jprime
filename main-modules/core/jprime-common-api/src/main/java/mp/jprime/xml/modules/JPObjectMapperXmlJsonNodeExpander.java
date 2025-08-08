@@ -33,7 +33,7 @@ public final class JPObjectMapperXmlJsonNodeExpander implements JPObjectMapperXm
   public void expand(ObjectMapper objectMapper) {
     SimpleModule module = new SimpleModule()
         // String to JPJsonNode
-        .addDeserializer(JPJsonNode.class, new StdDeserializer<JPJsonNode>(JPJsonNode.class) {
+        .addDeserializer(JPJsonNode.class, new StdDeserializer<>(JPJsonNode.class) {
           @Override
           public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonNode jsonNode = null;
@@ -49,7 +49,7 @@ public final class JPObjectMapperXmlJsonNodeExpander implements JPObjectMapperXm
         })
         // JPJsonNode to String
         .addSerializer(JPJsonNode.class,
-            new JsonSerializer<JPJsonNode>() {
+            new JsonSerializer<>() {
               @Override
               public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 jGen.writeObject(jpJsonNode.toJsonNode().toString());

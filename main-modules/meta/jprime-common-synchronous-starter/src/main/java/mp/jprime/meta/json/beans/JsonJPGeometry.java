@@ -1,8 +1,11 @@
 package mp.jprime.meta.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import mp.jprime.meta.JPGeometry;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class JsonJPGeometry {
   /**
    * ID of the Spatial Reference System
@@ -52,5 +55,11 @@ public final class JsonJPGeometry {
     public JsonJPGeometry build() {
       return new JsonJPGeometry(SRID);
     }
+  }
+
+  public static JsonJPGeometry toJson(JPGeometry geometry) {
+    return geometry == null ? null : JsonJPGeometry.newBuilder()
+        .srid(geometry.getSRID())
+        .build();
   }
 }

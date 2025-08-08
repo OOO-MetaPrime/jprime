@@ -9,12 +9,12 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPFile;
 import mp.jprime.meta.beans.JPType;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -50,7 +50,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                   @PathVariable("width") int width,
                                   @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
     AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(classCode, auth))
+    return JPMono.fromCallable(() -> jpMetaFilter.get(classCode, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -74,7 +74,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                  @RequestParam(value = "sign", required = false) boolean sign,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
     AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(classCode, auth))
+    return JPMono.fromCallable(() -> jpMetaFilter.get(classCode, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -102,7 +102,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                  @PathVariable("bearer") String bearer,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
     AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(code, auth))
+    return JPMono.fromCallable(() -> jpMetaFilter.get(code, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -132,7 +132,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                      @RequestParam(value = "sign", required = false) boolean sign,
                                      @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
     AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(code, auth))
+    return JPMono.fromCallable(() -> jpMetaFilter.get(code, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null) {
@@ -161,9 +161,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<JsonJPObject> createObject(ServerWebExchange swe,
-                                         @PathVariable("code") String code,
-                                         @RequestBody Flux<Part> parts) {
-    return super.createObject(swe, code, parts);
+                                         @PathVariable("code") String code) {
+    return super.createObject(swe, code);
   }
 
   @ResponseBody
@@ -173,9 +172,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
-                                         @PathVariable("code") String code,
-                                         @RequestBody Flux<Part> parts) {
-    return super.updateObject(swe, code, parts);
+                                         @PathVariable("code") String code) {
+    return super.updateObject(swe, code);
   }
 
   @GetMapping(value = "/{code}/{objectId}/file/{attrCode}/anonymous")
@@ -185,7 +183,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                           @PathVariable("objectId") String objectId,
                                           @PathVariable("attrCode") String attrCode,
                                           @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.justOrEmpty(jpMetaFilter.getAnonymous(code))
+    return JPMono.fromCallable(() -> jpMetaFilter.getAnonymous(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -210,7 +208,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                            @PathVariable("linkCode") String linkCode,
                                            @PathVariable("linkValue") String linkValue,
                                            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return Mono.justOrEmpty(jpMetaFilter.getAnonymous(code))
+    return JPMono.fromCallable(() -> jpMetaFilter.getAnonymous(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null) {

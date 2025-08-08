@@ -1,5 +1,6 @@
 package mp.jprime.files.controllers;
 
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.files.DownloadFile;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
@@ -15,12 +16,14 @@ import mp.jprime.files.beans.FileInfo;
 import mp.jprime.json.beans.JsonJPObject;
 import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
+import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.parsers.ParserService;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileStorage;
 import mp.jprime.repositories.JPFileUploader;
-import mp.jprime.repositories.services.RepositoryStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.streams.UploadInputStream;
@@ -32,8 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -51,6 +53,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -85,7 +88,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   /**
    * Описание всех хранилищ системы
    */
-  private RepositoryStorage<?> repositoryStorage;
+  private RepositoryGlobalStorage repositoryStorage;
   /**
    * Парсер типов
    */
@@ -148,7 +151,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   }
 
   @Autowired
-  private void setRepositoryStorage(RepositoryStorage<?> repositoryStorage) {
+  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 
@@ -157,12 +160,12 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
     this.parserService = parserService;
   }
 
-  protected RepositoryStorage getRepositoryStorage() {
+  protected RepositoryGlobalStorage getRepositoryStorage() {
     return repositoryStorage;
   }
 
 
-  protected Mono<Void> writeTo(ServerWebExchange swe, JPFileInfo info, String userAgent) {
+  protected Mono<Void> writeTo(ServerWebExchange swe, JPFileInfo<?> info, String userAgent) {
     JPFileStorage storage = (JPFileStorage) repositoryStorage.getStorage(info.getStorageCode());
     if (storage == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -241,80 +244,99 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
     });
   }
 
-  protected Mono<JsonJPObject> createObject(ServerWebExchange swe, String code, Flux<Part> parts) {
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(code, auth))
-        .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
-        .map(jpClass -> {
-          if (jpClass == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+  protected Mono<JsonJPObject> createObject(ServerWebExchange swe, String code) {
+    return save(swe, code,
+        (jpClass, query, auth) -> {
+          JPCreate.Builder jpCreateBuilder;
+          try {
+            jpCreateBuilder = queryService.getCreate(query, Source.USER, auth);
+          } catch (JPRuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
           }
-          return jpClass;
-        })
-        .flatMap(jpClass -> {
-              Flux<Part> cache = parts.cache();
-              return Mono.zip(
-                  Flux.from(cache)
-                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
-                      .flatMap(
-                          x -> x.content()
-                              .collect(
-                                  () -> new UploadInputStream(x.name()),
-                                  (t, dataBuffer) -> t.collectInputStream(dataBuffer.asInputStream(true))
-                              )
-                      )
-                      .map(x -> {
-                        try (InputStream v = x.getInputStream()) {
-                          return IOUtils.toString(v, StandardCharsets.UTF_8);
-                        } catch (Exception e) {
-                          return "";
-                        }
-                      })
-                      .map(x -> {
-                        JPCreate.Builder jpCreateBuilder;
-                        try {
-                          jpCreateBuilder = queryService.getCreate(x, Source.USER, auth);
-                        } catch (JPRuntimeException e) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (!jpClass.getCode().equals(jpCreateBuilder.getJpClass())) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        return jpCreateBuilder;
-                      })
-                      .singleOrEmpty(),
-                  Flux.from(cache)
-                      .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
-                      .filter(x -> x instanceof FilePart)
-                      .cast(FilePart.class)
-                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
-                      .collectMap(Tuple2::getT1, Tuple2::getT2)
-              );
+          if (!jpClass.getCode().equals(jpCreateBuilder.getJpClass())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          return jpCreateBuilder;
+        },
+        (tuple) -> {
+          JPCreate.Builder builder = tuple.getT1();
+
+          tuple.getT2().forEach((attr, value) -> {
+            try (UploadInputStream is = value) {
+              jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
             }
-        )
-        .flatMap(tuple -> Mono.fromCallable(() -> {
-              JPCreate.Builder builder = tuple.getT1();
-              tuple.getT2().forEach((attr, value) -> {
-                try (UploadInputStream is = value) {
-                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-                }
-              });
-              return builder;
-            })
-        )
-        .flatMap(builder -> repo.asyncCreateAndGet(builder.build())
-            .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR)))
-            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
-        );
+          });
+          return builder;
+        },
+        builder -> repo.asyncCreateAndGet(builder.build()));
   }
 
-  public Mono<JsonJPObject> updateObject(ServerWebExchange swe,
-                                         @PathVariable("code") String code,
-                                         @RequestBody Flux<Part> parts) {
+  public Mono<JsonJPObject> updateObject(ServerWebExchange swe, String code) {
+    return save(swe, code,
+        (jpClass, query, auth) -> {
+          JPUpdate.Builder jpUpdateBuilder;
+          try {
+            jpUpdateBuilder = queryService.getUpdate(query, Source.USER, auth);
+          } catch (JPRuntimeException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          if (jpUpdateBuilder.getJpId() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          if (!jpClass.getCode().equals(jpUpdateBuilder.getJpClass())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+          }
+          return jpUpdateBuilder;
+        },
+        (tuple) -> {
+          JPUpdate.Builder builder = tuple.getT1();
+
+          tuple.getT2().forEach((attr, value) -> {
+            try (UploadInputStream is = value) {
+              jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
+            }
+          });
+          return builder;
+        },
+        builder -> repo.asyncUpdateAndGet(builder.build()));
+  }
+
+  @FunctionalInterface
+  public interface Builder<T> {
+    T build(JPClass jpClass, String query, AuthInfo auth);
+  }
+
+  @FunctionalInterface
+  public interface AppendUpload<T> {
+    T append(Tuple2<T, Map<String, UploadInputStream>> tuple);
+  }
+
+  @FunctionalInterface
+  public interface Executor<T> {
+    Mono<JPObject> append(T builder);
+  }
+
+  protected Mono<Void> upload(FilePart file, JPCreate.Builder builder, String attr,
+                              Consumer<JPCreate.Builder> executor) {
+    return getStreamValue(file)
+        .map(value-> {
+          try (UploadInputStream is = value) {
+            jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
+          }
+          executor.accept(builder);
+          return true;
+        })
+        .then();
+  }
+
+  private <T> Mono<JsonJPObject> save(ServerWebExchange swe, String code,
+                                      Builder<T> builderFunc, AppendUpload<T> uploadFunc,
+                                      Executor<T> executorFunc) {
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    return Mono.justOrEmpty(jpMetaFilter.get(code, auth))
+
+    return JPMono.fromCallable(
+            () -> jpMetaFilter.get(code, auth)
+        )
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (jpClass == null) {
@@ -323,10 +345,12 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           return jpClass;
         })
         .flatMap(jpClass -> {
-              Flux<Part> cache = parts.cache();
+              Mono<Map<String, Part>> cache = swe.getMultipartData()
+                  .map(MultiValueMap::toSingleValueMap)
+                  .cache();
               return Mono.zip(
                   Flux.from(cache)
-                      .filter(x -> JSON_BODY_FIELD.equals(x.name()))
+                      .map(x -> x.get(JSON_BODY_FIELD))
                       .flatMap(
                           x -> x.content()
                               .collect(
@@ -341,23 +365,10 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
                           return "";
                         }
                       })
-                      .map(x -> {
-                        JPUpdate.Builder jpUpdateBuilder;
-                        try {
-                          jpUpdateBuilder = queryService.getUpdate(x, Source.USER, auth);
-                        } catch (JPRuntimeException e) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (jpUpdateBuilder.getJpId() == null) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        if (!jpClass.getCode().equals(jpUpdateBuilder.getJpClass())) {
-                          throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-                        }
-                        return jpUpdateBuilder;
-                      })
+                      .map(x -> builderFunc.build(jpClass, x, auth))
                       .singleOrEmpty(),
                   Flux.from(cache)
+                      .flatMapIterable(Map::values)
                       .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
                       .filter(x -> x instanceof FilePart)
                       .cast(FilePart.class)
@@ -366,17 +377,8 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
               );
             }
         )
-        .flatMap(tuple -> Mono.fromCallable(() -> {
-              JPUpdate.Builder builder = tuple.getT1();
-              tuple.getT2().forEach((attr, value) -> {
-                try (UploadInputStream is = value) {
-                  jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-                }
-              });
-              return builder;
-            })
-        )
-        .flatMap(builder -> repo.asyncUpdateAndGet(builder.build())
+        .flatMap(tuple -> JPMono.fromCallable(() -> uploadFunc.append(tuple)))
+        .flatMap(builder -> executorFunc.append(builder)
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
             .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))

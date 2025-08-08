@@ -6,7 +6,7 @@ import mp.jprime.imex.csvwriter.services.JPCsvBaseWriter;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
-import mp.jprime.meta.JPClassJsonConverter;
+import mp.jprime.meta.json.converters.JPClassJsonConverter;
 import mp.jprime.parsers.ParserService;
 import mp.jprime.parsers.ParserServiceAware;
 import org.apache.commons.io.IOUtils;
@@ -26,17 +26,9 @@ import java.io.PipedOutputStream;
 @Service
 public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterService, ParserServiceAware {
   private static final Logger LOG = LoggerFactory.getLogger(JPAttrCsvWriterCommonService.class);
-  /**
-   * Конвертер JpClass
-   */
+
   private JPClassJsonConverter converter;
-  /**
-   * Базовый класс JSON-обработчиков
-   */
   private JPJsonMapper mapper;
-  /**
-   * Парсер типов
-   */
   private ParserService parser;
 
   @Override
@@ -83,7 +75,7 @@ public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterServic
             )) {
               writer.write(jpClass.getAttrs());
             } catch (Exception e) {
-              LOG.error("Exception in JPAttrCsvWriterBaseService with classCode \"{}\"", jpClass.getCode(), e);
+              LOG.error(e.getMessage(), e);
             } finally {
               IOUtils.closeQuietly(os);
             }

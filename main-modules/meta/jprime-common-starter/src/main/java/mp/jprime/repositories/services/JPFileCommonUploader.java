@@ -6,9 +6,9 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPSave;
 import mp.jprime.dataaccess.params.JPUpdate;
-import mp.jprime.files.JPFileInfo;
+import mp.jprime.files.JPFileCommonInfo;
 import mp.jprime.files.beans.FileInfo;
-import mp.jprime.files.beans.JPFileInfoBase;
+import mp.jprime.files.beans.JPFileCommonInfoBean;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPFile;
@@ -17,6 +17,7 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.repositories.JPFileStorage;
 import mp.jprime.repositories.JPFileUploader;
 import mp.jprime.repositories.JPStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
   /**
    * API для работы с хранилищами
    */
-  private RepositoryStorage repositoryStorage;
+  private RepositoryGlobalStorage repositoryStorage;
   /**
    * Хранилище метаинформации
    */
@@ -46,7 +47,7 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
   private JPSecurityStorage securityManager;
 
   @Autowired
-  private void setRepositoryStorage(RepositoryStorage repositoryStorage) {
+  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 
@@ -75,15 +76,15 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
    * @return JPFileInfo
    */
   @Override
-  public JPFileInfo upload(String storageCode, String storagePath, String fileName, InputStream is) {
+  public JPFileCommonInfo upload(String storageCode, String storagePath, String fileName, InputStream is) {
     JPStorage storage = repositoryStorage.getStorage(storageCode);
     if (!(storage instanceof JPFileStorage)) {
-      return JPFileInfoBase.newBuilder().build();
+      return JPFileCommonInfoBean.newBuilder().build();
     }
     String fileExt = getFileExtension(fileName);
     String fileCode = getNewFileCode() + "." + fileExt;
 
-    JPFileInfoBase.Builder builder = JPFileInfoBase.newBuilder();
+    JPFileCommonInfoBean.Builder builder = JPFileCommonInfoBean.newBuilder();
     if (is != null) {
       JPFileStorage fileStorage = (JPFileStorage) storage;
       FileInfo fileInfo = fileStorage.save(storagePath, fileCode, is);
@@ -106,24 +107,24 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
   @Override
   public JPCreate.Builder upload(JPCreate.Builder builder, String attr, String fileName, InputStream is) {
     return fileUpload(builder, attr, fileName, is, (jpClass, jpAttr) -> {
-      AuthInfo authInfo = builder.getAuth();
+      AuthInfo auth = builder.getAuth();
       if (builder.getSource() != Source.USER) {
         return true;
       }
-      return objectAccessService.checkCreate(jpClass.getCode(), authInfo) &&
-          (authInfo == null || securityManager.checkCreate(jpAttr.getJpPackage(), authInfo.getRoles()));
+      return objectAccessService.checkCreate(jpClass.getCode(), auth) &&
+          (auth == null || securityManager.checkCreate(jpAttr.getJpPackage(), auth.getRoles()));
     });
   }
 
   @Override
   public JPUpdate.Builder upload(JPUpdate.Builder builder, String attr, String fileName, InputStream is) {
     return fileUpload(builder, attr, fileName, is, (jpClass, jpAttr) -> {
-      AuthInfo authInfo = builder.getAuth();
+      AuthInfo auth = builder.getAuth();
       if (builder.getSource() != Source.USER) {
         return true;
       }
-      return objectAccessService.checkUpdate(builder.getJpId(), authInfo) &&
-          (authInfo == null || securityManager.checkUpdate(jpAttr.getJpPackage(), authInfo.getRoles()));
+      return objectAccessService.checkUpdate(builder.getJpId(), auth) &&
+          (auth == null || securityManager.checkUpdate(jpAttr.getJpPackage(), auth.getRoles()));
     });
   }
 
@@ -146,7 +147,7 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
     String storageCode = jpFile.getStorageCode();
     String storagePath = getStoragePath(jpFile.getStorageFilePath());
 
-    JPFileInfo fileInfo = upload(storageCode, storagePath, fileName, is);
+    JPFileCommonInfo fileInfo = upload(storageCode, storagePath, fileName, is);
     builder.setSystem(attr, fileInfo.getFileCode());
     builder.setSystem(jpFile.getStorageCodeAttrCode(), fileInfo.getStorageCode());
     builder.setSystem(jpFile.getStorageFilePathAttrCode(), fileInfo.getStorageFilePath());

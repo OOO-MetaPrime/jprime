@@ -100,7 +100,6 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
             json.getUpper()
         );
       } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
         throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     } else if (attrValue instanceof JPStringRange) {
@@ -114,7 +113,6 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
             json.getUpper()
         );
       } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
         throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     } else if (attrValue instanceof String) {
@@ -131,7 +129,6 @@ public class JPDateRangeParser implements AttrTypeParser<JPDateRange> {
             json.getUpper()
         );
       } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
         throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     }

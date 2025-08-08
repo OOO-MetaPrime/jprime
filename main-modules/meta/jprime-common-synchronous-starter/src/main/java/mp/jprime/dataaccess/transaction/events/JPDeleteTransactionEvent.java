@@ -7,7 +7,9 @@ import mp.jprime.security.ConnectionInfo;
 /**
  * Событие транзакции - удаление объекта
  */
-public final class JPDeleteTransactionEvent implements TransactionEvent {
+public final class JPDeleteTransactionEvent implements JPTransactionJPObjectEvent {
+  public static final String CODE = "jpDeleteEvent";
+
   private final Comparable id;
   private final String jpClassCode;
   private final JPDelete query;
@@ -20,53 +22,33 @@ public final class JPDeleteTransactionEvent implements TransactionEvent {
     this.connInfo = connInfo;
   }
 
-  /**
-   * Возвращает событие
-   *
-   * @return Событие
-   */
+  @Override
+  public String getCode() {
+    return CODE;
+  }
+
   @Override
   public Event getEvent() {
     return Event.DELETE_SUCCESS;
   }
 
-  /**
-   * Идентификатор объекта
-   *
-   * @return Идентификатор объекта
-   */
   @Override
   public Comparable getId() {
     return id;
   }
 
-  /**
-   * Кодовое имя класса
-   *
-   * @return Кодовое имя класса
-   */
   @Override
   public String getJpClassCode() {
     return jpClassCode;
   }
 
-  /**
-   * Возвращает запрос
-   *
-   * @return JPDelete
-   */
-  public JPDelete getQuery() {
-    return query;
-  }
-
-  /**
-   * Источник события
-   *
-   * @return Источник события
-   */
   @Override
   public ConnectionInfo getConnInfo() {
     return connInfo;
+  }
+
+  public JPDelete getQuery() {
+    return query;
   }
 
   public static Builder newBuilder() {

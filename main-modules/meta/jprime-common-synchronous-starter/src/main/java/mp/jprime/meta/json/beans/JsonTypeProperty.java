@@ -1,5 +1,7 @@
 package mp.jprime.meta.json.beans;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import mp.jprime.meta.beans.JPType;
 
 import java.util.Collection;
@@ -8,6 +10,8 @@ import java.util.stream.Collectors;
 /**
  * Свойства типа атрибута
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class JsonTypeProperty {
   private final String code;
   private final Collection<String> availableChanges;

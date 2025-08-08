@@ -17,10 +17,23 @@ public interface JPBeanService {
    *
    * @param jpClassCode        Кодовое имя класса
    * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
+   * @param jpData             Данные объекта
+   * @return Новый объект
+   */
+  JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData);
+
+
+  /**
+   * Создает объект
+   *
+   * @param jpClassCode        Кодовое имя класса
+   * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
    * @param data               Данные объекта
    * @return Новый объект
    */
-  JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, Map<String, Object> data);
+  default JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, Map<String, Object> data) {
+    return newInstance(jpClassCode, primaryKeyAttrCode, JPData.of(data));
+  }
 
   /**
    * Создает объект

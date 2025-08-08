@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
  * Описание типового хранилища
  */
 public abstract class JPBaseStorage implements JPStorage {
-  public static final Logger LOG = LoggerFactory.getLogger(JPBaseStorage.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(JPBaseStorage.class);
   /**
    * Кодовое имя
    */

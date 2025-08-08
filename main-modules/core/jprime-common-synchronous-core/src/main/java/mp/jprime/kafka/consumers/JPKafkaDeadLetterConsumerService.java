@@ -16,7 +16,7 @@ import java.util.Map;
  * @param <V> тип значения события
  */
 public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDeadLetterConsumerBaseService<K, V> {
-  private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerService.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerService.class);
 
   /**
    * Регистрирует слушателя

@@ -6,6 +6,7 @@ import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.*;
+import mp.jprime.reactor.core.publisher.JPMono;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,62 +26,52 @@ public final class JPReactiveObjectSyncWrapRepository implements JPReactiveObjec
 
   @Override
   public Mono<Long> getAsyncTotalCount(JPSelect query) {
-    return Mono.fromCallable(() -> repo.getTotalCount(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.getTotalCount(query));
   }
 
   @Override
   public Flux<JPObject> getAsyncList(JPSelect query) {
-    return Mono.fromCallable(() -> repo.getList(query))
-        .flatMapMany(Flux::fromIterable)
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.getList(query))
+        .flatMapMany(Flux::fromIterable);
   }
 
   @Override
   public Mono<JPData> getAsyncAggregate(JPAggregate aggr) {
-    return Mono.fromCallable(() -> repo.getAggregate(aggr))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.getAggregate(aggr));
   }
 
   @Override
   public Mono<JPId> asyncCreate(JPCreate query) {
-    return Mono.fromCallable(() -> repo.create(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.create(query));
   }
 
   @Override
   public Mono<JPObject> asyncCreateAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> repo.createAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.createAndGet(query));
   }
 
   @Override
   public Mono<JPId> asyncUpdate(JPUpdate query) {
-    return Mono.fromCallable(() -> repo.update(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.update(query));
   }
 
   @Override
   public Mono<JPObject> asyncUpdateAndGet(JPUpdate query) {
-    return Mono.fromCallable(() -> repo.updateAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.updateAndGet(query));
   }
 
   @Override
   public Mono<JPId> asyncPatch(JPCreate query) {
-    return Mono.fromCallable(() -> repo.patch(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.patch(query));
   }
 
   @Override
   public Mono<JPObject> asyncPatchAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> repo.patchAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.patchAndGet(query));
   }
 
   @Override
   public Mono<Long> asyncDelete(JPDelete query) {
-    return Mono.fromCallable(() -> repo.delete(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> repo.delete(query));
   }
 }

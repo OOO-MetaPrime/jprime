@@ -45,8 +45,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
         .addDeserializer(String.class, new StdScalarDeserializer<>(String.class) {
           @Override
           public String deserialize(JsonParser jsonParser, DeserializationContext ctx) throws IOException {
-            String str = jsonParser.getValueAsString();
-            return str != null ? str.trim() : null;
+            return jsonParser.getValueAsString();
           }
         })
         // String to Double
@@ -167,7 +166,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
                 jGen.writeObject(json);
               }
             })
-        // Money to String
+        // Money to BigDecimal
         .addSerializer(JPMoney.class,
             new JsonSerializer<>() {
               @Override

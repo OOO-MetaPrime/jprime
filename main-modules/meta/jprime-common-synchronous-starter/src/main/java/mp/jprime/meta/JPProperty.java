@@ -2,9 +2,9 @@ package mp.jprime.meta;
 
 import mp.jprime.beans.JPPropertyType;
 import mp.jprime.common.JPEnum;
-import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.common.JPOrder;
-import mp.jprime.meta.beans.JPStringFormat;
+import mp.jprime.dataaccess.params.query.Filter;
+import mp.jprime.formats.JPStringFormat;
 
 import java.util.Collection;
 import java.util.List;

@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.transaction;
 
-import mp.jprime.dataaccess.transaction.events.TransactionEvent;
+import mp.jprime.dataaccess.transaction.events.JPTransactionEvent;
 
 import java.util.Collection;
 
@@ -13,12 +13,12 @@ public interface TransactionInfo {
    *
    * @param event Событие
    */
-  void addTransactionEvent(TransactionEvent event);
+  void addCommitEvent(JPTransactionEvent event);
 
   /**
    * Возвращает все события транзакции
    *
    * @return Все события
    */
-  Collection<TransactionEvent> getTransactionEvents();
+  Collection<JPTransactionEvent> getCommitEvents();
 }

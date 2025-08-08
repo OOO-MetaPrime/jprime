@@ -1,14 +1,15 @@
 [versions]
 # Spring
-springBootVersion = "3.4.1"
-springCloudVersion = "2024.0.0"
+springBootVersion = "3.5.4"
+springCloudVersion = "2025.0.0"
 dependencyManagement = "1.1.7"
-springBootAdminStarterServer = "3.4.1"
-springKerberosVersion = "2.1.1.RELEASE"
+springBootAdminStarterServer = "3.5.1"
+springKerberosVersion = "2.2.0"
 
 [libraries]
 oauth2-authorization-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-authorization-server", version.ref = "springBootVersion"}
 boot-admin-starter-server = { module = "de.codecentric:spring-boot-admin-starter-server", version.ref = "springBootAdminStarterServer"}
+kerberos-core = { module = "org.springframework.security.kerberos:spring-security-kerberos-core", version.ref = "springKerberosVersion" }
 kerberos-web = { module = "org.springframework.security.kerberos:spring-security-kerberos-web", version.ref = "springKerberosVersion" }
 kerberos-client = { module = "org.springframework.security.kerberos:spring-security-kerberos-client", version.ref = "springKerberosVersion" }
 #starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "springBootVersion" }

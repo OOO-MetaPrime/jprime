@@ -112,4 +112,9 @@ public class AuthInfoJWTWrapperBean extends AuthBaseParams implements AuthInfo {
   public String getToken() {
     return jwtInfo.getToken();
   }
+
+  @Override
+  public Esia getEsia() {
+    return jwtInfo.getEsia();
+  }
 }

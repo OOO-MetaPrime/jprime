@@ -1,15 +1,22 @@
 package mp.jprime.json.services;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPMap;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 
 /**
@@ -29,6 +36,44 @@ public abstract class JPBaseObjectMapper {
     }
     try {
       return getObjectMapper().writeValueAsString(object);
+    } catch (JsonProcessingException e) {
+      throw JPRuntimeException.wrapException(e);
+    }
+  }
+
+  public String toString(JPJsonNode jpJsonNode, String... paths) {
+    if (jpJsonNode == null || paths == null || paths.length == 0) {
+      return toString(jpJsonNode);
+    }
+    JsonNode node = jpJsonNode.toJsonNode();
+    for (String path : paths) {
+      node = node != null ? node.path(path) : null;
+    }
+    if (node == null || node.isMissingNode()) {
+      return null;
+    }
+    return node.asText();
+  }
+
+  @JsonFilter("exceptFilter")
+  private static class ExceptFilterMixIn {
+
+  }
+
+  public String toString(Object object, Collection<String> ignoreProps) {
+    if (object == null) {
+      return null;
+    }
+    if (ignoreProps == null || ignoreProps.isEmpty()) {
+      return toString(object);
+    }
+    try {
+      FilterProvider filterProvider = new SimpleFilterProvider()
+          .addFilter("exceptFilter", SimpleBeanPropertyFilter.serializeAllExcept(new HashSet<>(ignoreProps)));
+      ObjectWriter writer = getObjectMapper().copy()
+          .addMixIn(Object.class, ExceptFilterMixIn.class)
+          .writer(filterProvider);
+      return writer.writeValueAsString(object);
     } catch (JsonProcessingException e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -65,6 +110,7 @@ public abstract class JPBaseObjectMapper {
       throw JPRuntimeException.wrapException(e);
     }
   }
+
 
   public JPJsonNode toJPJsonNode(JPMap map) {
     return map == null ? null : toJPJsonNode(map.toMap());
@@ -120,6 +166,16 @@ public abstract class JPBaseObjectMapper {
   public Map<String, Object> toMap(JPJsonNode value) {
     return value == null ? null : toObject(new TypeReference<>() {
     }, value.toString());
+  }
+
+  public <T> T toObject(TypeReference<T> to, Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (to == null) {
+      throw new IllegalArgumentException("Unset destination type <to> on call JPObjectMapper");
+    }
+    return toObject(to, toString(value));
   }
 
   public <T> T toObject(TypeReference<T> to, String value) {

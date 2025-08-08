@@ -14,16 +14,16 @@ import java.util.Collection;
  */
 @Service
 public class JPXmlMapper extends JPObjectXmlMapper {
-  private final XmlMapper OBJECT_MAPPER;
+  private final XmlMapper XML_MAPPER;
 
   private JPXmlMapper(@Autowired Collection<JPObjectMapperXmlExpander> expanders) {
-    OBJECT_MAPPER = new XmlMapper();
-    setSettings(expanders, OBJECT_MAPPER);
+    XML_MAPPER = new XmlMapper();
+    setSettings(expanders, XML_MAPPER);
   }
 
   @Override
   public XmlMapper getObjectMapper() {
-    return OBJECT_MAPPER;
+    return XML_MAPPER;
   }
 
   public <T> T toObject(Class<T> to, byte[] src) {
@@ -34,7 +34,7 @@ public class JPXmlMapper extends JPObjectXmlMapper {
       throw new IllegalArgumentException("Unset destination type <to> on call JPXmlMapper");
     }
     try {
-      return OBJECT_MAPPER.readValue(src, to);
+      return XML_MAPPER.readValue(src, to);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -48,7 +48,7 @@ public class JPXmlMapper extends JPObjectXmlMapper {
       throw new IllegalArgumentException("Unset destination stream on call JPXmlMapper");
     }
     try {
-      OBJECT_MAPPER.writeValue(stream, value);
+      XML_MAPPER.writeValue(stream, value);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }

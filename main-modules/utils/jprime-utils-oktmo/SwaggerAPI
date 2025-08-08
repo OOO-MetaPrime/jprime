@@ -1,0 +1,139 @@
+openapi: 3.0.0
+info:
+  title: UniUtils REST API
+  description: This is a Utils REST API
+  contact:
+    email: info@metaprime.ru
+  license:
+    name: Apache 2.0
+    url: https://github.com/OOO-MetaPrime/jprime/blob/master/LICENSE
+  version: 1.0.0
+tags:
+- name: action
+  description: Запуск утилиты
+
+paths:
+  /utils/v1/oktmo-search/mode/get:
+    post:
+      tags:
+      - action
+      description: Получение данных по ОКТМО
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/get-request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/get-response'
+        400:
+          description: Bad request. See the logs for details
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/oktmo-search/mode/search:
+    post:
+      tags:
+      - action
+      description: Поиск ОКТМО
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/search-request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/search-response'
+        400:
+          description: Bad request. See the logs for details
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+components:
+  schemas:
+    get-request:
+      type: object
+      description: запуск утилиты
+      properties:
+        oktmo:
+          type: array
+          description: Список ОКТМО
+          items:
+            type: string
+            example: ["38630000"]
+
+    get-response:
+      type: object
+      description: ответ утилиты
+      properties:
+        oktmo:
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example: {"38630000": "Поныровский муниципальный район"}
+
+    search-request:
+      type: object
+      description: запуск утилиты
+      properties:
+        query:
+          type: string
+          description: поисковая строка
+          example: ["25 смоленск"]
+        limit:
+          type: integer
+          description: количество объектов в выборке
+          example: 50
+        subjectSearch:
+          type: boolean
+          description: поиск по субъектам
+          example: true
+        formationSearch:
+          type: boolean
+          description: поиск по образованиям
+          example: true
+        districtSearch:
+          type: boolean
+          description: поиск по округам
+          example: true
+        oktmoSearch:
+          type: array
+          items:
+            type: string
+          description: поиск с учетом указанных ОКТМО
+          example: ["07000000"]
+        authSearch:
+          type: boolean
+          description: поиск с учетом ОКТМО пользователя
+          example: true
+
+    search-response:
+      type: object
+      description: ответ утилиты
+      properties:
+        oktmo:
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example: {"25612422": "Смоленское"}
+
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/MetaPrime/JPrimeAPI/1.0.0

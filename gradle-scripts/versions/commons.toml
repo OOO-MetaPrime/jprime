@@ -1,17 +1,17 @@
 # Commons
 [versions]
-commonsCodecVersion = "1.17.1"
-commonsCollections4Version = "4.4"
-commonsIoVersion = "2.16.1"
+commonsCodecVersion = "1.18.0"
+commonsCollections4Version = "4.5.0"
+commonsIoVersion = "2.18.0"
 commonsLang3Version = "3.17.0"
-commonsValidatorVersion = "1.8.0"
-monetaCoreVersion = "1.4.4"
+commonsValidatorVersion = "1.9.0"
+monetaCoreVersion = "1.4.5"
 tikaCoreVersion = "2.9.1"
-guavaVersion = "33.3.1-jre"
+guavaVersion = "33.4.8-jre"
 fasterxmlUuidVersion = "5.1.0"
-apacheHttpClientVersion = "5.4.1"
+apacheHttpClientVersion = "5.5"
 commonsNetVersion = "3.9.0"
-fastjsonVersion = "2.0.53"
+fastjsonVersion = "2.0.57"
 jaxbApiVersionOld = "2.3.1"
 jaxbRuntimeVersionOld = "2.3.8"
 jaxbApiVersion = "4.0.2"
@@ -19,7 +19,8 @@ jaxbRuntimeVersion = "4.0.5"
 jakartaWsApiVersion = "4.0.2"
 jaxwsVersion = "4.0.2"
 jakartaActivationVersion = "2.1.3"
-zxingVersion = "3.5.1" # Генерация штрих кодов и QR кодов
+zxingVersion = "3.5.3" # Генерация штрих кодов и QR кодов
+xsomVersion = "4.0.5"
 
 [libraries]
 codec = { module="commons-codec:commons-codec", version.ref="commonsCodecVersion" }
@@ -41,6 +42,7 @@ jaxws-rt = { module="com.sun.xml.ws:rt", version.ref = "jaxwsVersion" }
 jakarta-activation = { module="jakarta.activation:jakarta.activation-api", version.ref = "jakartaActivationVersion" }
 zxing-core = { module="com.google.zxing:core", version.ref = "zxingVersion" }
 zxing-javase = { module="com.google.zxing:javase", version.ref = "zxingVersion" }
+xsom = {module="org.glassfish.jaxb:xsom", version.ref = "xsomVersion"}
 
 [bundles]
 jaxb = ['jaxb-api', 'jaxb-runtime']

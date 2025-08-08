@@ -8,17 +8,21 @@ import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.collections4.MapUtils;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.BiConsumer;
 
 /**
  * Запрос множественного обновления
  */
 public class JPBatchUpdate extends JPBatchSave {
-  private final Map<Comparable, JPMutableData> batches;
+  private final Map<Comparable<?>, JPMutableData> batches;
 
-  private JPBatchUpdate(String jpClass, Map<Comparable, JPMutableData> batches, Source source, AuthInfo auth) {
-    super(jpClass, source, auth);
+  private JPBatchUpdate(String jpClass, Map<Comparable<?>, JPMutableData> batches, Source source, AuthInfo auth,
+                        Map<String, String> props) {
+    super(jpClass, source, auth, props);
     this.batches = MapUtils.isEmpty(batches) ? Collections.emptyMap() : new LinkedHashMap<>(batches);
   }
 
@@ -27,11 +31,11 @@ public class JPBatchUpdate extends JPBatchSave {
    *
    * @return наборы данных для обновления, где ключ - идентификатор объекта, значение - данные для обновления
    */
-  public Map<Comparable, JPMutableData> getBatches() {
+  public Map<Comparable<?>, JPMutableData> getBatches() {
     return batches;
   }
 
-  public void forEach(BiConsumer<? super Comparable, ? super JPMutableData> action) {
+  public void forEach(BiConsumer<? super Comparable<?>, ? super JPMutableData> action) {
     batches.forEach(action);
   }
 
@@ -89,8 +93,8 @@ public class JPBatchUpdate extends JPBatchSave {
    * Построитель {@link JPBatchUpdate}
    */
   public static final class Builder extends JPBatchSave.Builder<Builder> {
-    private final Map<Comparable, JPMutableData> batches = new LinkedHashMap<>();
-    private Comparable id;
+    private final Map<Comparable<?>, JPMutableData> batches = new LinkedHashMap<>();
+    private Comparable<?> id;
     private JPMutableData data = JPMutableData.empty();
 
     private Builder(String jpClass) {
@@ -104,7 +108,7 @@ public class JPBatchUpdate extends JPBatchSave {
      */
     @Override
     public JPBatchUpdate build() {
-      return new JPBatchUpdate(jpClass, batches, source, auth);
+      return new JPBatchUpdate(jpClass, batches, source, auth, props);
     }
 
     /**
@@ -113,7 +117,7 @@ public class JPBatchUpdate extends JPBatchSave {
      * @param id Идентификатор объекта
      * @return Построитель {@link JPBatchUpdate}
      */
-    public Builder id(Comparable id) {
+    public Builder id(Comparable<?> id) {
       this.id = id;
       return this;
     }
@@ -184,16 +188,6 @@ public class JPBatchUpdate extends JPBatchSave {
     @Override
     public int size() {
       return batches.size();
-    }
-
-    /**
-     * Возвращает кодовое имя класса
-     *
-     * @return Кодовое имя класса
-     */
-    @Override
-    public String getJpClass() {
-      return jpClass;
     }
   }
 }

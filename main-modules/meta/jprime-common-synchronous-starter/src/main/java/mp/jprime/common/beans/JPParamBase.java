@@ -2,7 +2,9 @@ package mp.jprime.common.beans;
 
 import mp.jprime.common.JPEnum;
 import mp.jprime.common.JPParam;
-import mp.jprime.meta.beans.JPStringFormat;
+import mp.jprime.files.FileType;
+import mp.jprime.formats.JPStringFormat;
+import mp.jprime.meta.JPMoney;
 import mp.jprime.meta.beans.JPType;
 
 import java.util.Collection;
@@ -28,6 +30,10 @@ public class JPParamBase implements JPParam {
    * Маска строкового поля
    */
   private final String stringMask;
+  /**
+   * Расширения файлов для выбора
+   */
+  private final Collection<FileType> fileTypes;
   /**
    * Длина (для строковых полей)
    */
@@ -61,6 +67,10 @@ public class JPParamBase implements JPParam {
    */
   private final String refFilter;
   /**
+   * Описание денежного типа
+   */
+  private final JPMoney money;
+  /**
    * Возможность внешнего переопределения параметра. Например, для ввода пользователем
    */
   private final boolean external;
@@ -76,32 +86,48 @@ public class JPParamBase implements JPParam {
    * Клиентский поиск
    */
   private final boolean clientSearch;
+  /**
+   * Признак логирования значения
+   */
+  private final boolean actionLog;
+  /**
+   * Признак только для чтения
+   */
+  private final boolean readOnly;
 
   /**
-   * @param code         Название(Код) параметра
+   * @param code         Название (Код) параметра
    * @param type         Тип параметра
    * @param stringFormat Тип строкового поля
    * @param stringMask   Маска строкового поля
+   * @param fileTypes    Расширения файлов для выбора
    * @param length       Длина (для строковых полей)
    * @param description  Наименование
    * @param qName        QName
    * @param mandatory    Признак обязательности
+   * @param multiple     Признак множественного выбора
    * @param refJpClass   Класс из меты
    * @param refJpAttr    Атрибут класса
    * @param refFilter    JSON фильтрации объектов
+   * @param money        Описание денежного типа
    * @param external     Возможность внешнего переопределения параметра
    * @param value        Значение параметра
    * @param enums        Перечислимые значения
    * @param clientSearch Клиентский поиск
+   * @param actionLog    Признак логирования значения
+   * @param readOnly     Признак только для чтения
    */
   protected JPParamBase(String code, JPType type, JPStringFormat stringFormat, String stringMask,
-                        Integer length, String description, String qName,
+                        Collection<FileType> fileTypes, Integer length, String description, String qName,
                         boolean mandatory, boolean multiple, String refJpClass, String refJpAttr, String refFilter,
-                        boolean external, Object value, Collection<JPEnum> enums, boolean clientSearch) {
+                        JPMoney money,
+                        boolean external, Object value, Collection<JPEnum> enums, boolean clientSearch, boolean actionLog,
+                        boolean readOnly) {
     this.code = code;
     this.type = type;
     this.stringFormat = stringFormat;
     this.stringMask = stringMask;
+    this.fileTypes = fileTypes != null && !fileTypes.isEmpty() ? Collections.unmodifiableCollection(fileTypes) : Collections.emptyList();
     this.length = length != null && length > 0 ? length : null;
     this.description = description;
     this.qName = qName;
@@ -110,10 +136,13 @@ public class JPParamBase implements JPParam {
     this.refJpClass = refJpClass != null && !refJpClass.isEmpty() ? refJpClass : null;
     this.refJpAttr = refJpAttr != null && !refJpAttr.isEmpty() ? refJpAttr : null;
     this.refFilter = refFilter != null && !refFilter.isEmpty() ? refFilter : null;
+    this.money = money;
     this.external = external;
     this.value = value;
-    this.enums = enums != null ? Collections.unmodifiableCollection(enums) : Collections.emptyList();
+    this.enums = enums != null && !enums.isEmpty() ? Collections.unmodifiableCollection(enums) : Collections.emptyList();
     this.clientSearch = clientSearch;
+    this.actionLog = actionLog;
+    this.readOnly = readOnly;
   }
 
   @Override
@@ -134,6 +163,11 @@ public class JPParamBase implements JPParam {
   @Override
   public String getStringMask() {
     return stringMask;
+  }
+
+  @Override
+  public Collection<FileType> getFileTypes() {
+    return fileTypes;
   }
 
   @Override
@@ -167,6 +201,11 @@ public class JPParamBase implements JPParam {
   }
 
   @Override
+  public JPMoney getMoney() {
+    return money;
+  }
+
+  @Override
   public boolean isMandatory() {
     return mandatory;
   }
@@ -196,6 +235,16 @@ public class JPParamBase implements JPParam {
     return clientSearch;
   }
 
+  @Override
+  public boolean isActionLog() {
+    return actionLog;
+  }
+
+  @Override
+  public boolean isReadOnly() {
+    return readOnly;
+  }
+
   public static Builder newBuilder() {
     return new Builder<>();
   }
@@ -205,6 +254,7 @@ public class JPParamBase implements JPParam {
     protected JPType type;
     protected JPStringFormat stringFormat;
     protected String stringMask;
+    protected Collection<FileType> fileTypes;
     protected Integer length;
     protected String description;
     protected String qName;
@@ -213,17 +263,21 @@ public class JPParamBase implements JPParam {
     protected String refJpClass;
     protected String refJpAttr;
     protected String refFilter;
+    protected JPMoney money;
     protected boolean external;
     protected Object value;
     protected Collection<JPEnum> enums;
     protected boolean clientSearch;
+    protected boolean actionLog;
+    protected boolean readOnly;
 
     protected Builder() {
     }
 
     public JPParamBase build() {
-      return new JPParamBase(code, type, stringFormat, stringMask, length, description, qName, mandatory, multiple,
-          refJpClass, refJpAttr, refFilter, external, value, enums, clientSearch);
+      return new JPParamBase(code, type, stringFormat, stringMask,
+          fileTypes, length, description, qName, mandatory, multiple,
+          refJpClass, refJpAttr, refFilter, money, external, value, enums, clientSearch, actionLog, readOnly);
     }
 
     public T enums(Collection<JPEnum> enums) {
@@ -248,6 +302,11 @@ public class JPParamBase implements JPParam {
 
     public T stringMask(String stringMask) {
       this.stringMask = stringMask;
+      return (T) this;
+    }
+
+    public T fileTypes(Collection<FileType> fileTypes) {
+      this.fileTypes = fileTypes;
       return (T) this;
     }
 
@@ -291,6 +350,11 @@ public class JPParamBase implements JPParam {
       return (T) this;
     }
 
+    public T money(JPMoney money) {
+      this.money = money;
+      return (T) this;
+    }
+
     public T external(boolean external) {
       this.external = external;
       return (T) this;
@@ -303,6 +367,16 @@ public class JPParamBase implements JPParam {
 
     public T clientSearch(boolean clientSearch) {
       this.clientSearch = clientSearch;
+      return (T) this;
+    }
+
+    public T actionLog(boolean actionLog) {
+      this.actionLog = actionLog;
+      return (T) this;
+    }
+
+    public T readOnly(boolean readOnly) {
+      this.readOnly = readOnly;
       return (T) this;
     }
   }

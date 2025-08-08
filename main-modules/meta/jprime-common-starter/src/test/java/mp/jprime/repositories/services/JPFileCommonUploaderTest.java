@@ -10,6 +10,7 @@ import mp.jprime.meta.beans.JPClassBean;
 import mp.jprime.meta.beans.JPFileBean;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -46,7 +47,7 @@ public class JPFileCommonUploaderTest {
   private JPFileCommonUploader uploader;
 
   @MockitoBean
-  private RepositoryStorage repositoryStorage;
+  private RepositoryGlobalStorage repositoryStorage;
   @MockitoBean
   private JPMetaStorage metaStorage;
   @MockitoBean

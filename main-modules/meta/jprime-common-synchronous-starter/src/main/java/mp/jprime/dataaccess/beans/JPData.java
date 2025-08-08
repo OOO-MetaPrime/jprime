@@ -152,6 +152,19 @@ public final class JPData implements JPAttrData {
   /**
    * Построитель JPData
    *
+   * @param key   Ключ
+   * @param value Значение
+   * @return JPData
+   */
+  public static JPData of(String key, Object value) {
+    Map<String, Object> data = new HashMap<>();
+    data.put(key, value);
+    return JPData.of(data);
+  }
+
+  /**
+   * Построитель JPData
+   *
    * @return Builder
    */
   public static Builder newBuilder() {

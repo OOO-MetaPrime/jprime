@@ -16,6 +16,23 @@ public interface JPMetaFilter {
   Collection<JPClass> getList();
 
   /**
+   * Возвращает список классов, соответствующих фильтрации
+   *
+   * @param jpClassCodeList Коды классов
+   * @return список метаописаний
+   */
+  Collection<JPClass> getList(Collection<String> jpClassCodeList);
+
+  /**
+   * Возвращает список классов, соответствующих фильтрации
+   *
+   * @param jpClassCodeList Коды классов
+   * @param auth            AuthInfo
+   * @return список метаописаний
+   */
+  Collection<JPClass> getList(Collection<String> jpClassCodeList, AuthInfo auth);
+
+  /**
    * Возвращает список классов, соответствующих настройкам доступа и фильтрации
    *
    * @param auth AuthInfo

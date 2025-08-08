@@ -1,18 +1,21 @@
 package mp.jprime.dataaccess.params;
 
 import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.enums.AggregationOperator;
 import mp.jprime.dataaccess.params.query.Aggregate;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.enums.AggregationOperator;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * Запрос агрегации данных
  */
-public class JPAggregate extends JPBaseParams {
+public class JPAggregate extends JPBaseOperation {
   private final String jpClass;
   private final Collection<Aggregate> aggrs;
   private final Filter where;
@@ -27,10 +30,11 @@ public class JPAggregate extends JPBaseParams {
    * @param auth    Данные аутентификации
    * @param timeout Время ожидания запроса
    * @param source  Источник данных
+   * @param props   Дополнительные свойства
    */
   private JPAggregate(String jpClass, Collection<Aggregate> aggrs, Filter where, AuthInfo auth,
-                      Integer timeout, Source source) {
-    super(source, auth);
+                      Integer timeout, Source source, Map<String, String> props) {
+    super(source, auth, props);
 
     this.jpClass = jpClass;
     this.aggrs = aggrs == null ? Collections.emptyList() : Collections.unmodifiableCollection(aggrs);
@@ -98,13 +102,11 @@ public class JPAggregate extends JPBaseParams {
   /**
    * Построитель JPAggregate
    */
-  public static final class Builder {
+  public static final class Builder extends JPBaseOperation.Builder<Builder> {
     private String jpClass;
     private final Collection<Aggregate> aggrs = new ArrayList<>();
     private Filter where;
-    private AuthInfo auth;
     private Integer timeout;
-    private Source source;
 
     private Builder(String jpClass) {
       this.jpClass = jpClass;
@@ -115,8 +117,9 @@ public class JPAggregate extends JPBaseParams {
      *
      * @return JPAggregate
      */
+    @Override
     public JPAggregate build() {
-      return new JPAggregate(jpClass, aggrs, where, auth, timeout, source);
+      return new JPAggregate(jpClass, aggrs, where, auth, timeout, source, props);
     }
 
     /**
@@ -187,17 +190,6 @@ public class JPAggregate extends JPBaseParams {
     }
 
     /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
-    }
-
-    /**
      * Время ожидания запроса
      *
      * @param timeout Время ожидания запроса
@@ -205,17 +197,6 @@ public class JPAggregate extends JPBaseParams {
      */
     public Builder timeout(Integer timeout) {
       this.timeout = timeout;
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
       return this;
     }
   }

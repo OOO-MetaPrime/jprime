@@ -11,6 +11,7 @@ import mp.jprime.json.beans.JsonUniqueValue;
 import mp.jprime.json.beans.JsonUniqueValues;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -85,7 +86,7 @@ public abstract class RestApiUniqueValuesBaseController extends JPQuerySettings 
   }
 
   protected Mono<Collection<JPUniqueValue>> getUniqueValues(JPSelect.Builder builder, List<String> hierarchy) {
-    return Mono.fromCallable(() -> jpUniqueValuesService.getUniqueValues(builder.build(), hierarchy));
+    return JPMono.fromCallable(() -> jpUniqueValuesService.getUniqueValues(builder.build(), hierarchy));
   }
 
   private Collection<JsonUniqueValue> toJson(Collection<JPUniqueValue> values, Counter counter) {

@@ -1,6 +1,6 @@
 package mp.jprime.dataaccess.transaction;
 
-import mp.jprime.dataaccess.transaction.events.TransactionEvent;
+import mp.jprime.dataaccess.transaction.events.JPTransactionEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -10,11 +10,11 @@ import java.util.Collections;
  * Данные транзакции
  */
 public final class JPTransactionInfo implements TransactionInfo {
-  private final Collection<TransactionEvent> events = new ArrayList<>();
-  private final Collection<TransactionEvent> umEvents = Collections.unmodifiableCollection(events);
+  private final Collection<JPTransactionEvent> events = new ArrayList<>();
+  private final Collection<JPTransactionEvent> umEvents = Collections.unmodifiableCollection(events);
 
   @Override
-  public void addTransactionEvent(TransactionEvent event) {
+  public void addCommitEvent(JPTransactionEvent event) {
     if (event == null) {
       return;
     }
@@ -22,7 +22,7 @@ public final class JPTransactionInfo implements TransactionInfo {
   }
 
   @Override
-  public Collection<TransactionEvent> getTransactionEvents() {
+  public Collection<JPTransactionEvent> getCommitEvents() {
     return umEvents;
   }
 

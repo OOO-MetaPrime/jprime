@@ -18,8 +18,6 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.*;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
-
 @EnableKafka
 @Lazy(value = false)
 @Service
@@ -95,7 +93,7 @@ public class KafkaSystemEventService implements SystemEventPublisher {
     return jpKafkaJsonMapper.toString(jsonJPSystemEventConvertor.toJsonJPSystemEvent(event));
   }
 
-  private JPSystemEvent toEvent(String string) throws IOException, SecurityException {
+  private JPSystemEvent toEvent(String string) throws SecurityException {
     return jsonJPSystemEventConvertor.toJPSystemEvent(jpKafkaJsonMapper.toObject(JsonJPSystemEvent.class, string));
   }
 }

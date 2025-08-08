@@ -45,6 +45,22 @@ public final class JPPeriod {
   }
 
   /**
+   * Признак вхождения указанного периода в текущий период (включительно)
+   *
+   * @param period Период
+   * @return Да/Нет
+   */
+  public boolean contains(JPPeriod period) {
+    if (period == null) {
+      return false;
+    }
+    LocalDate inFrom = period.getFrom();
+    LocalDate inTo = period.getTo();
+    return (from == null || inFrom == null || !from.isAfter(inFrom))
+        && (to == null || inTo == null || !to.isBefore(inTo));
+  }
+
+  /**
    * Признак пересечения указанного периода с периодом
    *
    * @param value Период

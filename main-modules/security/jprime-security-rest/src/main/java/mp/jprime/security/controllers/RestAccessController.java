@@ -1,12 +1,10 @@
 package mp.jprime.security.controllers;
 
 import mp.jprime.dataaccess.JPAction;
-import mp.jprime.dataaccess.JPObjectAccessService;
-import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.conds.CollectionCond;
-import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.abac.*;
@@ -14,6 +12,7 @@ import mp.jprime.security.abac.json.beans.*;
 import mp.jprime.security.abac.services.JPAbacStorage;
 import mp.jprime.security.beans.JPAccessType;
 import mp.jprime.security.json.beans.*;
+import mp.jprime.security.json.converters.JsonAccessConverter;
 import mp.jprime.security.jwt.JWTService;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.apache.commons.collections4.CollectionUtils;
@@ -30,13 +29,13 @@ import reactor.core.publisher.Mono;
 import java.time.DayOfWeek;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @RestController
 @RequestMapping("access/v1")
-public class RestAccessController implements JPObjectAccessServiceAware {
+public class RestAccessController {
+  private JsonAccessConverter accessConverter;
   /**
    * Хранилище настроек RBAC
    */
@@ -50,13 +49,14 @@ public class RestAccessController implements JPObjectAccessServiceAware {
    */
   private JWTService jwtService;
   /**
-   * Интерфейс проверки доступа к объекту
-   */
-  private JPObjectAccessService objectAccessService;
-  /**
    * Фильтр меты
    */
   private JPMetaFilter jpMetaFilter;
+
+  @Autowired
+  private void setAccessConverter(JsonAccessConverter accessConverter) {
+    this.accessConverter = accessConverter;
+  }
 
   @Autowired
   private void setSecurityManager(JPSecurityStorage securityManager) {
@@ -78,11 +78,6 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     this.jpMetaFilter = jpMetaFilter;
   }
 
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
-    this.objectAccessService = objectAccessService;
-  }
-
   @ResponseBody
   @GetMapping(value = "jpObjects/{code}/{objectId}",
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -95,7 +90,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    return getAccessList(Collections.singletonList(objectId), jpClass, auth)
+    return getAccessList(jpClass, Collections.singletonList(objectId), auth)
         .map(accessList -> accessList.iterator().next());
   }
 
@@ -112,7 +107,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
           if (jpClass == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
           }
-          return getAccessList(query.getObjectIds(), jpClass, auth);
+          return getAccessList(jpClass, query.getObjectIds(), auth);
         })
         .reduce(
             JsonJPObjectAccessList.builder(),
@@ -133,7 +128,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     if (jpClass == null) {
       return Mono.empty();
     }
-    return Mono.just(toJPClassAccessModel(jpClass, auth));
+    return JPMono.fromCallable(() -> accessConverter.toJPClassAccess(jpClass, auth));
   }
 
   @ResponseBody
@@ -149,7 +144,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
     if (jpClass == null) {
       return Mono.empty();
     }
-    return Mono.just(toJPClassAccessModel(jpClass, attrCode, attrValue, auth));
+    return JPMono.fromCallable(() -> accessConverter.toJPClassAccess(jpClass, attrCode, attrValue, auth));
   }
 
   @ResponseBody
@@ -163,7 +158,7 @@ public class RestAccessController implements JPObjectAccessServiceAware {
       return Flux.empty();
     }
     return Flux.fromIterable(classes)
-        .map(x -> toJPClassAccessModel(x, auth));
+        .map(x -> accessConverter.toJPClassAccess(x, auth));
   }
 
   @ResponseBody
@@ -240,38 +235,14 @@ public class RestAccessController implements JPObjectAccessServiceAware {
         .filter(x -> x.filter(jpQuery));
   }
 
-  private Mono<Collection<JsonJPObjectAccess>> getAccessList(Collection<String> objectIds, JPClass jpClass, AuthInfo authInfo) {
+  private Mono<Collection<JsonJPObjectAccess>> getAccessList(JPClass jpClass, Collection<String> objectIds, AuthInfo auth) {
     if (jpClass == null || CollectionUtils.isEmpty(objectIds)) {
       return Mono.empty();
     } else {
-      return Mono.just(
-          toJPObjectAccessModel(objectIds, jpClass, authInfo)
-      );
+      return JPMono.fromCallable(() -> accessConverter.toJPObjectAccess(jpClass, objectIds, auth));
     }
   }
 
-  private Collection<JsonJPObjectAccess> toJPObjectAccessModel(Collection<String> objectIds, JPClass jpClass, AuthInfo auth) {
-    //Доступ к атрибутам
-    Map<String, Boolean> attrAccess = jpClass.getAttrs().stream()
-        .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
-        .collect(Collectors.toMap(JPAttr::getCode, attr -> attr.isUpdatable() && securityManager.checkUpdate(attr.getJpPackage(), auth.getRoles())));
-
-    return objectAccessService.objectsAccess(
-            jpClass,
-            objectIds,
-            auth)
-        .stream()
-        .map(a -> JsonJPObjectAccess.newBuilder()
-            .objectId(a.getId().toString())
-            .objectClassCode(a.getJpClass())
-            .read(a.isRead())
-            .update(a.isUpdate())
-            .delete(a.isDelete())
-            .create(a.isCreate())
-            .attrEdit(attrAccess)
-            .build())
-        .collect(Collectors.toList());
-  }
 
   private JsonAbacPolicySet toJsonPolicySet(PolicySet policySet) {
     if (policySet == null) {
@@ -375,35 +346,6 @@ public class RestAccessController implements JPObjectAccessServiceAware {
             .build()
     ).collect(Collectors.toList());
   }
-
-  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass, AuthInfo auth) {
-    return toJPClassAccessModel(jpClass, null, null, auth);
-  }
-
-  private JsonJPClassAccess toJPClassAccessModel(JPClass jpClass, String refAttrCode, Comparable value, AuthInfo auth) {
-    JsonJPClassAccess.Builder builder = JsonJPClassAccess.newBuilder()
-        .classCode(jpClass.getCode())
-        .read(
-            objectAccessService.checkRead(jpClass.getCode(), auth)
-        )
-        .create(
-            objectAccessService.checkCreate(jpClass.getCode(), refAttrCode, value, auth)
-        )
-        .update(
-            objectAccessService.checkUpdate(jpClass.getCode(), auth)
-        )
-        .delete(
-            objectAccessService.checkDelete(jpClass.getCode(), auth)
-        );
-    // Доступ к атрибутам
-    jpClass.getAttrs().stream()
-        .filter(attr -> securityManager.checkRead(attr.getJpPackage(), auth.getRoles()))
-        .forEach(
-            attr -> builder.attrEdit(attr.getCode(), securityManager.checkCreate(attr.getJpPackage(), auth.getRoles()))
-        );
-    return builder.build();
-  }
-
 
   private JsonSecurityPackage toSecurityPackage(JPSecurityPackage pkg, AuthInfo auth) {
     return JsonSecurityPackage.newBuilder()

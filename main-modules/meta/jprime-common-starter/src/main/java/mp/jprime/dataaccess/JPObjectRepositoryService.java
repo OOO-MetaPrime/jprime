@@ -1,15 +1,14 @@
 package mp.jprime.dataaccess;
 
-import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.reactor.core.publisher.JPMono;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,15 +19,6 @@ import java.util.Optional;
  */
 public interface JPObjectRepositoryService {
   /**
-   * Scheduler для обработки логики
-   *
-   * @return Scheduler
-   */
-  default Scheduler getReactorScheduler() {
-    return JPReactorScheduler.reactorScheduler();
-  }
-
-  /**
    * Возвращает объект
    *
    * @param select Параметры для выборки
@@ -36,7 +26,6 @@ public interface JPObjectRepositoryService {
    */
   default Mono<JPObject> getAsyncObject(JPSelect select) {
     return getAsyncList(select)
-        .subscribeOn(getReactorScheduler())
         .singleOrEmpty();
   }
 
@@ -82,8 +71,7 @@ public interface JPObjectRepositoryService {
    * @return Количество в выборке
    */
   default Mono<Long> getAsyncTotalCount(JPSelect select) {
-    return Mono.fromCallable(() -> getTotalCount(select))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getTotalCount(select));
   }
 
   /**
@@ -134,8 +122,7 @@ public interface JPObjectRepositoryService {
    * @return Список объектов
    */
   default Mono<JPData> getAsyncAggregate(JPAggregate aggr) {
-    return Mono.fromCallable(() -> getAggregate(aggr))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getAggregate(aggr));
   }
 
   /**
@@ -161,8 +148,7 @@ public interface JPObjectRepositoryService {
    * @return Идентификатор созданного объекта
    */
   default Mono<JPId> asyncCreate(JPCreate query) {
-    return Mono.fromCallable(() -> create(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> create(query));
   }
 
   /**
@@ -180,8 +166,7 @@ public interface JPObjectRepositoryService {
    * @return Созданные объект
    */
   default Mono<JPObject> asyncCreateAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> createAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> createAndGet(query));
   }
 
   /**
@@ -191,8 +176,7 @@ public interface JPObjectRepositoryService {
    * @return Идентификатор обновляемого объекта
    */
   default Mono<JPId> asyncUpdate(JPUpdate query) {
-    return Mono.fromCallable(() -> update(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> update(query));
   }
 
   /**
@@ -210,8 +194,7 @@ public interface JPObjectRepositoryService {
    * @return Количество обновленных объектов
    */
   default Mono<Long> asyncUpdate(JPConditionalUpdate query) {
-    return Mono.fromCallable(() -> update(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> update(query));
   }
 
   /**
@@ -229,8 +212,7 @@ public interface JPObjectRepositoryService {
    * @return Обновленный объект
    */
   default Mono<JPObject> asyncUpdateAndGet(JPUpdate query) {
-    return Mono.fromCallable(() -> updateAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> updateAndGet(query));
   }
 
   /**
@@ -258,8 +240,7 @@ public interface JPObjectRepositoryService {
    * @return Идентификатор созданного объекта
    */
   default Mono<JPId> asyncPatch(JPCreate query) {
-    return Mono.fromCallable(() -> patch(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> patch(query));
   }
 
   /**
@@ -279,8 +260,7 @@ public interface JPObjectRepositoryService {
    * @return Созданные объект
    */
   default Mono<JPObject> asyncPatchAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> patchAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> patchAndGet(query));
   }
 
   /**
@@ -290,8 +270,7 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   default Mono<Long> asyncDelete(JPDelete query) {
-    return Mono.fromCallable(() -> delete(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> delete(query));
   }
 
   /**
@@ -309,8 +288,7 @@ public interface JPObjectRepositoryService {
    * @return Количество удаленных объектов
    */
   default Mono<Long> asyncDelete(JPConditionalDelete query) {
-    return Mono.fromCallable(() -> delete(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> delete(query));
   }
 
   /**

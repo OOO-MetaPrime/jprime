@@ -13,7 +13,6 @@
 | jprime-eureka-client           | Модуль подключения клиентов к eureka                                                   |
 | jprime-fonts                   | Модуль содержащий шрифты                                                               |
 | jprime-groovy-core             | Модуль выполнения groovy-скриптов                                                      |
-| jprime-imex                    | Модуль обработки файлов                                                                |
+| jprime-mail                    | Модуль работы с email                                                                  |
 | jprime-monitoring-core         | Модуль мониторинга состояния приложения                                                |
 | jprime-security-core           | Константы базовых ролей и API для работы с авторизацией пользователя                   |
-| jprime-test                    | Модуль для тестирования                                                                |

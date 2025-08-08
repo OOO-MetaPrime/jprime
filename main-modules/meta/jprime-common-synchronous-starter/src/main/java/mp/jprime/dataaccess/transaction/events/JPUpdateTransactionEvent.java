@@ -7,7 +7,9 @@ import mp.jprime.security.ConnectionInfo;
 /**
  * Событие транзакции - обновление объекта
  */
-public final class JPUpdateTransactionEvent implements TransactionEvent {
+public final class JPUpdateTransactionEvent implements JPTransactionJPObjectEvent {
+  public static final String CODE = "jpUpdateEvent";
+
   private final Comparable id;
   private final String jpClassCode;
   private final JPUpdate query;
@@ -20,53 +22,33 @@ public final class JPUpdateTransactionEvent implements TransactionEvent {
     this.connInfo = connInfo;
   }
 
-  /**
-   * Возвращает событие
-   *
-   * @return Событие
-   */
+  @Override
+  public String getCode() {
+    return CODE;
+  }
+
   @Override
   public Event getEvent() {
     return Event.UPDATE_SUCCESS;
   }
 
-  /**
-   * Идентификатор объекта
-   *
-   * @return Идентификатор объекта
-   */
   @Override
   public Comparable getId() {
     return id;
   }
 
-  /**
-   * Кодовое имя класса
-   *
-   * @return Кодовое имя класса
-   */
   @Override
   public String getJpClassCode() {
     return jpClassCode;
   }
 
-  /**
-   * Возвращает запрос
-   *
-   * @return JPUpdate
-   */
-  public JPUpdate getQuery() {
-    return query;
-  }
-
-  /**
-   * Источник события
-   *
-   * @return Источник события
-   */
   @Override
   public ConnectionInfo getConnInfo() {
     return connInfo;
+  }
+
+  public JPUpdate getQuery() {
+    return query;
   }
 
   public static Builder newBuilder() {

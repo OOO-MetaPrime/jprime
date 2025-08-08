@@ -1,8 +1,8 @@
 package mp.kafka.concurrent;
 
+import jakarta.annotation.Nonnull;
 import mp.jprime.concurrent.PriorityTask;
 import mp.jprime.concurrent.PriorityTaskScheduler;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -45,7 +45,7 @@ public class PriorityTaskSchedulerTest {
     }
 
     @Override
-    public int compareTo(@NotNull PriorityTask o) {
+    public int compareTo(@Nonnull PriorityTask o) {
       if (!(o instanceof TimePriorityTask other)) {
         return -1;
       }

@@ -6,7 +6,7 @@ import java.util.Collections;
 /**
  * Входящие параметры утилиты
  */
-public interface JPUtilInParams<R> {
+public interface JPUtilInParams {
   /**
    * кодовое имя метакласса корневого объекта
    *
@@ -19,7 +19,7 @@ public interface JPUtilInParams<R> {
    *
    * @return идентификатор корневого объекта
    */
-  R getRootObjectId();
+  String getRootObjectId();
 
   /**
    * кодовое имя метакласса объекта/ов
@@ -33,16 +33,16 @@ public interface JPUtilInParams<R> {
    *
    * @return идентификатор или идентификаторы объектов указанного класса
    */
-  Collection<R> getObjectIds();
+  Collection<String> getObjectIds();
 
   /**
    * Возвращает информацию о корневом объекте. rootObjectId, если указан, иначе - objectIds
    *
    * @return Информация о корневом объекте
    */
-  default RootInfo<R> getRootInfo() {
+  default RootInfo<String> getRootInfo() {
     String classCode;
-    Collection<R> ids;
+    Collection<String> ids;
     if (this.getRootObjectClassCode() != null) {
       classCode = this.getRootObjectClassCode();
       ids = Collections.singleton(this.getRootObjectId());

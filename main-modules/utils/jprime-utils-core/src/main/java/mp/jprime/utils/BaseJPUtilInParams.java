@@ -8,7 +8,7 @@ import java.util.Collection;
  * Входящие параметры утилиты
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class BaseJPUtilInParams implements JPUtilInParams<String> {
+public abstract class BaseJPUtilInParams implements JPUtilInParams {
   private String rootObjectClassCode;
   private String rootObjectId;
   private String objectClassCode;

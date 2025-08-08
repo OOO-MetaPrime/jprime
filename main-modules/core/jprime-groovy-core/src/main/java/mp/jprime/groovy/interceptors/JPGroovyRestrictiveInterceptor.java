@@ -95,6 +95,7 @@ public final class JPGroovyRestrictiveInterceptor extends GroovyInterceptor {
     ALLOW_CLASSES.add(java.time.ZonedDateTime.class);
     ALLOW_CLASSES.add(java.time.ZoneId.class);
     ALLOW_CLASSES.add(java.time.Period.class);
+    ALLOW_CLASSES.add(java.time.temporal.ChronoUnit.class);
 
     ALLOW_CLASSES.add(java.time.format.DateTimeFormatter.class);
     ALLOW_CLASSES.add(java.time.format.DateTimeFormatterBuilder.class);

@@ -73,10 +73,9 @@ public class RestApiAggregateController extends JPQuerySettings implements JPObj
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    AuthInfo authInfo = jwtService.getAuthInfo(swe);
     JPAggregate.Builder builder;
     try {
-      builder = queryService.getAggregate(jpClass.getCode(), query, authInfo)
+      builder = queryService.getAggregate(jpClass.getCode(), query, auth)
           .timeout(getQueryTimeout())
           .source(Source.USER);
     } catch (JPRuntimeException e) {

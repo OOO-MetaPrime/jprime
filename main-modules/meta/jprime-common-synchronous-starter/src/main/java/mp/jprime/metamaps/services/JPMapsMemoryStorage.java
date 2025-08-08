@@ -3,10 +3,9 @@ package mp.jprime.metamaps.services;
 import mp.jprime.meta.JPClass;
 import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsDynamicMultiLoader;
-import mp.jprime.metamaps.annotations.services.JPMapsAnnoLoader;
-import mp.jprime.metamaps.xmlloader.services.JPMapsXmlLoader;
+import mp.jprime.metamaps.JPMapsLoader;
 import mp.jprime.repositories.JPStorage;
-import mp.jprime.repositories.services.RepositoryStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
   /**
    * Описания хранилищ
    */
-  private RepositoryStorage repoStorage;
+  private RepositoryGlobalStorage repoStorage;
 
   private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
     set(new Cache());
@@ -35,14 +34,12 @@ public final class JPMapsMemoryStorage implements JPMapsStorage {
   /**
    * Размещает метаописание в хранилище
    */
-  private JPMapsMemoryStorage(@Autowired JPMapsAnnoLoader annoLoader,
-                              @Autowired JPMapsXmlLoader xmlLoader) {
-    applyJPClassMaps(annoLoader.load());
-    applyJPClassMaps(xmlLoader.load());
+  private JPMapsMemoryStorage(@Autowired Collection<JPMapsLoader> loaders) {
+    loaders.forEach(x-> applyJPClassMaps(x.load()));
   }
 
   @Autowired
-  private void setRepoStorage(RepositoryStorage repoStorage) {
+  private void setRepoStorage(RepositoryGlobalStorage repoStorage) {
     this.repoStorage = repoStorage;
   }
 

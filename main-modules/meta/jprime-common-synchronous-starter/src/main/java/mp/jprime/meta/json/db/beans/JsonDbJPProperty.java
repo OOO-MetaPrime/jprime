@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import mp.jprime.beans.JPPropertyType;
 import mp.jprime.common.JPEnum;
 import mp.jprime.common.JPOrder;
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.json.beans.JsonExpr;
 import mp.jprime.json.db.beans.JsonDbJPEnum;
 import mp.jprime.json.db.beans.JsonDbJPOrder;
@@ -12,7 +13,6 @@ import mp.jprime.meta.JPMoney;
 import mp.jprime.meta.JPProperty;
 import mp.jprime.meta.beans.JPMoneyBean;
 import mp.jprime.meta.beans.JPPropertyBean;
-import mp.jprime.meta.beans.JPStringFormat;
 
 import java.util.ArrayList;
 import java.util.Collection;

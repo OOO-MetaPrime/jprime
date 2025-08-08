@@ -1,0 +1,31 @@
+sourceSets {
+  validationFixtures {
+    java {
+      srcDir "${rootProject.projectDir}/jprime/main-modules/test/jprime-test/src/testFixtures/java"
+    }
+    compileClasspath += sourceSets.test.compileClasspath
+    runtimeClasspath += sourceSets.test.runtimeClasspath
+  }
+}
+
+dependencies {
+  testImplementation project(':jprime-test')
+  testImplementation project(':jprime-dataaccess-jdbc')
+}
+
+task validationTest(type: Test) {
+  useJUnitPlatform {
+    includeTags 'validationTest'
+  }
+
+  testClassesDirs = sourceSets.validationFixtures.output.classesDirs
+  classpath = sourceSets.validationFixtures.runtimeClasspath
+}
+
+compileValidationFixturesJava {
+  dependsOn copyDefault, copyDistrib
+}
+
+jar {
+  dependsOn validationTest
+}

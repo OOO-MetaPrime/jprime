@@ -4,10 +4,12 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.security.AuthInfo;
 
+import java.util.Map;
+
 /**
  * Запрос удаления
  */
-public class JPDelete extends JPBaseParams {
+public class JPDelete extends JPBaseOperation {
   private final JPId jpId;
 
   /**
@@ -17,8 +19,8 @@ public class JPDelete extends JPBaseParams {
    * @param auth   Данные аутентификации
    * @param source Источник данных
    */
-  private JPDelete(JPId jpId, AuthInfo auth, Source source) {
-    super(source, auth);
+  private JPDelete(JPId jpId, AuthInfo auth, Source source, Map<String, String> props) {
+    super(source, auth, props);
     this.jpId = jpId;
   }
 
@@ -64,10 +66,8 @@ public class JPDelete extends JPBaseParams {
   /**
    * Построитель JPDelete
    */
-  public static final class Builder {
+  public static final class Builder extends JPBaseOperation.Builder<Builder> {
     private final JPId jpId;
-    private AuthInfo auth;
-    private Source source;
 
     private Builder(JPId jpId) {
       this.jpId = jpId;
@@ -79,29 +79,7 @@ public class JPDelete extends JPBaseParams {
      * @return JPDelete
      */
     public JPDelete build() {
-      return new JPDelete(jpId, auth, source);
-    }
-
-    /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
-      return this;
+      return new JPDelete(jpId, auth, source, props);
     }
   }
 }

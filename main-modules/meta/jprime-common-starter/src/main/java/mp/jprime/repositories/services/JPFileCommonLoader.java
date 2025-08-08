@@ -8,6 +8,7 @@ import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPNotFoundException;
+import mp.jprime.files.JPFileInfo;
 import mp.jprime.files.JPIdFileInfo;
 import mp.jprime.files.beans.FileInfo;
 import mp.jprime.files.beans.JPIdFileInfoBean;
@@ -19,12 +20,13 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.repositories.JPFileLoader;
 import mp.jprime.repositories.JPFileStorage;
 import mp.jprime.repositories.JPStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
+import mp.jprime.repositories.exceptions.JPRepositoryNotFoundException;
 import mp.jprime.security.AuthInfo;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -35,19 +37,9 @@ import java.util.stream.Collectors;
  */
 @Service
 public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServiceAware {
-  public static final Logger LOG = LoggerFactory.getLogger(JPFileCommonLoader.class);
-  /**
-   * Интерфейс создания / обновления объекта
-   */
   private JPObjectRepositoryService repo;
-  /**
-   * Хранилище метаинформации
-   */
   private JPMetaStorage metaStorage;
-  /**
-   * API для работы с хранилищами
-   */
-  private RepositoryStorage repositoryStorage;
+  private RepositoryGlobalStorage repositoryStorage;
 
   @Override
   public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
@@ -60,7 +52,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   @Autowired
-  private void setRepositoryStorage(RepositoryStorage repositoryStorage) {
+  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 
@@ -114,7 +106,16 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
   }
 
   @Override
+  public JPIdFileInfo getInfo(JPId id, String attr) {
+    return getInfo(id, null, attr, null, Source.SYSTEM);
+  }
+
+  @Override
   public JPIdFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth) {
+    return getInfo(id, filter, attr, auth, Source.USER);
+  }
+
+  private JPIdFileInfo getInfo(JPId id, Filter filter, String attr, AuthInfo auth, Source source) {
     if (id == null || attr == null) {
       return null;
     }
@@ -131,7 +132,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
             .attr(jpFile.getFileTitleAttrCode())
             .attr(jpFile.getFileExtAttrCode())
             .auth(auth)
-            .source(Source.USER)
+            .source(source)
             .where(
                 Filter.and(
                     Filter.attr(info.jpClass.getPrimaryKeyAttr()).eq(id.getId()),
@@ -144,6 +145,29 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
       return null;
     }
     return toJPFileInfo(obj, info.jpAttr, info.fileStorage);
+  }
+
+  @Override
+  public InputStream getInputStream(JPFileInfo<?> info) {
+    if (info == null) {
+      return null;
+    }
+    JPFileStorage storage = getJpFileStorage(info.getStorageCode());
+    String path = info.getStorageFilePath();
+    String fileName = info.getStorageFileName();
+    FileInfo fileInfo = storage.getInfo(path, fileName);
+    if (fileInfo == null) {
+      return null;
+    }
+    return storage.read(path, fileName);
+  }
+
+  private JPFileStorage getJpFileStorage(String storageCode) {
+    JPFileStorage storage = (JPFileStorage) repositoryStorage.getStorage(storageCode);
+    if (storage == null) {
+      throw new JPRepositoryNotFoundException(storageCode);
+    }
+    return storage;
   }
 
   private Info info(String classCode, String fileAttr) {
@@ -164,7 +188,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
     return new Info(jpClass, jpAttr, (JPFileStorage) storage);
   }
 
-  private class Info {
+  private static class Info {
     private final JPClass jpClass;
     private final JPAttr jpAttr;
     private final JPFileStorage fileStorage;

@@ -1,5 +1,6 @@
 package mp.jprime.utils;
 
+import mp.jprime.json.beans.JsonValidateResult;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.annotations.JPUtilLink;
 import mp.jprime.utils.annotations.JPUtilModeLink;
@@ -13,17 +14,64 @@ import reactor.core.publisher.Mono;
 public interface JPUtil {
   Logger LOG = LoggerFactory.getLogger(JPUtil.class);
 
-  @JPUtilModeLink(code = "check",
+  /**
+   * Типовые коды режимов
+   */
+  interface Mode {
+    /**
+     * Режим проверки доступности по умолчанию
+     */
+    String CHECK_MODE = "check";
+
+    /**
+     * Режим получения дефолтных значений по умолчанию
+     */
+    String IN_PARAMS_DEF_VALUES = "inParamsDefValues";
+
+    /**
+     * Режим валидации входящих параметров утилиты
+     */
+    String VALIDATE_MODE = "validate";
+  }
+
+  @JPUtilModeLink(
+      code = Mode.CHECK_MODE,
       title = "Проверка запуска",
       outClass = JPUtilCheckOutParams.class
   )
-  default Mono<JPUtilCheckOutParams> check(JPUtilCheckInParams in, AuthInfo authInfo) {
+  default Mono<JPUtilCheckOutParams> check(JPUtilCheckInParams in, AuthInfo auth) {
     return Mono.just(JPUtilCheckOutParams.newBuilder()
         .denied(false)
         .description("Запуск разрешен")
         .build()
     );
   }
+
+  @JPUtilModeLink(
+      code = Mode.IN_PARAMS_DEF_VALUES,
+      title = "Получение значений по умолчанию для утилиты",
+      outClass = JPUtilDefValuesOutParams.class
+  )
+  default Mono<JPUtilDefValuesOutParams> inParamsDefValues(DefaultInParams in, AuthInfo auth) {
+    return Mono.just(JPUtilDefValuesOutParams.newBuilder()
+        .description("Значения по умолчанию отсутствуют")
+        .build()
+    );
+  }
+
+  @JPUtilModeLink(
+      code = Mode.VALIDATE_MODE,
+      title = "Валидация входящих параметров утилиты",
+      outClass = JPUtilValidateOutParams.class
+  )
+  default Mono<JPUtilValidateOutParams> validate(DefaultInParams in, AuthInfo auth) {
+    return Mono.just(JPUtilValidateOutParams.newBuilder()
+        .result(JsonValidateResult.valid())
+        .description("Валидация параметров отсутствует")
+        .build()
+    );
+  }
+
 
   /**
    * Возвращает название утилиты

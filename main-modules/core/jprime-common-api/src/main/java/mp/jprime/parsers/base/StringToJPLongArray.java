@@ -33,36 +33,21 @@ public final class StringToJPLongArray implements TypeParser<String, JPLongArray
     this.service = service;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
   public JPLongArray parse(String value) {
     if (value == null) {
       return null;
     }
     if (value.startsWith("[")) {
-      return JPLongArray.of(jsonMapper.toObject(TYPE_REF, value));
+      List<Long> values = jsonMapper.toObject(TYPE_REF, value);
+      return values == null || values.isEmpty() ? null : JPLongArray.of(values);
     }
     return JPLongArray.of(Collections.singletonList(service.parseTo(Long.class, value)));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   public Class<JPLongArray> getOutputType() {
     return JPLongArray.class;
   }

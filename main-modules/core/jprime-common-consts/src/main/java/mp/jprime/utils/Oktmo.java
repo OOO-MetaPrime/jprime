@@ -18,7 +18,7 @@ public final class Oktmo {
    */
   public static final String CODE_00000000 = "00000000";
 
-  private static final Collection<String> ROOT_HIERARCHY = List.of(CODE_00000000);
+  public static final Collection<String> ROOT_HIERARCHY = List.of(CODE_00000000);
 
   /**
    * Возвращает список иерархии кодов ОКТМО

@@ -60,6 +60,22 @@ public interface JPClassHandlerStorage {
   void beforeDelete(JPDelete query);
 
   /**
+   * Признак использования кастомного удаления
+   *
+   * @param query JPDelete
+   * @return Да/Нет
+   */
+  boolean useCustomDelete(JPDelete query);
+
+  /**
+   * Кастомное удаление
+   *
+   * @param query JPDelete
+   */
+  void customDelete(JPDelete query);
+
+
+  /**
    * После создания
    *
    * @param objectId Идентификатор объекта

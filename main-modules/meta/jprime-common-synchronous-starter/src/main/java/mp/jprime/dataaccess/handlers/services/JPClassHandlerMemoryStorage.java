@@ -150,6 +150,26 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   }
 
   @Override
+  public boolean useCustomDelete(JPDelete query) {
+    boolean result = false;
+    Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
+    if (handlers != null) {
+      for (JPClassHandler handler : handlers) {
+        result = result || handler.useCustomDelete(query);
+      }
+    }
+    return result;
+  }
+
+  @Override
+  public void customDelete(JPDelete query) {
+    Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
+    if (handlers != null) {
+      handlers.forEach(x -> x.customDelete(query));
+    }
+  }
+
+  @Override
   public void afterCreate(Comparable objectId, JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {

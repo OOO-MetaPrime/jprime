@@ -1,17 +1,17 @@
 package mp.jprime.api.rest.controllers;
 
-import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.defvalues.beans.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.json.beans.JsonDefValueResult;
+import mp.jprime.json.beans.JsonDefValue;
 import mp.jprime.json.beans.JsonDefValuesQuery;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,9 +55,9 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
   @PostMapping(value = "/{code}/defvalue", produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   @ResponseStatus(HttpStatus.OK)
-  public Mono<JsonDefValueResult> getDefValue(ServerWebExchange swe,
-                                              @PathVariable("code") String code,
-                                              @RequestBody String query) {
+  public Mono<JsonDefValue> getDefValue(ServerWebExchange swe,
+                                        @PathVariable("code") String code,
+                                        @RequestBody String query) {
     AuthInfo auth = jwtService.getAuthInfo(swe);
     JPClass jpClass = jpMetaFilter.get(code, auth);
     if (jpClass == null) {
@@ -69,7 +69,7 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
     }
-    return Mono.fromCallable(() -> jpObjectDefValueService.getDefValues(
+    return JPMono.fromCallable(() -> jpObjectDefValueService.getDefValues(
             jpClass.getCode(),
             JPObjectDefValueParamsBean.newBuilder()
                 .rootId(jsonQuery.getId())
@@ -80,7 +80,6 @@ public class RestApiDefValueController implements JPObjectDefValueServiceAware {
                 .source(Source.USER)
                 .build()
         ))
-        .subscribeOn(JPReactorScheduler.reactorScheduler())
-        .map(x -> JsonDefValueResult.of(jpClass.getCode(), x.toMap()));
+        .map(x -> JsonDefValue.of(jpClass.getCode(), x.toMap()));
   }
 }

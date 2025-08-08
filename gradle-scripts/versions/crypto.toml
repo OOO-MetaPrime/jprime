@@ -1,12 +1,11 @@
 [versions]
-xmlsecVersion = "3.0.4"
-bcmailJdk18OnVersion = "1.78.1"
-bcpkixJdk18OnVersion = "1.78.1"
-bcprovJdk18OnVersion = "1.78.1"
-cxfCoreVersion = "4.0.5"
-cxfRtTransportsHttpVersion = "4.0.5"
-cxfRtFrontendJaxwsVersion = "4.0.5"
-xmlgraphicsVersion = "2.9"
+xmlsecVersion = "3.0.6"
+bcmailJdk18OnVersion = "1.81"
+bcpkixJdk18OnVersion = "1.81"
+bcprovJdk18OnVersion = "1.81"
+cxfCoreVersion = "4.1.2"
+cxfRtTransportsHttpVersion = "4.1.2"
+cxfRtFrontendJaxwsVersion = "4.1.2"
 
 [libraries]
 xmlsec = { module="org.apache.santuario:xmlsec", version.ref="xmlsecVersion" }
@@ -16,7 +15,6 @@ bcmail-jdk15on = { module="org.bouncycastle:bcmail-jdk18on", version.ref="bcmail
 cxf-core = { module="org.apache.cxf:cxf-core", version.ref = "cxfCoreVersion" }
 cxf-rt-transports-http = { module="org.apache.cxf:cxf-rt-transports-http", version.ref = "cxfRtTransportsHttpVersion" }
 cxf-rt-frontend-jaxws = { module="org.apache.cxf:cxf-rt-frontend-jaxws", version.ref = "cxfRtFrontendJaxwsVersion" }
-fop = { module="org.apache.xmlgraphics:fop", version.ref = "xmlgraphicsVersion" }
 
 [bundles]
 cxf-v1 = ["cxf-core", "cxf-rt-transports-http", "cxf-rt-frontend-jaxws"]

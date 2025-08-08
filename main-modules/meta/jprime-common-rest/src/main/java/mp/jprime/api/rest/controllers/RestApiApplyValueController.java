@@ -1,6 +1,5 @@
 package mp.jprime.api.rest.controllers;
 
-import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.applyvalues.beans.JPObjectApplyValueParamsBean;
 import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueService;
@@ -12,6 +11,7 @@ import mp.jprime.json.beans.JsonApplyValuesQuery;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,7 +59,7 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
                                                   @PathVariable("code") String code,
                                                   @RequestBody String query) {
 
-    return Mono.fromCallable(() -> {
+    return JPMono.fromCallable(() -> {
           AuthInfo auth = jwtService.getAuthInfo(swe);
           JPClass jpClass = jpMetaFilter.get(code, auth);
           if (jpClass == null) {
@@ -88,7 +88,6 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
               .classCode(classCode)
               .data(data.toMap())
               .build();
-        })
-        .subscribeOn(JPReactorScheduler.reactorScheduler());
+        });
   }
 }

@@ -8,7 +8,7 @@ import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.services.JPMapsStorage;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.metastorage.JPMetaStorageService;
-import mp.jprime.repositories.services.RepositoryStorage;
+import mp.jprime.repositories.RepositoryGlobalStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ public class JPMetaStorageCommonService implements JPMetaStorageService {
   /**
    * Описания хранилищ
    */
-  private RepositoryStorage repoStorage;
+  private RepositoryGlobalStorage repoStorage;
   /**
    * Хранилище метаинформации
    */
@@ -42,7 +42,7 @@ public class JPMetaStorageCommonService implements JPMetaStorageService {
   }
 
   @Autowired
-  private void setRepoStorage(RepositoryStorage repoStorage) {
+  private void setRepoStorage(RepositoryGlobalStorage repoStorage) {
     this.repoStorage = repoStorage;
   }
 

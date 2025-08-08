@@ -1,8 +1,10 @@
 package mp.jprime.meta.json.db.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public final class JsonDbJPSimpleFraction {
   /**
    * Атрибут для хранения - Целая часть дроби

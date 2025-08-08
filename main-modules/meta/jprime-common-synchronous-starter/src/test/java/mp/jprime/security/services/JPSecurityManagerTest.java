@@ -1,7 +1,7 @@
 package mp.jprime.security.services;
 
-import mp.jprime.security.annotations.services.JPSecurityAnnoLoader;
-import mp.jprime.security.xmlloader.services.JPSecurityXmlLoader;
+import mp.jprime.security.loaders.annotations.services.JPSecurityAnnoLoader;
+import mp.jprime.security.loaders.xml.services.JPSecurityXmlLoader;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

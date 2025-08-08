@@ -22,12 +22,12 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
   public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
     Map<String, Object> map = super.getErrorAttributes(request, options);
     Throwable error = getError(request);
-    if (error instanceof CompositeException) {
-      map.put("details", ((CompositeException) error).getExceptions().stream()
-          .map(x -> fill((Exception) x))
+    if (error instanceof CompositeException<?> e) {
+      map.put("details", e.getExceptions().stream()
+          .map(this::fill)
           .collect(Collectors.toList()));
-    } else if (error instanceof Exception) {
-      map.put("details", Collections.singleton(fill((Exception) error)));
+    } else if (error instanceof Exception e) {
+      map.put("details", Collections.singleton(fill(e)));
       if (error instanceof ConnectException) {
         map.put("status", HttpStatus.SERVICE_UNAVAILABLE.value());
       }
@@ -39,14 +39,13 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     String code = null;
     String message = null;
     Map<String, Object> result = new HashMap<>();
-    if (error instanceof JPAppRuntimeException) {
-      code = ((JPAppRuntimeException) error).getMessageCode();
+    if (error instanceof JPAppRuntimeException e) {
+      code = e.getMessageCode();
       message = error.getMessage();
-      if (error instanceof JPWrongVersionException) {
-        fillJPWrongVersionAttrs((JPWrongVersionException) error, result);
+      if (error instanceof JPWrongVersionException wrong) {
+        fillJPWrongVersionAttrs(wrong, result);
       }
-    } else if (error instanceof JPObjectNotFoundException) {
-      JPObjectNotFoundException e = (JPObjectNotFoundException) error;
+    } else if (error instanceof JPObjectNotFoundException e) {
       code = e.getMessageCode();
       message = error.getMessage();
     }

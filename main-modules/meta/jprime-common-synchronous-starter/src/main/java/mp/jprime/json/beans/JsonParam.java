@@ -2,8 +2,11 @@ package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import mp.jprime.meta.json.beans.JsonJPMoney;
+import mp.jprime.files.FileType;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -24,6 +27,10 @@ public class JsonParam {
    * Маска строкового поля
    */
   private String stringMask;
+  /**
+   * Расширения файлов для выбора
+   */
+  private Collection<String> fileTypes;
   /**
    * Длина для строковых полей
    */
@@ -65,6 +72,10 @@ public class JsonParam {
    */
   private String refFilter;
   /**
+   * Описание денежного типа
+   */
+  private JsonJPMoney money;
+  /**
    * Перечислимые значения
    */
   private Collection<JsonJPEnum> enums;
@@ -73,18 +84,26 @@ public class JsonParam {
    */
   private boolean clientSearch;
 
+  /**
+   * Признак только для чтения
+   */
+  private boolean readOnly;
+
   public JsonParam() {
 
   }
 
   private JsonParam(String code, String type, String stringFormat, String stringMask,
-                    Integer length, String description, String qName,
+                    Collection<String> fileTypes, Integer length, String description, String qName,
                     boolean mandatory, Object value, boolean multiple, boolean external, String refJpClass,
-                    String refJpAttr, String refFilter, Collection<JsonJPEnum> enums, boolean clientSearch) {
+                    String refJpAttr, String refFilter, JsonJPMoney money,
+                    Collection<JsonJPEnum> enums, boolean clientSearch,
+                    boolean readOnly) {
     this.code = code;
     this.type = type;
     this.stringFormat = stringFormat;
     this.stringMask = stringMask;
+    this.fileTypes = fileTypes == null || fileTypes.isEmpty() ? null : fileTypes;
     this.length = length;
     this.description = description;
     this.qName = qName;
@@ -95,8 +114,10 @@ public class JsonParam {
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
     this.refFilter = refFilter == null || refFilter.isEmpty() ? null : refFilter;
-    this.enums = enums == null || enums.isEmpty() ? null : enums;
     this.clientSearch = clientSearch;
+    this.enums = enums == null || enums.isEmpty() ? null : enums;
+    this.money = money;
+    this.readOnly = readOnly;
   }
 
   public String getCode() {
@@ -113,6 +134,10 @@ public class JsonParam {
 
   public String getStringMask() {
     return stringMask;
+  }
+
+  public Collection<String> getFileTypes() {
+    return fileTypes;
   }
 
   public Integer getLength() {
@@ -166,12 +191,20 @@ public class JsonParam {
     return refFilter;
   }
 
+  public JsonJPMoney getMoney() {
+    return money;
+  }
+
   public Collection<JsonJPEnum> getEnums() {
     return enums;
   }
 
   public boolean isClientSearch() {
     return clientSearch;
+  }
+
+  public boolean isReadOnly() {
+    return readOnly;
   }
 
   public static Builder newBuilder() {
@@ -183,6 +216,7 @@ public class JsonParam {
     private String type;
     private String stringFormat;
     private String stringMask;
+    private Collection<String> fileTypes;
     private Integer length;
     private String description;
     private String qName;
@@ -193,15 +227,19 @@ public class JsonParam {
     private String refJpClass;
     private String refJpAttr;
     private String refFilter;
+    private JsonJPMoney money;
     private Collection<JsonJPEnum> enums;
     private boolean clientSearch;
+    private boolean readOnly;
 
     private Builder() {
     }
 
     public JsonParam build() {
-      return new JsonParam(code, type, stringFormat, stringMask, length, description, qName, mandatory, value, multiple, external,
-          refJpClass, refJpAttr, refFilter, enums, clientSearch);
+      return new JsonParam(code, type, stringFormat, stringMask,
+          fileTypes, length, description, qName, mandatory, value, multiple, external,
+          refJpClass, refJpAttr, refFilter, money,
+          enums, clientSearch, readOnly);
     }
 
     public Builder code(String code) {
@@ -221,6 +259,13 @@ public class JsonParam {
 
     public Builder stringMask(String stringMask) {
       this.stringMask = stringMask;
+      return this;
+    }
+
+    public Builder fileTypes(Collection<FileType> fileTypes) {
+      this.fileTypes = fileTypes.stream()
+          .map(FileType::getExt)
+          .collect(Collectors.toList());
       return this;
     }
 
@@ -274,6 +319,11 @@ public class JsonParam {
       return this;
     }
 
+    public Builder money(JsonJPMoney money) {
+      this.money = money;
+      return this;
+    }
+
     public Builder enums(Collection<JsonJPEnum> enums) {
       this.enums = enums;
       return this;
@@ -281,6 +331,11 @@ public class JsonParam {
 
     public Builder clientSearch(boolean clientSearch) {
       this.clientSearch = clientSearch;
+      return this;
+    }
+
+    public Builder readOnly(boolean readOnly) {
+      this.readOnly = readOnly;
       return this;
     }
   }

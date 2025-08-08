@@ -3,6 +3,7 @@ package mp.jprime.web;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import mp.jprime.concurrent.JPReactorScheduler;
 import mp.jprime.json.services.JPJsonMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.scheduler.Scheduler;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.resources.ConnectionProvider;
 
@@ -44,7 +46,8 @@ public class JPWebClient {
       ConnectionProvider provider = ConnectionProvider.builder("jpWebClient")
           .maxConnections(500) // + увеличим на всякой случай количество соединений до 500
           .pendingAcquireTimeout(Duration.ofSeconds(45))
-          .maxIdleTime(Duration.ofSeconds(600)).build();
+          .maxIdleTime(Duration.ofSeconds(600))
+          .build();
 
       httpClient = HttpClient.create(provider)
           .secure(
@@ -70,6 +73,11 @@ public class JPWebClient {
         )
         .build();
   }
+
+  public static Scheduler getReactorScheduler() {
+    return JPReactorScheduler.reactorScheduler();
+  }
+
 
   public WebClient getWebClient() {
     return WEB_CLIENT;

@@ -10,6 +10,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,17 +33,38 @@ public class JPJsonMapperTest {
   private JPJsonMapper jpJsonMapper;
 
   @Test
-  void validTrimString() {
-    String json = """
-        {
-          "surname": " Иванов \n",
-          "name": " Иван "
-        }""";
+  void testToString() {
+    Map<String, String> data = new LinkedHashMap<>() {{
+      put("k1", "v1");
+      put("k2", "v2");
+      put("k3", "v3");
+    }};
 
-    Map<String, Object> out = jpJsonMapper.toMap(json);
+    String out = jpJsonMapper.toString(data);
     assertNotNull(out);
-    assertEquals(2, out.size());
-    assertEquals("Иванов", out.get("surname"));
-    assertEquals("Иван", out.get("name"));
+    assertEquals("""
+        {"k1":"v1","k2":"v2","k3":"v3"}""", out);
+  }
+
+  @Test
+  void testToStringWithIgnore() {
+    Map<String, String> data = new LinkedHashMap<>() {{
+      put("k1", "v1");
+      put("k2", "v2");
+      put("k3", "v3");
+    }};
+
+    String out = jpJsonMapper.toString(data, List.of("k1", "k2"));
+    assertNotNull(out);
+    assertEquals("""
+        {"k3":"v3"}""", out);
+
+    record Record(String k1, String k2, String k3) {
+    }
+
+    String recordOut = jpJsonMapper.toString(new Record("v1", "v2", "v3"), List.of("k1", "k2"));
+    assertNotNull(recordOut);
+    assertEquals("""
+        {"k3":"v3"}""", recordOut);
   }
 }

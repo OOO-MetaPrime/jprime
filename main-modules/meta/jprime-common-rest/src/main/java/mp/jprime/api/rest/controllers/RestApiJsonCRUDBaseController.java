@@ -15,7 +15,7 @@ import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
-import mp.jprime.requesthistory.services.RequestHistoryPublisher;
+import mp.jprime.requesthistory.RequestHistoryPublisher;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -154,8 +154,9 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
                 .totalCount(select.isTotalCount() ? x : null)
                 .build())
         // Лог поиска
-        .doOnSuccess(x -> sendSearch(jpClass.getCode(), select.getWhere(), x.getObjects(), auth, swe))
+        .doOnSuccess(result -> sendSearch(jpClass.getCode(), select.getWhere(), result.getObjects(), auth, swe))
         // Ошибка
+        .doOnError(e -> sendSearch(jpClass.getCode(), select.getWhere(), Collections.emptyList(), auth, swe))
         .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)));
   }
 
@@ -202,7 +203,7 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
       return;
     }
     historyPublisher.sendObject(auth, swe, classCode, objectId,
-        () -> historyPublisher.toRequestHistoryObject(result.getClassCode(), result.getId(), result));
+        () -> result == null ? null : historyPublisher.toRequestHistoryObject(result.getClassCode(), result.getId(), result));
   }
 
   protected void sendSearch(String classCode, Filter where, Collection<JsonJPObject> result, AuthInfo auth, ServerWebExchange swe) {
@@ -211,7 +212,7 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
     }
     historyPublisher.sendSearch(auth, swe, classCode,
         () -> queryService.toExp(where),
-        () -> result.stream()
+        () -> result == null ? null : result.stream()
             .map(x -> historyPublisher.toRequestHistoryObject(x.getClassCode(), x.getId(), x))
             .collect(Collectors.toList())
     );

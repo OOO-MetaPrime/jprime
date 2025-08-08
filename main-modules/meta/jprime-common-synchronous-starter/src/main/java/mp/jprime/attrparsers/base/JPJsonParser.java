@@ -4,12 +4,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import mp.jprime.attrparsers.AttrTypeParser;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
-import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
+import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,16 +36,15 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
     if (attrValue == null) {
       return null;
     }
-
+    String attrName = jpAttr.getName();
     try {
-      if (attrValue instanceof JsonNode) {
-        return JPJsonNode.from((JsonNode) attrValue);
+      if (attrValue instanceof JsonNode x) {
+        return JPJsonNode.from(x);
       } else {
         return parse(jpAttr, attrValue);
       }
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
-      throw new JPRuntimeException(e.getMessage(), e);
+      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
     }
   }
 
@@ -54,18 +53,17 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
     if (jpAttr == null || jpAttr.getValueType() != JP_TYPE) {
       return null;
     }
-
+    String attrName = jpAttr.getName();
     try {
-      if (attrValue instanceof String) {
-        return JPJsonNode.from(jsonMapper.toJsonNode((String) attrValue));
-      } else if (attrValue instanceof JPJsonString) {
-        return JPJsonNode.from(jsonMapper.toJsonNode(attrValue.toString()));
+      if (attrValue instanceof String x) {
+        return JPJsonNode.from(jsonMapper.toJsonNode(x));
+      } else if (attrValue instanceof JPJsonString x) {
+        return JPJsonNode.from(jsonMapper.toJsonNode(x.toString()));
       } else {
         return jsonMapper.toJPJsonNode(attrValue);
       }
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
-      throw new JPRuntimeException(e.getMessage(), e);
+      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
     }
   }
 

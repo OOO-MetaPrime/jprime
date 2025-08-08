@@ -76,7 +76,7 @@ public final class JsonJPClassAccess {
     private boolean create;
     private boolean update;
     private boolean delete;
-    private Map<String, Boolean> editAttrs = new HashMap<>();
+    private final Map<String, Boolean> editAttrs = new HashMap<>();
 
     private Builder() {
 

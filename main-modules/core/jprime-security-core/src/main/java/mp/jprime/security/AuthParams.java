@@ -2,6 +2,7 @@ package mp.jprime.security;
 
 import mp.jprime.utils.Oktmo;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -123,4 +124,57 @@ public interface AuthParams extends ConnectionInfo {
    * @return сотрудника пользователя
    */
   String getEmplId();
+
+  /**
+   * Данные ЕСИА
+   *
+   * @return Данные ЕСИА
+   */
+  default Esia getEsia() {
+    return null;
+  }
+
+  interface Esia {
+    /**
+     * Идентификатор пользователя в ЕСИА
+     *
+     * @return Идентификатор пользователя в ЕСИА
+     */
+    String getOid();
+
+    /**
+     * Дата рождения пользователя в ЕСИА
+     *
+     * @return Дата рождения
+     */
+    LocalDate getBirthdate();
+
+    /**
+     * Идентификатор организации пользователя в ЕСИА
+     *
+     * @return Идентификатор организации пользователя в ЕСИА
+     */
+    String getOrgOid();
+
+    /**
+     * Название организации пользователя в ЕСИА
+     *
+     * @return Название организации пользователя в ЕСИА
+     */
+    String getOrgName();
+
+    /**
+     * ИНН организации пользователя в ЕСИА
+     *
+     * @return ИНН организации пользователя в ЕСИА
+     */
+    String getOrgInn();
+
+    /**
+     * ОГРН организации пользователя в ЕСИА
+     *
+     * @return ОГРН организации пользователя в ЕСИА
+     */
+    String getOrgOgrn();
+  }
 }

@@ -5,7 +5,7 @@ import mp.jprime.dataaccess.params.query.filters.ValueFilter;
 import mp.jprime.lang.JPArray;
 
 /**
- * Массив пересекается с массивов
+ * Массив пересекается с массивом
  */
 public class OverlapsArray extends ValueFilter<JPArray<?>> {
   /**

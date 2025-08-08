@@ -11,10 +11,8 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
-import mp.jprime.rest.v1.Controllers;
 import mp.jprime.web.services.ServerWebExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -42,11 +40,6 @@ public class JsonJPObjectService {
    * Методы работы с ServerWebExchangeService
    */
   private ServerWebExchangeService sweService;
-  /**
-   * Признак добавления блока links
-   */
-  @Value("${jprime.api.addLinks:false}")
-  private boolean addLinks;
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
@@ -86,9 +79,6 @@ public class JsonJPObjectService {
         .jpId(object.getJpId())
         .jpData(getJPData(object.getJpClassCode(), object.getData()))
         .jpLinkedData(object.getLinkedData())
-        .baseUrl(swe != null ? sweService.getBaseUrl(swe) : null)
-        .restMapping(Controllers.API_MAPPING)
-        .addLinks(addLinks)
         .access(objectAccess == null ? null : JsonChangeAccess.newBuilder()
             .update(
                 objectAccess.isUpdate()

@@ -4,8 +4,8 @@ String DEFAULT_PROFILE = 'default'
 String SPRING_PROFILE_LOCATION = 'SPRING_PROFILE_LOCATION'
 String APPLICATION_DISTRIB_LOCATION = 'application-distrib'
 String APPLICATION_DEFAULT_LOCATION = 'application'
-String JPRIME_DISTRIB = 'jprime-distrib'
-String JPRIME_DEFAULT = 'jprime'
+String JPRIME_DISTRIB = project.ext.has("project_distrib_config_properties") ? project.ext.get("project_distrib_config_properties") : 'jprime-distrib'
+String JPRIME_DEFAULT = project.ext.has("project_config_properties") ? project.ext.get("project_config_properties") : 'jprime'
 
 /**
  * Чтение свойств проекта из файла

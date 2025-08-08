@@ -1,8 +1,7 @@
 package mp.jprime.meta;
 
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.beans.JPType;
-
-import java.util.Collection;
 
 /**
  * Метаописание атрибута
@@ -59,6 +58,20 @@ public interface JPAttr {
     JPType type = getType();
     return type != JPType.VIRTUALREFERENCE && type != JPType.NONE;
   }
+
+  /**
+   * Тип строкового поля
+   *
+   * @return Тип строкового поля
+   */
+  JPStringFormat getStringFormat();
+
+  /**
+   * Маска строкового поля
+   *
+   * @return Маска строкового поля
+   */
+  String getStringMask();
 
   /**
    * Возвращает длину
@@ -160,13 +173,6 @@ public interface JPAttr {
     JPVirtualPath path = getType() == JPType.VIRTUALREFERENCE ? getVirtualReference() : null;
     return path != null && path.getType() != null ? path.getType() : getType();
   }
-
-  /**
-   * Схема свойств псевдо-меты
-   *
-   * @return свойства псевдо-меты
-   */
-  Collection<JPProperty> getSchemaProps();
 
   /**
    * Код атрибута, содержащего подпись

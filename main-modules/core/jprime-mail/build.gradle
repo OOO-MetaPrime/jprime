@@ -1,0 +1,14 @@
+dependencies {
+  api project(':jprime-common-api')
+  api ('org.springframework.boot:spring-boot-starter-mail')
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

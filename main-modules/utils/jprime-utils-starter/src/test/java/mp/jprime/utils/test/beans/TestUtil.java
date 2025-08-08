@@ -1,5 +1,6 @@
 package mp.jprime.utils.test.beans;
 
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.utils.JPUtil;
 import mp.jprime.utils.annotations.JPUtilLink;
 import mp.jprime.utils.annotations.JPUtilModeLink;
@@ -20,6 +21,6 @@ public class TestUtil implements JPUtil {
       outClass = Out.class
   )
   public Mono<Out> printData(In s) {
-    return Mono.fromCallable(() -> Out.newInstance(s.getValue()));
+    return JPMono.fromCallable(() -> Out.newInstance(s.getValue()));
   }
 }

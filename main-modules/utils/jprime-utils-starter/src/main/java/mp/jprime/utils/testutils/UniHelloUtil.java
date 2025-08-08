@@ -1,5 +1,6 @@
 package mp.jprime.utils.testutils;
 
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.utils.JPUtil;
 import mp.jprime.utils.annotations.JPUtilLink;
 import mp.jprime.utils.annotations.JPUtilModeLink;
@@ -23,7 +24,7 @@ public class UniHelloUtil implements JPUtil {
       outClass = UniOut.class
   )
   public Mono<UniOut> printData(UniIn s) {
-    return Mono.fromCallable(() ->
+    return JPMono.fromCallable(() ->
         UniOut.newInstance("Thanx for " + s.getRequest() + " with class code '" + s.getObjectClassCode() + '\'')
     );
   }

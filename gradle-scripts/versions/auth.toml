@@ -1,11 +1,13 @@
 # Jwt
 [versions]
 jjwtVersion = "0.12.6"
+oltuOauth2Version = "1.0.2" # Для взаимодействия через oauth 2.0 (ЦА. ЕСИА)
 
 [libraries]
 jjwt-api = { module="io.jsonwebtoken:jjwt-api", version.ref="jjwtVersion" }
 jjwt-impl = { module="io.jsonwebtoken:jjwt-impl", version.ref="jjwtVersion" }
 jjwt-jackson = { module="io.jsonwebtoken:jjwt-jackson", version.ref="jjwtVersion" }
+oltu-oauth2 = { module="org.apache.oltu.oauth2:org.apache.oltu.oauth2.client", version.ref="oltuOauth2Version" }
 
 [bundles]
 jjwt-v1 = ['jjwt-api', 'jjwt-impl', 'jjwt-jackson']

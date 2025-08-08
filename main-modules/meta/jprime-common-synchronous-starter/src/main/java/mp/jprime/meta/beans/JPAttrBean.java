@@ -1,10 +1,9 @@
 package mp.jprime.meta.beans;
 
+import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.*;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -15,6 +14,8 @@ public final class JPAttrBean implements JPAttr {
   private final String guid;
   private final String code;
   private final JPType type;
+  private final JPStringFormat stringFormat;
+  private final String stringMask;
   private final Integer length;
   private final boolean identifier;
   private final boolean mandatory;
@@ -36,13 +37,13 @@ public final class JPAttrBean implements JPAttr {
   private final JPMoney money;
   private final JPGeometry geometry;
   private final JPVirtualPath virtualReference;
-  private final Collection<JPProperty> schemaProps;
   private final String signAttrCode;
 
-  private JPAttrBean(String jpClassCode, String guid, String code, JPType type, Integer length, boolean identifier,
-                     boolean mandatory,
+  private JPAttrBean(String jpClassCode, String guid, String code, JPType type,
+                     JPStringFormat stringFormat, String stringMask, Integer length,
+                     boolean identifier, boolean mandatory,
                      String name, String shortName, String description,
-                     String qName, String jpPackage, Collection<JPProperty> schemaProps,
+                     String qName, String jpPackage,
                      String refJpClass, String refJpAttr,
                      JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money,
                      JPGeometry geometry, JPVirtualPath virtualReference, String signAttrCode) {
@@ -62,9 +63,9 @@ public final class JPAttrBean implements JPAttr {
     this.money = money;
     this.geometry = geometry;
     this.virtualReference = virtualReference;
-    this.schemaProps = schemaProps == null || schemaProps.isEmpty() ? null :
-        Collections.unmodifiableCollection(schemaProps);
 
+    this.stringFormat = stringFormat != JPStringFormat.NONE ? stringFormat : null;
+    this.stringMask = stringMask != null && !stringMask.isBlank() ? stringMask : null;
     this.length = length;
     this.identifier = identifier;
     this.mandatory = mandatory;
@@ -85,211 +86,111 @@ public final class JPAttrBean implements JPAttr {
     return Objects.hash(jpClassCode, code);
   }
 
-  /**
-   * Код класса
-   *
-   * @return Код класса
-   */
   @Override
   public String getJpClassCode() {
     return jpClassCode;
   }
 
-  /**
-   * Идентификатор/гуид атрибута
-   *
-   * @return Идентификатор/гуид атрибута
-   */
   @Override
   public String getGuid() {
     return guid;
   }
 
-  /**
-   * Кодовое имя атрибута
-   *
-   * @return Кодовое имя атрибута
-   */
   @Override
   public String getCode() {
     return code;
   }
 
-  /**
-   * Возвращает признак идентификатора
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean isIdentifier() {
     return identifier;
   }
 
-  /**
-   * Возвращает признак обязательности
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean isMandatory() {
     return mandatory;
   }
 
-  /**
-   * Тип атрибута
-   *
-   * @return Тип атрибута
-   */
   @Override
   public JPType getType() {
     return type;
   }
 
-  /**
-   * Возвращает длину
-   *
-   * @return Длина
-   */
+  @Override
+  public JPStringFormat getStringFormat() {
+    return stringFormat;
+  }
+
+  @Override
+  public String getStringMask() {
+    return stringMask;
+  }
+
   @Override
   public Integer getLength() {
     return length;
   }
 
-  /**
-   * Название атрибута
-   *
-   * @return Название атрибута
-   */
   @Override
   public String getName() {
     return name;
   }
 
-  /**
-   * Короткое название атрибута
-   *
-   * @return Короткое название атрибута
-   */
   @Override
   public String getShortName() {
     return shortName;
   }
 
-  /**
-   * Описание атрибута
-   *
-   * @return Описание атрибута
-   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /**
-   * Уникальный qName атрибута
-   *
-   * @return Уникальный qName атрибута
-   */
   @Override
   public String getQName() {
     return qName;
   }
 
-  /**
-   * Кодовое имя пакета/группировки метаописания атрибута
-   *
-   * @return Кодовое имя пакета/группировки метаописания атрибута
-   */
   @Override
   public String getJpPackage() {
     return jpPackage;
   }
 
-  /**
-   * Код класса, на который ссылается
-   *
-   * @return Код класса, на который ссылается
-   */
   @Override
   public String getRefJpClass() {
     return refJpClass;
   }
 
-  /**
-   * Код атрибута, на который ссылается
-   *
-   * @return Код атрибута, на который ссылается
-   */
   @Override
   public String getRefJpAttr() {
     return refJpAttr;
   }
 
-  /**
-   * Возвращает описание файла
-   *
-   * @return Описание файла
-   */
   @Override
   public JPFile getRefJpFile() {
     return refJpFile;
   }
 
-  /**
-   * Возвращает описание простой дроби
-   *
-   * @return Описание простой дроби
-   */
   @Override
   public JPSimpleFraction getSimpleFraction() {
     return simpleFraction;
   }
 
-  /**
-   * Возвращает описание денежного типа
-   *
-   * @return Описание денежного типа
-   */
   @Override
   public JPMoney getMoney() {
     return money;
   }
 
-  /**
-   * Возвращает описание пространственных данных
-   *
-   * @return описание пространственных данных
-   */
   @Override
   public JPGeometry getGeometry() {
     return geometry;
   }
 
-  /**
-   * Путь виртуальной ссылки
-   *
-   * @return Путь виртуальной ссылки
-   */
   @Override
   public JPVirtualPath getVirtualReference() {
     return virtualReference;
   }
 
-  /**
-   * Схема свойств псевдо-меты
-   *
-   * @return свойства псевдо-меты
-   */
-  @Override
-  public Collection<JPProperty> getSchemaProps() {
-    return schemaProps;
-  }
-
-  /**
-   * Код атрибута, содержащего подпись
-   *
-   * @return Код атрибута, содержащего подпись
-   */
   @Override
   public String getSignAttrCode() {
     return signAttrCode;
@@ -335,6 +236,8 @@ public final class JPAttrBean implements JPAttr {
     private String guid;
     private String code;
     private JPType type;
+    private JPStringFormat stringFormat;
+    private String stringMask;
     private Integer length;
     private boolean identifier;
     private boolean mandatory;
@@ -350,7 +253,6 @@ public final class JPAttrBean implements JPAttr {
     private JPMoney money;
     private JPGeometry geometry;
     private JPVirtualPath virtualReference;
-    private Collection<JPProperty> schemaProps;
     private String signAttrCode;
 
     private Builder() {
@@ -362,8 +264,9 @@ public final class JPAttrBean implements JPAttr {
      * @return Метаописание
      */
     public JPAttrBean build() {
-      return new JPAttrBean(jpClassCode, guid, code, type, length, identifier, mandatory,
-          name, shortName, description, qName, jpPackage, schemaProps,
+      return new JPAttrBean(jpClassCode, guid, code, type,
+          stringFormat, stringMask, length, identifier, mandatory,
+          name, shortName, description, qName, jpPackage,
           refJpClass, refJpAttr, refJpFile, simpleFraction, money, geometry, virtualReference, signAttrCode);
     }
 
@@ -500,6 +403,28 @@ public final class JPAttrBean implements JPAttr {
     }
 
     /**
+     * Тип строкового поля
+     *
+     * @param stringFormat Тип строкового поля
+     * @return Builder
+     */
+    public Builder stringFormat(JPStringFormat stringFormat) {
+      this.stringFormat = stringFormat;
+      return this;
+    }
+
+    /**
+     * Маска строкового поля
+     *
+     * @param stringMask Маска строкового поля
+     * @return Builder
+     */
+    public Builder stringMask(String stringMask) {
+      this.stringMask = stringMask;
+      return this;
+    }
+
+    /**
      * Длина атрибута
      *
      * @param length Длина атрибута
@@ -584,17 +509,6 @@ public final class JPAttrBean implements JPAttr {
      */
     public Builder jpPackage(String jpPackage) {
       this.jpPackage = jpPackage;
-      return this;
-    }
-
-    /**
-     * Схема свойств псевдо-меты
-     *
-     * @param schemaProps Схема свойств псевдо-меты
-     * @return Builder
-     */
-    public Builder schemaProps(Collection<JPProperty> schemaProps) {
-      this.schemaProps = schemaProps;
       return this;
     }
 

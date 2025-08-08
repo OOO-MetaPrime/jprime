@@ -6,6 +6,7 @@ import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.reactor.core.publisher.JPMono;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,30 +16,25 @@ import reactor.core.publisher.Mono;
 public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncObjectRepository {
 
   default Flux<JPObject> getAsyncList(JPSelect query) {
-    return Mono.fromCallable(() -> getList(query))
-        .flatMapMany(Flux::fromIterable)
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getList(query))
+        .flatMapMany(Flux::fromIterable);
   }
 
   default Flux<JPObject> getAsyncListAndLock(JPSelect query) {
-    return Mono.fromCallable(() -> getListAndLock(query))
-        .flatMapMany(Flux::fromIterable)
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getListAndLock(query))
+        .flatMapMany(Flux::fromIterable);
   }
 
   default Mono<Long> getAsyncTotalCount(JPSelect query) {
-    return Mono.fromCallable(() -> getTotalCount(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getTotalCount(query));
   }
 
   default Mono<JPData> getAsyncAggregate(JPAggregate aggr) {
-    return Mono.fromCallable(() -> getAggregate(aggr))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> getAggregate(aggr));
   }
 
   default Mono<JPId> asyncCreate(JPCreate query) {
-    return Mono.fromCallable(() -> create(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> create(query));
   }
 
   /**
@@ -48,8 +44,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Созданные объект
    */
   default Mono<JPObject> asyncCreateAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> createAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> createAndGet(query));
   }
 
   /**
@@ -59,8 +54,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Идентификатор обновляемого объекта
    */
   default Mono<JPId> asyncUpdate(JPUpdate query) {
-    return Mono.fromCallable(() -> update(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> update(query));
   }
 
   /**
@@ -70,8 +64,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Количество обновленных объектов
    */
   default Mono<Long> asyncUpdate(JPConditionalUpdate query) {
-    return Mono.fromCallable(() -> update(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> update(query));
   }
 
   /**
@@ -81,8 +74,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Обновленный объект
    */
   default Mono<JPObject> asyncUpdateAndGet(JPUpdate query) {
-    return Mono.fromCallable(() -> updateAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> updateAndGet(query));
   }
 
   /**
@@ -93,8 +85,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Идентификатор созданного объекта
    */
   default Mono<JPId> asyncPatch(JPCreate query) {
-    return Mono.fromCallable(() -> patch(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> patch(query));
   }
 
   /**
@@ -105,8 +96,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Созданные объект
    */
   default Mono<JPObject> asyncPatchAndGet(JPCreate query) {
-    return Mono.fromCallable(() -> patchAndGet(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> patchAndGet(query));
   }
 
   /**
@@ -116,8 +106,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Количество удаленных объектов
    */
   default Mono<Long> asyncDelete(JPDelete query) {
-    return Mono.fromCallable(() -> delete(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> delete(query));
   }
 
   /**
@@ -127,8 +116,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @return Количество удаленных объектов
    */
   default Mono<Long> asyncDelete(JPConditionalDelete query) {
-    return Mono.fromCallable(() -> delete(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.fromCallable(() -> delete(query));
   }
 
   /**
@@ -144,8 +132,7 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    *                             2) Между батчами есть отличия в атрибутах
    */
   default Mono<Void> asyncBatch(JPBatchCreate query) {
-    return Mono.<Void>fromRunnable(() -> batch(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.<Void>fromRunnable(() -> batch(query));
   }
 
   /**
@@ -157,7 +144,6 @@ public interface JPObjectRepository extends JPReactiveObjectRepository, JPSyncOb
    * @param query запрос
    */
   default Mono<Void> asyncBatch(JPBatchUpdate query) {
-    return Mono.<Void>fromRunnable(() -> batch(query))
-        .subscribeOn(getReactorScheduler());
+    return JPMono.<Void>fromRunnable(() -> batch(query));
   }
 }

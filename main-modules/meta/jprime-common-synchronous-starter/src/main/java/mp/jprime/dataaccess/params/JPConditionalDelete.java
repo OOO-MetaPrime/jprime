@@ -4,15 +4,17 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.security.AuthInfo;
 
+import java.util.Map;
+
 /**
  * Запрос удаления по условию
  */
-public class JPConditionalDelete extends JPBaseParams {
+public class JPConditionalDelete extends JPBaseOperation {
   private final String jpClass;
   private final Filter where;
 
-  private JPConditionalDelete(String jpClass, Filter where, Source source, AuthInfo auth) {
-    super(source, auth);
+  private JPConditionalDelete(String jpClass, Filter where, Source source, AuthInfo auth, Map<String, String> props) {
+    super(source, auth, props);
     this.jpClass = jpClass;
     this.where = where;
   }
@@ -41,11 +43,9 @@ public class JPConditionalDelete extends JPBaseParams {
   /**
    * Построитель JPDelete
    */
-  public static final class Builder {
+  public static final class Builder extends JPBaseOperation.Builder<Builder> {
     private final String jpClass;
     private final Filter where;
-    private AuthInfo auth;
-    private Source source;
 
     private Builder(String jpClass, Filter where) {
       this.jpClass = jpClass;
@@ -58,29 +58,7 @@ public class JPConditionalDelete extends JPBaseParams {
      * @return JPDelete
      */
     public JPConditionalDelete build() {
-      return new JPConditionalDelete(jpClass, where, source, auth);
-    }
-
-    /**
-     * Аутентификация
-     *
-     * @param auth Аутентификация
-     * @return Builder
-     */
-    public Builder auth(AuthInfo auth) {
-      this.auth = auth;
-      return this;
-    }
-
-    /**
-     * Источник данных
-     *
-     * @param source Источник данных
-     * @return Builder
-     */
-    public Builder source(Source source) {
-      this.source = source;
-      return this;
+      return new JPConditionalDelete(jpClass, where, source, auth, props);
     }
   }
 }

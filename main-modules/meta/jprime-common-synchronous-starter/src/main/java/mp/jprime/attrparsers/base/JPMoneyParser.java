@@ -103,7 +103,6 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAwar
       try {
         result = JPMoney.of(jsonMapper.toObject(BigDecimal.class, value), jpAttr.getMoney().getCurrencyCode());
       } catch (Exception e) {
-        LOG.error(e.getMessage(), e);
         throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
       }
     }

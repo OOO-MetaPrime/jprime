@@ -1,13 +1,12 @@
 package mp.jprime.kafka.consumers;
 
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.utils.JPApplicationStartListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -24,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <K> тип ключа события
  * @param <V> тип значения события
  */
-public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafkaManagedConsumerService {
+public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafkaManagedConsumerService, JPApplicationStartListener {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDynamicConsumerBaseService.class);
 
   private static final int DEFAULT_MAX_POLL_RECORDS = 1;
@@ -128,8 +127,8 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafka
     }
   }
 
-  @EventListener
-  public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+  @Override
+  public void applicationStart() {
     consumers.values().stream()
         .filter(JPKafkaDynamicConsumer::isAutoStart)
         .forEach(JPKafkaDynamicConsumer::start);

@@ -23,6 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Реализация JPGroovyShell с учетом запрета выполнения различных операций
@@ -37,6 +39,26 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
   private final JPGroovyRestrictiveInterceptor interceptor;
   private final GroovyClassLoader loader;
   private final GroovyShell shell;
+
+  private static final Collection<String> DEFAULT_IMPORTS = Stream.of(
+          java.time.LocalDate.class,
+          java.time.Period.class,
+          java.time.Month.class,
+          java.time.temporal.ChronoUnit.class,
+          java.math.RoundingMode.class,
+          groovy.json.JsonGenerator.class,
+          groovy.json.JsonSlurper.class,
+          groovy.xml.slurpersupport.GPathResult.class,
+          org.apache.commons.lang3.tuple.Pair.class,
+          org.apache.commons.lang3.StringUtils.class
+      )
+      .map(Class::getName)
+      .collect(Collectors.toSet());
+
+  private static final Collection<String> DEFAULT_STAR_IMPORTS = Set.of(
+      "mp.jprime.time"
+  );
+
 
   private JPGroovyCommonShell(CompilerConfiguration conf, JPGroovyRestrictiveInterceptor interceptor) {
     ClassLoader classLoader = GroovyShell.class.getClassLoader();
@@ -56,6 +78,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
    * Возвращает значение переменной
    *
    * @param name Имя переменной
+   *
    * @return Значение переменной
    */
   @Override
@@ -98,6 +121,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
    * Признак наличия переменной в контексте
    *
    * @param name Имя переменной
+   *
    * @return Да/Нет
    */
   @Override
@@ -182,7 +206,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
     return "Script" + counter.incrementAndGet() + ".groovy";
   }
 
-  public static JPGroovyCommonShell newInstance() {
+  public static JPGroovyShell newInstance() {
     return newBuilder().build();
   }
 
@@ -317,7 +341,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
       return this;
     }
 
-    public JPGroovyCommonShell build() {
+    public JPGroovyShell build() {
 
       SecureASTCustomizer customizer = new SecureASTCustomizer();
       customizer.setDisallowedReceivers(
@@ -337,17 +361,8 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
       // auto import
       conf.addCompilationCustomizers(
           new ImportCustomizer()
-              .addImports(
-                  "groovy.json.JsonGenerator",
-                  "groovy.json.JsonSlurper",
-                  "java.time.LocalDate",
-                  "java.time.Period",
-                  "groovy.xml.slurpersupport.GPathResult",
-                  "org.apache.commons.lang3.StringUtils"
-              )
-              .addStarImports(
-                  "mp.jprime.time"
-              )
+              .addImports(DEFAULT_IMPORTS.toArray(new String[0]))
+              .addStarImports(DEFAULT_STAR_IMPORTS.toArray(new String[0]))
               .addImports(this.imports.toArray(new String[0]))
               .addStarImports(this.starImports.toArray(new String[0]))
               .addStaticStars(this.staticStarImports.toArray(new String[0]))
@@ -361,7 +376,5 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
 
       return new JPGroovyCommonShell(conf, interceptor);
     }
-
   }
-
 }

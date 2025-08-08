@@ -38,91 +38,46 @@ public class JPObjectBase implements JPObject {
     this.jpId = JPId.get(jpClassCode, primaryKey);
   }
 
-  /**
-   * Кодовое имя класса
-   *
-   * @return Кодовое имя класса
-   */
   @Override
   public String getJpClassCode() {
     return jpClassCode;
   }
 
-  /**
-   * Идентификатор объекта
-   *
-   * @return Идентификатор объекта
-   */
   @Override
   public JPId getJpId() {
     return jpId;
   }
 
-  /**
-   * Данные объекта
-   *
-   * @return Данные объекта
-   */
   @Override
   public JPData getData() {
     return jpData;
   }
 
-  /**
-   * Данные связных объектов
-   *
-   * @return Данные связных объектов
-   */
   @Override
   public JPLinkedData getLinkedData() {
     return jpLinkedData;
   }
 
-  /**
-   * Данные связного объекта
-   *
-   * @return Данные связного объекта
-   */
   @Override
   public JPObject getLinkedObject(String attr) {
     return jpLinkedData != null ? jpLinkedData.get(attr) : null;
   }
 
-  /**
-   * Данные связного объекта
-   *
-   * @return Данные связного объекта
-   */
   @Override
   public JPObject getLinkedObject(JPAttr attr) {
     return jpLinkedData != null ? jpLinkedData.get(attr) : null;
   }
 
-  /**
-   * Кодовое имя пакета объекта
-   *
-   * @return Кодовое имя пакета объекта
-   */
   @Override
   public String getJpPackage() {
     return getAttrValue(JPMeta.Attr.JPPACKAGE);
   }
 
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
   @Override
   public <T> T getAttrValue(JPAttr attr) {
     return (T) (attr != null ? getAttrValue(attr.getCode()) : null);
   }
 
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
   @Override
   public <T> T getAttrValue(String attr) {
     return (T) (jpData != null ? jpData.get(attr) : null);
@@ -176,15 +131,6 @@ public class JPObjectBase implements JPObject {
     return jpData;
   }
 
-  /**
-   * Создает новый объект
-   *
-   * @param jpClassCode        Класс данных
-   * @param primaryKeyAttrCode Атрибут идентификатор
-   * @param jpData             Данные объекта
-   * @param jpLinkedData       Данные связных объектов
-   * @return Новый объект
-   */
   @Override
   public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData, JPLinkedData jpLinkedData) {
     try {

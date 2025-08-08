@@ -1,0 +1,16 @@
+dependencies {
+  api project(":jprime-common-starter")
+  api(libs.opencsv)
+  api(reports.poi)
+  api(reports.poi.ooxml)
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

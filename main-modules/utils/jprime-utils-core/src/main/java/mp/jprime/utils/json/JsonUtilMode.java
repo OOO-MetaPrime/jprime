@@ -19,6 +19,9 @@ public class JsonUtilMode {
   private String type;
   private Collection<JsonUtilClassAttr> jpAttrs;
   private Collection<JsonParam> inParams;
+  private boolean inParamsDefValues;
+  private String infoMessage;
+  private boolean validate;
   private String resultType;
   private Collection<JsonParam> outCustomParams;
 
@@ -29,7 +32,8 @@ public class JsonUtilMode {
   private JsonUtilMode(String utilCode, String modeCode, String title, String qName, String confirmMessage,
                        boolean uni, Collection<String> jpClasses, Collection<String> jpClassTags,
                        String type, Collection<JsonUtilClassAttr> jpAttrs, Collection<JsonParam> inParams,
-                       String resultType, Collection<JsonParam> outCustomParams) {
+                       boolean inParamsDefValues, String infoMessage, boolean validate, String resultType,
+                       Collection<JsonParam> outCustomParams) {
     this.utilCode = utilCode;
     this.modeCode = modeCode;
     this.title = title;
@@ -41,6 +45,9 @@ public class JsonUtilMode {
     this.type = type;
     this.jpAttrs = jpAttrs != null ? Collections.unmodifiableCollection(jpAttrs) : Collections.emptyList();
     this.inParams = inParams != null ? Collections.unmodifiableCollection(inParams) : Collections.emptyList();
+    this.inParamsDefValues = inParamsDefValues;
+    this.infoMessage = infoMessage;
+    this.validate = validate;
     this.resultType = resultType;
     this.outCustomParams = outCustomParams != null ? Collections.unmodifiableCollection(outCustomParams) : Collections.emptyList();
   }
@@ -95,6 +102,33 @@ public class JsonUtilMode {
   }
 
   /**
+   * Признак наличия значений по умолчанию
+   *
+   * @return Признак наличия значений по умолчанию
+   */
+  public boolean isInParamsDefValues() {
+    return inParamsDefValues;
+  }
+
+  /**
+   * Сообщение на форму утилиты
+   *
+   * @return Сообщение на форму утилиты
+   */
+  public String getInfoMessage() {
+    return infoMessage;
+  }
+
+  /**
+   * Признак необходимости валидации
+   *
+   * @return Признак необходимости валидации
+   */
+  public boolean isValidate() {
+    return validate;
+  }
+
+  /**
    * Тип результата
    *
    * @return Тип результата
@@ -129,6 +163,9 @@ public class JsonUtilMode {
     private String type;
     private Collection<JsonUtilClassAttr> jpAttrs;
     private Collection<JsonParam> inParams;
+    private boolean inParamsDefValues;
+    private String infoMessage;
+    private boolean validate;
     private String resultType;
     private Collection<JsonParam> outCustomParams;
 
@@ -137,7 +174,8 @@ public class JsonUtilMode {
 
     public JsonUtilMode build() {
       return new JsonUtilMode(utilCode, modeCode, title, qName, confirmMessage,
-          uni, jpClasses, jpClassTags, type, jpAttrs, inParams, resultType, outCustomParams);
+          uni, jpClasses, jpClassTags, type, jpAttrs, inParams, inParamsDefValues,
+          infoMessage, validate, resultType, outCustomParams);
     }
 
     public Builder utilCode(String utilCode) {
@@ -192,6 +230,21 @@ public class JsonUtilMode {
 
     public Builder inParams(Collection<JsonParam> inParams) {
       this.inParams = inParams;
+      return this;
+    }
+
+    public Builder inParamsDefValues(boolean inParamsDefValues) {
+      this.inParamsDefValues = inParamsDefValues;
+      return this;
+    }
+
+    public Builder infoMessage(String infoMessage) {
+      this.infoMessage = infoMessage;
+      return this;
+    }
+
+    public Builder validate(boolean validate) {
+      this.validate = validate;
       return this;
     }
 
