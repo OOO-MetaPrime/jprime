@@ -1,5 +1,6 @@
 package mp.jprime.utils.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import mp.jprime.json.beans.JsonParam;
 
@@ -7,6 +8,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonUtilMode {
   private String utilCode;
   private String modeCode;
@@ -16,10 +18,12 @@ public class JsonUtilMode {
   private boolean uni;
   private Collection<String> jpClasses;
   private Collection<String> jpClassTags;
+  private Collection<String> jpUtilTags;
   private String type;
   private Collection<JsonUtilClassAttr> jpAttrs;
   private Collection<JsonParam> inParams;
   private boolean inParamsDefValues;
+  private boolean useDynamicParams;
   private String infoMessage;
   private boolean validate;
   private String resultType;
@@ -31,8 +35,10 @@ public class JsonUtilMode {
 
   private JsonUtilMode(String utilCode, String modeCode, String title, String qName, String confirmMessage,
                        boolean uni, Collection<String> jpClasses, Collection<String> jpClassTags,
+                       Collection<String> jpUtilTags,
                        String type, Collection<JsonUtilClassAttr> jpAttrs, Collection<JsonParam> inParams,
-                       boolean inParamsDefValues, String infoMessage, boolean validate, String resultType,
+                       boolean useDynamicParams, boolean inParamsDefValues,
+                       String infoMessage, boolean validate, String resultType,
                        Collection<JsonParam> outCustomParams) {
     this.utilCode = utilCode;
     this.modeCode = modeCode;
@@ -42,9 +48,11 @@ public class JsonUtilMode {
     this.uni = uni;
     this.jpClasses = jpClasses != null ? Collections.unmodifiableCollection(jpClasses) : Collections.emptyList();
     this.jpClassTags = jpClassTags != null ? Collections.unmodifiableCollection(jpClassTags) : Collections.emptyList();
+    this.jpUtilTags = jpUtilTags != null ? Collections.unmodifiableCollection(jpUtilTags) : Collections.emptyList();
     this.type = type;
     this.jpAttrs = jpAttrs != null ? Collections.unmodifiableCollection(jpAttrs) : Collections.emptyList();
     this.inParams = inParams != null ? Collections.unmodifiableCollection(inParams) : Collections.emptyList();
+    this.useDynamicParams = useDynamicParams;
     this.inParamsDefValues = inParamsDefValues;
     this.infoMessage = infoMessage;
     this.validate = validate;
@@ -84,6 +92,10 @@ public class JsonUtilMode {
     return jpClassTags;
   }
 
+  public Collection<String> getJpUtilTags() {
+    return jpUtilTags;
+  }
+
   public String getType() {
     return type;
   }
@@ -102,9 +114,18 @@ public class JsonUtilMode {
   }
 
   /**
+   * Признак определения динамических параметров
+   *
+   * @return Да/Нет
+   */
+  public boolean isUseDynamicParams() {
+    return useDynamicParams;
+  }
+
+  /**
    * Признак наличия значений по умолчанию
    *
-   * @return Признак наличия значений по умолчанию
+   * @return Да/Нет
    */
   public boolean isInParamsDefValues() {
     return inParamsDefValues;
@@ -160,9 +181,11 @@ public class JsonUtilMode {
     private boolean uni;
     private Collection<String> jpClasses;
     private Collection<String> jpClassTags;
+    private Collection<String> jpUtilTags;
     private String type;
     private Collection<JsonUtilClassAttr> jpAttrs;
     private Collection<JsonParam> inParams;
+    private boolean useDynamicParams;
     private boolean inParamsDefValues;
     private String infoMessage;
     private boolean validate;
@@ -174,7 +197,8 @@ public class JsonUtilMode {
 
     public JsonUtilMode build() {
       return new JsonUtilMode(utilCode, modeCode, title, qName, confirmMessage,
-          uni, jpClasses, jpClassTags, type, jpAttrs, inParams, inParamsDefValues,
+          uni, jpClasses, jpClassTags, jpUtilTags, type, jpAttrs, inParams,
+          useDynamicParams, inParamsDefValues,
           infoMessage, validate, resultType, outCustomParams);
     }
 
@@ -218,6 +242,11 @@ public class JsonUtilMode {
       return this;
     }
 
+    public Builder jpUtilTags(Collection<String> jpUtilTags) {
+      this.jpUtilTags = jpUtilTags;
+      return this;
+    }
+
     public Builder type(String type) {
       this.type = type;
       return this;
@@ -230,6 +259,11 @@ public class JsonUtilMode {
 
     public Builder inParams(Collection<JsonParam> inParams) {
       this.inParams = inParams;
+      return this;
+    }
+
+    public Builder useDynamicParams(boolean useDynamicParams) {
+      this.useDynamicParams = useDynamicParams;
       return this;
     }
 

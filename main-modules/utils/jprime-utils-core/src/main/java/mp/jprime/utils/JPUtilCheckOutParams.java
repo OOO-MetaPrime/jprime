@@ -9,8 +9,12 @@ import mp.jprime.utils.annotations.JPUtilResultType;
  * Тип, возвращаемый методом check()
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JPUtilResultType(code = "check")
+@JPUtilResultType(code = JPUtilCheckOutParams.CODE)
 public class JPUtilCheckOutParams extends BaseJPUtilOutParams<Void> {
+  public static final String CODE = "check";
+  public static final JPUtilCheckOutParams ALLOW = JPUtilCheckOutParams.newBuilder().build();
+  public static final JPUtilCheckOutParams DENIED = JPUtilCheckOutParams.newBuilder().denied(true).build();
+
   /**
    * Сообщение подтверждения
    */
@@ -26,7 +30,7 @@ public class JPUtilCheckOutParams extends BaseJPUtilOutParams<Void> {
                               @JsonProperty("changeData") boolean changeData,
                               @JsonProperty("deleteData") boolean deleteData,
                               @JsonProperty("confirm") String confirm,
-                              @JsonProperty("denied") boolean denied)  {
+                              @JsonProperty("denied") boolean denied) {
     super(description, qName, changeData, deleteData);
     this.confirm = confirm;
     this.denied = denied;

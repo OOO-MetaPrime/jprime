@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.IN;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.IN;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPArray;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
@@ -13,7 +13,7 @@ import java.util.Collection;
  * В указанном списке
  */
 @FilterLink(
-    exprClass = IN.class
+    filterClass = IN.class
 )
 public class CheckIN extends CheckBaseFilter<IN> {
   @Override

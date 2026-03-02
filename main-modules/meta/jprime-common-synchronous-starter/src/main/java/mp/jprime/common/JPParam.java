@@ -1,6 +1,7 @@
 package mp.jprime.common;
 
 import mp.jprime.files.FileType;
+import mp.jprime.formats.JPIntegerFormat;
 import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.JPMoney;
 import mp.jprime.meta.beans.JPType;
@@ -68,6 +69,20 @@ public interface JPParam {
   String getStringMask();
 
   /**
+   * Тип целочисленного поля
+   *
+   * @return Тип целочисленного поля
+   */
+  JPIntegerFormat getIntegerFormat();
+
+  /**
+   * Признак многострочного строкового поля
+   *
+   * @return Да/Нет
+   */
+  boolean isMultiline();
+
+  /**
    * Расширения файлов для выбора
    *
    * @return Список расширений
@@ -131,7 +146,7 @@ public interface JPParam {
   boolean isMultiple();
 
   /**
-   * Возможность внешнего переопределения параметра. Например, для ввода пользователем
+   * Возможность внешнего использования параметра. Например, для ввода пользователем
    *
    * @return Да/Нет
    */

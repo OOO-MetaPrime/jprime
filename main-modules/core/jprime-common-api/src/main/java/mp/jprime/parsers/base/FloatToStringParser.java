@@ -1,37 +1,24 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * Float -> String
  */
 @Service
-public final class FloatToStringParser implements TypeParser<Float, String> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class FloatToStringParser extends BaseTypeParser<Float, String> {
+  @Override
   public String parse(Float value) {
     return value != null ? Float.toString(value) : null;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Float> getInputType() {
     return Float.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getOutputType() {
     return String.class;
   }

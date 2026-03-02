@@ -21,6 +21,11 @@ public abstract class JPBaseMapCache<C, V> extends JPBaseCache {
     LOG.info("Cache {} refreshed", getCode());
   }
 
+  public Collection<C> getKeys() {
+    waitForLoad();
+    return cache.keySet();
+  }
+
   public Collection<V> getValues() {
     waitForLoad();
     return cache.values();

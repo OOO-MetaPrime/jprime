@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.NEQ;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.NEQ;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
@@ -9,7 +9,7 @@ import mp.jprime.security.AuthInfo;
  * Не равно
  */
 @FilterLink(
-    exprClass = NEQ.class
+    filterClass = NEQ.class
 )
 public class CheckNEQ extends CheckBaseFilter<NEQ> {
   @Override

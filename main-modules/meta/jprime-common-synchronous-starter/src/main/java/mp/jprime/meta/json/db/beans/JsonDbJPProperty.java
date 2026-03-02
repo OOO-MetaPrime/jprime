@@ -27,6 +27,7 @@ public class JsonDbJPProperty {
   private String qName;
   private String name;
   private boolean mandatory;
+  private JsonExpr mandatoryCond;
   private String type;
   private JsonDbJPMoney money;
   private String stringFormat;
@@ -37,6 +38,7 @@ public class JsonDbJPProperty {
   private String refJpAttr;
   private JsonExpr filter;
   private List<JsonDbJPOrder> orders = new ArrayList<>();
+  private boolean clientSearch = true;
   private List<JsonDbJPEnum> enums = new ArrayList<>();
   private Collection<JsonDbJPProperty> jpProps;
 
@@ -107,6 +109,14 @@ public class JsonDbJPProperty {
     this.mandatory = mandatory;
   }
 
+  public JsonExpr getMandatoryCond() {
+    return mandatoryCond;
+  }
+
+  public void setMandatoryCond(JsonExpr mandatoryCond) {
+    this.mandatoryCond = mandatoryCond;
+  }
+
   public String getName() {
     return name;
   }
@@ -147,20 +157,28 @@ public class JsonDbJPProperty {
     this.filter = filter;
   }
 
-  public Collection<JsonDbJPEnum> getEnums() {
-    return enums;
-  }
-
-  public void setEnums(List<JsonDbJPEnum> enums) {
-    this.enums = enums;
-  }
-
   public Collection<JsonDbJPOrder> getOrders() {
     return orders;
   }
 
   public void setOrders(List<JsonDbJPOrder> orders) {
     this.orders = orders;
+  }
+
+  public boolean isClientSearch() {
+    return clientSearch;
+  }
+
+  public void setClientSearch(boolean clientSearch) {
+    this.clientSearch = clientSearch;
+  }
+
+  public Collection<JsonDbJPEnum> getEnums() {
+    return enums;
+  }
+
+  public void setEnums(List<JsonDbJPEnum> enums) {
+    this.enums = enums;
   }
 
   public Collection<JsonDbJPProperty> getJpProps() {
@@ -184,12 +202,14 @@ public class JsonDbJPProperty {
     private Integer length;
     private Object defValue;
     private boolean mandatory;
+    private JsonExpr mandatoryCond;
     private String name;
     private String qName;
     private String refJpClass;
     private String refJpAttr;
     private JsonExpr filter;
     private List<JsonDbJPOrder> orders;
+    private boolean clientSearch = true;
     private List<JsonDbJPEnum> enums;
     private Collection<JsonDbJPProperty> jpProps;
 
@@ -261,6 +281,14 @@ public class JsonDbJPProperty {
     }
 
     /**
+     * Условие обязательности элемента
+     */
+    public Builder mandatoryCond(JsonExpr mandatoryCond) {
+      this.mandatoryCond = mandatoryCond;
+      return this;
+    }
+
+    /**
      * Название свойства
      */
     public Builder name(String name) {
@@ -309,6 +337,14 @@ public class JsonDbJPProperty {
     }
 
     /**
+     * Клиенсткий поиск
+     */
+    public Builder clientSearch(boolean clientSearch) {
+      this.clientSearch = clientSearch;
+      return this;
+    }
+
+    /**
      * Перечислимые значения
      */
     public Builder enums(List<JsonDbJPEnum> enums) {
@@ -334,12 +370,14 @@ public class JsonDbJPProperty {
       result.setLength(length);
       result.setDefValue(defValue);
       result.setMandatory(mandatory);
+      result.setMandatoryCond(mandatoryCond);
       result.setName(name);
       result.setqName(qName);
       result.setRefJpClass(refJpClass);
       result.setRefJpAttr(refJpAttr);
       result.setFilter(filter);
       result.setOrders(orders);
+      result.setClientSearch(clientSearch);
       result.setEnums(enums);
       result.setJpProps(jpProps);
       return result;
@@ -365,6 +403,7 @@ public class JsonDbJPProperty {
         .length(json.getLength())
         .defValue(json.getDefValue())
         .mandatory(json.isMandatory())
+        .mandatoryCond(JsonExpr.toFilter(json.getMandatoryCond()))
         .name(json.getName())
         .qName(json.getqName())
         .refJpClass(json.getRefJpClass())
@@ -374,6 +413,7 @@ public class JsonDbJPProperty {
             orders.stream()
                 .map(JsonDbJPOrder::toJPOrder)
                 .collect(Collectors.toList()))
+        .clientSearch(json.isClientSearch())
         .enums(enums == null || enums.isEmpty() ? null :
             enums.stream()
                 .map(JsonDbJPEnum::toJPEnum)
@@ -405,6 +445,7 @@ public class JsonDbJPProperty {
         .length(property.getLength())
         .defValue(property.getDefValue())
         .mandatory(property.isMandatory())
+        .mandatoryCond(JsonExpr.toJson(property.getMandatoryCond()))
         .name(property.getName())
         .qName(property.getQName())
         .refJpClass(property.getRefJpClass())
@@ -414,6 +455,7 @@ public class JsonDbJPProperty {
             orders.stream()
                 .map(JsonDbJPOrder::toJson)
                 .collect(Collectors.toList()))
+        .clientSearch(property.isClientSearch())
         .enums(enums == null || enums.isEmpty() ? null :
             enums.stream()
                 .map(JsonDbJPEnum::toJson)

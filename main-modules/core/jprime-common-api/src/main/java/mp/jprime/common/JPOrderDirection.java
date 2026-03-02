@@ -8,6 +8,10 @@ import java.util.Map;
  */
 public enum JPOrderDirection {
   /**
+   * Без сортировки
+   */
+  NONE("NONE"),
+  /**
    * По возрастанию
    */
   ASC("ASC"),

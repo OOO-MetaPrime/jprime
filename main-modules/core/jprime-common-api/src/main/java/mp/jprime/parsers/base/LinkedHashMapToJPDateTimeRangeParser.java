@@ -3,7 +3,7 @@ package mp.jprime.parsers.base;
 import mp.jprime.json.beans.JsonDateTimeRange;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPDateTimeRange;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
  * {@link LinkedHashMap} -> {@link JPDateTimeRange}
  */
 @Service
-public final class LinkedHashMapToJPDateTimeRangeParser implements TypeParser<LinkedHashMap, JPDateTimeRange> {
+public final class LinkedHashMapToJPDateTimeRangeParser extends BaseTypeParser<LinkedHashMap, JPDateTimeRange> {
   private static final Logger LOG = LoggerFactory.getLogger(LinkedHashMapToJPDateTimeRangeParser.class);
   private JPJsonMapper jsonMapper;
 

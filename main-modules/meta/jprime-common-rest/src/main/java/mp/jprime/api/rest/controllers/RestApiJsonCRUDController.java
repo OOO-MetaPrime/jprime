@@ -175,55 +175,57 @@ public class RestApiJsonCRUDController extends RestApiJsonCRUDBaseController {
                                                            @PathVariable("objectId") String objectId,
                                                            @PathVariable("attrCode") String attrCode,
                                                            @RequestBody String query) {
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    JPClass jpClass = jpMetaFilter.get(code, auth);
-    JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
-    JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClass() == null || jpAttr.getType() != JPType.BACKREFERENCE
-        ? null : jpMetaFilter.get(jpAttr.getRefJpClass(), auth);
+    return JPMono.defer(() -> {
+      AuthInfo auth = jwtService.getAuthInfo(swe);
+      JPClass jpClass = jpMetaFilter.get(code, auth);
+      JPAttr jpAttr = jpClass == null ? null : jpClass.getAttr(attrCode);
+      JPClass refJpClass = jpAttr == null || jpAttr.getRefJpClass() == null || jpAttr.getType() != JPType.BACKREFERENCE
+          ? null : jpMetaFilter.get(jpAttr.getRefJpClass(), auth);
 
-    JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttr());
-    JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttr());
-    if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClass())) {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
+      JPAttr refJpAttr = refJpClass == null ? null : refJpClass.getAttr(jpAttr.getRefJpAttr());
+      JPAttr targetAttr = refJpAttr == null ? null : jpClass.getAttr(refJpAttr.getRefJpAttr());
+      if (objectId == null || targetAttr == null || !jpClass.getCode().equals(refJpAttr.getRefJpClass())) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+      }
 
-    return JPMono.fromCallable(() -> objectId)
-        .flatMap(key -> {
-              if (targetAttr.isIdentifier()) {
-                return Mono.just(key).cast(Object.class);
-              } else {
-                return repo.getAsyncObject(
-                        JPSelect.from(jpClass.getCode())
-                            .attr(targetAttr.getCode())
-                            .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(key))
-                            .build()
-                    )
-                    .filter(Objects::nonNull)
-                    .flatMap(o -> {
-                      Object attrValue = o.getAttrValue(targetAttr.getCode());
-                      return attrValue == null ? Mono.empty() : Mono.just(attrValue);
-                    });
+      return JPMono.fromCallable(() -> objectId)
+          .flatMap(key -> {
+                if (targetAttr.isIdentifier()) {
+                  return Mono.just(key).cast(Object.class);
+                } else {
+                  return repo.getAsyncObject(
+                          JPSelect.from(jpClass.getCode())
+                              .attr(targetAttr.getCode())
+                              .where(Filter.attr(jpClass.getPrimaryKeyAttr()).eq(key))
+                              .build()
+                      )
+                      .filter(Objects::nonNull)
+                      .flatMap(o -> {
+                        Object attrValue = o.getAttrValue(targetAttr.getCode());
+                        return attrValue == null ? Mono.empty() : Mono.just(attrValue);
+                      });
+                }
               }
+          )
+          .flatMap(key -> {
+            JPSelect.Builder builder;
+            boolean access;
+            try {
+              JsonSelect jsonSelect = queryService.getQuery(query);
+              access = jsonSelect != null && jsonSelect.isAccess();
+              builder = queryService.getSelect(refJpClass.getCode(), jsonSelect, auth)
+                  .andWhere(Filter.attr(refJpAttr.getCode()).eq(key))
+                  .timeout(getQueryTimeout())
+                  .source(Source.USER);
+            } catch (JPRuntimeException e) {
+              throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
             }
-        )
-        .flatMap(key -> {
-          JPSelect.Builder builder;
-          boolean access;
-          try {
-            JsonSelect jsonSelect = queryService.getQuery(query);
-            access = jsonSelect != null && jsonSelect.isAccess();
-            builder = queryService.getSelect(refJpClass.getCode(), jsonSelect, auth)
-                .andWhere(Filter.attr(refJpAttr.getCode()).eq(key))
-                .timeout(getQueryTimeout())
-                .source(Source.USER);
-          } catch (JPRuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-          }
-          if (builder.isOrderByEmpty()) {
-            builder.orderByDesc(refJpClass.getPrimaryKeyAttr());
-          }
-          return getListResult(refJpClass, checkAndBuild(builder), access, swe, auth);
-        });
+            if (builder.isOrderByEmpty()) {
+              builder.orderByDesc(refJpClass.getPrimaryKeyAttr());
+            }
+            return getListResult(refJpClass, checkAndBuild(builder), access, swe, auth);
+          });
+    });
   }
 
   @ResponseBody

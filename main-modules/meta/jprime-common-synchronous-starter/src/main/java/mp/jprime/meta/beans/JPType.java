@@ -23,6 +23,10 @@ public enum JPType {
    */
   BIGINT("biginteger", "Длинное целочисленное", BigInteger.class),
   /**
+   * Массив байт
+   */
+  BINARY("byteArray", "Массив байт (8 бит)", JPByteArray.class),
+  /**
    * Да/Нет
    */
   BOOLEAN("boolean", "Да/Нет", Boolean.class),
@@ -35,6 +39,10 @@ public enum JPType {
    */
   DATE_RANGE("dateRange", "Диапазон дат", JPDateRange.class),
   /**
+   * Закрытый диапазон дат
+   */
+  DATE_CLOSED_RANGE("dateClosedRange", "Закрытый диапазон дат", JPDateRange.class),
+  /**
    * Полная дата (c учетом часового пояса)
    */
   DATETIME("datetime", "Полная дата (c учетом часового пояса)", LocalDateTime.class),
@@ -42,6 +50,10 @@ public enum JPType {
    * Диапазон полных дат
    */
   DATETIME_RANGE("datetimeRange", "Диапазон полных дат", JPDateTimeRange.class),
+  /**
+   * Закрытый диапазон полных дат
+   */
+  DATETIME_CLOSED_RANGE("datetimeClosedRange", "Закрытый диапазон полных дат", JPDateTimeRange.class),
   /**
    * Вещественное (64 бита)
    */
@@ -71,9 +83,13 @@ public enum JPType {
    */
   INT_RANGE("intRange", "Диапазон целочисленный (32 бита)", JPIntegerRange.class),
   /**
+   * Закрытый диапазон целочисленный (32 бита)
+   */
+  INT_CLOSED_RANGE("intClosedRange", "Закрытый диапазон целочисленный (32 бита)", JPIntegerRange.class),
+  /**
    * JSON
    */
-  JSON("json", "JSON", String.class),
+  JSON("json", "JSON", JPJsonString.class),
   /**
    * Целочисленное (64 бита)
    */
@@ -93,7 +109,7 @@ public enum JPType {
   /**
    * Простая дробь
    */
-  SIMPLEFRACTION("simpleFraction", "Простая дробь", Integer.class),
+  SIMPLEFRACTION("simpleFraction", "Простая дробь", JPSimpleFraction.class),
   /**
    * Строка
    */

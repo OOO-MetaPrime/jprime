@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.EQ;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.EQ;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
@@ -9,7 +9,7 @@ import mp.jprime.security.AuthInfo;
  * Равно
  */
 @FilterLink(
-    exprClass = EQ.class
+    filterClass = EQ.class
 )
 public class CheckEQ extends CheckBaseFilter<EQ> {
   @Override

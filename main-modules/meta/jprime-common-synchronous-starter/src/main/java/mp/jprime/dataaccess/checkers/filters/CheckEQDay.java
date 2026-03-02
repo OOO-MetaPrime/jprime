@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.EQDay;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.EQDay;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
@@ -11,7 +11,7 @@ import java.time.LocalDate;
  * День равен (Дата)
  */
 @FilterLink(
-    exprClass = EQDay.class
+    filterClass = EQDay.class
 )
 public class CheckEQDay extends CheckBaseFilter<EQDay> {
 

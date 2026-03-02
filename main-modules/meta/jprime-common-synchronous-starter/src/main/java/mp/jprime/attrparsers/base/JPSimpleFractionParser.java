@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
- * реализация парсера JPSimpleFraction
+ * реализация парсера {@link JPType#SIMPLEFRACTION}
  */
 @Service
 public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFraction>, ParserServiceAware {
@@ -43,25 +43,13 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
     return JPSimpleFraction.class;
   }
 
-  /**
-   * Форматирование значения на основе данных в JPAttrData
-   *
-   * @param jpAttr Атрибут
-   * @param data   Значения атрибутов
-   * @return Данные в выходном формате
-   */
   @Override
   public JPSimpleFraction parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.SIMPLEFRACTION) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
-    if (attrValue == null) {
-      return null;
-    }
-
-    JPSimpleFraction result;
-    if (attrValue instanceof Number) {
+    if (attrValue == null || attrValue instanceof Number) {
       /*
        * Полноценный числитель, как базовое значение
        */
@@ -74,27 +62,25 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
           (denomAttr != null && !data.containsAttr(denomAttr))) {
         return null;
       }
-      result = JPSimpleFraction.of(
-          intAttr != null ? parserService.parseTo(Integer.class, data.get(intAttr)) : 0,
-          parserService.parseTo(Integer.class, data.get(jpAttr)),
-          denomAttr != null ? parserService.parseTo(Integer.class, data.get(denomAttr)) : 1
-      );
+      Integer integer = intAttr != null ? parserService.parseTo(Integer.class, data.get(intAttr)) : null;
+      Integer numerator = parserService.parseTo(Integer.class, data.get(jpAttr));
+      Integer denominator = denomAttr != null ? parserService.parseTo(Integer.class, data.get(denomAttr)) : null;
+
+      if (integer == null && numerator == null && denominator == null) {
+        return null;
+      }
+      return JPSimpleFraction.of(
+          integer != null ? integer : 0,
+          numerator != null ? numerator : 0,
+          denominator != null ? denominator : 1);
     } else {
-      result = parse(jpAttr, attrValue);
+      return parse(jpAttr, attrValue);
     }
-    return result;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param jpAttr    Атрибут
-   * @param attrValue Значение
-   * @return Данные в выходном формате
-   */
   @Override
   public JPSimpleFraction parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JPType.SIMPLEFRACTION) {
+    if (jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
 
@@ -117,56 +103,58 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
             jsonMapper.toString(attrValue)
         );
       } catch (Exception e) {
-        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение " + attrName);
       }
-    } else if (attrValue instanceof String) {
+    } else if (attrValue instanceof String s) {
       /*
        * Если строка, мало ли кто-то положил
        */
       try {
-        result = jsonMapper.toObject(
-            JPSimpleFraction.class,
-            (String) attrValue
-        );
+        result = jsonMapper.toObject(JPSimpleFraction.class, s);
       } catch (Exception e) {
         LOG.error(e.getMessage(), e);
-        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение " + attrName);
       }
     }
     return result;
   }
 
-  /**
-   * Раскладываем значение атрибута в поля JPMutableData
-   *
-   * @param jpAttr    Атрибут
-   * @param attrValue Значение атрибута
-   * @param data      Значения атрибутов
-   */
   @Override
   public void fill(JPAttr jpAttr, JPSimpleFraction attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.SIMPLEFRACTION) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return;
     }
 
     mp.jprime.meta.JPSimpleFraction fraction = jpAttr.getSimpleFraction();
     String intAttr = fraction != null ? fraction.getIntegerAttrCode() : null;
     String denomAttr = fraction != null ? fraction.getDenominatorAttrCode() : null;
+
     if (attrValue == null) {
       data.put(jpAttr, null);
       data.put(intAttr, null);
       data.put(denomAttr, null);
       return;
     }
+
     int sign = attrValue.isPositive() ? 1 : -1;
+    int integer = attrValue.getInteger();
+    int numerator = attrValue.getNumerator();
+    int denominator = attrValue.getDenominator();
+
     if (intAttr != null) {
-      data.put(intAttr, sign * attrValue.getInteger());
-      data.put(jpAttr, attrValue.getNumerator());
+      if (integer == 0) {
+        data.put(intAttr, integer);
+        data.put(jpAttr, numerator != 0 ? sign * numerator : null);
+      } else {
+        data.put(intAttr, sign * integer);
+        data.put(jpAttr, numerator != 0 ? numerator : null);
+      }
     } else {
-      data.put(jpAttr, sign * (attrValue.getInteger() * attrValue.getDenominator() + attrValue.getNumerator()));
+      data.put(jpAttr, sign * (integer * denominator + numerator));
     }
+
     if (denomAttr != null) {
-      data.put(denomAttr, attrValue.getDenominator());
+      data.put(denomAttr, numerator != 0 ? denominator : null);
     }
   }
 }

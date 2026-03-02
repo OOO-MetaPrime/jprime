@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -9,13 +9,8 @@ import java.util.UUID;
  * UUID -> String
  */
 @Service
-public final class UUIDToStringParser implements TypeParser<UUID, String> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class UUIDToStringParser extends BaseTypeParser<UUID, String> {
+  @Override
   public String parse(UUID value) {
     if (value == null) {
       return null;
@@ -23,20 +18,12 @@ public final class UUIDToStringParser implements TypeParser<UUID, String> {
     return value.toString();
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<UUID> getInputType() {
     return UUID.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getOutputType() {
     return String.class;
   }

@@ -1,9 +1,7 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -12,9 +10,7 @@ import java.math.BigDecimal;
  * String -> BigDecimal
  */
 @Service
-public final class StringToBigDecimalParser implements TypeParser<String, BigDecimal> {
-  private static final Logger LOG = LoggerFactory.getLogger(StringToBigDecimalParser.class);
-
+public final class StringToBigDecimalParser extends BaseTypeParser<String, BigDecimal> {
   /**
    * Форматирование значения
    *
@@ -40,20 +36,12 @@ public final class StringToBigDecimalParser implements TypeParser<String, BigDec
     return new BigDecimal(new String(result, 0, index));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigDecimal> getOutputType() {
     return BigDecimal.class;
   }

@@ -183,7 +183,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
 
   protected Mono<Void> writeZipTo(ServerWebExchange swe, Collection<JPIdFileInfo> infoList, String userAgent) {
     AtomicReference<Path> tmpFileRef = new AtomicReference<>();
-    return Mono.just(infoList)
+    return JPMono.fromCallable(() -> infoList)
         .flatMap(list -> getIs(list, tmpFileRef))
         .flatMap(is -> {
           String ts = LocalDateTime.now().format(TS_FORMATTER);
@@ -195,7 +195,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   }
 
   private Mono<InputStream> getIs(Collection<JPIdFileInfo> list, AtomicReference<Path> tmpFileRef) {
-    return Mono.create(sink -> {
+    return JPMono.create(sink -> {
       try {
         Path tmpFile = Files.createTempFile("download", "zip");
         tmpFileRef.set(tmpFile);
@@ -258,16 +258,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           }
           return jpCreateBuilder;
         },
-        (tuple) -> {
-          JPCreate.Builder builder = tuple.getT1();
-
-          tuple.getT2().forEach((attr, value) -> {
-            try (UploadInputStream is = value) {
-              jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-            }
-          });
-          return builder;
-        },
+        (tuple) -> jpFileUploader.upload(tuple.getT1(), tuple.getT2()),
         builder -> repo.asyncCreateAndGet(builder.build()));
   }
 
@@ -288,16 +279,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           }
           return jpUpdateBuilder;
         },
-        (tuple) -> {
-          JPUpdate.Builder builder = tuple.getT1();
-
-          tuple.getT2().forEach((attr, value) -> {
-            try (UploadInputStream is = value) {
-              jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
-            }
-          });
-          return builder;
-        },
+        (tuple) -> jpFileUploader.upload(tuple.getT1(), tuple.getT2()),
         builder -> repo.asyncUpdateAndGet(builder.build()));
   }
 
@@ -319,7 +301,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   protected Mono<Void> upload(FilePart file, JPCreate.Builder builder, String attr,
                               Consumer<JPCreate.Builder> executor) {
     return getStreamValue(file)
-        .map(value-> {
+        .map(value -> {
           try (UploadInputStream is = value) {
             jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
           }
@@ -372,7 +354,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
                       .filter(x -> !JSON_BODY_FIELD.equals(x.name()))
                       .filter(x -> x instanceof FilePart)
                       .cast(FilePart.class)
-                      .flatMap(x -> Mono.zip(Mono.just(x.name()), getStreamValue(x)))
+                      .flatMap(x -> Mono.zip(JPMono.fromCallable(x::name), getStreamValue(x)))
                       .collectMap(Tuple2::getT1, Tuple2::getT2)
               );
             }
@@ -387,7 +369,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   }
 
   private Mono<UploadInputStream> getStreamValue(FilePart part) {
-    return Mono.just(part)
+    return JPMono.fromCallable(() -> part)
         .flatMap(uploadInputStreamService::read);
   }
 

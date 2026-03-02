@@ -9,7 +9,7 @@ public @interface JPSimpleFraction {
    *
    * @return Кодовое имя атрибута
    */
-  String integerAttrCode();
+  String integerAttrCode() default "";
 
   /**
    * Атрибут для хранения - Знаменатель дроби

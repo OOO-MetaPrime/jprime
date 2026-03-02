@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.GT;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.GT;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.ObjectUtils;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * Больше
  */
 @FilterLink(
-    exprClass = GT.class
+    filterClass = GT.class
 )
 public class CheckGT extends CheckBaseFilter<GT> {
   @Override

@@ -17,6 +17,10 @@ public final class Oktmo {
    * Муниципальные образования субъектов Российской Федерации
    */
   public static final String CODE_00000000 = "00000000";
+  /**
+   * Муниципальные районы Республики Крым
+   */
+  public static final String CODE_35000000 = "35000000";
 
   public static final Collection<String> ROOT_HIERARCHY = List.of(CODE_00000000);
 

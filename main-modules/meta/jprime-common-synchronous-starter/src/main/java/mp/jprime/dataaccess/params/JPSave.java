@@ -33,6 +33,13 @@ public abstract class JPSave extends JPBaseOperation {
   }
 
   /**
+   * Кодовое имя класса
+   *
+   * @return Кодовое имя класса
+   */
+  abstract public String getJpClass();
+
+  /**
    * Данные для создания
    *
    * @return Данные для создания

@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.*;
@@ -24,7 +23,6 @@ import org.springframework.stereotype.Service;
  * Публикация глобальных системных событий
  */
 @EnableKafka
-@Lazy(value = false)
 @Service
 @ConditionalOnProperty(value = "jprime.events.globalevents.kafka.enabled", havingValue = "true")
 public class KafkaGlobalEventService implements GlobalEventPublisher {

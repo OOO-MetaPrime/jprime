@@ -20,8 +20,20 @@ public interface JPBeanService {
    * @param jpData             Данные объекта
    * @return Новый объект
    */
-  JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData);
+  default JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData) {
+    return newInstance(jpClassCode, primaryKeyAttrCode, jpData, null);
+  }
 
+  /**
+   * Создает объект
+   *
+   * @param jpClassCode        Метаописание класса
+   * @param primaryKeyAttrCode Кодовое имя атрибута-идентификатора
+   * @param jpData             Данные объекта
+   * @param jpLinkedData       Данные связанных объектов
+   * @return Новый объект
+   */
+  JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData, JPLinkedData jpLinkedData);
 
   /**
    * Создает объект
@@ -66,7 +78,7 @@ public interface JPBeanService {
   JPObject newInstance(JPClass jpClass, JPData jpData, JPLinkedData jpLinkedData);
 
   /**
-   * Возвращает список атрибутов  о-умолчанию
+   * Возвращает список атрибутов по умолчанию
    *
    * @param jpClass Кодовое имя метаописания класса
    * @return Список атрибутов по умолчанию

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jpTaskSettings>
+  <jpTasks>
+    <jpTask>
+      <code>b39997d7-3955-5283-4436-93d1e36428f1</code>
+      <disable>true</disable>
+      <name>Проверочная задача</name>
+      <description>Ежеминутно пишет в лог</description>
+      <catalogCode>jp.system</catalogCode>
+      <executorCode>dummy</executorCode>
+      <jpCron>>
+        <expression>*/10 * * * * *</expression>
+      </jpCron>
+    </jpTask>
+  </jpTasks>
+</jpTaskSettings>

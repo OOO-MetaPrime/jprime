@@ -1,9 +1,9 @@
 [versions]
 # Spring
-springBootVersion = "3.5.4"
-springCloudVersion = "2025.0.0"
+springBootVersion = "3.5.10"
+springCloudVersion = "2025.0.1"
 dependencyManagement = "1.1.7"
-springBootAdminStarterServer = "3.5.1"
+springBootAdminStarterServer = "3.5.7"
 springKerberosVersion = "2.2.0"
 
 [libraries]
@@ -13,7 +13,6 @@ kerberos-core = { module = "org.springframework.security.kerberos:spring-securit
 kerberos-web = { module = "org.springframework.security.kerberos:spring-security-kerberos-web", version.ref = "springKerberosVersion" }
 kerberos-client = { module = "org.springframework.security.kerberos:spring-security-kerberos-client", version.ref = "springKerberosVersion" }
 #starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "springBootVersion" }
-
 
 [plugins]
 boot = { id = "org.springframework.boot", version.ref="springBootVersion" }

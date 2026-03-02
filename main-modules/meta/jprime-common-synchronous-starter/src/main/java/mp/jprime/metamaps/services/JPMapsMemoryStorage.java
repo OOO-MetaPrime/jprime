@@ -1,5 +1,6 @@
 package mp.jprime.metamaps.services;
 
+import mp.jprime.application.JPApplicationMetaBootListener;
 import mp.jprime.meta.JPClass;
 import mp.jprime.metamaps.JPClassMap;
 import mp.jprime.metamaps.JPMapsDynamicMultiLoader;
@@ -7,7 +8,6 @@ import mp.jprime.metamaps.JPMapsLoader;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.repositories.RepositoryGlobalStorage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -19,37 +19,40 @@ import java.util.concurrent.atomic.AtomicReference;
  * Описания привязки метаинформации к хранилищу
  */
 @Service
-@Lazy(value = false)
-public final class JPMapsMemoryStorage implements JPMapsStorage {
-  /**
-   * Описания хранилищ
-   */
-  private RepositoryGlobalStorage repoStorage;
+public final class JPMapsMemoryStorage implements JPMapsStorage, JPApplicationMetaBootListener {
 
   private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
     set(new Cache());
   }};
 
+  private final RepositoryGlobalStorage repoStorage;
+  private final Collection<JPMapsLoader> loaders;
 
-  /**
-   * Размещает метаописание в хранилище
-   */
-  private JPMapsMemoryStorage(@Autowired Collection<JPMapsLoader> loaders) {
-    loaders.forEach(x-> applyJPClassMaps(x.load()));
-  }
-
-  @Autowired
-  private void setRepoStorage(RepositoryGlobalStorage repoStorage) {
+  private JPMapsMemoryStorage(@Autowired RepositoryGlobalStorage repoStorage,
+                              @Autowired Collection<JPMapsLoader> loaders) {
     this.repoStorage = repoStorage;
+    this.loaders = loaders;
   }
 
-  @Autowired(required = false)
-  private void setDynamicLoaders(Collection<JPMapsDynamicMultiLoader> dynamicLoaders) {
-    if (dynamicLoaders == null) {
-      return;
+  @Service
+  private static final class Links {
+    private static Collection<JPMapsDynamicMultiLoader> DYNAMIC_LOADERS;
+
+    private Links(@Autowired(required = false) Collection<JPMapsDynamicMultiLoader> dynamicLoaders) {
+      DYNAMIC_LOADERS = dynamicLoaders == null ? Collections.emptyList() : dynamicLoaders;
     }
+  }
+
+  private Collection<JPMapsDynamicMultiLoader> getReportDynamicLoaders() {
+    return Links.DYNAMIC_LOADERS;
+  }
+
+  @Override
+  public void applicationBoot() {
+    loaders.forEach(x -> applyJPClassMaps(x.load()));
+
     AtomicInteger i = new AtomicInteger(1);
-    dynamicLoaders.forEach(x -> x.load().forEach(loader -> {
+    getReportDynamicLoaders().forEach(x -> x.load().forEach(loader -> {
       int sourceNum = i.getAndIncrement();
       loader.subscribe(list -> applyDynamicJPClassMaps(sourceNum, list));
     }));

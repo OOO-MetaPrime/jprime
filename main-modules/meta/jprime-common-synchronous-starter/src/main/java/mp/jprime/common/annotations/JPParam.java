@@ -1,6 +1,7 @@
 package mp.jprime.common.annotations;
 
 import mp.jprime.files.FileType;
+import mp.jprime.formats.JPIntegerFormat;
 import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.annotations.JPMoney;
 import mp.jprime.meta.beans.JPType;
@@ -52,6 +53,20 @@ public @interface JPParam {
   JPStringFormat stringFormat() default JPStringFormat.NONE;
 
   /**
+   * Маска строкового поля
+   *
+   * @return Маска строкового поля
+   */
+  String stringMask() default "";
+
+  /**
+   * Тип целочисленного поля
+   *
+   * @return Тип целочисленного поля
+   */
+  JPIntegerFormat integerFormat() default JPIntegerFormat.NONE;
+
+  /**
    * Типы файлов для выбора
    *
    * @return Типы файлов
@@ -59,11 +74,11 @@ public @interface JPParam {
   FileType[] fileTypes() default {};
 
   /**
-   * Маска строкового поля
+   * Признак многострочного строкового поля
    *
-   * @return Маска строкового поля
+   * @return Да/Нет
    */
-  String stringMask() default "";
+  boolean multiline() default false;
 
   /**
    * Длина (для строковых полей)

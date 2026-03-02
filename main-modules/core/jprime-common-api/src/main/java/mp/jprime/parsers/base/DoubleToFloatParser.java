@@ -1,37 +1,24 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * Double -> Float
  */
 @Service
-public final class DoubleToFloatParser implements TypeParser<Double, Float> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class DoubleToFloatParser extends BaseTypeParser<Double, Float> {
+  @Override
   public Float parse(Double value) {
     return value != null ? value.floatValue() : null;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Double> getInputType() {
     return Double.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Float> getOutputType() {
     return Float.class;
   }

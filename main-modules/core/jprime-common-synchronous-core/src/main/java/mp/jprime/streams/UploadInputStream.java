@@ -14,11 +14,16 @@ public class UploadInputStream implements AutoCloseable {
   private final String name;
   private final String extension;
   private final String nameWithoutExtension;
+  private final Long bytes;
   private InputStream is;
 
   public UploadInputStream(String name) {
-    this.name = name;
+    this(name, null);
+  }
 
+  public UploadInputStream(String name, Long bytes) {
+    this.name = name;
+    this.bytes = bytes;
     if (name != null) {
       int dotIndex = name.lastIndexOf('.');
       this.extension = (dotIndex == -1) ? StringUtils.EMPTY : name.substring(dotIndex + 1);
@@ -29,11 +34,11 @@ public class UploadInputStream implements AutoCloseable {
     }
   }
 
-
   public UploadInputStream() {
     this.name = null;
     this.extension = null;
     this.nameWithoutExtension = null;
+    this.bytes = null;
   }
 
   public UploadInputStream collectInputStream(InputStream is) {
@@ -51,6 +56,10 @@ public class UploadInputStream implements AutoCloseable {
 
   public String getName() {
     return name;
+  }
+
+  public Long getBytes() {
+    return bytes;
   }
 
   /**

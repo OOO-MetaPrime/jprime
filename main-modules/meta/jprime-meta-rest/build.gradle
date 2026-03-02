@@ -1,6 +1,6 @@
 dependencies {
   api project(":jprime-common-starter")
-  api project(':jprime-imex')
+  api project(':jprime-imex-tools')
 
   testImplementation project(":jprime-test")
 }

@@ -14,7 +14,6 @@ public interface JPFileStorage extends JPStorage {
    *
    * @param path     Путь
    * @param fileName Имя файла
-   *
    * @return Инфо о файле
    */
   FileInfo getInfo(String path, String fileName);
@@ -24,7 +23,6 @@ public interface JPFileStorage extends JPStorage {
    *
    * @param fileName Имя файла
    * @param stream   Поток с данными
-   *
    * @return Инфо о файле
    */
   FileInfo save(String fileName, InputStream stream);
@@ -43,10 +41,20 @@ public interface JPFileStorage extends JPStorage {
    *
    * @param path     Путь
    * @param fileName Имя файла
-   *
    * @return Поток для чтения файла
    */
   InputStream read(String path, String fileName);
+
+  /**
+   * Частичное чтение файла
+   *
+   * @param path     Путь
+   * @param fileName Имя файла
+   * @param offset   байты которые должны быть пропущены
+   * @param length   количество байт которые должны быть считаны
+   * @return Поток для чтения файла
+   */
+  InputStream read(String path, String fileName, long offset, long length);
 
   /**
    * Копировать файл
@@ -54,7 +62,6 @@ public interface JPFileStorage extends JPStorage {
    * @param sourcePath     исходный путь файла
    * @param sourceFileName исходное имя файла
    * @param targetPath     путь для копирования файла
-   *
    * @return Инфо о файле
    */
   FileInfo copy(String sourcePath, String sourceFileName, String targetPath);
@@ -66,7 +73,6 @@ public interface JPFileStorage extends JPStorage {
    * @param sourceFileName исходное имя файла
    * @param targetPath     путь для копии файла
    * @param targetFileName имя для копии файла
-   *
    * @return Инфо о файле
    */
   FileInfo copy(String sourcePath, String sourceFileName, String targetPath, String targetFileName);
@@ -77,7 +83,6 @@ public interface JPFileStorage extends JPStorage {
    * @param sourcePath     исходный путь файла
    * @param sourceFileName исходное имя файла
    * @param targetPath     новый путь файла
-   *
    * @return Инфо о файле
    */
   FileInfo move(String sourcePath, String sourceFileName, String targetPath);
@@ -89,7 +94,6 @@ public interface JPFileStorage extends JPStorage {
    * @param sourceFileName исходное имя файла
    * @param targetPath     новый путь файла
    * @param targetFileName новое имя файла
-   *
    * @return Инфо о файле
    */
   FileInfo move(String sourcePath, String sourceFileName, String targetPath, String targetFileName);

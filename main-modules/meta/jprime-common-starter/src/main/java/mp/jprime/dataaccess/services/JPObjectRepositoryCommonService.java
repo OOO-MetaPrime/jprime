@@ -32,33 +32,36 @@ import java.util.function.Consumer;
 public final class JPObjectRepositoryCommonService implements JPObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPObjectRepositoryCommonService.class);
 
-  private final Map<Class<?>, JPObjectRepository> repoMap = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, JPObjectRepository> REPO_MAP = new ConcurrentHashMap<>();
 
-  private JPMetaStorageService storageService;
+  private final JPMetaStorageService storageService;
 
-  @Autowired(required = false)
-  private void setAsyncRepos(Collection<JPObjectRepository> asyncRepos) {
-    if (asyncRepos != null) {
-      for (JPObjectRepository repo : asyncRepos) {
-        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, repo));
-      }
-    }
+  private JPObjectRepositoryCommonService(@Autowired JPMetaStorageService storageService) {
+    this.storageService = storageService;
   }
 
-  @Autowired(required = false)
-  private void setSyncRepos(Collection<JPSyncObjectRepository> syncRepos) {
-    if (syncRepos != null) {
-      for (JPSyncObjectRepository repo : syncRepos) {
-        if (repo instanceof JPObjectRepository) {
-          continue;
+  @Service
+  private static final class Links {
+    private Links(@Autowired(required = false) Collection<JPObjectRepository> asyncRepos,
+                  @Autowired(required = false) Collection<JPSyncObjectRepository> syncRepos) {
+      if (asyncRepos != null) {
+        for (JPObjectRepository repo : asyncRepos) {
+          fill(repo.getClass(), javaClass -> REPO_MAP.put(javaClass, repo));
         }
-        JPObjectRepository wrapRepo = JPObjectSyncWrapRepository.of(repo);
-        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, wrapRepo));
+      }
+      if (syncRepos != null) {
+        for (JPSyncObjectRepository repo : syncRepos) {
+          if (repo instanceof JPObjectRepository) {
+            continue;
+          }
+          JPObjectRepository wrapRepo = JPObjectSyncWrapRepository.of(repo);
+          fill(repo.getClass(), javaClass -> REPO_MAP.put(javaClass, wrapRepo));
+        }
       }
     }
   }
 
-  private void fill(Class<?> repoClass, Consumer<Class<?>> func) {
+  private static void fill(Class<?> repoClass, Consumer<Class<?>> func) {
     try {
       ClassesLink anno = repoClass.getAnnotation(ClassesLink.class);
       if (anno == null) {
@@ -75,11 +78,6 @@ public final class JPObjectRepositoryCommonService implements JPObjectRepository
     }
   }
 
-  @Autowired
-  private void setStorageService(JPMetaStorageService storageService) {
-    this.storageService = storageService;
-  }
-
   private JPObjectRepository getRepository(String classCode) {
     try {
       JPStorage storage = storageService.getJpStorage(classCode);
@@ -89,7 +87,7 @@ public final class JPObjectRepositoryCommonService implements JPObjectRepository
       Class<?> storageClass = storage.getClass();
       JPObjectRepository rep = null;
       while (rep == null && storageClass != null) {
-        rep = repoMap.get(storageClass);
+        rep = REPO_MAP.get(storageClass);
         storageClass = storageClass.getSuperclass();
       }
       if (rep != null) {

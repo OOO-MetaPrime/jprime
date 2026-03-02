@@ -44,6 +44,18 @@ public interface JPDataCheckService {
   /**
    * Проверяем условие по переданным данным
    *
+   * @param filter Условие
+   * @param data   Данные
+   * @param auth   AuthInfo
+   * @return Да/Нет
+   */
+  default boolean check(Filter filter, JPMap data, AuthInfo auth) {
+    return check(filter, data, auth, false);
+  }
+
+  /**
+   * Проверяем условие по переданным данным
+   *
    * @param filter                  Условие
    * @param data                    Данные
    * @param notContainsDefaultValue Результат, в случае отсутствия ключа в data

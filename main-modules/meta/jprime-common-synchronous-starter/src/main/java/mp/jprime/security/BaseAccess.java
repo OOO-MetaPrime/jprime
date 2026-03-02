@@ -159,6 +159,21 @@ import static mp.jprime.security.Role.*;
                     delete = true
                 )
             }
+        ),
+        @JPPackage(
+            code = BaseAccess.PERSONAL_DATA_ADMIN_READONLY,
+            description = "Только для роли PERSONAL_DATA_ADMIN только на чтение",
+            name = "Только для роли PERSONAL_DATA_ADMIN только на чтение",
+            access = {
+                @JPAccess(
+                    type = JPAccessType.PERMIT,
+                    role = PERSONAL_DATA_ADMIN,
+                    read = true,
+                    create = false,
+                    update = false,
+                    delete = false
+                )
+            }
         )
     }
 )
@@ -202,4 +217,8 @@ public class BaseAccess implements JPSecuritySettings {
    * Запрет на удаление для любой роли
    */
   public final static String DELETE_DENIED = "deleteDenied";
+  /**
+   * Только для роли PERSONAL_DATA_ADMIN только на чтение
+   */
+  public final static String PERSONAL_DATA_ADMIN_READONLY = "personalDataAdminReadonly";
 }

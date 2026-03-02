@@ -2,8 +2,8 @@ package mp.jprime.web.error;
 
 import mp.jprime.exceptions.CompositeException;
 import mp.jprime.exceptions.JPAppRuntimeException;
-import mp.jprime.exceptions.JPObjectNotFoundException;
 import mp.jprime.exceptions.JPWrongVersionException;
+import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
@@ -39,15 +39,15 @@ public class GlobalErrorAttributes extends DefaultErrorAttributes {
     String code = null;
     String message = null;
     Map<String, Object> result = new HashMap<>();
-    if (error instanceof JPAppRuntimeException e) {
+    if (error instanceof JPParseException e) {
+      code = e.getMessageCode();
+      message = "Некорректный формат данных";
+    } else if (error instanceof JPAppRuntimeException e) {
       code = e.getMessageCode();
       message = error.getMessage();
       if (error instanceof JPWrongVersionException wrong) {
         fillJPWrongVersionAttrs(wrong, result);
       }
-    } else if (error instanceof JPObjectNotFoundException e) {
-      code = e.getMessageCode();
-      message = error.getMessage();
     }
     result.put("code", code != null ? code : "server.error");
     result.put("message", message);

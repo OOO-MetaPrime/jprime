@@ -5,7 +5,7 @@ import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.xml.services.JPXmlMapper;
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.client5.http.impl.io.BasicHttpClientConnectionManager;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
 import org.apache.hc.client5.http.socket.ConnectionSocketFactory;
 import org.apache.hc.client5.http.socket.PlainConnectionSocketFactory;
 import org.apache.hc.client5.http.ssl.NoopHostnameVerifier;
@@ -13,7 +13,6 @@ import org.apache.hc.client5.http.ssl.SSLConnectionSocketFactory;
 import org.apache.hc.core5.http.config.RegistryBuilder;
 import org.apache.hc.core5.ssl.SSLContexts;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -32,36 +31,36 @@ import java.time.Duration;
  * RestTemplate
  */
 @Service
-public class JPRestTemplate {
-
+public final class JPRestTemplate {
   private final RestTemplate restTemplate;
 
-  @Value("${jprime.web.rest.connectTimeout:10}")
-  private int connectTimeout;
-
-  @Value("${jprime.web.rest.readTimeout:60}")
-  private int readTimeout;
-
-  @Autowired
-  public JPRestTemplate(JPJsonMapper jsonMapper, JPXmlMapper xmlMapper) {
+  private JPRestTemplate(@Autowired JPJsonMapper jsonMapper,
+                         @Autowired JPXmlMapper xmlMapper) {
     try {
       SSLContext sslContext = SSLContexts.custom()
           .loadTrustMaterial(null, (cert, authType) -> true)
           .build();
 
-      BasicHttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(
+      PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(
           RegistryBuilder.<ConnectionSocketFactory>create()
               .register("https", new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE))
               .register("http", new PlainConnectionSocketFactory())
               .build()
       );
+      connectionManager.setMaxTotal(100);
+      connectionManager.setDefaultMaxPerRoute(20);
 
       CloseableHttpClient httpClient = HttpClients.custom()
           .setConnectionManager(connectionManager)
           .build();
 
+      int connectTimeout = 10;
+      int readTimeout = 20;
+
       HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
       factory.setHttpClient(httpClient);
+      factory.setConnectTimeout(connectTimeout * 1000);
+      factory.setReadTimeout(readTimeout * 1000);
 
       this.restTemplate = new RestTemplateBuilder()
           .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -82,5 +81,4 @@ public class JPRestTemplate {
   public RestTemplate getRestTemplate() {
     return restTemplate;
   }
-
 }

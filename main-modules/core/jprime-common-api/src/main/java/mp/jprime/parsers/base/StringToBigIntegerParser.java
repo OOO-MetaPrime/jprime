@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -10,7 +10,7 @@ import java.math.BigInteger;
  * String -> BigInteger
  */
 @Service
-public final class StringToBigIntegerParser implements TypeParser<String, BigInteger> {
+public final class StringToBigIntegerParser extends BaseTypeParser<String, BigInteger> {
   /**
    * Форматирование значения
    *
@@ -34,20 +34,12 @@ public final class StringToBigIntegerParser implements TypeParser<String, BigInt
     return new BigInteger(new String(result, 0, index));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigInteger> getOutputType() {
     return BigInteger.class;
   }

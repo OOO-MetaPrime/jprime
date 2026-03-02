@@ -13,7 +13,7 @@ import mp.jprime.repositories.JPObjectStorage;
 import mp.jprime.repositories.JPStorage;
 import mp.jprime.metastorage.JPMetaStorageService;
 import mp.jprime.repositories.exceptions.JPRepositoryNotFoundException;
-import mp.jprime.utils.JPApplicationShutdownManager;
+import mp.jprime.application.JPApplicationShutdownManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,81 +32,66 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class JPUniqueValuesCommonService implements JPUniqueValuesService {
   private static final Logger LOG = LoggerFactory.getLogger(JPUniqueValuesCommonService.class);
 
-  private JPApplicationShutdownManager shutdownManager;
-
-  private final Map<Class, JPUniqueValuesRepository> repoMap = new ConcurrentHashMap<>();
+  private static final Map<Class, JPUniqueValuesRepository> REPO_MAP = new ConcurrentHashMap<>();
   private Map<String, JPUniqueValuesHandler> jpHandlers = new HashMap<>();
 
-  private JPMetaStorageService storageService;
+  private final JPMetaStorageService storageService;
 
-  @Autowired
-  private void setShutdownManager(JPApplicationShutdownManager shutdownManager) {
-    this.shutdownManager = shutdownManager;
-  }
 
-  /**
-   * Считываем аннотации
-   */
-  @Autowired(required = false)
-  private void setRepos(Collection<JPUniqueValuesRepository> repos) {
-    if (repos == null) {
-      return;
-    }
-    for (JPUniqueValuesRepository repo : repos) {
-      try {
-        ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
-        if (anno == null) {
-          continue;
-        }
-        for (Class javaClass : anno.classes()) {
-          if (javaClass == null) {
-            continue;
-          }
-          repoMap.put(javaClass, repo);
-        }
-      } catch (Exception e) {
-        throw JPRuntimeException.wrapException(e);
-      }
-    }
-  }
-
-  @Autowired
-  private void setStorageService(JPMetaStorageService storageService) {
+  private JPUniqueValuesCommonService(@Autowired JPApplicationShutdownManager shutdownManager,
+                                      @Autowired JPMetaStorageService storageService,
+                                      @Autowired(required = false) Collection<JPUniqueValuesHandler> handlers) {
     this.storageService = storageService;
-  }
 
-  /**
-   * Считываем аннотации
-   */
-  @Autowired(required = false)
-  private void setHandlers(Collection<JPUniqueValuesHandler> handlers) {
-    if (handlers == null) {
-      return;
-    }
-    Map<String, JPUniqueValuesHandler> jpHandlers = new HashMap<>();
-    for (JPUniqueValuesHandler handler : handlers) {
-      try {
-        JPClassesLink anno = handler.getClass().getAnnotation(JPClassesLink.class);
-        if (anno == null) {
-          continue;
-        }
-        for (String jpClassCode : anno.jpClasses()) {
-          if (jpClassCode == null || jpClassCode.isEmpty()) {
+    if (handlers != null) {
+      Map<String, JPUniqueValuesHandler> jpHandlers = new HashMap<>();
+      for (JPUniqueValuesHandler handler : handlers) {
+        try {
+          JPClassesLink anno = handler.getClass().getAnnotation(JPClassesLink.class);
+          if (anno == null) {
             continue;
           }
-          if (jpHandlers.containsKey(jpClassCode)) {
-            LOG.error("Error duplication JPUniqueValuesHandler for jpClass {}", jpClassCode);
-            shutdownManager.exitWithError();
+          for (String jpClassCode : anno.jpClasses()) {
+            if (jpClassCode == null || jpClassCode.isEmpty()) {
+              continue;
+            }
+            if (jpHandlers.containsKey(jpClassCode)) {
+              LOG.error("Error duplication JPUniqueValuesHandler for jpClass {}", jpClassCode);
+              shutdownManager.exitWithError();
+            }
+            jpHandlers.put(jpClassCode, handler);
           }
-          jpHandlers.put(jpClassCode, handler);
+        } catch (Exception e) {
+          throw JPRuntimeException.wrapException(e);
         }
-      } catch (Exception e) {
-        throw JPRuntimeException.wrapException(e);
       }
+      this.jpHandlers = jpHandlers;
     }
-    this.jpHandlers = jpHandlers;
   }
 
+  @Service
+  private static final class Links {
+    private Links(@Autowired(required = false) Collection<JPUniqueValuesRepository> repos) {
+      if (repos != null) {
+        for (JPUniqueValuesRepository repo : repos) {
+          try {
+            ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
+            if (anno == null) {
+              continue;
+            }
+            for (Class javaClass : anno.classes()) {
+              if (javaClass == null) {
+                continue;
+              }
+              REPO_MAP.put(javaClass, repo);
+            }
+          } catch (Exception e) {
+            throw JPRuntimeException.wrapException(e);
+          }
+        }
+      }
+    }
+  }
 
   private JPUniqueValuesRepository getRepository(String classCode) {
     try {
@@ -117,7 +102,7 @@ public final class JPUniqueValuesCommonService implements JPUniqueValuesService 
       Class storageClass = storage.getClass();
       JPUniqueValuesRepository rep = null;
       while (rep == null && storageClass != null) {
-        rep = repoMap.get(storageClass);
+        rep = REPO_MAP.get(storageClass);
         storageClass = storageClass.getSuperclass();
       }
       if (rep != null) {

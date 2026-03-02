@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 /**
- * реализация парсера {@link JPMoney}
+ * реализация парсера {@link JPType#MONEY}
  */
 @Service
-public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAware {
+public final class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAware {
   private ParserService parserService;
   private JPJsonMapper jsonMapper;
 
@@ -43,17 +43,9 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAwar
     return JPMoney.class;
   }
 
-
-  /**
-   * Форматирование значения на основе данных в JPAttrData
-   *
-   * @param jpAttr Атрибут
-   * @param data   Значения атрибутов
-   * @return Данные в выходном формате
-   */
   @Override
   public JPMoney parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.MONEY) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
@@ -78,16 +70,9 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAwar
     return result;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param jpAttr    Атрибут
-   * @param attrValue Значение
-   * @return Данные в выходном формате
-   */
   @Override
   public JPMoney parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JPType.MONEY) {
+    if (jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
 
@@ -103,22 +88,15 @@ public class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAwar
       try {
         result = JPMoney.of(jsonMapper.toObject(BigDecimal.class, value), jpAttr.getMoney().getCurrencyCode());
       } catch (Exception e) {
-        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+        throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение " + attrName);
       }
     }
     return result;
   }
 
-  /**
-   * Раскладываем значение атрибута в поля JPMutableData
-   *
-   * @param jpAttr    Атрибут
-   * @param attrValue Значение атрибута
-   * @param data      Значения атрибутов
-   */
   @Override
   public void fill(JPAttr jpAttr, JPMoney attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JPType.MONEY) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return;
     }
     data.put(jpAttr, attrValue == null ? null : attrValue.getNumberStripped());

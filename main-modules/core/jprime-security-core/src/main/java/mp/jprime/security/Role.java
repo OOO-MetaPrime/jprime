@@ -27,6 +27,10 @@ public class Role {
    * Конфигурирование: непроверенные возможности
    */
   public static final String FEATURES_ADMIN = "FEATURES_ADMIN";
+  /**
+   * Конфигурирование: Администратор персональных данных
+   */
+  public final static String PERSONAL_DATA_ADMIN = "PERSONAL_DATA_ADMIN";
 
   /**
    * Данные: Базовый пользователь
@@ -71,5 +75,14 @@ public class Role {
    */
   public String getFeaturesAdmin() {
     return FEATURES_ADMIN;
+  }
+
+  /**
+   * Конфигурирование: Администратор персональных данных
+   *
+   * @return Код роли
+   */
+  public String getPersonalDataAdmin() {
+    return PERSONAL_DATA_ADMIN;
   }
 }

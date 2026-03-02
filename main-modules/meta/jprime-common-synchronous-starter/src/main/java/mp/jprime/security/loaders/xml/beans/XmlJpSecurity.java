@@ -20,7 +20,7 @@ public class XmlJpSecurity {
 
   @Override
   public String toString() {
-    return "XmlJpClassMaps{" +
+    return "XmlJpSecurity{" +
         "jpPackages=" + jpPackages +
         '}';
   }

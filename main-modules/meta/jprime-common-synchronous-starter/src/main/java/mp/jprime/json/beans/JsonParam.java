@@ -2,6 +2,9 @@ package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import mp.jprime.common.JPEnum;
+import mp.jprime.common.JPParam;
+import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.json.beans.JsonJPMoney;
 import mp.jprime.files.FileType;
 
@@ -27,6 +30,14 @@ public class JsonParam {
    * Маска строкового поля
    */
   private String stringMask;
+  /**
+   * Тип целочисленного поля
+   */
+  private String integerFormat;
+  /**
+   * Признак многострочного строкового поля
+   */
+  private boolean multiline;
   /**
    * Расширения файлов для выбора
    */
@@ -56,7 +67,7 @@ public class JsonParam {
    */
   private boolean multiple;
   /**
-   * Возможность внешнего переопределения параметра. Например, для ввода пользователем
+   * Возможность внешнего использования параметра. Например, для ввода пользователем
    */
   private boolean external;
   /**
@@ -80,7 +91,7 @@ public class JsonParam {
    */
   private Collection<JsonJPEnum> enums;
   /**
-   * Разрешен множественный выбор
+   * Клиентский поиск
    */
   private boolean clientSearch;
 
@@ -93,7 +104,8 @@ public class JsonParam {
 
   }
 
-  private JsonParam(String code, String type, String stringFormat, String stringMask,
+  private JsonParam(String code, String type,
+                    String stringFormat, String stringMask, String integerFormat, boolean multiline,
                     Collection<String> fileTypes, Integer length, String description, String qName,
                     boolean mandatory, Object value, boolean multiple, boolean external, String refJpClass,
                     String refJpAttr, String refFilter, JsonJPMoney money,
@@ -103,6 +115,8 @@ public class JsonParam {
     this.type = type;
     this.stringFormat = stringFormat;
     this.stringMask = stringMask;
+    this.integerFormat = integerFormat;
+    this.multiline = multiline;
     this.fileTypes = fileTypes == null || fileTypes.isEmpty() ? null : fileTypes;
     this.length = length;
     this.description = description;
@@ -120,6 +134,52 @@ public class JsonParam {
     this.readOnly = readOnly;
   }
 
+  public static JsonParam external(JPParam param) {
+    if (param == null) {
+      return null;
+    }
+    return from(param, true);
+  }
+
+  public static JsonParam from(JPParam param) {
+    if (param == null) {
+      return null;
+    }
+    return from(param, param.isExternal());
+  }
+
+  private static JsonParam from(JPParam param, boolean external) {
+    JPType type = param.getType();
+    Collection<JPEnum> enums = param.getEnums();
+
+    return JsonParam.newBuilder()
+        .code(param.getCode())
+        .type(JPType.getCode(type))
+        .stringFormat(param.getStringFormat() != null ? param.getStringFormat().getCode() : null)
+        .stringMask(param.getStringMask())
+        .integerFormat(param.getIntegerFormat() != null ? param.getIntegerFormat().getCode() : null)
+        .multiline(param.isMultiline())
+        .fileTypes(param.getFileTypes())
+        .length(param.getLength())
+        .description(param.getDescription())
+        .qName(param.getQName())
+        .mandatory(param.isMandatory())
+        .multiple(param.isMultiple())
+        .external(external)
+        .value(param.getValue())
+        .refJpClass(param.getRefJpClassCode())
+        .refJpAttr(param.getRefJpAttrCode())
+        .refFilter(param.getRefFilter())
+        .clientSearch(param.isClientSearch())
+        .money(type == JPType.MONEY ? JsonJPMoney.toJson(param.getMoney()) : null)
+        .enums(enums == null ? null : enums.stream()
+            .map(y -> JsonJPEnum.of(y.getValue(), y.getDescription(), y.getQName()))
+            .collect(Collectors.toList())
+        )
+        .readOnly(param.isReadOnly())
+        .build();
+  }
+
   public String getCode() {
     return code;
   }
@@ -134,6 +194,14 @@ public class JsonParam {
 
   public String getStringMask() {
     return stringMask;
+  }
+
+  public String getIntegerFormat() {
+    return integerFormat;
+  }
+
+  public boolean isMultiline() {
+    return multiline;
   }
 
   public Collection<String> getFileTypes() {
@@ -171,7 +239,7 @@ public class JsonParam {
   }
 
   /**
-   * Возможность внешнего переопределения параметра. Например, для ввода пользователем
+   * Возможность внешнего использования параметра. Например, для ввода пользователем
    *
    * @return Да/Нет
    */
@@ -216,6 +284,8 @@ public class JsonParam {
     private String type;
     private String stringFormat;
     private String stringMask;
+    private String integerFormat;
+    private boolean multiline;
     private Collection<String> fileTypes;
     private Integer length;
     private String description;
@@ -236,7 +306,7 @@ public class JsonParam {
     }
 
     public JsonParam build() {
-      return new JsonParam(code, type, stringFormat, stringMask,
+      return new JsonParam(code, type, stringFormat, stringMask, integerFormat, multiline,
           fileTypes, length, description, qName, mandatory, value, multiple, external,
           refJpClass, refJpAttr, refFilter, money,
           enums, clientSearch, readOnly);
@@ -252,6 +322,11 @@ public class JsonParam {
       return this;
     }
 
+    public Builder type(JPType type) {
+      this.type = type != null ? type.getCode() : null;
+      return this;
+    }
+
     public Builder stringFormat(String stringFormat) {
       this.stringFormat = stringFormat;
       return this;
@@ -259,6 +334,16 @@ public class JsonParam {
 
     public Builder stringMask(String stringMask) {
       this.stringMask = stringMask;
+      return this;
+    }
+
+    public Builder integerFormat(String integerFormat) {
+      this.integerFormat = integerFormat;
+      return this;
+    }
+
+    public Builder multiline(boolean multiline) {
+      this.multiline = multiline;
       return this;
     }
 

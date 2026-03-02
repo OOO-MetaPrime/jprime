@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.StartsWith;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.StartsWith;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.springframework.util.StringUtils;
@@ -10,7 +10,7 @@ import org.springframework.util.StringUtils;
  * Начинается С
  */
 @FilterLink(
-    exprClass = StartsWith.class
+    filterClass = StartsWith.class
 )
 public class CheckStartsWith extends CheckBaseFilter<StartsWith> {
   @Override

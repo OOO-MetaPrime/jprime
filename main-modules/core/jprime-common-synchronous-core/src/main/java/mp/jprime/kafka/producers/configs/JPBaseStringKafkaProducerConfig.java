@@ -6,7 +6,6 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.kafka.core.DefaultKafkaProducerFactory;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -19,7 +18,6 @@ import java.util.Map;
  * Базовая конфигурация публикации событий в Kafka
  */
 @Configuration
-@Lazy(value = false)
 public class JPBaseStringKafkaProducerConfig {
 
   public static final String JP_BASE_STRING_KAFKA_PRODUCER_CONFIG = "jpBaseStringKafkaProducerConfig";

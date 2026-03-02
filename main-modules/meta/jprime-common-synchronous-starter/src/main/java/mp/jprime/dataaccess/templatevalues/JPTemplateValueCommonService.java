@@ -26,6 +26,11 @@ public class JPTemplateValueCommonService implements JPTemplateValueService {
   }
 
   @Override
+  public Collection<String> getPatterns() {
+    return qValues.keySet();
+  }
+
+  @Override
   public Object getValue(Object value, AuthInfo auth) {
     JPTemplateValue valueTemplate = getTemplate(value);
     if (valueTemplate != null) {

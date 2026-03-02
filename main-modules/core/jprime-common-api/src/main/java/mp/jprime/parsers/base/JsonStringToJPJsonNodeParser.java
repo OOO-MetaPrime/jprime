@@ -4,7 +4,7 @@ import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * JsonString -> JPJsonNode
  */
 @Service
-public final class JsonStringToJPJsonNodeParser implements TypeParser<JPJsonString, JPJsonNode> {
+public final class JsonStringToJPJsonNodeParser extends BaseTypeParser<JPJsonString, JPJsonNode> {
   private JPJsonMapper jsonMapper;
 
   @Autowired
@@ -20,12 +20,7 @@ public final class JsonStringToJPJsonNodeParser implements TypeParser<JPJsonStri
     this.jsonMapper = jsonMapper;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public JPJsonNode parse(JPJsonString value) {
     try {
       return value == null ? null : JPJsonNode.from(jsonMapper.getObjectMapper().readTree(value.toString()));
@@ -34,20 +29,12 @@ public final class JsonStringToJPJsonNodeParser implements TypeParser<JPJsonStri
     }
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<JPJsonString> getInputType() {
     return JPJsonString.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<JPJsonNode> getOutputType() {
     return JPJsonNode.class;
   }

@@ -27,18 +27,18 @@ public enum JPStringFormat {
   PASSPORT_NUMBER("passportNumber", "Номер паспорта РФ"),
   PASSPORT_DEPARTMENT_CODE("passportDepartmentCode", "Код подразделения паспорта РФ"),
   PASSWORD("password", "Пароль"),
-  ZAGS_SERIES("zagsSeries", "Серия св-ва ЗАГС"),
-  ZAGS_NUMBER("zagsNumber", "Номер св-ва ЗАГС"),
+  PHONE("phone", "Телефон"),
+  SNILS("snils", "СНИЛС"),
   ZAGS_AGS("zagsAgs", "Номер записи акта гр.состояния"),
   ZAGS_DEPARTAMENT_CODE("zagsDepartmentCode", "Код подразделения ЗАГС"),
-  PHONE("phone", "Телефон"),
-  SNILS("snils", "СНИЛС");
+  ZAGS_NUMBER("zagsNumber", "Номер св-ва ЗАГС"),
+  ZAGS_SERIES("zagsSeries", "Серия св-ва ЗАГС");
 
   private static final Map<String, JPStringFormat> BY_CODE = new HashMap<>();
 
   static {
-    for (JPStringFormat stringFormat : JPStringFormat.values()) {
-      BY_CODE.put(stringFormat.getCode().toLowerCase(), stringFormat);
+    for (JPStringFormat format : JPStringFormat.values()) {
+      BY_CODE.put(format.getCode().toLowerCase(), format);
     }
   }
 
@@ -80,8 +80,8 @@ public enum JPStringFormat {
    *
    * @return Код
    */
-  public static String getCode(JPStringFormat stringFormat) {
-    return stringFormat == null ? null : stringFormat.getCode();
+  public static String getCode(JPStringFormat format) {
+    return format == null ? null : format.getCode();
   }
 
   /**

@@ -1,19 +1,14 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * String -> Boolean
  */
 @Service
-public final class StringToBooleanParser implements TypeParser<String, Boolean> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToBooleanParser extends BaseTypeParser<String, Boolean> {
+  @Override
   public Boolean parse(String value) {
     return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("t") ||
         value.equalsIgnoreCase("yes") || value.equals("1") || value.equalsIgnoreCase("on") ||
@@ -21,20 +16,12 @@ public final class StringToBooleanParser implements TypeParser<String, Boolean> 
         value.equalsIgnoreCase("Есть");
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Boolean> getOutputType() {
     return Boolean.class;
   }

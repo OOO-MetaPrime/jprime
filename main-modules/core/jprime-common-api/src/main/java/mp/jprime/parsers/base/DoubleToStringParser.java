@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -10,7 +10,7 @@ import java.text.DecimalFormatSymbols;
  * Double -> String
  */
 @Service
-public final class DoubleToStringParser implements TypeParser<Double, String> {
+public final class DoubleToStringParser extends BaseTypeParser<Double, String> {
   /**
    * Возвращает DecimalFormat
    * @return DecimalFormat
@@ -24,30 +24,17 @@ public final class DoubleToStringParser implements TypeParser<Double, String> {
     df.setDecimalFormatSymbols(dfs);
     return df;
   }
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public String parse(Double value) {
     return value != null ? getDecimalFormat().format(value) : null;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Double> getInputType() {
     return Double.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getOutputType() {
     return String.class;
   }

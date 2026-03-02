@@ -66,23 +66,25 @@ public abstract class RestApiUniqueValuesBaseController extends JPQuerySettings 
   }
 
   protected Mono<JsonUniqueValues> getJsonUniqueValues(ServerWebExchange swe, String jpClassCode, String query) {
-    if (jpUniqueValuesService == null) {
-      return Mono.just(JsonUniqueValues.EMPTY);
-    }
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    JPSelect.Builder builder;
-    JsonSelect jsonSelect;
-    try {
-      jsonSelect = queryService.getQuery(query);
-      builder = queryService.getSelect(jpClassCode, jsonSelect, auth)
-          .timeout(getQueryTimeout())
-          .source(Source.USER);
-    } catch (JPRuntimeException e) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-    Collection<String> attrs = jsonSelect.getAttrs();
-    return getUniqueValues(builder, attrs == null ? Collections.emptyList() : new ArrayList<>(attrs))
-        .map(x -> JsonUniqueValues.newInstance(toJson(x, new Counter())));
+    return JPMono.defer(() -> {
+      if (jpUniqueValuesService == null) {
+        return Mono.just(JsonUniqueValues.EMPTY);
+      }
+      AuthInfo auth = jwtService.getAuthInfo(swe);
+      JPSelect.Builder builder;
+      JsonSelect jsonSelect;
+      try {
+        jsonSelect = queryService.getQuery(query);
+        builder = queryService.getSelect(jpClassCode, jsonSelect, auth)
+            .timeout(getQueryTimeout())
+            .source(Source.USER);
+      } catch (JPRuntimeException e) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      }
+      Collection<String> attrs = jsonSelect.getAttrs();
+      return getUniqueValues(builder, attrs == null ? Collections.emptyList() : new ArrayList<>(attrs))
+          .map(x -> JsonUniqueValues.newInstance(toJson(x, new Counter())));
+    });
   }
 
   protected Mono<Collection<JPUniqueValue>> getUniqueValues(JPSelect.Builder builder, List<String> hierarchy) {

@@ -8,7 +8,7 @@ import mp.jprime.events.systemevents.JPSystemEvent;
  */
 public final class AbacChangeEvent {
   /**
-   * Код события  изменения настроек ABAC
+   * Код события изменения настроек ABAC
    */
   public static final String CODE = "abacChangeEvent";
 

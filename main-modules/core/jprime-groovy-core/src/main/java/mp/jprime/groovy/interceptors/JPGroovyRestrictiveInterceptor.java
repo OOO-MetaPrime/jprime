@@ -68,6 +68,7 @@ public final class JPGroovyRestrictiveInterceptor extends GroovyInterceptor {
     ALLOW_CLASSES.add(java.util.Date.class);
     ALLOW_CLASSES.add(java.util.Objects.class);
     ALLOW_CLASSES.add(java.util.Optional.class);
+    ALLOW_CLASSES.add(java.util.Comparator.class);
     ALLOW_CLASSES.add(org.apache.commons.lang3.StringUtils.class);
     ALLOW_CLASSES.add(org.apache.commons.lang3.tuple.Pair.class);
     ALLOW_CLASSES.add(org.apache.commons.lang3.tuple.ImmutablePair.class);

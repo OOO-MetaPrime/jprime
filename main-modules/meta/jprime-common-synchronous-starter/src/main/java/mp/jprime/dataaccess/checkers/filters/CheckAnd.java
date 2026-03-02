@@ -2,7 +2,7 @@ package mp.jprime.dataaccess.checkers.filters;
 
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.filters.And;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
@@ -12,7 +12,7 @@ import java.util.Collection;
  * Объединение условий по И
  */
 @FilterLink(
-    exprClass = And.class
+    filterClass = And.class
 )
 public class CheckAnd extends CheckBaseFilter<And> {
   @Override

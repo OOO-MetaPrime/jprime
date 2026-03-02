@@ -5,6 +5,7 @@ import mp.jprime.lang.JPJsonNode;
 import mp.jprime.utils.annotations.JPUtilResultType;
 import mp.jprime.utils.json.beans.JsonCompConf;
 
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -18,7 +19,7 @@ public final class JPUtilJPCompConfOutParams extends BaseJPUtilOutParams<JsonCom
   private JPUtilJPCompConfOutParams(JPUtilInParams inParams,
                                     String description, String qName, boolean changeData, boolean deleteData,
                                     JPJsonNode value, UUID compConfCode, String compConfButtonText,
-                                    String saveUtil, String saveMode, String field) {
+                                    String saveUtil, String saveMode, String field, Map<String, Object> saveParams) {
     super(description, qName, changeData, deleteData);
 
     JsonCompConf compConf = new JsonCompConf();
@@ -34,14 +35,10 @@ public final class JPUtilJPCompConfOutParams extends BaseJPUtilOutParams<JsonCom
     compConf.setSaveUtil(saveUtil);
     compConf.setSaveMode(saveMode);
     compConf.setField(field);
+    compConf.setSaveParams(saveParams);
     this.result = compConf;
   }
 
-  /**
-   * Результата
-   *
-   * @return Результат
-   */
   @Override
   public JsonCompConf getResult() {
     return result;
@@ -59,6 +56,7 @@ public final class JPUtilJPCompConfOutParams extends BaseJPUtilOutParams<JsonCom
     private String saveUtil;
     private String saveMode;
     private String field;
+    private Map<String, Object> saveParams;
 
     private Builder() {
       super();
@@ -69,7 +67,7 @@ public final class JPUtilJPCompConfOutParams extends BaseJPUtilOutParams<JsonCom
       return new JPUtilJPCompConfOutParams(
           inParams,
           description, qName, changeData, deleteData,
-          value, compConfCode, compConfButtonText, saveUtil, saveMode, field
+          value, compConfCode, compConfButtonText, saveUtil, saveMode, field, saveParams
       );
     }
 
@@ -100,6 +98,11 @@ public final class JPUtilJPCompConfOutParams extends BaseJPUtilOutParams<JsonCom
       this.saveUtil = saveUtil;
       this.saveMode = saveMode;
       this.field = field;
+      return this;
+    }
+
+    public Builder saveParams(Map<String, Object> saveParams) {
+      this.saveParams = saveParams;
       return this;
     }
   }

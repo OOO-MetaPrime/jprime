@@ -1,37 +1,24 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * String -> Integer
  */
 @Service
-public final class StringToIntegerParser implements TypeParser<String, Integer> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToIntegerParser extends BaseTypeParser<String, Integer> {
+  @Override
   public Integer parse(String value) {
     return value == null || value.isEmpty() ? null : Integer.parseInt(value.trim());
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Integer> getOutputType() {
     return Integer.class;
   }

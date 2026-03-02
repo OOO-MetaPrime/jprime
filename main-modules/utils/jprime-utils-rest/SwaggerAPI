@@ -190,6 +190,12 @@ components:
           items:
             type: string
           example: ["tag1","tag2"]
+        jpUtilTags:
+          type: array
+          description: Теги утилиты
+          items:
+            type: string
+          example: ["tag3","tag4"]
         type:
           type: string
           description: Тип привязки утилиты (объект, список, произвольная)
@@ -238,6 +244,12 @@ components:
           items:
             type: string
           example: ["tag1","tag2"]
+        jpUtilTags:
+          type: array
+          description: Теги утилиты
+          items:
+            type: string
+          example: ["tag3","tag4"]
         type:
           type: string
           description: Тип привязки утилиты (объект, список, произвольная)
@@ -252,6 +264,9 @@ components:
           description: Список входных параметров
           items:
             $ref: '#/components/schemas/utilParam'
+        useDynamicParams:
+          type: boolean
+          description: Признак определения динамических параметров
         inParamsDefValues:
           type: boolean
           description: Признак наличия значений по умолчанию
@@ -306,6 +321,14 @@ components:
           type: string
           description: Маска строкового поля (для строковых полей)
           example: xxxx
+        integerFormat:
+          type: string
+          description: Тип целочисленного поля (для целочисленных полей). Код JPIntegerFormat
+          example: year
+       multiline:
+          type: boolean
+          description: Признак многострочного строкового поля
+          example: false
         description:
           type: string
           description: Название

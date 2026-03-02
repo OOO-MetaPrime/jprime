@@ -3,7 +3,7 @@ package mp.jprime.parsers.base;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
  * {@link JPJsonNode} -> {@link JPJsonString}
  */
 @Service
-public final class JPJsonNodeToJPJsonStringParser implements TypeParser<JPJsonNode, JPJsonString> {
+public final class JPJsonNodeToJPJsonStringParser extends BaseTypeParser<JPJsonNode, JPJsonString> {
   private static final Logger LOG = LoggerFactory.getLogger(JPJsonNodeToJPJsonStringParser.class);
   private JPJsonMapper jsonMapper;
 

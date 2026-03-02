@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.stereotype.Service;
 
@@ -10,16 +10,11 @@ import java.math.BigDecimal;
  * BigDecimal -> Float
  */
 @Service
-public final class BigDecimalToFloatParser implements TypeParser<BigDecimal, Float> {
+public final class BigDecimalToFloatParser extends BaseTypeParser<BigDecimal, Float> {
   public final static BigDecimal MAX_FLOAT = BigDecimal.valueOf(Float.MAX_VALUE);
   public final static BigDecimal MIN_FLOAT = BigDecimal.valueOf(-1 * Float.MAX_VALUE);
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public Float parse(BigDecimal value) {
     if (value == null) {
       return null;
@@ -30,20 +25,12 @@ public final class BigDecimalToFloatParser implements TypeParser<BigDecimal, Flo
     return value.floatValue();
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigDecimal> getInputType() {
     return BigDecimal.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Float> getOutputType() {
     return Float.class;
   }

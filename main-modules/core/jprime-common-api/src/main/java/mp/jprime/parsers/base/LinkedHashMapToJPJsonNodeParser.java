@@ -2,7 +2,7 @@ package mp.jprime.parsers.base;
 
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import java.util.LinkedHashMap;
  * {@link LinkedHashMap} -> {@link JPJsonNode}
  */
 @Service
-public final class LinkedHashMapToJPJsonNodeParser implements TypeParser<LinkedHashMap, JPJsonNode> {
+public final class LinkedHashMapToJPJsonNodeParser extends BaseTypeParser<LinkedHashMap, JPJsonNode> {
   private static final Logger LOG = LoggerFactory.getLogger(LinkedHashMapToJPJsonNodeParser.class);
   private JPJsonMapper jsonMapper;
 

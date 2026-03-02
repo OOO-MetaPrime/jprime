@@ -15,6 +15,7 @@ import mp.jprime.json.services.JsonJPObjectService;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.requesthistory.RequestHistoryPublisher;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
@@ -113,12 +114,10 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
       access = jsonSelect != null && jsonSelect.isAccess();
       builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
           .timeout(getQueryTimeout())
-          .source(Source.USER);
+          .source(Source.USER)
+          .useDefaultOrder(true);
     } catch (JPRuntimeException e) {
       throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-    }
-    if (builder.isOrderByEmpty()) {
-      builder.orderByDesc(jpClass.getPrimaryKeyAttr());
     }
     return new ParsedQuery(jpClass, builder, access, auth);
   }
@@ -138,7 +137,7 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
    */
   protected Mono<JsonJPObjectList> getListResult(JPClass jpClass, JPSelect select, boolean access,
                                                  ServerWebExchange swe, AuthInfo auth) {
-    return Mono.zip(
+    return JPMono.zip(
             // Общее количество
             select.isTotalCount() ? repo.getAsyncTotalCount(select) : Mono.just(0L),
             // Выборка

@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.NotIN;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.NotIN;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPArray;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
@@ -13,7 +13,7 @@ import java.util.Collection;
  * Не в указанном списке
  */
 @FilterLink(
-    exprClass = NotIN.class
+    filterClass = NotIN.class
 )
 public class CheckNotIN extends CheckBaseFilter<NotIN> {
   @Override

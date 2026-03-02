@@ -1,6 +1,5 @@
 package mp.jprime.security.abac.loaders.xml;
 
-
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.security.abac.loaders.xml.beans.XmlJpAbac;
 import mp.jprime.security.abac.loaders.xml.services.JPAbacXmlLoader;

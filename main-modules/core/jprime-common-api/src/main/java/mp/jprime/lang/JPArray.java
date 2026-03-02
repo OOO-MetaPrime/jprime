@@ -63,6 +63,16 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
     return values.isEmpty();
   }
 
+  /**
+   * Признак наличия в списке указанного значения
+   *
+   * @param value Значение
+   * @return Да/Нет
+   */
+  public boolean contains(T value) {
+    return values.contains(value);
+  }
+
   @Override
   public int compareTo(JPArray<T> o) {
     if (o == null) {

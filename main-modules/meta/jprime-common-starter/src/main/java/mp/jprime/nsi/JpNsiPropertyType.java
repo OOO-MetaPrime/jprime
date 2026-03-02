@@ -18,9 +18,13 @@ public enum JpNsiPropertyType {
    */
   DATE(JPType.DATE),
   /**
-   * Полная дата (c учетом часового пояса)
+   * Полная дата (с учетом часового пояса)
    */
   DATETIME(JPType.DATETIME),
+  /**
+   * Вещественное (64 бита)
+   */
+  DOUBLE(JPType.DOUBLE),
   /**
    * Целочисленное (32 бита)
    */

@@ -3,9 +3,7 @@ package mp.jprime.parsers.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPIntegerArray;
-import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +14,14 @@ import java.util.List;
  * String -> JPIntegerArray
  */
 @Service
-public final class StringToJPIntegerArray implements TypeParser<String, JPIntegerArray>, ParserServiceAware {
+public final class StringToJPIntegerArray extends BaseTypeParser<String, JPIntegerArray> {
   private final TypeReference<List<Integer>> TYPE_REF = new TypeReference<>() {
   };
 
-  private JPJsonMapper jsonMapper;
-  private ParserService service;
+  private final JPJsonMapper jsonMapper;
 
-  @Autowired
-  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+  private StringToJPIntegerArray(@Autowired JPJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
-  }
-
-  @Override
-  public void setParserService(ParserService service) {
-    this.service = service;
   }
 
   public JPIntegerArray parse(String value) {
@@ -41,7 +32,7 @@ public final class StringToJPIntegerArray implements TypeParser<String, JPIntege
       List<Integer> values = jsonMapper.toObject(TYPE_REF, value);
       return values == null || values.isEmpty() ? null : JPIntegerArray.of(values);
     }
-    return JPIntegerArray.of(Collections.singletonList(service.parseTo(Integer.class, value)));
+    return JPIntegerArray.of(Collections.singletonList(parserService.parseTo(Integer.class, value)));
   }
 
   public Class<String> getInputType() {

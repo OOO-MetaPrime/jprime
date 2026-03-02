@@ -48,11 +48,13 @@ public class JPMetaXmlLoader implements JPMetaLoader {
     if (resources == null || resources.isEmpty()) {
       return Collections.emptyList();
     }
+    XmlMapper xmlMapper = new XmlMapper();
+
     Collection<JPClass> result = new ArrayList<>();
 
     for (Resource res : resources) {
       try (InputStream is = res.getInputStream()) {
-        XmlJpClasses xmlJpClasses = new XmlMapper().readValue(is, XmlJpClasses.class);
+        XmlJpClasses xmlJpClasses = xmlMapper.readValue(is, XmlJpClasses.class);
         if (xmlJpClasses == null || xmlJpClasses.getJpClasses() == null) {
           continue;
         }

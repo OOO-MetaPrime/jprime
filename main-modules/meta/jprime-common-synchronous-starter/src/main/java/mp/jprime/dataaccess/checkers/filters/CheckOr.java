@@ -2,7 +2,7 @@ package mp.jprime.dataaccess.checkers.filters;
 
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.params.query.filters.Or;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
@@ -12,7 +12,7 @@ import java.util.Collection;
  * Объединение условий по ИЛИ
  */
 @FilterLink(
-    exprClass = Or.class
+    filterClass = Or.class
 )
 public class CheckOr extends CheckBaseFilter<Or> {
   @Override

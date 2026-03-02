@@ -1,8 +1,9 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import mp.jprime.system.JPAppProperty;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -10,6 +11,7 @@ import java.util.Collections;
  * Список описания приложений.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonAppInfoList {
   private Collection<JsonAppInfo> apps;
 
@@ -30,50 +32,36 @@ public class JsonAppInfoList {
   }
 
   /**
+   * Формируем json на основании данных
+   *
+   * @param apps Список JsonAppInfo
+   * @return JsonAppInfoList
+   */
+  public static JsonAppInfoList of(Collection<JsonAppInfo> apps) {
+    return new JsonAppInfoList(apps);
+  }
+
+  /**
+   * Формируем json на основании JPAppProperty
+   *
+   * @param appProperty JPAppProperty
+   * @return JsonAppInfoList
+   */
+  public static JsonAppInfoList from(JPAppProperty appProperty) {
+    return JsonAppInfoList.of(Collections.singleton(
+        JsonAppInfo.newBuilder()
+            .code(appProperty.applicationCode())
+            .title(appProperty.applicationTitle())
+            .build()
+    ));
+  }
+
+  /**
    * Список описаний приложений
    *
    * @return Список приложений
    */
   public Collection<JsonAppInfo> getApps() {
     return apps;
-  }
-
-  /**
-   * Построитель JsonAppInfoList
-   *
-   * @return Builder
-   */
-  public static Builder newBuilder() {
-    return new Builder();
-  }
-
-  /**
-   * Построитель JsonAppInfoList
-   */
-  public static final class Builder {
-    private Collection<JsonAppInfo> apps = new ArrayList<>();
-
-    private Builder() {
-    }
-
-    /**
-     * Создаем JsonAppInfoList
-     *
-     * @return JsonAppInfoList
-     */
-    public JsonAppInfoList build() {
-      return new JsonAppInfoList(apps);
-    }
-
-    /**
-     * Список описаний приложений
-     *
-     * @param apps Список приложений
-     * @return Builder
-     */
-    public Builder apps(Collection<JsonAppInfo> apps) {
-      this.apps = apps;
-      return this;
-    }
   }
 }

@@ -1,13 +1,13 @@
 package mp.jprime.dataaccess.checkers.filters;
 
 import mp.jprime.dataaccess.JPSubQueryService;
-import mp.jprime.dataaccess.JPSubQueryServiceAware;
 import mp.jprime.dataaccess.params.JPSubQuery;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.filters.NotINQuery;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.NotINQuery;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Collection;
 
@@ -15,13 +15,12 @@ import java.util.Collection;
  * Не в указанном подзапросе
  */
 @FilterLink(
-    exprClass = NotINQuery.class
+    filterClass = NotINQuery.class
 )
-public class CheckNotINQuery extends CheckBaseFilter<NotINQuery> implements JPSubQueryServiceAware {
-  private JPSubQueryService service;
+public class CheckNotINQuery extends CheckBaseFilter<NotINQuery> {
+  private final JPSubQueryService service;
 
-  @Override
-  public void setJpSubQueryService(JPSubQueryService service) {
+  private CheckNotINQuery(@Autowired JPSubQueryService service) {
     this.service = service;
   }
 

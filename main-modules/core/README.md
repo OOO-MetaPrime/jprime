@@ -16,3 +16,4 @@
 | jprime-mail                    | Модуль работы с email                                                                  |
 | jprime-monitoring-core         | Модуль мониторинга состояния приложения                                                |
 | jprime-security-core           | Константы базовых ролей и API для работы с авторизацией пользователя                   |
+| jprime-xml-core                | Модуль для работы с XML                                                                |

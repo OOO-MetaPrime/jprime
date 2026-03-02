@@ -35,12 +35,15 @@ subprojects {
   }
 
   configurations {
-    all*.exclude module: 'commons-logging'
-    all*.exclude module: 'logback-classic'
-    all*.exclude module: 'logback-core'
-    all*.exclude module: 'slf4j-log4j12'
-    all*.exclude module: 'slf4j-reload4j'
-    all*.exclude module: 'spring-boot-starter-logging'
+    configureEach {
+      exclude module: 'commons-logging'
+      exclude module: 'logback-classic'
+      exclude module: 'logback-core'
+      exclude module: 'log4j-to-slf4j'
+      exclude module: 'slf4j-log4j12'
+      exclude module: 'slf4j-reload4j'
+      exclude module: 'spring-boot-starter-logging'
+    }
   }
 
   test {

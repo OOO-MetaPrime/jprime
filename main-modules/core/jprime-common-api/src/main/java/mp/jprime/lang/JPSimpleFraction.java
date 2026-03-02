@@ -1,28 +1,31 @@
 package mp.jprime.lang;
 
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.Objects;
 
 /**
  * Простая дробь
  */
-public final class JPSimpleFraction {
+public final class JPSimpleFraction implements Serializable, Comparable<JPSimpleFraction> {
   /**
    * Признак положительной дроби
    */
-  private boolean positive;
+  private final boolean positive;
   /**
    * Целая часть дроби
    */
-  private int integer;
+  private final int integer;
   /**
    * Числитель дроби
    */
-  private int numerator;
+  private final int numerator;
   /**
    * Знаменатель дроби
    */
-  private int denominator;
+  private final int denominator;
+
+  private final double doubleValue;
 
   /**
    * Конструктор
@@ -73,39 +76,39 @@ public final class JPSimpleFraction {
   /**
    * Конструктор
    *
-   * @param integer     Целая часть дроби
-   * @param numerator   Числитель дроби
-   * @param denominator Знаменатель дроби
+   * @param integerValue     Целая часть дроби
+   * @param numeratorValue   Числитель дроби
+   * @param denominatorValue Знаменатель дроби
    */
-  private JPSimpleFraction(int integer, int numerator, int denominator) {
-    if (denominator == 0) {
+  private JPSimpleFraction(int integerValue, int numeratorValue, int denominatorValue) {
+    if (denominatorValue == 0) {
       throw new ArithmeticException("Denominator is zero");
     }
-    BigInteger biInteger = new BigInteger(String.valueOf(integer));
-    BigInteger biNumerator = new BigInteger(String.valueOf(numerator));
-    BigInteger biDenominator = new BigInteger(String.valueOf(denominator));
+    BigInteger biInteger = new BigInteger(String.valueOf(integerValue));
+    BigInteger biNumerator = new BigInteger(String.valueOf(numeratorValue));
+    BigInteger biDenominator = new BigInteger(String.valueOf(denominatorValue));
     /*
      * Определяем знак дроби
      */
-    this.positive = (1 == ((biInteger.signum() < 0 ? -1 : 1) *
+    boolean positive = (1 == ((biInteger.signum() < 0 ? -1 : 1) *
         (biNumerator.signum() < 0 ? -1 : 1) *
         (biDenominator.signum() < 0 ? -1 : 1)));
 
     /*
      * Получаем целую часть, числитель и знаменатель дроби
      */
-    this.integer = biInteger.abs().intValue();
-    this.numerator = biNumerator.abs().intValue();
-    this.denominator = biDenominator.abs().intValue();
+    int integer = biInteger.abs().intValue();
+    int numerator = biNumerator.abs().intValue();
+    int denominator = biDenominator.abs().intValue();
 
-    if (this.numerator >= this.denominator) {
+    if (numerator >= denominator) {
       /*
        * Пытаемся увеличить целую часть
        */
-      int newNumerator = this.numerator % this.denominator; // Новый числитель
+      int newNumerator = numerator % denominator; // Новый числитель
 
-      this.integer = this.integer + (this.numerator - newNumerator) / this.denominator;
-      this.numerator = newNumerator;
+      integer = integer + (numerator - newNumerator) / denominator;
+      numerator = newNumerator;
     }
 
     /*
@@ -114,8 +117,15 @@ public final class JPSimpleFraction {
      * 2. Сокращаем числитель и знаменатель
      */
     BigInteger biGCD = biNumerator.gcd(biDenominator);
-    this.numerator = this.numerator / biGCD.intValue();
-    this.denominator = this.denominator / biGCD.intValue();
+    numerator = numerator / biGCD.intValue();
+    denominator = denominator / biGCD.intValue();
+
+    this.positive = positive;
+    this.integer = integer;
+    this.numerator = numerator;
+    this.denominator = denominator;
+
+    this.doubleValue = (double) ((positive ? 1 : -1) * (integer * denominator + numerator)) / denominator;
   }
 
   /**
@@ -170,10 +180,8 @@ public final class JPSimpleFraction {
    *
    * @return клон объекта
    */
-  protected JPSimpleFraction copy() {
-    JPSimpleFraction result = new JPSimpleFraction(this.integer, this.numerator, this.denominator);
-    result.positive = this.positive;
-    return result;
+  private JPSimpleFraction copy() {
+    return new JPSimpleFraction((this.positive ? 1 : -1) * this.integer, this.numerator, this.denominator);
   }
 
   /**
@@ -265,5 +273,10 @@ public final class JPSimpleFraction {
   @Override
   public int hashCode() {
     return Objects.hash(positive, integer, numerator, denominator);
+  }
+
+  @Override
+  public int compareTo(JPSimpleFraction o) {
+    return Double.compare(this.doubleValue, o.doubleValue);
   }
 }

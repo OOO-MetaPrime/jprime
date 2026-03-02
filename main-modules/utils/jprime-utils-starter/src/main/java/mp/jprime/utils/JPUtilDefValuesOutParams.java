@@ -7,8 +7,9 @@ import mp.jprime.utils.annotations.JPUtilResultType;
  * Базовая реализация для исходящих дефолтных значений
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JPUtilResultType(code = "inParamsDefValues")
+@JPUtilResultType(code = JPUtilDefValuesOutParams.CODE)
 public class JPUtilDefValuesOutParams extends BaseJPUtilOutParams<Object> {
+  public static final String CODE = "inParamsDefValues";
   /**
    * Признак необходимости внесения изменений
    */

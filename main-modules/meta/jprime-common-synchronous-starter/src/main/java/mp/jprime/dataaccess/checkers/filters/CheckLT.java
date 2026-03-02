@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.LT;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.LT;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.ObjectUtils;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * Меньше
  */
 @FilterLink(
-    exprClass = LT.class
+    filterClass = LT.class
 )
 public class CheckLT extends CheckBaseFilter<LT> {
   @Override

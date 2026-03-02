@@ -49,7 +49,7 @@ public class XmlJpAccess {
 
   @Override
   public String toString() {
-    return "XmlJpAttrMap{" +
+    return "XmlJpAccess{" +
         "role='" + role + '\'' +
         ", read='" + read + '\'' +
         ", create='" + create + '\'' +

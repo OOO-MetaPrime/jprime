@@ -3,7 +3,7 @@ package mp.jprime.parsers.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPStringArray;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.List;
  * String -> JPStringArray
  */
 @Service
-public final class StringToJPStringArray implements TypeParser<String, JPStringArray> {
+public final class StringToJPStringArray extends BaseTypeParser<String, JPStringArray> {
   private final TypeReference<List<String>> TYPE_REF = new TypeReference<>() {};
 
   private JPJsonMapper jsonMapper;

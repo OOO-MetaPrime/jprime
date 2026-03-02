@@ -7,7 +7,6 @@ import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,31 +18,17 @@ import java.util.Map;
  * Парсер значений атрибутов
  */
 @Service
-public final class AttrTypeParserCommonService implements AttrTypeParserService, ParserServiceAware {
-  /**
-   * Все парсеры
-   */
-  private final Map<JPType, AttrTypeParser> parsers = new HashMap<>();
-  /**
-   * Парсер типов
-   */
-  private ParserService parserService;
+public final class AttrTypeParserCommonService implements AttrTypeParserService {
+  private final ParserService parserService;
+  private final Map<JPType, AttrTypeParser<?>> parsers = new HashMap<>();
 
-  @Override
-  public void setParserService(ParserService parserService) {
+  private AttrTypeParserCommonService(@Autowired ParserService parserService,
+                                      @Autowired(required = false) Collection<AttrTypeParser> parsers) {
     this.parserService = parserService;
-  }
-
-  /**
-   * Конструктор
-   */
-  @Autowired(required = false)
-  private void setAttrParsers(Collection<AttrTypeParser> parsers) {
-    if (parsers == null) {
-      return;
-    }
-    for (AttrTypeParser parser : parsers) {
-      this.parsers.put(parser.getJPType(), parser);
+    if (parsers != null) {
+      for (AttrTypeParser parser : parsers) {
+        this.parsers.put(parser.getJPType(), parser);
+      }
     }
   }
 
@@ -53,12 +38,12 @@ public final class AttrTypeParserCommonService implements AttrTypeParserService,
       return;
     }
     JPType valueType = jpAttr.getValueType();
-    Class valueClass = valueType != null ? valueType.getJavaClass() : null;
+    Class<?> valueClass = valueType != null ? valueType.getJavaClass() : null;
     if (valueClass == null) {
       return;
     }
     AttrTypeParser parser = parsers.get(jpAttr.getValueType());
-    if (parser != null && attrValue != null && parser.getOutputType().isInstance(attrValue)) {
+    if (parser != null && (attrValue == null || parser.getOutputType().isInstance(attrValue))) {
       parser.fill(jpAttr, attrValue, data);
     } else if (!data.containsAttr(jpAttr)) {
       // Если парсера нет, приводим значение "as is"
@@ -77,16 +62,17 @@ public final class AttrTypeParserCommonService implements AttrTypeParserService,
       return null;
     }
     Object value = data.get(jpAttr);
-    if (value == null) {
-      return null;
-    }
-    AttrTypeParser parser = parsers.get(jpAttr.getValueType());
+
+    AttrTypeParser<?> parser = parsers.get(jpAttr.getValueType());
     if (parser != null) {
-      if (value.getClass() == parser.getOutputType()) {
+      if (value != null && value.getClass() == parser.getOutputType()) {
         return (T) value;
       }
       return (T) parser.parse(jpAttr, data);
     } else {
+      if (value == null) {
+        return null;
+      }
       // Если парсера нет, приводим значение "as is"
       return (T) parserService.parseTo(valueClass, value);
     }
@@ -98,7 +84,7 @@ public final class AttrTypeParserCommonService implements AttrTypeParserService,
       return null;
     }
     JPType valueType = jpAttr.getValueType();
-    Class valueClass = valueType != null ? valueType.getJavaClass() : null;
+    Class<?> valueClass = valueType != null ? valueType.getJavaClass() : null;
     if (valueClass == null) {
       return null;
     }

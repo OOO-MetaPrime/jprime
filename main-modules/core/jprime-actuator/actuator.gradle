@@ -11,22 +11,23 @@ static String getDate(String format) {
   LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(format).toString()
 }
 
-String getSubmoduleHash() {
-  def stdout = new ByteArrayOutputStream()
-  exec {
-    commandLine 'git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD'
-    standardOutput = stdout
+tasks.register('getSubmodulesHash', Exec) {
+  commandLine 'git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD'
+  standardOutput = new ByteArrayOutputStream()
+  dependsOn getRootHash
+  doLast {
+    String hash = standardOutput.toString().trim()
+    project.ext.submoduleHash = hash
   }
-  stdout.toString().trim()
 }
 
-String getRootHash() {
-  def stdout = new ByteArrayOutputStream()
-  exec {
-    commandLine 'git', 'rev-parse', '--short', 'HEAD'
-    standardOutput = stdout
+tasks.register('getRootHash', Exec) {
+  commandLine 'git', 'rev-parse', '--short', 'HEAD'
+  standardOutput = new ByteArrayOutputStream()
+  doLast {
+    String hash = standardOutput.toString().trim()
+    project.ext.rootHash = hash
   }
-  stdout.toString().trim()
 }
 
 static String getSubmoduleName(String line) {
@@ -47,13 +48,13 @@ static String getSubmoduleName(String line) {
 ext.common = [
     getManifestAttrs    : { ->
       [
-          (PROJECT_VERSION_TITLE): getRootHash(),
+          (PROJECT_VERSION_TITLE): project.ext.rootHash,
           (BUILD_DATE_TITLE)     : getDate('yyyy.MM.dd HH:mm:ss')
       ]
     },
     getSubmodulesVersion: { ->
       Map<String, String> attrs = [:]
-      String subs = getSubmoduleHash()
+      String subs = project.ext.submoduleHash
       String[] lines = subs.split("\n")
       String submodule = null
       for (String line : lines) {

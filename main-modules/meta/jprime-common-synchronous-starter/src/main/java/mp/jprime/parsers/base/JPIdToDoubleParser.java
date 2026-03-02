@@ -1,47 +1,25 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.dataaccess.beans.JPId;
-import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * JPId -> Double
  */
 @Service
-public final class JPIdToDoubleParser implements TypeParser<JPId, Double>, ParserServiceAware {
-  private ParserService service;
+public final class JPIdToDoubleParser extends BaseTypeParser<JPId, Double> {
+  @Override
+  public Double parse(JPId value) {
+    return value == null ? null : parserService.parseTo(getOutputType(), value.getId());
+  }
 
   @Override
-  public void setParserService(ParserService service) {
-    this.service = service;
-  }
-
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
-  public Double parse(JPId value) {
-    return value == null ? null : service.parseTo(getOutputType(), value.getId());
-  }
-
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   public Class<JPId> getInputType() {
     return JPId.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Double> getOutputType() {
     return Double.class;
   }

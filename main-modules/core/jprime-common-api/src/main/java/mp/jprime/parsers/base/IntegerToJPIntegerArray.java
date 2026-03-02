@@ -1,7 +1,7 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.lang.JPIntegerArray;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -10,14 +10,9 @@ import java.util.Collections;
  * Integer -> JPIntegerArray
  */
 @Service
-public final class IntegerToJPIntegerArray implements TypeParser<Integer, JPIntegerArray> {
+public final class IntegerToJPIntegerArray extends BaseTypeParser<Integer, JPIntegerArray> {
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public JPIntegerArray parse(Integer value) {
     if (value == null) {
       return null;
@@ -25,20 +20,12 @@ public final class IntegerToJPIntegerArray implements TypeParser<Integer, JPInte
     return JPIntegerArray.of(Collections.singletonList(value));
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Integer> getInputType() {
     return Integer.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<JPIntegerArray> getOutputType() {
     return JPIntegerArray.class;
   }

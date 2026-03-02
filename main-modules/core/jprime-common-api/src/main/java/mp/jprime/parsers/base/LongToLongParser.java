@@ -1,37 +1,24 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * Long -> Long
  */
 @Service
-public final class LongToLongParser implements TypeParser<Long, Long> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class LongToLongParser extends BaseTypeParser<Long, Long> {
+  @Override
   public Long parse(Long value) {
     return value;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Long> getInputType() {
     return Long.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Long> getOutputType() {
     return Long.class;
   }

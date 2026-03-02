@@ -11,6 +11,8 @@ import java.util.Date;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JsonCond {
+  // Произвольное значение
+  private Object value;
   // Кодовое имя атрибута
   private String attr;
   // Условия и значения атрибутов
@@ -80,8 +82,10 @@ public class JsonCond {
 
   }
 
-  public static JsonCond newCond() {
-    return new JsonCond();
+  public static JsonCond newValueCond(Object value) {
+    JsonCond cond = new JsonCond();
+    cond.value = value;
+    return cond;
   }
 
   public static JsonCond newAttrCond(String attr) {
@@ -94,6 +98,10 @@ public class JsonCond {
     JsonCond cond = new JsonCond();
     cond.feature = feature;
     return cond;
+  }
+
+  public Object getValue() {
+    return value;
   }
 
   public String getAttr() {

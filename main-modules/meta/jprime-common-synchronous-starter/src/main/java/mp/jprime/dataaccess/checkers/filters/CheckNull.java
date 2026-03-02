@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.Null;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.Null;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPArray;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
@@ -12,7 +12,7 @@ import java.util.Collection;
  * Null
  */
 @FilterLink(
-    exprClass = Null.class
+    filterClass = Null.class
 )
 public class CheckNull extends CheckBaseFilter<Null> {
   @Override

@@ -2,6 +2,8 @@ package mp.jprime.utils;
 
 import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPClassAttr;
+import mp.jprime.common.JPParam;
+import mp.jprime.security.AuthInfo;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -37,6 +39,14 @@ public interface JPUtilMode {
    * @return QName шага утилиты
    */
   String getQName();
+
+  /**
+   * Проверка доступа
+   *
+   * @param auth Доступ
+   * @return Да/Нет
+   */
+  boolean checkAccess(AuthInfo auth);
 
   /**
    * Признак логирования действий
@@ -76,6 +86,13 @@ public interface JPUtilMode {
   Collection<String> getJpClassTags();
 
   /**
+   * Теги утилиты
+   *
+   * @return Теги утилиты
+   */
+  Collection<String> getJpUtilTags();
+
+  /**
    * Возвращает тип утилиты
    *
    * @return Тип утилиты
@@ -101,7 +118,16 @@ public interface JPUtilMode {
    *
    * @return Описание входных параметров
    */
-  Collection<JPUtilParam> getInParams();
+  Collection<JPParam> getInParams();
+
+  /**
+   * Признак определения динамических параметров
+   *
+   * @return Да/Нет
+   */
+  default boolean isUseDynamicParams() {
+    return false;
+  }
 
   /**
    * Признак наличия значений по умолчанию
@@ -145,7 +171,7 @@ public interface JPUtilMode {
    *
    * @return Список кастомных итоговых параметров
    */
-  Collection<JPUtilParam> getOutCustomParams();
+  Collection<JPParam> getOutCustomParams();
 
   /**
    * Дополнительные свойства утилиты

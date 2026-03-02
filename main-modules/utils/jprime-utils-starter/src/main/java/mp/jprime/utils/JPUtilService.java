@@ -32,7 +32,7 @@ public interface JPUtilService {
    * @param utilCode Код утилиты
    * @return Утилита
    */
-  JPUtil getUtil(String utilCode);
+  JPUtilSettings getUtil(String utilCode);
 
   /**
    * Возвращает метод утилиты

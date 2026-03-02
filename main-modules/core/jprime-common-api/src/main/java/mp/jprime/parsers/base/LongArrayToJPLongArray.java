@@ -1,38 +1,25 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.lang.JPLongArray;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * Long[] -> JPLongArray
  */
 @Service
-public final class LongArrayToJPLongArray implements TypeParser<Long[], JPLongArray> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class LongArrayToJPLongArray extends BaseTypeParser<Long[], JPLongArray> {
+  @Override
   public JPLongArray parse(Long[] value) {
     return JPLongArray.of(value);
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Long[]> getInputType() {
     return Long[].class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<JPLongArray> getOutputType() {
     return JPLongArray.class;
   }

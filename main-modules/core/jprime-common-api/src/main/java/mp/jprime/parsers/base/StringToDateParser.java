@@ -1,7 +1,7 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
@@ -13,13 +13,8 @@ import static mp.jprime.formats.DateFormat.ISO8601;
  * String -> Date
  */
 @Service
-public final class StringToDateParser implements TypeParser<String, Date> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToDateParser extends BaseTypeParser<String, Date> {
+  @Override
   public Date parse(String value) {
     try {
       return value == null || value.isEmpty() ? null : new SimpleDateFormat(ISO8601).parse(value.trim());
@@ -28,20 +23,12 @@ public final class StringToDateParser implements TypeParser<String, Date> {
     }
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Date> getOutputType() {
     return Date.class;
   }

@@ -1,14 +1,17 @@
 package mp.jprime.dataaccess.checkers;
 
 import mp.jprime.dataaccess.Source;
+import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.filters.CheckFilter;
 import mp.jprime.common.JPOrderDirection;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.common.JPOrder;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.value.CustomValueFilter;
 import mp.jprime.exceptions.JPRuntimeException;
+import mp.jprime.json.JsonCondCustomValueUtils;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.exceptions.JPSelectRightException;
@@ -52,7 +55,7 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
         if (anno == null) {
           continue;
         }
-        checkFilters.put(anno.exprClass(), filter);
+        checkFilters.put(anno.filterClass(), filter);
       } catch (Exception e) {
         throw JPRuntimeException.wrapException(e);
       }
@@ -108,8 +111,13 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
     if (filter == null) {
       return Boolean.TRUE;
     }
-    CheckFilter checkFilter = checkFilters.get(filter.getClass());
-    return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth, notContainsDefaultValue);
+    if (filter instanceof CustomValueFilter f) {
+      JPMap valueData = JPData.of("attr", f.getCustomValue());
+      return check(JsonCondCustomValueUtils.toAttrFilter("attr", f), valueData);
+    } else {
+      CheckFilter checkFilter = checkFilters.get(filter.getClass());
+      return checkFilter == null ? Boolean.FALSE : checkFilter.check(filter, data, auth, notContainsDefaultValue);
+    }
   }
 
   private Stream<JPObject> getListStream(JPSelect select, Collection<JPObject> objects) {

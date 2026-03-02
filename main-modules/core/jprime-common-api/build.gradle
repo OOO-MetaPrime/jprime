@@ -10,9 +10,8 @@ dependencies {
   api(commons.moneta.core)
   api(libs.bundles.jackson.v1)
 
-  api project(':jprime-common-consts')
-  api project(':jprime-common-exceptions')
   api project(':jprime-security-core')
+  api project(':jprime-xml-core')
 
   testImplementation project(":jprime-test")
 }

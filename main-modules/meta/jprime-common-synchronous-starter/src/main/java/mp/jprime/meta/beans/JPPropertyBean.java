@@ -24,20 +24,22 @@ public final class JPPropertyBean implements JPProperty {
   private final Integer length;
   private final Object defValue;
   private final boolean mandatory;
+  private final Filter mandatoryCond;
   private final String name;
   private final String qName;
   private final String refJpClass;
   private final String refJpAttr;
   private final Filter filter;
   private final List<JPOrder> orders;
+  private final boolean clientSearch;
   private final List<JPEnum> enums;
   private final Collection<JPProperty> jpProps;
 
   private JPPropertyBean(String code, JPPropertyType type, JPMoney money,
                          JPStringFormat stringFormat, String stringMask, Integer length, Object defValue,
-                         boolean mandatory, String name, String qName,
+                         boolean mandatory, Filter mandatoryCond, String name, String qName,
                          String refJpClass, String refJpAttr, Filter filter, List<JPOrder> orders,
-                         List<JPEnum> enums, Collection<JPProperty> jpProps) {
+                         boolean clientSearch, List<JPEnum> enums, Collection<JPProperty> jpProps) {
     this.code = code;
     this.type = type;
     this.money = money;
@@ -46,12 +48,14 @@ public final class JPPropertyBean implements JPProperty {
     this.length = length;
     this.defValue = defValue;
     this.mandatory = mandatory;
+    this.mandatoryCond = mandatoryCond;
     this.name = name;
     this.qName = qName;
     this.refJpClass = refJpClass;
     this.refJpAttr = refJpAttr;
     this.filter = filter;
     this.orders = orders == null ? Collections.emptyList() : Collections.unmodifiableList(orders);
+    this.clientSearch = clientSearch;
     this.enums = enums == null ? Collections.emptyList() : Collections.unmodifiableList(enums);
     this.jpProps = jpProps == null ? Collections.emptyList() : Collections.unmodifiableCollection(jpProps);
   }
@@ -64,6 +68,11 @@ public final class JPPropertyBean implements JPProperty {
   @Override
   public boolean isMandatory() {
     return mandatory;
+  }
+
+  @Override
+  public Filter getMandatoryCond() {
+    return mandatoryCond;
   }
 
   @Override
@@ -127,6 +136,11 @@ public final class JPPropertyBean implements JPProperty {
   }
 
   @Override
+  public boolean isClientSearch() {
+    return clientSearch;
+  }
+
+  @Override
   public List<JPEnum> getEnums() {
     return enums;
   }
@@ -149,6 +163,7 @@ public final class JPPropertyBean implements JPProperty {
     private Integer length;
     private Object defValue;
     private boolean mandatory;
+    private Filter mandatoryCond;
     private String name;
     private String qName;
     private String refJpClass;
@@ -156,6 +171,7 @@ public final class JPPropertyBean implements JPProperty {
     private Filter filter;
     private List<JPOrder> orders;
     private List<JPEnum> enums;
+    private boolean clientSearch = true;
     private Collection<JPProperty> jpProps;
 
     private Builder() {
@@ -228,6 +244,14 @@ public final class JPPropertyBean implements JPProperty {
     }
 
     /**
+     * Условие обязательности элемента
+     */
+    public Builder mandatoryCond(Filter mandatoryCond) {
+      this.mandatoryCond = mandatoryCond;
+      return this;
+    }
+
+    /**
      * Название свойства
      */
     public Builder name(String name) {
@@ -285,6 +309,17 @@ public final class JPPropertyBean implements JPProperty {
     }
 
     /**
+     * Признак клиентского поиска
+     *
+     * @param clientSearch Клиентский поиск
+     * @return Да/Нет
+     */
+    public Builder clientSearch(boolean clientSearch) {
+      this.clientSearch = clientSearch;
+      return this;
+    }
+
+    /**
      * Список вложенных свойств
      */
     public Builder jpProps(Collection<JPProperty> jpProps) {
@@ -294,7 +329,7 @@ public final class JPPropertyBean implements JPProperty {
 
     public JPPropertyBean build() {
       return new JPPropertyBean(code, type, money, stringFormat, stringMask, length, defValue,
-          mandatory, name, qName, refJpClass, refJpAttr, filter, orders, enums, jpProps);
+          mandatory, mandatoryCond, name, qName, refJpClass, refJpAttr, filter, orders, clientSearch, enums, jpProps);
     }
   }
 }

@@ -108,7 +108,6 @@ public class JPClassJsonConverter {
             .build();
   }
 
-
   public JsonJPVirtualPath toJson(JPVirtualPath virtualPath) {
     if (virtualPath == null) {
       return null;

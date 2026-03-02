@@ -177,7 +177,7 @@ public class JPBatchUpdate extends JPBatchSave {
      */
     @Override
     public boolean isEmpty() {
-      return data.isEmpty();
+      return batches.isEmpty();
     }
 
     /**

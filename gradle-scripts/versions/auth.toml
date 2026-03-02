@@ -1,6 +1,6 @@
 # Jwt
 [versions]
-jjwtVersion = "0.12.6"
+jjwtVersion = "0.13.0"
 oltuOauth2Version = "1.0.2" # Для взаимодействия через oauth 2.0 (ЦА. ЕСИА)
 
 [libraries]

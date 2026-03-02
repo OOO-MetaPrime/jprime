@@ -1,4 +1,6 @@
 dependencies {
+  api(commons.compress)
+
   api project(':jprime-common-core')
   api project(':jprime-common-synchronous-starter')
 

@@ -12,7 +12,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -35,7 +34,6 @@ public class QueryTest {
   @Autowired
   private QueryService queryService;
 
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(
       basePackages = {"mp.jprime.json.modules", "mp.jprime.json.services", "mp.jprime.parsers"},

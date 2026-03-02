@@ -1,9 +1,13 @@
 package mp.jprime.dataaccess.handlers;
 
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
+import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.JPUpdate;
+
+import java.util.List;
 
 /**
  * Интерфейс хендлера
@@ -16,6 +20,17 @@ public interface JPClassHandler {
    * @return Идентификатор найденного объекта
    */
   JPId find(JPCreate query);
+
+  /**
+   * Дополняет список объектов
+   *
+   * @param query Запрос объектов
+   * @param list  Список объектов
+   * @return Дополненный список объектов
+   */
+  default List<JPObject> wrap(JPSelect query, List<JPObject> list) {
+    return list;
+  }
 
   /**
    * Перед созданием до открытия транзакции

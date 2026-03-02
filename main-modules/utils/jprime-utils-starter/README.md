@@ -51,21 +51,22 @@
 
 ### Настройки JPUtilModeLink
 
-| Код             | Описание                                         |
-|-----------------|--------------------------------------------------|
-| jpPackage       | Настройки доступа                                |
-| authRoles       | Роли, имеющиеся доступ к этому шагу              |
-| code            | Уникальный код шага                              |
-| title           | Название шага                                    |
-| qName           | QName шага                                       |
-| actionLog       | Признак логирования действий                     |
-| type            | Тип доступности шага (список/объект/произвольно) |
-| jpAttrs         | Настройки доступа на атрибутах                   |
-| confirm         | Сообщение перед запуском шага                    |
-| inParams        | Список входящих параметров                       |
-| infoMessage     | Сообщение на форму утилиты                       |
-| outClass        | Выходной класс параметров                        |
-| outCustomParams | Список кастомных исходящих параметров            |
+| Код              | Описание                                         |
+|------------------|--------------------------------------------------|
+| jpPackage        | Настройки доступа                                |
+| authRoles        | Роли, имеющиеся доступ к этому шагу              |
+| code             | Уникальный код шага                              |
+| title            | Название шага                                    |
+| qName            | QName шага                                       |
+| actionLog        | Признак логирования действий                     |
+| type             | Тип доступности шага (список/объект/произвольно) |
+| jpAttrs          | Настройки доступа на атрибутах                   |
+| confirm          | Сообщение перед запуском шага                    |
+| inParams         | Список входящих параметров                       |
+| useDynamicParams | Признак определения динамических параметров      |
+| infoMessage      | Сообщение на форму утилиты                       |
+| outClass         | Выходной класс параметров                        |
+| outCustomParams  | Список кастомных исходящих параметров            |
 
 ## Описание методов
 
@@ -87,62 +88,73 @@
 Если в утилите нет метода, помеченного `code = "check"`, то по умолчанию код c `mode/check` отработает с 200 кодом
 и результатом `denied: false`
 
+### Получение динамического списка параметров
+
+Если в шаге утилиты есть настройка `useDynamicParams=true`, то список параметров не определяется настройкой
+
 ### Метод inParamsDefValues
 
 С помощью этого метода можно получить значения по умолчанию для утилиты.
 
-* метод должен вернуть `JPUtilDefValuesOutParams` с полем `result` в котором лежит json объект со значениями по умолчанию
+* метод должен вернуть `JPUtilDefValuesOutParams` с полем `result` в котором лежит json объект со значениями по
+  умолчанию
 
-Вызов этого метода регулируется флагом `isInParamsDefValues` в рамках аннотации `@JPUtilModeLink` основного метода утилиты.
-По умолчанию, значение флага `false`. 
+Вызов этого метода регулируется флагом `isInParamsDefValues` в рамках аннотации `@JPUtilModeLink` основного метода
+утилиты.
+По умолчанию, значение флага `false`.
 
 Важно, чтобы формат и наименования полей объекта, возвращаемого методом `inParamsDefValues` совпадали со значениями
 во входящем объекте основного методы утилиты и с параметрами аннотации `@JPUtilModeLink`.
-Например, нам необходимо в утилиту передать значения по умолчанию для полей СНИЛС и Телефон, вот как это будет выглядеть:
+Например, нам необходимо в утилиту передать значения по умолчанию для полей СНИЛС и Телефон, вот как это будет
+выглядеть:
 Параметры утилиты
 
 ```java
 @JPUtilModeLink(code = "update",
-      title = "Обновить электронный сертификат",
-      type = JPAppendType.OBJECT,
-      inParams = {
-          @JPParam(
-              code = mp.jprime.common.JPParam.OBJECT_CLASS_CODE,
-              type = JPType.STRING,
-              description = "кодовое имя метакласса объекта/ов",
-              qName = UTIL_CODE + ".in.objectClassCode"
-          ),
-          @JPParam(
-              code = mp.jprime.common.JPParam.OBJECT_IDS,
-              type = JPType.STRING,
-              description = "идентификатор объекта",
-              qName = UTIL_CODE + ".in.objectIds"
-          ),
-          @JPParam(
-              code = "snils",
-              type = JPType.STRING,
-              description = "СНИЛС",
-              qName = UTIL_CODE + ".in.snils"
-          ),
-          @JPParam(
-              code = "phoneNumber",
-              type = JPType.STRING,
-              description = "Номер телефона",
-              qName = UTIL_CODE + ".in.phoneNumber"
-          )
-      },
-      outClass = JPUtilJPIdOutParams.class
-    )
+    title = "Обновить электронный сертификат",
+    type = JPAppendType.OBJECT,
+    inParams = {
+        @JPParam(
+            code = mp.jprime.common.JPParam.OBJECT_CLASS_CODE,
+            type = JPType.STRING,
+            description = "кодовое имя метакласса объекта/ов",
+            qName = UTIL_CODE + ".in.objectClassCode"
+        ),
+        @JPParam(
+            code = mp.jprime.common.JPParam.OBJECT_IDS,
+            type = JPType.STRING,
+            description = "идентификатор объекта",
+            qName = UTIL_CODE + ".in.objectIds"
+        ),
+        @JPParam(
+            code = "snils",
+            type = JPType.STRING,
+            description = "СНИЛС",
+            qName = UTIL_CODE + ".in.snils"
+        ),
+        @JPParam(
+            code = "phoneNumber",
+            type = JPType.STRING,
+            description = "Номер телефона",
+            qName = UTIL_CODE + ".in.phoneNumber"
+        )
+    },
+    outClass = JPUtilJPIdOutParams.class
+)
 ```
+
 То поля объекта со значениями по умолчанию должны выглядеть так
+
 ```java
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Out {
-    private String snils;
-    private String phoneNumber;
+  private String snils;
+  private String phoneNumber;
 }
 ```
+
 Т.е. имя поля в аннотации `@JPUtilModeLink` должно совпадать с соответствующим именем параметра в классе возвращаемого з
 Далее объект Out передается в поле `result` объекта `JPUtilDefValuesOutParams`.
 
@@ -181,16 +193,17 @@ public class Out {
 | Код Название                | Код resultType    | Описание                                                            |
 |-----------------------------|-------------------|---------------------------------------------------------------------|
 | JPUtilCheckOutParams        | check             | результат check-проверки утилиты                                    |
-| JPUtilMessageOutParams      | message           | результатом является только строка-описание                         |
+| JPUtilCustomOutParams       | custom            | результатом является произвольный набор данных                      |
+| JPUtilDefValuesOutParams    | inParamsDefValues | результатом является объект со значениями по умолчанию              |
 | JPUtilJPCompConfOutParams   | jpCompConf        | результатом является отображение указанного конфигуратора компонент |
 | JPUtilJPCreateOutParams     | jpCreate          | результатом является создание объекта указанного класса             |
 | JPUtilJPIdOutParams         | jpId              | результатом является JPId объекта                                   |
-| JPUtilJPObjectOutParams     | jpObject          | результатом является объект JPObject                                |
 | JPUtilJPObjectListOutParams | jpObjectList      | результатом является список объектов JPObject                       |
+| JPUtilJPObjectOutParams     | jpObject          | результатом является объект JPObject                                |
 | JPUtilJPUpdateOutParams     | jpUpdate          | результатом является переход на редактирование JPId                 |
-| JPUtilCustomOutParams       | custom            | результатом является произвольный набор данных                      |
+| JPUtilJPWizardOutParams     | jpWizard          | результат - настройки для шагов утилиты                             |
+| JPUtilMessageOutParams      | message           | результат - строка-описание                                         |
 | JPUtilVoidOutParams         | void              | отсутствие результата                                               |
-| JPUtilDefValuesOutParams    | inParamsDefValues | результатом является объект со значениями по умолчанию              |
 
 ## Привязка утилиты
 
@@ -220,6 +233,150 @@ public class Out {
 Запуск шага утилиты разрешен ролям, указанным в `authRoles` метода или же в `authRoles` утилиты, если настройки метода
 пусты.
 При пустых `authRoles` в обоих аннотациях запуск разрешен всем
+
+## Xml настройка утилит
+
+Xml описания утилит должны располагаться в `resources/utils/settings` в формате
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<jpUtilSettings>
+  <jpUtils>
+    <jpUtil>
+    </jpUtil>
+  </jpUtils>
+</jpUtilSettings>
+```
+
+и соответствовать следующим правилам:
+
+### Операции
+
+Доступные типы операций:
+
+| Код               | Описание                           |
+|-------------------|------------------------------------|
+| jCreate           | Создание данных на основе меты     |
+| jpObjectValidator | Проверка данных на основе jpObject |
+| jpParamValidator  | Проверка параметров                |
+| jpSelect          | Получение данных на основании меты |
+| jpUpdate          | Обновление данных на основе меты   |
+
+#### jpCreate
+
+```xml
+<operation type="jpCreate">
+  <settings>
+    <jpClass>jpTest</jpClass>
+    <attrs>
+      <attr code="certNumber" value="{PARAMS.certNumber}"/>
+      <attr code="certIssueDate" value="{PARAMS.certIssueDate}"/>
+    </attrs>
+  </settings>
+</operation>
+```
+
+| Свойство | Описание                              |
+|----------|---------------------------------------|
+| jpClass  | Кодовое имя меты                      |
+| attrs    | Атрибуты и значения для их заполнения |
+
+#### jpObjectValidator
+
+```xml
+<operation type="jpObjectValidator" forAlias="otherRoster">
+  <settings>
+    <errorMessage>Удостоверение с номером {PARAMS.certNumber} уже зарегистрировано в системе</errorMessage>
+    <filter>
+      <![CDATA[
+      {
+        "cond": {
+          "attr": "id",
+          "isNull": true
+        }
+      }
+      ]]>
+    </filter>
+  </settings>
+</operation>
+```
+
+| Свойство     | Описание                                      |
+|--------------|-----------------------------------------------|
+| forAlias     | Алиас объекта, данные которого проверяются    |
+| errorMessage | Сообщение ошибки, если условие не выполняется |
+| empty        | Признак, что объект должен отсутствовать      |
+| filter       | Условие для проверки                          |
+
+#### jpParamValidator
+
+```xml
+<operation type="jpParamValidator">
+  <settings>
+    <errorMessage>Дата выдачи не может быть позже текущей даты</errorMessage>
+    <filter>
+      <![CDATA[
+        {
+          "cond": {"value": "{PARAMS.certIssueDate}", "lteDay": "{CUR_DATE}"}
+        }
+      ]]>
+    </filter>
+  </settings>
+</operation>
+```
+
+| Свойство     | Описание                                      |
+|--------------|-----------------------------------------------|
+| errorMessage | Сообщение ошибки, если условие не выполняется |
+| filter       | Условие для проверки                          |
+
+#### jpSelect
+
+```xml
+  <operation type="jpSelect" alias="obj1">
+  <settings>
+    <jpClass>jpTest</jpClass>
+    <attrs>
+      <attr code="id"/>
+    </attrs>
+    <filter>
+      <![CDATA[
+      {
+        "cond": {
+          "attr": "id",
+          "in": [{PARAMS.objectIds}]
+        }
+      }
+      ]]>
+    </filter>
+  </settings>
+</operation>
+```
+
+| Свойство | Описание                                  |
+|----------|-------------------------------------------|
+| alias    | Алиас, с которым будет сопоставлен объект |
+| jpClass  | Кодовое имя меты                          |
+| attrs    | Получаемые атрибуты                       |
+| filter   | Условие выборки                           |
+
+#### jpUpdate
+
+```xml
+<operation type="jpUpdate" forAlias="curObject">
+  <settings>
+    <attrs>
+      <attr code="certNumber" value="{PARAMS.certNumber}"/>
+      <attr code="certIssueDate" value="{PARAMS.certIssueDate}"/>
+    </attrs>
+  </settings>
+</operation>
+```
+
+| Свойство  | Описание                              |
+|-----------|---------------------------------------|
+| curObject | Обновляемый объект                    |
+| attrs     | Атрибуты и значения для их заполнения |
 
 ## Использование утилит
 

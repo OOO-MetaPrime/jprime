@@ -14,7 +14,6 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
-import mp.jprime.security.exceptions.JPCreateRightException;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -127,6 +126,10 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
   @Override
   public JPMutableData getDefValues(String jpClassCode, JPObjectDefValueParams params) {
     JPClass jpClass = getJPClassWithChecking(jpClassCode, params);
+    if (jpClass == null) {
+      return JPMutableData.empty();
+    }
+
     AuthInfo auth = params.getAuth();
     JPMutableData data = JPMutableData.empty();
 
@@ -155,14 +158,17 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
     }
 
     JPMutableData checkData = JPMutableData.empty();
-    data.forEach((key, value) -> {
-          JPAttr jpAttr = jpClass.getAttr(key);
-          if (jpAttr != null && value != null) {
-            Object parsedValue = attrParserService.parseTo(jpAttr, value);
-            checkData.put(jpAttr, parsedValue);
-          }
-        }
-    );
+    for (var entry : data.entrySet()) {
+      JPAttr jpAttr = jpClass.getAttr(entry.getKey());
+      if (jpAttr == null) {
+        continue;
+      }
+      Object value = entry.getValue();
+      if (value != null) {
+        value = attrParserService.parseTo(jpAttr, value);
+      }
+      checkData.put(jpAttr, value);
+    }
     return checkData;
   }
 
@@ -175,7 +181,7 @@ public class JPObjectDefValueCommonService implements JPObjectDefValueService, J
     if (params.getSource() == Source.USER
         && auth != null
         && !securityManager.checkCreate(jpClass.getJpPackage(), auth.getRoles())) {
-      throw new JPCreateRightException(jpClassCode);
+      return null;
     }
     return jpClass;
   }

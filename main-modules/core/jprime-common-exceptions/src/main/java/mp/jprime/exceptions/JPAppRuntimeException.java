@@ -24,4 +24,13 @@ public class JPAppRuntimeException extends JPRuntimeException {
   public JPAppRuntimeException(String messageCode, String message) {
     super(messageCode, message);
   }
+
+  /**
+   * Конструктор
+   *
+   * @param message Ошибка
+   */
+  public JPAppRuntimeException(String message) {
+    super(message);
+  }
 }

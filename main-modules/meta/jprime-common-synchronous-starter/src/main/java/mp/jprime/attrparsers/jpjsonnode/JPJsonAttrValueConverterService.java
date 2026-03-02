@@ -2,6 +2,7 @@ package mp.jprime.attrparsers.jpjsonnode;
 
 import mp.jprime.annotations.JPClassAttrsLink;
 import mp.jprime.common.annotations.JPClassAttr;
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
@@ -55,32 +56,34 @@ public final class JPJsonAttrValueConverterService {
   /**
    * Конвертирует данные из формата хранения в формат представления
    *
+   * @param jpo объект в отношении которого происходит трансформация
    * @param jpAttr Атрибут
    * @param value  Данные в формате хранения
    * @return Данные в формате представления
    */
-  public JPJsonNode toJsonView(JPAttr jpAttr, JPJsonNode value) {
+  public JPJsonNode toJsonView(JPObject jpo, JPAttr jpAttr, JPJsonNode value) {
     if (jpAttr == null || jpAttr.getType() != JPType.JSON) {
       return null;
     }
     Map<String, JPJsonAttrValueConverter> maps = converters.get(jpAttr.getJpClassCode());
     JPJsonAttrValueConverter converter = maps == null ? null : maps.get(jpAttr.getCode());
-    return converter == null ? value : converter.toJsonView(value);
+    return converter == null ? value : converter.toJsonView(jpo, value);
   }
 
   /**
    * Конвертирует данные из формата представления в формат хранения
    *
+   * @param jpo объект в отношении которого происходит трансформация
    * @param jpAttr Атрибут
    * @param value  Данные в формате представления
    * @return Данные в формате хранения
    */
-  public JPJsonNode fromJsonView(JPAttr jpAttr, JPJsonNode value) {
+  public JPJsonNode fromJsonView(JPObject jpo, JPAttr jpAttr, JPJsonNode value) {
     if (jpAttr == null || jpAttr.getType() != JPType.JSON) {
       return null;
     }
     Map<String, JPJsonAttrValueConverter> maps = converters.get(jpAttr.getJpClassCode());
     JPJsonAttrValueConverter converter = maps == null ? null : maps.get(jpAttr.getCode());
-    return converter == null ? value : converter.fromJsonView(value);
+    return converter == null ? value : converter.fromJsonView(jpo, value);
   }
 }

@@ -1,11 +1,13 @@
 package mp.jprime.utils.json;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Путь атрибута
  */
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class JsonUtilClassAttr {
   /**
    * Кодовое имя класса

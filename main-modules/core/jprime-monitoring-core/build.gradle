@@ -1,5 +1,6 @@
 dependencies {
   api project(":jprime-common-starter")
+  api project(':jprime-schedule-starter')
 }
 
 bootJar {

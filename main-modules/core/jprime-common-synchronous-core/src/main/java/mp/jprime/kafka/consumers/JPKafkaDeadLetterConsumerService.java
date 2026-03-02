@@ -1,10 +1,12 @@
 package mp.jprime.kafka.consumers;
 
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.ListenerExecutionFailedException;
 import org.springframework.kafka.listener.MessageListener;
 
 import java.util.Map;
@@ -36,10 +38,22 @@ public abstract class JPKafkaDeadLetterConsumerService<K, V> extends JPKafkaDead
     register(consumer, topic);
   }
 
+  private MessageListener<K, V> getMessageListener() {
+    return consumerRecord -> {
+      try {
+        onEvent(consumerRecord);
+      } catch (ListenerExecutionFailedException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new ListenerExecutionFailedException(e.getMessage(), e);
+      }
+    };
+  }
+
   /**
    * Логика обработки события слушателем
    */
-  protected abstract MessageListener<K, V> getMessageListener();
+  protected abstract void onEvent(ConsumerRecord<K, V> consumerRecord);
 
   @Override
   protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval) {

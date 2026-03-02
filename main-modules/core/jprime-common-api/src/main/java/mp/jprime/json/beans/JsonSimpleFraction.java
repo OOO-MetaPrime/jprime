@@ -1,18 +1,16 @@
 package mp.jprime.json.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 /**
  * Простая дробь
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonInclude(JsonInclude.Include.NON_EMPTY)
 public class JsonSimpleFraction {
   /**
    * Признак положительной дроби
    */
-  private Boolean positive;
+  private boolean positive = true;
   /**
    * Целая часть дроби
    */
@@ -26,11 +24,11 @@ public class JsonSimpleFraction {
    */
   private Integer denominator;
 
-  public Boolean getPositive() {
+  public boolean isPositive() {
     return positive;
   }
 
-  public void setPositive(Boolean positive) {
+  public void setPositive(boolean positive) {
     this.positive = positive;
   }
 

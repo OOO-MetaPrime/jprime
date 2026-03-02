@@ -1,0 +1,13 @@
+dependencies {
+  api project(":jprime-common-synchronous-starter")
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+	enabled = false
+}
+
+jar {
+	enabled = true
+}

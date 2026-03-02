@@ -33,10 +33,11 @@ public final class RepositoryGlobalCommonStorage implements RepositoryGlobalStor
    * Размещает метаописание в хранилище
    */
   private RepositoryGlobalCommonStorage(@Autowired(required = false) Collection<RepositoryLoader<? extends JPStorage>> loaders) {
-    if (loaders != null) {
-      for (RepositoryLoader<? extends JPStorage> loader : loaders) {
-        loader.getStorages().forEach(x -> this.storages.put(x.getCode(), x));
-      }
+    if (loaders == null) {
+      return;
+    }
+    for (RepositoryLoader<? extends JPStorage> loader : loaders) {
+      loader.getStorages().forEach(x -> this.storages.put(x.getCode(), x));
     }
   }
 }

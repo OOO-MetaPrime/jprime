@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jpUtilSettings>
+  <jpUtils>
+    <jpUtil>
+      <disable>true</disable>
+      <code>code</code>
+      <description>description</description>
+      <title>title</title>
+      <qName>qName</qName>
+      <jpPackage>jpPackage</jpPackage>
+      <roles>
+        <role>test</role>
+      </roles>
+      <jpClasses>
+        <jpClass>test</jpClass>
+      </jpClasses>
+      <jpClassTags>
+        <tag>test</tag>
+      </jpClassTags>
+      <jpUtilTags>
+        <tag>test</tag>
+      </jpUtilTags>
+      <jpDefValues>
+        <param code="p1" value="{CUR_DATE}"/>
+      </jpDefValues>
+      <jpCheck>
+        <operation type="jpSelect" alias="obj1">
+          <settings>
+            <jpClass>jpTest</jpClass>
+            <attrs>
+              <attr code="id"/>
+            </attrs>
+            <filter>
+              <![CDATA[
+                {
+                  "cond": {
+                    "attr": "id",
+                    "in": [{PARAMS.objectIds}]
+                  }
+                }
+                ]]>
+            </filter>
+          </settings>
+        </operation>
+        <operation type="jpObjectValidator" forAlias="obj1">
+          <settings>
+            <errorMessage>Ошибка 1</errorMessage>
+            <filter>
+              <![CDATA[
+              {
+                "cond": {
+                  "attr": "id",
+                  "isNotNull": true
+                }
+              }
+              ]]>
+            </filter>
+          </settings>
+        </operation>
+      </jpCheck>
+      <jpModes>
+        <jpMode>
+          <code>code</code>
+          <title>title</title>
+          <qName>qName</qName>
+          <appendType>object</appendType>
+          <params>
+            <param>
+              <code>code</code>
+              <type>string</type>
+              <description>description</description>
+              <refFilter>
+                <![CDATA[
+                {
+                  "cond": {
+                    "attr": "org",
+                    "in": ["1"]
+                  }
+                }
+                ]]>
+              </refFilter>
+            </param>
+          </params>
+          <operations storages="storages">
+            <operation type="jpSelect" alias="obj1">
+              <settings>
+                <jpClass>jpTest</jpClass>
+                <attrs>
+                  <attr code="id"/>
+                </attrs>
+                <filter>
+                  <![CDATA[
+                {
+                  "cond": {
+                    "attr": "id",
+                    "in": [{PARAMS.objectIds}]
+                  }
+                }
+                ]]>
+                </filter>
+              </settings>
+            </operation>
+            <operation type="jpObjectValidator" forAlias="obj1">
+              <settings>
+                <errorMessage>Ошибка 1</errorMessage>
+                <filter>
+                  <![CDATA[
+              {
+                "cond": {
+                  "attr": "id",
+                  "isNotNull": true
+                }
+              }
+              ]]>
+                </filter>
+              </settings>
+            </operation>
+            <operation type="jpUpdate" forAlias="obj1">
+              <settings>
+                <attrs>
+                  <attr code="a1" value="1"/>
+                  <attr code="a2" value="{PARAMS.param2}"/>
+                </attrs>
+              </settings>
+            </operation>
+          </operations>
+          <jpResult>
+            <type>message</type>
+            <description>description</description>
+            <changeData>true</changeData>
+          </jpResult>
+        </jpMode>
+      </jpModes>
+    </jpUtil>
+  </jpUtils>
+</jpUtilSettings>

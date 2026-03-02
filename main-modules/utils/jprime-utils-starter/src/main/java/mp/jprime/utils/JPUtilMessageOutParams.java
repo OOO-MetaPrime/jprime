@@ -7,8 +7,9 @@ import mp.jprime.utils.annotations.JPUtilResultType;
  * Тип результата - строка
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JPUtilResultType(code = "message")
+@JPUtilResultType(code = JPUtilMessageOutParams.CODE)
 public final class JPUtilMessageOutParams extends BaseJPUtilOutParams<Void> {
+  public static final String CODE = "message";
 
   private JPUtilMessageOutParams(String description, String qName, boolean changeData, boolean deleteData) {
     super(description, qName, changeData, deleteData);

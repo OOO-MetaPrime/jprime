@@ -71,13 +71,13 @@ public class JPBeanMemoryService implements JPBeanService, JPClassesLinkFilter<J
   }
 
   @Override
-  public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData) {
+  public JPObject newInstance(String jpClassCode, String primaryKeyAttrCode, JPData jpData, JPLinkedData jpLinkedData) {
     JPObject jpObj = jpBeans.get(jpClassCode);
 
     if (jpObj == null) {
-      return JPObjectBase.newBaseInstance(jpClassCode, primaryKeyAttrCode, jpData);
+      return JPObjectBase.newBaseInstance(jpClassCode, primaryKeyAttrCode, jpData, jpLinkedData);
     } else {
-      return jpObj.newInstance(jpClassCode, primaryKeyAttrCode, jpData);
+      return jpObj.newInstance(jpClassCode, primaryKeyAttrCode, jpData, jpLinkedData);
     }
   }
 

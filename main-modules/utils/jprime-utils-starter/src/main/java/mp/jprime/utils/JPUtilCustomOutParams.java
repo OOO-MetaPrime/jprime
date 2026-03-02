@@ -17,11 +17,6 @@ public abstract class JPUtilCustomOutParams extends BaseJPUtilOutParams<Object> 
     super(description, qName, changeData);
   }
 
-  /**
-   * Результата
-   *
-   * @return Результат
-   */
   @Override
   public Object getResult() {
     return null;

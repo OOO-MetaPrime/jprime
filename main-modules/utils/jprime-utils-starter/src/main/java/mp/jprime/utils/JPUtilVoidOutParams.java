@@ -7,8 +7,11 @@ import mp.jprime.utils.annotations.JPUtilResultType;
  * Тип результата - отсутствие реакции
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JPUtilResultType(code = "void")
+@JPUtilResultType(code = JPUtilVoidOutParams.CODE)
 public final class JPUtilVoidOutParams extends BaseJPUtilOutParams<Void> {
+  public static final String CODE = "void";
+
+  public static final JPUtilVoidOutParams EMPTY = JPUtilVoidOutParams.newBuilder().build();
 
   private JPUtilVoidOutParams(boolean changeData, boolean deleteData) {
     super(null, null, changeData, deleteData);

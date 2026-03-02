@@ -52,10 +52,12 @@ public class JPMapsXmlLoader implements JPMapsLoader {
       return Collections.emptyList();
     }
     try {
+      XmlMapper xmlMapper = new XmlMapper();
+
       Collection<JPClassMap> result = new ArrayList<>();
       for (Resource res : resources) {
         try (InputStream is = res.getInputStream()) {
-          XmlJpClassMaps xmlJpClassMaps = new XmlMapper().readValue(is, XmlJpClassMaps.class);
+          XmlJpClassMaps xmlJpClassMaps = xmlMapper.readValue(is, XmlJpClassMaps.class);
           if (xmlJpClassMaps == null || xmlJpClassMaps.getJpClassMaps() == null) {
             continue;
           }

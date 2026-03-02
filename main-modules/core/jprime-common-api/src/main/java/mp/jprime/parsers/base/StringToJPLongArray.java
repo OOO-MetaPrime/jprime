@@ -3,9 +3,7 @@ package mp.jprime.parsers.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPLongArray;
-import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,21 +14,14 @@ import java.util.List;
  * String -> JPLongArray
  */
 @Service
-public final class StringToJPLongArray implements TypeParser<String, JPLongArray>, ParserServiceAware {
+public final class StringToJPLongArray extends BaseTypeParser<String, JPLongArray> {
   private final TypeReference<List<Long>> TYPE_REF = new TypeReference<>() {
   };
 
-  private JPJsonMapper jsonMapper;
-  private ParserService service;
+  private final JPJsonMapper jsonMapper;
 
-  @Autowired
-  private void setJPJsonMapper(JPJsonMapper jsonMapper) {
+  private StringToJPLongArray(@Autowired JPJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
-  }
-
-  @Override
-  public void setParserService(ParserService service) {
-    this.service = service;
   }
 
   public JPLongArray parse(String value) {
@@ -41,7 +32,7 @@ public final class StringToJPLongArray implements TypeParser<String, JPLongArray
       List<Long> values = jsonMapper.toObject(TYPE_REF, value);
       return values == null || values.isEmpty() ? null : JPLongArray.of(values);
     }
-    return JPLongArray.of(Collections.singletonList(service.parseTo(Long.class, value)));
+    return JPLongArray.of(Collections.singletonList(parserService.parseTo(Long.class, value)));
   }
 
   public Class<String> getInputType() {

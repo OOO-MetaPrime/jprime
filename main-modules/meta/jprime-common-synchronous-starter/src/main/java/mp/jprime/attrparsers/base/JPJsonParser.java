@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
  * Реализация парсера {@link JPType#JSON}
  */
 @Service
-public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
-  private static final JPType JP_TYPE = JPType.JSON;
-
+public final class JPJsonParser implements AttrTypeParser<JPJsonNode> {
   private JPJsonMapper jsonMapper;
 
   @Autowired
@@ -29,7 +27,7 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
 
   @Override
   public JPJsonNode parse(JPAttr jpAttr, JPAttrData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JP_TYPE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
     Object attrValue = data.get(jpAttr);
@@ -44,13 +42,13 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
         return parse(jpAttr, attrValue);
       }
     } catch (Exception e) {
-      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение " + attrName);
     }
   }
 
   @Override
   public JPJsonNode parse(JPAttr jpAttr, Object attrValue) {
-    if (jpAttr == null || jpAttr.getValueType() != JP_TYPE) {
+    if (jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return null;
     }
     String attrName = jpAttr.getName();
@@ -63,13 +61,13 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
         return jsonMapper.toJPJsonNode(attrValue);
       }
     } catch (Exception e) {
-      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение поля " + attrName);
+      throw new JPParseException("valueparseerror." + attrName, "Неверно указано значение " + attrName);
     }
   }
 
   @Override
   public void fill(JPAttr jpAttr, JPJsonNode attrValue, JPMutableData data) {
-    if (data == null || jpAttr == null || jpAttr.getValueType() != JP_TYPE) {
+    if (data == null || jpAttr == null || jpAttr.getValueType() != getJPType()) {
       return;
     }
     data.put(jpAttr.getCode(), attrValue);
@@ -77,7 +75,7 @@ public class JPJsonParser implements AttrTypeParser<JPJsonNode> {
 
   @Override
   public JPType getJPType() {
-    return JP_TYPE;
+    return JPType.JSON;
   }
 
   @Override

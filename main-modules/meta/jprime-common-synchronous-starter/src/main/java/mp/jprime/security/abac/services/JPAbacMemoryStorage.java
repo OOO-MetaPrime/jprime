@@ -1,5 +1,6 @@
 package mp.jprime.security.abac.services;
 
+import mp.jprime.application.JPApplicationBootListener;
 import mp.jprime.dataaccess.JPAction;
 import mp.jprime.security.abac.JPAbacDynamicLoader;
 import mp.jprime.security.abac.Policy;
@@ -9,7 +10,6 @@ import mp.jprime.security.abac.loaders.annotations.services.JPAbacAnnoLoader;
 import mp.jprime.security.abac.events.AbacChangeEvent;
 import mp.jprime.security.abac.loaders.xml.services.JPAbacXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,12 +22,10 @@ import java.util.concurrent.atomic.AtomicReference;
  * Описание настроек ABAC
  */
 @Service
-@Lazy(value = false)
-public final class JPAbacMemoryStorage implements JPAbacStorage {
+public final class JPAbacMemoryStorage implements JPAbacStorage, JPApplicationBootListener {
   private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
     set(new Cache());
   }};
-
 
   /**
    * Считываем настройки доступа
@@ -38,13 +36,23 @@ public final class JPAbacMemoryStorage implements JPAbacStorage {
     applyJPAbac(xmlLoader.load());
   }
 
-  @Autowired(required = false)
-  private void setDynamicLoaders(Collection<JPAbacDynamicLoader> dynamicLoaders) {
-    if (dynamicLoaders == null) {
-      return;
+  @Service
+  private static final class Links {
+    private static Collection<JPAbacDynamicLoader> DYNAMIC_LOADERS;
+
+    private Links(@Autowired(required = false) Collection<JPAbacDynamicLoader> dynamicLoaders) {
+      DYNAMIC_LOADERS = dynamicLoaders == null ? Collections.emptyList() : dynamicLoaders;
     }
+  }
+
+  private Collection<JPAbacDynamicLoader> getReportDynamicLoaders() {
+    return Links.DYNAMIC_LOADERS;
+  }
+
+  @Override
+  public void applicationBoot() {
     AtomicInteger i = new AtomicInteger(1);
-    dynamicLoaders.forEach(x -> {
+    getReportDynamicLoaders().forEach(x -> {
       int sourceNum = i.getAndIncrement();
       x.subscribe(list -> applyDynamicAbac(sourceNum, list));
     });

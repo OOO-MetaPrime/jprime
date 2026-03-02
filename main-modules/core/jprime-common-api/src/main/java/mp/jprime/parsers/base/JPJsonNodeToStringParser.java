@@ -2,7 +2,7 @@ package mp.jprime.parsers.base;
 
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * JPJsonNode -> String
  */
 @Service
-public final class JPJsonNodeToStringParser implements TypeParser<JPJsonNode, String> {
+public final class JPJsonNodeToStringParser extends BaseTypeParser<JPJsonNode, String> {
   private static final Logger LOG = LoggerFactory.getLogger(JPJsonNodeToStringParser.class);
   private JPJsonMapper jsonMapper;
 
@@ -21,12 +21,6 @@ public final class JPJsonNodeToStringParser implements TypeParser<JPJsonNode, St
     this.jsonMapper = jsonMapper;
   }
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
   @Override
   public String parse(JPJsonNode value) {
     String str = null;
@@ -38,21 +32,11 @@ public final class JPJsonNodeToStringParser implements TypeParser<JPJsonNode, St
     return str;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<JPJsonNode> getInputType() {
     return JPJsonNode.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<String> getOutputType() {
     return String.class;

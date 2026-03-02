@@ -10,7 +10,6 @@ public class JsonAppInfo {
   private String code;
   private String title;
 
-
   /**
    * Конструктор
    */

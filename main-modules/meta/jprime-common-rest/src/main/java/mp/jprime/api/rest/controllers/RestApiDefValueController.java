@@ -4,7 +4,6 @@ import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.defvalues.beans.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
-import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonDefValue;
 import mp.jprime.json.beans.JsonDefValuesQuery;
@@ -25,29 +24,19 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiDefValueController implements JPObjectDefValueServiceAware {
-  private JPJsonMapper jpJsonMapper;
-  private JPObjectDefValueService jpObjectDefValueService;
-  private JWTService jwtService;
-  private JPMetaFilter jpMetaFilter;
+public class RestApiDefValueController {
+  private final JPJsonMapper jpJsonMapper;
+  private final JPObjectDefValueService jpObjectDefValueService;
+  private final JWTService jwtService;
+  private final JPMetaFilter jpMetaFilter;
 
-  @Autowired
-  private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
+  public RestApiDefValueController(@Autowired JPJsonMapper jpJsonMapper,
+                                   @Autowired JPObjectDefValueService jpObjectDefValueService,
+                                   @Autowired JWTService jwtService,
+                                   @Autowired JPMetaFilter jpMetaFilter) {
     this.jpJsonMapper = jpJsonMapper;
-  }
-
-  @Override
-  public void setJPObjectDefValueService(JPObjectDefValueService jpObjectDefValueService) {
     this.jpObjectDefValueService = jpObjectDefValueService;
-  }
-
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
-  }
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
     this.jpMetaFilter = jpMetaFilter;
   }
 

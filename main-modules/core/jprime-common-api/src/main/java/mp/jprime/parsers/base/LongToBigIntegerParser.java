@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.math.BigInteger;
@@ -9,31 +9,18 @@ import java.math.BigInteger;
  * Long -> BigDecimal
  */
 @Service
-public final class LongToBigIntegerParser implements TypeParser<Long, BigInteger> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class LongToBigIntegerParser extends BaseTypeParser<Long, BigInteger> {
+  @Override
   public BigInteger parse(Long value) {
     return value == null ? null : BigInteger.valueOf(value);
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Long> getInputType() {
     return Long.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigInteger> getOutputType() {
     return BigInteger.class;
   }

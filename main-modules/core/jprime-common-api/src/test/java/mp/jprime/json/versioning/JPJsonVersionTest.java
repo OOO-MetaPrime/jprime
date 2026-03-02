@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 @ContextConfiguration(classes = JPJsonVersionTest.Config.class)
 public class JPJsonVersionTest {
 
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(
       basePackages = {"mp.jprime.parsers", "mp.jprime.json.modules", "mp.jprime.json.services", "mp.jprime.json.versioning"}

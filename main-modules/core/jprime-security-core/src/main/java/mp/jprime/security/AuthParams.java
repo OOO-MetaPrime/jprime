@@ -143,6 +143,27 @@ public interface AuthParams extends ConnectionInfo {
     String getOid();
 
     /**
+     * Фамилия пользователя в ЕСИА
+     *
+     * @return Фамилия
+     */
+    String getSurname();
+
+    /**
+     * Имя пользователя в ЕСИА
+     *
+     * @return Имя
+     */
+    String getName();
+
+    /**
+     * Отчество пользователя в ЕСИА
+     *
+     * @return Отчество
+     */
+    String getSecondname();
+
+    /**
      * Дата рождения пользователя в ЕСИА
      *
      * @return Дата рождения
@@ -176,5 +197,12 @@ public interface AuthParams extends ConnectionInfo {
      * @return ОГРН организации пользователя в ЕСИА
      */
     String getOrgOgrn();
+
+    /**
+     * КПП организации пользователя в ЕСИА
+     *
+     * @return КПП организации пользователя в ЕСИА
+     */
+    String getOrgKpp();
   }
 }

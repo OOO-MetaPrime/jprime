@@ -1,14 +1,15 @@
 package mp.jprime.kafka.consumers;
 
 import mp.jprime.json.services.JPKafkaJsonMapper;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
-import org.springframework.kafka.listener.BatchMessageListener;
-import org.springframework.kafka.listener.CommonErrorHandler;
+import org.springframework.kafka.listener.*;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,7 +26,7 @@ public abstract class JPKafkaDeadLetterBatchConsumerService<K, V> extends JPKafk
   protected JPKafkaJsonMapper jsonMapper;
 
   @Autowired
-  private void setJsonMapper(JPKafkaJsonMapper jsonMapper) {
+  protected void setJsonMapper(JPKafkaJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
   }
 
@@ -47,10 +48,23 @@ public abstract class JPKafkaDeadLetterBatchConsumerService<K, V> extends JPKafk
     register(consumer, topic);
   }
 
+
+  private BatchMessageListener<K, V> getMessageListener() {
+    return consumerRecord -> {
+      try {
+        onEvent(consumerRecord);
+      } catch (BatchListenerFailedException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new BatchListenerFailedException(e.getMessage(), e, START_BATCH_INDEX);
+      }
+    };
+  }
+
   /**
    * Логика обработки события слушателем
    */
-  protected abstract BatchMessageListener<K, V> getMessageListener();
+  protected abstract void onEvent(List<ConsumerRecord<K, V>> consumerRecords);
 
   @Override
   protected ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval) {

@@ -1,8 +1,7 @@
 package mp.jprime.meta.services;
 
-import mp.jprime.concurrent.JPCompletableFuture;
-import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.imex.csvwriter.services.JPCsvBaseWriter;
+import mp.jprime.io.JPPipedInputStream;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
@@ -10,23 +9,16 @@ import mp.jprime.meta.json.converters.JPClassJsonConverter;
 import mp.jprime.parsers.ParserService;
 import mp.jprime.parsers.ParserServiceAware;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 /**
  * Базовый сервис создания {@link JPAttrCsvWriter}
  */
 @Service
 public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterService, ParserServiceAware {
-  private static final Logger LOG = LoggerFactory.getLogger(JPAttrCsvWriterCommonService.class);
-
   private JPClassJsonConverter converter;
   private JPJsonMapper mapper;
   private ParserService parser;
@@ -60,31 +52,19 @@ public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterServic
     if (jpClass == null) {
       return InputStream.nullInputStream();
     }
-    try {
-      PipedInputStream is = new PipedInputStream();
-      PipedOutputStream os = new PipedOutputStream(is);
-
-      JPCompletableFuture.runAsync(() -> {
-            try (JPAttrCsvWriter writer = JPAttrCsvWriter.of(
-                os,
-                settings,
-                true,
-                converter,
-                mapper,
-                parser
-            )) {
-              writer.write(jpClass.getAttrs());
-            } catch (Exception e) {
-              LOG.error(e.getMessage(), e);
-            } finally {
-              IOUtils.closeQuietly(os);
-            }
-          }
-      );
-
-      return is;
-    } catch (IOException e) {
-      throw new JPRuntimeException(e);
-    }
+    return JPPipedInputStream.toInputStream(os -> {
+      try (JPAttrCsvWriter writer = JPAttrCsvWriter.of(
+          os,
+          settings,
+          true,
+          converter,
+          mapper,
+          parser
+      )) {
+        writer.write(jpClass.getAttrs());
+      } finally {
+        IOUtils.closeQuietly(os);
+      }
+    });
   }
 }

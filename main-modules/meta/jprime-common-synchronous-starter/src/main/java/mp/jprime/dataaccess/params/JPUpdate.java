@@ -61,6 +61,7 @@ public class JPUpdate extends JPSave {
    *
    * @return Кодовое имя класса
    */
+  @Override
   public String getJpClass() {
     JPId id = getJpId();
     return id != null ? id.getJpClass() : null;

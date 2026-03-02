@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:tns="https://xml-artifacts.metaprime.ru/xsd/jprime/test-validation-1.0.0"
+           xmlns:УТ7="http://пф.рф/УТ/2023-04-03"
+           targetNamespace="https://xml-artifacts.metaprime.ru/xsd/jprime/test-validation-1.0.0"
+           elementFormDefault="qualified"
+>
+
+  <!DOCTYPE foo [ <!ENTITY xxe SYSTEM "file:///etc/passwd"> ]>
+  <xs:import namespace="http://пф.рф/УТ/2023-04-03" schemaLocation="UnifTypes_2023-04-03.xsd"/>
+
+  <xs:element name="root" type="tns:rootType"/>
+
+  <xs:complexType name="rootType">
+    <xs:sequence>
+      <xs:element name="uuid" type="tns:uuidType"/>
+<!--      <xs:element name="uuid" type="УТ7:ТипGUID"/>-->
+      <xs:element name="code" type="xs:integer"/>
+      <xs:element name="name" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="uuidType">
+    <xs:restriction base="xs:string">
+      <xs:pattern value="[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>

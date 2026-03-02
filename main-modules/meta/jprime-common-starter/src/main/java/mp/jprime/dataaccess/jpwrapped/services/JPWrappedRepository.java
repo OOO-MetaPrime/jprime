@@ -5,14 +5,21 @@ import mp.jprime.dataaccess.*;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
+import mp.jprime.dataaccess.beans.JPUniqueValue;
 import mp.jprime.dataaccess.enums.AnalyticFunction;
 import mp.jprime.dataaccess.enums.BooleanCondition;
-import mp.jprime.dataaccess.enums.FilterOperation;
 import mp.jprime.dataaccess.jpwrapped.repositories.JPWrappedStorage;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.dataaccess.params.query.Filter;
-import mp.jprime.dataaccess.params.query.filters.*;
-import mp.jprime.dataaccess.params.query.filters.range.*;
+import mp.jprime.dataaccess.params.query.filters.BooleanFilter;
+import mp.jprime.dataaccess.params.query.filters.DayFeatureFilter;
+import mp.jprime.dataaccess.params.query.filters.FeatureFilter;
+import mp.jprime.dataaccess.params.query.filters.PeriodFeatureFilter;
+import mp.jprime.dataaccess.params.query.filters.attr.AttrValueFilter;
+import mp.jprime.dataaccess.params.query.filters.attr.LinkFilter;
+import mp.jprime.dataaccess.params.query.filters.value.CustomValueFilter;
+import mp.jprime.dataaccess.uniquevalues.JPUniqueValuesRepository;
+import mp.jprime.dataaccess.uniquevalues.JPUniqueValuesService;
 import mp.jprime.exceptions.JPAttrMapNotFoundException;
 import mp.jprime.exceptions.JPClassMapNotFoundException;
 import mp.jprime.exceptions.JPClassNotFoundException;
@@ -26,7 +33,6 @@ import mp.jprime.metamaps.services.JPMapsStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
 import mp.jprime.security.services.JPResourceAccessService;
-import mp.jprime.security.services.JPResourceAccessServiceAware;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,52 +44,44 @@ import java.util.stream.Collectors;
 
 @Service
 @ClassesLink(classes = {JPWrappedStorage.class})
-public final class JPWrappedRepository implements JPObjectRepository, JPCUDValidator, JPSelectValidator, JPObjectAccessServiceAware, JPObjectRepositoryServiceAware, JPResourceAccessServiceAware {
+public final class JPWrappedRepository implements JPObjectRepository, JPCUDValidator, JPSelectValidator, JPUniqueValuesRepository {
   // Логика работы с JPBean
-  private JPBeanService jpBeanService;
+  private final JPBeanService jpBeanService;
   // Хранилище метаинформации
-  private JPMetaStorage metaStorage;
+  private final JPMetaStorage metaStorage;
   // Описания привязки метаинформации к хранилищу
-  private JPMapsStorage mapsStorage;
+  private final JPMapsStorage mapsStorage;
 
-  private JPObjectAccessService objectAccessService;
-  private JPObjectRepositoryService repositoryService;
-  private JPResourceAccessService resourceAccessService;
-  private JPSecurityStorage securityManager;
+  private final JPResourceAccessService resourceAccessService;
+  private final JPSecurityStorage securityManager;
+  private final JPObjectRepositoryService repo;
+  private final JPObjectAccessService objectAccessService;
+  private final JPUniqueValuesService uniqueValuesService;
 
-  @Autowired
-  private void setJpBeanService(JPBeanService jpBeanService) {
+  private JPWrappedRepository(@Autowired JPBeanService jpBeanService,
+                              @Autowired JPMetaStorage metaStorage,
+                              @Autowired JPMapsStorage mapsStorage,
+                              @Autowired JPResourceAccessService resourceAccessService,
+                              @Autowired JPSecurityStorage securityManager,
+                              @Autowired JPObjectRepositoryService repo,
+                              @Autowired JPObjectAccessService objectAccessService,
+                              @Autowired JPUniqueValuesService uniqueValuesService) {
     this.jpBeanService = jpBeanService;
-  }
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
-  }
-
-  @Autowired
-  private void setMapsStorage(JPMapsStorage mapsStorage) {
     this.mapsStorage = mapsStorage;
-  }
-
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
-    this.objectAccessService = objectAccessService;
-  }
-
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repositoryService) {
-    this.repositoryService = repositoryService;
-  }
-
-  @Override
-  public void setJpResourceAccessService(JPResourceAccessService resourceAccessService) {
     this.resourceAccessService = resourceAccessService;
+    this.securityManager = securityManager;
+    this.repo = repo;
+    this.objectAccessService = objectAccessService;
+    this.uniqueValuesService = uniqueValuesService;
   }
 
-  @Autowired
-  private void setSecurityManager(JPSecurityStorage securityManager) {
-    this.securityManager = securityManager;
+  private JPObjectRepositoryService getRepo() {
+    return repo;
+  }
+
+  private JPUniqueValuesService getUniqueValuesService() {
+    return uniqueValuesService;
   }
 
   @Override
@@ -104,241 +102,250 @@ public final class JPWrappedRepository implements JPObjectRepository, JPCUDValid
   @Override
   public JPObject getObject(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getObject(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getObject(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public JPObject getObjectAndLock(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getObjectAndLock(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getObjectAndLock(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public JPObject getObjectAndLock(JPSelect query, boolean skipLocked) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getObjectAndLock(validateAndConvertTo(classInfo, query), skipLocked), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getObjectAndLock(validateAndConvertTo(classInfo, query), skipLocked), query.getAuth(), query.getSource());
   }
 
   @Override
   public Optional<JPObject> getOptionalObject(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getOptionalObject(validateAndConvertTo(classInfo, query))
+    return getRepo().getOptionalObject(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public Mono<Long> getAsyncTotalCount(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getAsyncTotalCount(validateAndConvertTo(classInfo, query));
+    return getRepo().getAsyncTotalCount(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Long getTotalCount(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getTotalCount(validateAndConvertTo(classInfo, query));
+    return getRepo().getTotalCount(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Collection<JPObject> getList(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getList(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getList(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public Collection<JPObject> getListAndLock(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getListAndLock(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getListAndLock(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public Collection<JPObject> getListAndLock(JPSelect query, boolean skipLocked) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.getListAndLock(validateAndConvertTo(classInfo, query), skipLocked), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().getListAndLock(validateAndConvertTo(classInfo, query), skipLocked), query.getAuth(), query.getSource());
   }
 
   @Override
   public Mono<JPData> getAsyncAggregate(JPAggregate aggr) {
     ClassInfo classInfo = getClassInfo(aggr.getJpClass());
-    return repositoryService.getAsyncAggregate(validateAndConvertTo(classInfo, aggr))
+    return getRepo().getAsyncAggregate(validateAndConvertTo(classInfo, aggr))
         .map(data -> convertFrom(classInfo, data));
   }
 
   @Override
   public JPData getAggregate(JPAggregate aggr) {
     ClassInfo classInfo = getClassInfo(aggr.getJpClass());
-    return convertFrom(classInfo, repositoryService.getAggregate(validateAndConvertTo(classInfo, aggr)));
+    return convertFrom(classInfo, getRepo().getAggregate(validateAndConvertTo(classInfo, aggr)));
   }
 
   @Override
   public Mono<JPId> asyncCreate(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncCreate(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncCreate(validateAndConvertTo(classInfo, query))
         .map(id -> convertFrom(classInfo, id));
   }
 
   @Override
   public JPId create(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.create(validateAndConvertTo(classInfo, query)));
+    return convertFrom(classInfo, getRepo().create(validateAndConvertTo(classInfo, query)));
   }
 
   @Override
   public Mono<JPObject> asyncCreateAndGet(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncCreateAndGet(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncCreateAndGet(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public JPObject createAndGet(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.createAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().createAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public Mono<JPId> asyncUpdate(JPUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncUpdate(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncUpdate(validateAndConvertTo(classInfo, query))
         .map(id -> convertFrom(classInfo, id));
   }
 
   @Override
   public Mono<Long> asyncUpdate(JPConditionalUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncUpdate(validateAndConvertTo(classInfo, query));
+    return getRepo().asyncUpdate(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public JPId update(JPUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.update(validateAndConvertTo(classInfo, query)));
+    return convertFrom(classInfo, getRepo().update(validateAndConvertTo(classInfo, query)));
   }
 
   @Override
   public Long update(JPConditionalUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.update(validateAndConvertTo(classInfo, query));
+    return getRepo().update(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Mono<JPObject> asyncUpdateAndGet(JPUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncUpdateAndGet(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncUpdateAndGet(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public JPObject updateAndGet(JPUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.updateAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().updateAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public Mono<JPId> asyncPatch(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncPatch(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncPatch(validateAndConvertTo(classInfo, query))
         .map(id -> convertFrom(classInfo, id));
   }
 
   @Override
   public JPId patch(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.patch(validateAndConvertTo(classInfo, query)));
+    return convertFrom(classInfo, getRepo().patch(validateAndConvertTo(classInfo, query)));
   }
 
   @Override
   public Mono<JPObject> asyncPatchAndGet(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncPatchAndGet(validateAndConvertTo(classInfo, query))
+    return getRepo().asyncPatchAndGet(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public JPObject patchAndGet(JPCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return convertFrom(classInfo, repositoryService.patchAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
+    return convertFrom(classInfo, getRepo().patchAndGet(validateAndConvertTo(classInfo, query)), query.getAuth(), query.getSource());
   }
 
   @Override
   public Mono<Long> asyncDelete(JPDelete query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncDelete(validateAndConvertTo(classInfo, query));
+    return getRepo().asyncDelete(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Long delete(JPDelete query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.delete(validateAndConvertTo(classInfo, query));
+    return getRepo().delete(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Mono<Long> asyncDelete(JPConditionalDelete query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncDelete(validateAndConvertTo(classInfo, query));
+    return getRepo().asyncDelete(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Long delete(JPConditionalDelete query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.delete(validateAndConvertTo(classInfo, query));
+    return getRepo().delete(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Mono<Void> asyncBatch(JPBatchCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncBatch(validateAndConvertTo(classInfo, query));
+    return getRepo().asyncBatch(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public void batch(JPBatchCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    repositoryService.batch(validateAndConvertTo(classInfo, query));
+    getRepo().batch(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public <T> List<T> batchWithKeys(JPBatchCreate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.batchWithKeys(validateAndConvertTo(classInfo, query));
+    return getRepo().batchWithKeys(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Mono<Void> asyncBatch(JPBatchUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.asyncBatch(validateAndConvertTo(classInfo, query));
+    return getRepo().asyncBatch(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public void batch(JPBatchUpdate query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    repositoryService.batch(validateAndConvertTo(classInfo, query));
+    getRepo().batch(validateAndConvertTo(classInfo, query));
   }
 
   @Override
   public Mono<JPObject> getAsyncObject(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getAsyncObject(validateAndConvertTo(classInfo, query))
+    return getRepo().getAsyncObject(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public Mono<JPObject> getAsyncObjectAndLock(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getAsyncObjectAndLock(validateAndConvertTo(classInfo, query))
+    return getRepo().getAsyncObjectAndLock(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public Flux<JPObject> getAsyncList(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getAsyncList(validateAndConvertTo(classInfo, query))
+    return getRepo().getAsyncList(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
   }
 
   @Override
   public Flux<JPObject> getAsyncListAndLock(JPSelect query) {
     ClassInfo classInfo = getClassInfo(query.getJpClass());
-    return repositoryService.getAsyncListAndLock(validateAndConvertTo(classInfo, query))
+    return getRepo().getAsyncListAndLock(validateAndConvertTo(classInfo, query))
         .map(o -> convertFrom(classInfo, o, query.getAuth(), query.getSource()));
+  }
+
+  @Override
+  public Collection<JPUniqueValue> getUniqueValues(JPSelect select, List<String> hierarchy) {
+    ClassInfo classInfo = getClassInfo(select.getJpClass());
+
+    return convertFromUniqueValue(classInfo,
+        getUniqueValuesService().getUniqueValues(validateAndConvertTo(classInfo, select), hierarchy),
+        select.getAuth(), select.getSource());
   }
 
   private JPAggregate validateAndConvertTo(ClassInfo classInfo, JPAggregate query) {
@@ -405,6 +412,17 @@ public final class JPWrappedRepository implements JPObjectRepository, JPCUDValid
     JPCreate.Builder builder = JPCreate.create(wrapJpClass).auth(query.getAuth()).source(Source.SYSTEM);
 
     query.getData().forEach((code, value) -> builder.set(classInfo.wrapJpAttr(code), value));
+
+    builder.onConflictDoNothing(query.isOnConflictDoNothing());
+    if (query.isUpsert()) {
+      Collection<String> conflictAttr = query.getConflictAttr().stream()
+          .map(classInfo::wrapJpAttr)
+          .toList();
+      Collection<String> conflictSet = query.getConflictSet().stream()
+          .map(classInfo::wrapJpAttr)
+          .toList();
+      builder.upsert(conflictAttr, conflictSet);
+    }
 
     return builder.build();
   }
@@ -517,6 +535,34 @@ public final class JPWrappedRepository implements JPObjectRepository, JPCUDValid
     return jpBeanService.newInstance(classInfo.jpClass(), JPData.of(newData));
   }
 
+  private JPUniqueValue convertFromUniqueValue(ClassInfo classInfo, JPUniqueValue object, AuthInfo auth, Source source) {
+    if (object == null) {
+      return null;
+    }
+    for (JPAttrMap map : classInfo.jpClassMap().getAttrs()) {
+      String attrCode = map.getCode();
+      JPAttr jpAttr = classInfo.jpClass().getAttr(attrCode);
+      if (jpAttr == null) {
+        continue;
+      }
+      String mapCode = map.getMap();
+
+      if (object.getAttr().equals(mapCode)) {
+        if (auth != null && source == Source.USER) {
+          if (!securityManager.checkRead(jpAttr.getJpPackage(), auth.getRoles())) {
+            return null;
+          }
+        }
+        return JPUniqueValue.of(
+            attrCode,
+            object.getValue(),
+            convertFromUniqueValue(classInfo, object.getSubValues(), auth, source)
+        );
+      }
+    }
+    return null;
+  }
+
   private JPId convertFrom(ClassInfo classInfo, JPId jpId) {
     return JPId.get(classInfo.jpClass().getName(), jpId.getId());
   }
@@ -543,6 +589,15 @@ public final class JPWrappedRepository implements JPObjectRepository, JPCUDValid
     }
     List<JPObject> result = new ArrayList<>(list.size());
     list.forEach(object -> result.add(convertFrom(classInfo, object, auth, source)));
+    return result;
+  }
+
+  private Collection<JPUniqueValue> convertFromUniqueValue(ClassInfo classInfo, Collection<JPUniqueValue> list, AuthInfo auth, Source source) {
+    if (list == null || list.isEmpty()) {
+      return list;
+    }
+    List<JPUniqueValue> result = new ArrayList<>(list.size());
+    list.forEach(object -> result.add(convertFromUniqueValue(classInfo, object, auth, source)));
     return result;
   }
 
@@ -598,136 +653,17 @@ public final class JPWrappedRepository implements JPObjectRepository, JPCUDValid
 
 
     Filter result = null;
-    if (filter instanceof PeriodFeatureFilter) {
-      result = filter;
-    } else if (filter instanceof DayFeatureFilter) {
-      result = filter;
-    } else if (filter instanceof FeatureFilter) {
-      result = filter;
-    } else if (filter instanceof YearFilter) {
-      YearFilter v = (YearFilter) filter;
+    if (filter instanceof PeriodFeatureFilter v) {
+      result = v;
+    } else if (filter instanceof DayFeatureFilter v) {
+      result = v;
+    } else if (filter instanceof FeatureFilter v) {
+      result = v;
+    } else if (filter instanceof CustomValueFilter v) {
+      result = v;
+    } else if (filter instanceof AttrValueFilter v) {
       String attrName = classInfo.wrapJpAttr(v.getAttrCode());
-      if (v.getOper() == FilterOperation.EQ_YEAR) {
-        result = Filter.attr(attrName).eqYear(v.getValue());
-      } else if (v.getOper() == FilterOperation.GT_YEAR) {
-        result = Filter.attr(attrName).gtYear(v.getValue());
-      } else if (v.getOper() == FilterOperation.GTE_YEAR) {
-        result = Filter.attr(attrName).gteYear(v.getValue());
-      } else if (v.getOper() == FilterOperation.NEQ_YEAR) {
-        result = Filter.attr(attrName).neqYear(v.getValue());
-      } else if (v.getOper() == FilterOperation.LT_YEAR) {
-        result = Filter.attr(attrName).ltYear(v.getValue());
-      } else if (v.getOper() == FilterOperation.LTE_YEAR) {
-        result = Filter.attr(attrName).lteYear(v.getValue());
-      }
-    } else if (filter instanceof LocalDateDateFilter v) {
-      String attrName = classInfo.wrapJpAttr(v.getAttrCode());
-      if (v.getOper() == FilterOperation.EQ_DAY) {
-        result = Filter.attr(attrName).eqDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.GT_DAY) {
-        result = Filter.attr(attrName).gtDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.GTE_DAY) {
-        result = Filter.attr(attrName).gteDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.NEQ_DAY) {
-        result = Filter.attr(attrName).neqDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.LT_DAY) {
-        result = Filter.attr(attrName).ltDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.LTE_DAY) {
-        result = Filter.attr(attrName).lteDay(v.getValue());
-      } else if (v.getOper() == FilterOperation.EQ_MONTH) {
-        result = Filter.attr(attrName).eqMonth(v.getValue());
-      } else if (v.getOper() == FilterOperation.GT_MONTH) {
-        result = Filter.attr(attrName).gtMonth(v.getValue());
-      } else if (v.getOper() == FilterOperation.GTE_MONTH) {
-        result = Filter.attr(attrName).gteMonth(v.getValue());
-      } else if (v.getOper() == FilterOperation.NEQ_MONTH) {
-        result = Filter.attr(attrName).neqMonth(v.getValue());
-      } else if (v.getOper() == FilterOperation.LT_MONTH) {
-        result = Filter.attr(attrName).ltMonth(v.getValue());
-      } else if (v.getOper() == FilterOperation.LTE_MONTH) {
-        result = Filter.attr(attrName).lteMonth(v.getValue());
-      }
-    } else if (filter instanceof ValueFilter v) {
-      String attrName = classInfo.wrapJpAttr(v.getAttrCode());
-      if (v.getOper() == FilterOperation.EQ) {
-        result = Filter.attr(attrName).eq(v.getValue());
-      } else if (v.getOper() == FilterOperation.GT) {
-        result = Filter.attr(attrName).gt(v.getValue());
-      } else if (v.getOper() == FilterOperation.GTE) {
-        result = Filter.attr(attrName).gte(v.getValue());
-      } else if (v.getOper() == FilterOperation.NEQ) {
-        result = Filter.attr(attrName).neq(v.getValue());
-      } else if (v.getOper() == FilterOperation.LT) {
-        result = Filter.attr(attrName).lt(v.getValue());
-      } else if (v.getOper() == FilterOperation.LTE) {
-        result = Filter.attr(attrName).lte(v.getValue());
-      } else if (v.getOper() == FilterOperation.IN) {
-        IN inst = (IN) v;
-        result = Filter.attr(attrName).in(inst.getValue());
-      } else if (v.getOper() == FilterOperation.NOT_IN) {
-        NotIN inst = (NotIN) v;
-        result = Filter.attr(attrName).notIn(inst.getValue());
-      } else if (v.getOper() == FilterOperation.IN_QUERY) {
-        INQuery inst = (INQuery) v;
-        result = Filter.attr(attrName).inQuery(inst.getValue());
-      } else if (v.getOper() == FilterOperation.NOT_IN_QUERY) {
-        NotINQuery inst = (NotINQuery) v;
-        result = Filter.attr(attrName).notInQuery(inst.getValue());
-      } else if (v.getOper() == FilterOperation.ISNULL) {
-        result = Filter.attr(attrName).isNull();
-      } else if (v.getOper() == FilterOperation.ISNOTNULL) {
-        result = Filter.attr(attrName).isNotNull();
-      } else if (v.getOper() == FilterOperation.LIKE) {
-        result = Filter.attr(attrName).like(v.getValue());
-      } else if (v.getOper() == FilterOperation.FUZZY_LIKE) {
-        FuzzyLike inst = (FuzzyLike) v;
-        result = Filter.attr(attrName).fuzzyLike(inst.getValue());
-      } else if (v.getOper() == FilterOperation.FUZZY_ORDER_LIKE) {
-        FuzzyOrderLike inst = (FuzzyOrderLike) v;
-        result = Filter.attr(attrName).fuzzyOrderLike(inst.getValue());
-      } else if (v.getOper() == FilterOperation.STARTS_WITH) {
-        result = Filter.attr(attrName).startWith(v.getValue());
-      } else if (v.getOper() == FilterOperation.NOT_STARTS_WITH) {
-        result = Filter.attr(attrName).notStartWith(v.getValue());
-      } else if (v.getOper() == FilterOperation.CONTAINS_RANGE) {
-        ContainsRange inst = (ContainsRange) v;
-        result = Filter.attr(attrName).containsRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.OVERLAPS_RANGE) {
-        OverlapsRange inst = (OverlapsRange) v;
-        result = Filter.attr(attrName).overlapsRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.CONTAINS_ELEMENT) {
-        result = Filter.attr(attrName).containsElement(v.getValue());
-      } else if (v.getOper() == FilterOperation.EQ_RANGE) {
-        EQRange inst = (EQRange) v;
-        result = Filter.attr(attrName).eqRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.GT_RANGE) {
-        GTRange inst = (GTRange) v;
-        result = Filter.attr(attrName).gtRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.GTE_RANGE) {
-        GTERange inst = (GTERange) v;
-        result = Filter.attr(attrName).gteRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.NEQ_RANGE) {
-        NEQRange inst = (NEQRange) v;
-        result = Filter.attr(attrName).neqRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.LT_RANGE) {
-        LTRange inst = (LTRange) v;
-        result = Filter.attr(attrName).ltRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.LTE_RANGE) {
-        LTERange inst = (LTERange) v;
-        result = Filter.attr(attrName).lteRange(inst.getValue());
-      } else if (v.getOper() == FilterOperation.BETWEEN) {
-        Between b = (Between) v;
-        result = Filter.attr(attrName).between(b.getValue());
-      } else if (v.getOper() == FilterOperation.CONTAINS) {
-        ContainsKVP b = (ContainsKVP) v;
-        result = Filter.attr(attrName).contains(b.getValue());
-      } else if (v.getOper() == FilterOperation.SOFT_EQ) {
-        SoftEQ s = (SoftEQ) v;
-        result = Filter.attr(attrName).softEq(s.getValue());
-      } else if (v.getOper() == FilterOperation.STRICT_EQ) {
-        StrictEQ s = (StrictEQ) v;
-        result = Filter.attr(attrName).strictEq(s.getValue());
-      }
+      result = v.ofAttr(attrName);
     } else if (filter instanceof LinkFilter l) {
       String attrName = classInfo.wrapJpAttr(l.getAttrCode());
       if (l.getFunction() == AnalyticFunction.EXISTS) {

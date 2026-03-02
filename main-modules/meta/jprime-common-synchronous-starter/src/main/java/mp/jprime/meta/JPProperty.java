@@ -28,6 +28,13 @@ public interface JPProperty {
   boolean isMandatory();
 
   /**
+   * Условие обязательности элемента
+   *
+   * @return Условие
+   */
+  Filter getMandatoryCond();
+
+  /**
    * Тип свойства
    *
    * @return Тип свойства
@@ -110,6 +117,13 @@ public interface JPProperty {
    * @return Порядок сортировки
    */
   List<JPOrder> getOrders();
+
+  /**
+   * Признак клиентского поиска
+   *
+   * @return Да/Нет
+   */
+  boolean isClientSearch();
 
   /**
    * Возвращает перечислимые значения

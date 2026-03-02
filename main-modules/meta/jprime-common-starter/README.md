@@ -217,15 +217,18 @@
 * `#year#`
 * `#month#`
 * `#day#`
+* `#hour#`
+* `#minute#`
 
 Шаблон задается как значение атрибута `storageFilePath` и ключевые слова будут
-заменены на год, номер месяца в году и номер дня в месяце даты, в которую файл был
-сохранен.
+заменены на год, месяц, день, час, минута.
 
-Пример:
-> Файл сохраняется 01.06.2023 и атрибут `storageFilePath` задан шаблоном
-> `"reports-#year#-#month#-#day#"`.<br>
-> В результате путь файла будет следующим: "reports-2023-06-01"
+* примеры:
+
+| Шаблон                                       | Дата сохранения файла | Путь файла               |
+|----------------------------------------------|-----------------------|--------------------------|
+| reports-#year#-#month#-#day#                 | 01.06.2023            | reports-2023-06-01       |
+| reports-#year#.#month#/#day#/#hour#/#minute# | 01.06.2023 в 12:01    | reports-2023.06/01/12/01 |
 
 ## Преобразование java типов
 
@@ -1244,11 +1247,12 @@ public class JsonSignsConverter implements JPJsonAttrValueConverter {
   /**
    * Конвертирует данные из формата хранения в формат представления
    *
+   * @param jpo   Объект в отношении которого происходит трансформация
    * @param value Данные в формате хранения
    * @return Данные в формате представления
    */
   @Override
-  public JPJsonNode toJsonView(JPJsonNode value) {
+  public JPJsonNode toJsonView(JPObject jpo, JPJsonNode value) {
     // value = ... логика преобразования
     return value;
   }
@@ -1461,6 +1465,75 @@ public class CommonHandler extends JPClassHandlerBase {
 }
 ```
 
+## Работа с переопределенной метой
+
+Доступ к мете на основании переопределенных настроек через storage c кодом `jpwrapped` в маппинге метакласса
+
+## Работа с произвольными структурами данных
+
+### Общие настройки
+
+Для класса, замапленного на указанное хранилище можно указать свой, кастомный, обработчик
+
+```
+@JPClassesLink(
+    jpClasses = {MyClass.CLASS_CODE}
+)
+public class MyClassStorage implements GeneratedJPClassStorage {
+   ...
+}
+```
+
+, реализующий произвольную логику работы с объектами этого класса
+
+### GeneratedJavaBeanStorage
+
+Для публикации только на чтение данных, генерируемых на основе java бинов, рекомендуется использовать базовую реализацию
+`mp.jprime.dataaccess.generated.GeneratedJavaBeanStorage`, в которой необходимо только определить метод
+
+```
+  /**
+   * Возвращает весь список объектов
+   *
+   * @return Список объектов
+   */
+  protected abstract Collection<JPObject> getValues();
+```
+
+Пример использования:
+
+```java
+@JPClassesLink(
+    jpClasses = {TestMeta.CLASS_CODE}
+)
+public class TestMetaStorage extends GeneratedJavaBeanStorage {
+  private Collection<TestBean> beans;
+  // кеш
+  private final Map<String, JPObject> VALUES = new ConcurrentHashMap<>();
+
+  @Autowired
+  private void setBeans(Collection<TestBean> beans) {
+    this.beans = beans;
+  }
+  
+  @Override
+  protected Collection<JPObject> getValues() {
+    if (VALUES.isEmpty()) {
+      Map<String, JPObject> values = new HashMap<>();
+      beans.forEach(x -> {
+        Map<String, Object> data = new HashMap<>(2);
+        data.put(TestMeta.Attr.CODE, x.getCode());
+        data.put(TestMeta.Attr.NAME, x.getTitle());
+
+        values.put(x.getCode(), toJPObject(TestMeta.CLASS_CODE, data));
+      });
+      VALUES.putAll(values);
+    }
+    return VALUES.values();
+  }
+}
+```
+
 ## Настройки REST работы с данными
 
 | Настройка                 | Описание                                            | По умолчанию |
@@ -1469,20 +1542,33 @@ public class CommonHandler extends JPClassHandlerBase {
 | jprime.api.checkLimit     | Проверка максимального количества (limit) в выборке | true         |
 | jprime.api.maxLimit       | Максимальное количество в выборке через api         | 1000         |
 
-## Работа с переопределенной метой
+## Предварительные проверки файлов
 
-Доступ к мете на основании переопределенных настроек
+При загрузке файла в основное хранилище производятся следующие проверки:
+* максимальный размер загружаемого файла (Мб). Лимит в системной настройке `files.limits.maxFileSize`
+* максимальный размер файлов в архиве, в случае загрузки файла-архива. Лимит в системной настройке `files.limits.maxArchiveFilesSize"`
+* максимальное количество файлов за одну загрузку. Лимит в системной настройке `files.limits.maxUploadFileCounte`
 
-Подключение к сервисам jprime через настройки application.yml
+По умолчанию проверяются все архивы, кроме docx, xlsx, pptx
+Ограничения расширений файлов-архивов можно изменить через настройку `jprime.file.archiveCheck.ignoreExtList` 
 
-```
+При включенной опции `jprime.file.precheck.enabled: true` перед сохранением файла в основное хранилище
+он предварительно сохраняется в отдельное ФС по настройке `jprime.file.precheck.storage`
+
+В этом случае, например, можно настроить защиту антивирусом sandbox-папки.
+
+Пример настройки:
+
+```yaml
 jprime:
   storage:
-    <уникальный код хранилища>:
-      title: <описание хранилища>
-      type: jpwrapped       
-      aliases:
-        <синоним 1>: <описание хранилища>
-        <синоним 2>: <описание хранилища>
-        <синоним 3>: <описание хранилища>         
+    sandbox-fs:
+      title: Временное хранилище для проверки файлов
+      type: fs
+      path: ${JPRIME_SANDBOX_FS_PATH:}
+  file:
+    precheck:
+      enabled: ${JPRIME_FILES_PRECHECK_ENABLED:false}
+      storage: sandbox-fs
 ```
+

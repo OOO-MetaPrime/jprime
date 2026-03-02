@@ -1,5 +1,7 @@
 package mp.jprime.utils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,6 +42,7 @@ public interface JPUtilInParams {
    *
    * @return Информация о корневом объекте
    */
+  @JsonIgnore
   default RootInfo<String> getRootInfo() {
     String classCode;
     Collection<String> ids;

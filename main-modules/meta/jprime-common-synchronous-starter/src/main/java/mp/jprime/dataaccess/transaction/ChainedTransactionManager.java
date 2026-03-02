@@ -25,19 +25,12 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
   private final Set<PlatformTransactionManager> transactionManagers = new LinkedHashSet<>();
   private final List<PlatformTransactionManager> reverseTransactionManagers = new ArrayList<>();
 
-  private JPTransactionEventManager transactionEventManager;
+  private final JPTransactionEventManager transactionEventManager;
 
-  private ChainedTransactionManager() {
-
-  }
-
-  @Autowired
-  private void setTransactionEventManager(JPTransactionEventManager transactionEventManager) {
+  private ChainedTransactionManager(@Autowired JPTransactionEventManager transactionEventManager,
+                                    @Autowired RepositoryGlobalStorage repositoryStorage) {
     this.transactionEventManager = transactionEventManager;
-  }
 
-  @Autowired
-  private void setRepositoryGlobalStorage(RepositoryGlobalStorage repositoryStorage) {
     for (JPStorage storage : repositoryStorage.getStorages()) {
       TransactionManager tm = storage.getTransactionManager();
       if (tm instanceof PlatformTransactionManager) {

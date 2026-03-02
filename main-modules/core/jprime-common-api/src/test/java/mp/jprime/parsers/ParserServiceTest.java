@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -46,7 +45,6 @@ class ParserServiceTest {
       "   </employee>" +
       "</employees>";
 
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(
       basePackages = {"mp.jprime.parsers", "mp.jprime.json.services"},
@@ -431,8 +429,14 @@ class ParserServiceTest {
 
   @Test
   void testStringToLocalDate() {
-    Object out = parserService.parseTo(LocalDate.class, TEST_DATE);
-    assertEquals(LocalDate.parse(TEST_DATE), out);
+    Object out = parserService.parseTo(LocalDate.class, "2021-07-21");
+    assertEquals(LocalDate.parse("2021-07-21"), out);
+
+    out = parserService.parseTo(LocalDate.class, "2021-7-21");
+    assertEquals(LocalDate.parse("2021-07-21"), out);
+
+    out = parserService.parseTo(LocalDate.class, "2021-7-21+03:00");
+    assertEquals(LocalDate.parse("2021-07-21"), out);
   }
 
   @Test

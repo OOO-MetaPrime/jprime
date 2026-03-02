@@ -30,24 +30,6 @@ public abstract class JPQuerySettings {
     return queryTimeout;
   }
 
-  /**
-   * Проверка максимального количества (limit) в выборке
-   *
-   * @return Да/Нет
-   */
-  protected boolean isCheckLimit() {
-    return checkLimit;
-  }
-
-  /**
-   * Максимальное количество в выборке через api
-   *
-   * @return Количество записей
-   */
-  protected Integer getMaxLimit() {
-    return maxLimit;
-  }
-
   protected JPSelect checkAndBuild(JPSelect.Builder builder) {
     Integer limit = builder.limit();
     if (checkLimit && limit != null && limit > maxLimit) {

@@ -8,7 +8,7 @@ import mp.jprime.events.systemevents.JPSystemEvent;
  */
 public final class SecurityChangeEvent {
   /**
-   * Код события  изменения настроек доступа
+   * Код события изменения настроек доступа
    */
   public static final String CODE = "securityChangeEvent";
 

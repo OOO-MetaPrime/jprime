@@ -27,6 +27,7 @@ public class JPConditionalUpdate extends JPSave {
    *
    * @return Кодовое имя класса
    */
+  @Override
   public String getJpClass() {
     return jpClass;
   }

@@ -1,55 +1,51 @@
 package mp.jprime.dataaccess.checkers.filters;
 
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
-import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.dataaccess.templatevalues.JPTemplateValue;
 import mp.jprime.dataaccess.templatevalues.JPTemplateValueService;
 import mp.jprime.lang.JPArray;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.security.AuthInfo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T>, JPDataCheckServiceAware, ParserServiceAware {
-  // Сервис проверки данных указанному условию
-  private JPDataCheckService jpDataCheckService;
-  // Парсер типов
-  private ParserService parserService;
-  // Сервис получения шаблонных значения
-  private JPTemplateValueService jpTemplateValueService;
+public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T> {
+  @Service
+  private static final class Links {
+    private static JPDataCheckService DATA_CHECK_SERVICE;
+    private static ParserService PARSER_SERVICE;
+    private static JPTemplateValueService TEMPLATE_VALUE_SERVICE;
 
-  @Override
-  public void setJpDataCheckService(JPDataCheckService jpDataCheckService) {
-    this.jpDataCheckService = jpDataCheckService;
-  }
-
-  @Override
-  public void setParserService(ParserService parserService) {
-    this.parserService = parserService;
-  }
-
-  @Autowired
-  private void setJpTemplateValueService(JPTemplateValueService jpTemplateValueService) {
-    this.jpTemplateValueService = jpTemplateValueService;
+    private Links(@Autowired JPDataCheckService jpDataCheckService,
+                  @Autowired ParserService parserService,
+                  @Autowired JPTemplateValueService jpTemplateValueService) {
+      DATA_CHECK_SERVICE = jpDataCheckService;
+      PARSER_SERVICE = parserService;
+      TEMPLATE_VALUE_SERVICE = jpTemplateValueService;
+    }
   }
 
   protected JPDataCheckService getJpDataCheckService() {
-    return jpDataCheckService;
+    return Links.DATA_CHECK_SERVICE;
   }
 
   protected ParserService getParserService() {
-    return parserService;
+    return Links.PARSER_SERVICE;
+  }
+
+  protected JPTemplateValueService getTemplateValueService() {
+    return Links.TEMPLATE_VALUE_SERVICE;
   }
 
   protected <T> T parseTo(Class<T> toClass, Object filterValue, AuthInfo auth) {
     if (filterValue == null) {
       return null;
     }
-    filterValue = jpTemplateValueService.getValue(filterValue, auth);
+    filterValue = getTemplateValueService().getValue(filterValue, auth);
     if (filterValue == null) {
       return null;
     }
@@ -81,12 +77,13 @@ public abstract class CheckBaseFilter<T extends Filter> implements CheckFilter<T
     if (fromValues == null) {
       return null;
     }
+
     Collection values = new ArrayList<>();
     boolean emptyValueIgnore = false;
     for (Comparable fromValue : fromValues) {
-      JPTemplateValue template = jpTemplateValueService.getTemplate(fromValue);
+      JPTemplateValue template = getTemplateValueService().getTemplate(fromValue);
       emptyValueIgnore = template != null && template.isEmptyValueIgnore();
-      addValue(values, toClass, jpTemplateValueService.getValue(template, fromValue, auth), auth);
+      addValue(values, toClass, getTemplateValueService().getValue(template, fromValue, auth), auth);
     }
     return new ParsedCollection(values, emptyValueIgnore);
   }

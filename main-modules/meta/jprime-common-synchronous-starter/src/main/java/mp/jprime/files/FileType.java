@@ -15,6 +15,7 @@ public enum FileType {
   FO("fo"),
   HTML("html"),
   JRXML("jrxml"),
+  JSON("json"),
   PDF("pdf"),
   TXT("txt"),
   XLS("xls"),

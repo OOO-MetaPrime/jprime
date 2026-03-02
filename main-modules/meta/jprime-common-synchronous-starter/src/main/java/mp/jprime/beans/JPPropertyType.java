@@ -43,6 +43,10 @@ public enum JPPropertyType {
    */
   FLOAT(JPType.FLOAT),
   /**
+   * Геометрия
+   */
+  GEOMETRY(JPType.GEOMETRY),
+  /**
    * Целочисленное (32 бита)
    */
   INT(JPType.INT),

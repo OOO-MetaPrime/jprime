@@ -1266,6 +1266,13 @@ components:
       type: object
       description: Настройка условия. Указывается одна из комбинаций (feature) или (feature/checkFromDay/checkToDay) или (feature/checkDay) или (attr + условие ниже)
       properties:
+        value:
+          type: object
+          description: Произвольное значение, на которое накладывается условие ниже
+        attr:
+          type: string
+          format: string
+          description: Кодовое имя атрибута, на который накладывается условие ниже
         feature:
           type: string
           format: string
@@ -1282,10 +1289,6 @@ components:
           format: yyyy-MM-dd
           type: string
           description: Дата, на которую определяется динамическое свойство
-        attr:
-          type: string
-          format: string
-          description: Кодовое имя атрибута, на который накладывается условие ниже
         isNull:
           type: boolean
           description: Значение не указано

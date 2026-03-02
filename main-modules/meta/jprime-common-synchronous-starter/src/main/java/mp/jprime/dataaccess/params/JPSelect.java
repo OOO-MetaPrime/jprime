@@ -19,6 +19,7 @@ public class JPSelect extends JPBaseOperation {
   private final Integer limit;
   private final boolean totalCount;
   private final boolean useDefaultJpAttrs;
+  private final boolean useDefaultOrder;
   private final Map<String, Collection<String>> select;
   private final Collection<JPOrder> orderBy;
   private final Filter where;
@@ -32,6 +33,7 @@ public class JPSelect extends JPBaseOperation {
    * @param limit             Объектов в выборке
    * @param totalCount        Определение точного кол-во объектов в выборке
    * @param useDefaultJpAttrs Признак использования дефолтных атрибутов ссылочных объектов
+   * @param useDefaultOrder   Признак использования дефолтной сортировки
    * @param select            Атрибуты в выборке
    * @param where             Условие выборки
    * @param orderBy           Направление сортировки
@@ -39,14 +41,17 @@ public class JPSelect extends JPBaseOperation {
    * @param timeout           Время ожидания запроса
    * @param source            Источник данных
    */
-  private JPSelect(String jpClass, Integer offset, Integer limit, boolean totalCount, boolean useDefaultJpAttrs,
+  private JPSelect(String jpClass, Integer offset, Integer limit, boolean totalCount,
+                   boolean useDefaultJpAttrs, boolean useDefaultOrder,
                    Map<String, Collection<String>> select, Filter where, List<JPOrder> orderBy, AuthInfo auth,
                    Integer timeout, Source source, Map<String, String> props) {
     super(source, auth, props);
     this.offset = offset;
     this.limit = limit;
     this.totalCount = totalCount;
+
     this.useDefaultJpAttrs = useDefaultJpAttrs;
+    this.useDefaultOrder = useDefaultOrder;
 
     this.jpClass = jpClass;
     this.select = select == null ? Collections.emptyMap() : Collections.unmodifiableMap(select);
@@ -138,6 +143,15 @@ public class JPSelect extends JPBaseOperation {
   }
 
   /**
+   * Признак использования дефолтной сортировки
+   *
+   * @return Да/Нет
+   */
+  public boolean isUseDefaultOrder() {
+    return useDefaultOrder;
+  }
+
+  /**
    * Время ожидания запроса
    *
    * @return Время ожидания запроса
@@ -175,6 +189,7 @@ public class JPSelect extends JPBaseOperation {
     private Integer limit;
     private boolean totalCount;
     private boolean useDefaultJpAttrs;
+    private boolean useDefaultOrder;
     private final Map<String, Collection<String>> select = new HashMap<>();
     private final List<JPOrder> orderBy = new ArrayList<>();
     private Filter where;
@@ -190,7 +205,8 @@ public class JPSelect extends JPBaseOperation {
      * @return JPSelect
      */
     public JPSelect build() {
-      return new JPSelect(jpClass, offset, limit, totalCount, useDefaultJpAttrs, select, where, orderBy, auth,
+      return new JPSelect(jpClass, offset, limit, totalCount, useDefaultJpAttrs, useDefaultOrder,
+          select, where, orderBy, auth,
           timeout, source, props);
     }
 
@@ -291,6 +307,17 @@ public class JPSelect extends JPBaseOperation {
      */
     public Builder useDefaultJpAttrs(boolean useDefaultJpAttrs) {
       this.useDefaultJpAttrs = useDefaultJpAttrs;
+      return this;
+    }
+
+    /**
+     * Признак использования дефолтной сортировки
+     *
+     * @param useDefaultOrder Признак использования дефолтной сортировки
+     * @return Builder
+     */
+    public Builder useDefaultOrder(boolean useDefaultOrder) {
+      this.useDefaultOrder = useDefaultOrder;
       return this;
     }
 
@@ -450,7 +477,9 @@ public class JPSelect extends JPBaseOperation {
      * @return Builder
      */
     public Builder orderBy(String attrCode, JPOrderDirection order) {
-      this.orderBy.add(JPOrder.of(attrCode, order));
+      if (attrCode != null) {
+        this.orderBy.add(JPOrder.of(attrCode, order));
+      }
       return this;
     }
 
@@ -461,7 +490,9 @@ public class JPSelect extends JPBaseOperation {
      * @return Builder
      */
     public Builder orderByAsc(String attrCode) {
-      this.orderBy.add(JPOrder.of(attrCode, JPOrderDirection.ASC));
+      if (attrCode != null) {
+        this.orderBy.add(JPOrder.of(attrCode, JPOrderDirection.ASC));
+      }
       return this;
     }
 
@@ -472,9 +503,25 @@ public class JPSelect extends JPBaseOperation {
      * @return Builder
      */
     public Builder orderByDesc(String attrCode) {
-      this.orderBy.add(JPOrder.of(attrCode, JPOrderDirection.DESC));
+      if (attrCode != null) {
+        this.orderBy.add(JPOrder.of(attrCode, JPOrderDirection.DESC));
+      }
       return this;
     }
+
+    /**
+     * Сортировка атрибута
+     *
+     * @param orders Настройки сортировки
+     * @return Builder
+     */
+    public Builder orderBy(Collection<JPOrder> orders) {
+      if (orders != null) {
+        this.orderBy.addAll(orders);
+      }
+      return this;
+    }
+
 
     /**
      * Условие выборки

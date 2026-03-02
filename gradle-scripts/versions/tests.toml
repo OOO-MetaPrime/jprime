@@ -1,12 +1,17 @@
-# Tests
 [versions]
-testContainersVersion = "1.21.3"
-reactorTestVersion = "3.7.8"
+testContainersVersion = "1.21.4"
+reactorTestVersion = "3.7.15"
+awaitilityVersion = "4.3.0"
 
 [libraries]
 testcontainers-postgresql = { module="org.testcontainers:postgresql", version.ref="testContainersVersion" }
+testcontainers-mssqlserver = { module="org.testcontainers:mssqlserver", version.ref="testContainersVersion"}
+testcontainers-kafka = { module="org.testcontainers:kafka", version.ref="testContainersVersion"}
 testcontainers-junit-jupiter = { module = "org.testcontainers:junit-jupiter", version.ref = "testContainersVersion" }
 projectreactor-reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactorTestVersion" }
+# для тестовых сценариев, когда необходимо оценить не только окончание асинхронной операции, но еще что она завершится в отведенное время
+# Документация: https://github.com/awaitility/awaitility/wiki/Usage
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitilityVersion" }
 
 [bundles]
-testcontainers-v1 = ['testcontainers-postgresql', 'testcontainers-junit-jupiter', 'projectreactor-reactor-test']
+testcontainers-v1 = ['testcontainers-postgresql', 'testcontainers-mssqlserver', 'testcontainers-junit-jupiter', 'projectreactor-reactor-test']

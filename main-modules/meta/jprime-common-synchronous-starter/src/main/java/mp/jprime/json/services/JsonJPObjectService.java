@@ -11,7 +11,6 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.meta.services.JPMetaStorage;
-import mp.jprime.web.services.ServerWebExchangeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
@@ -36,10 +35,6 @@ public class JsonJPObjectService {
    * Реализация парсера {@link JPType#JSON}
    */
   private JPJsonParser jpJsonParser;
-  /**
-   * Методы работы с ServerWebExchangeService
-   */
-  private ServerWebExchangeService sweService;
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
@@ -54,11 +49,6 @@ public class JsonJPObjectService {
   @Autowired
   private void setJpJsonParser(JPJsonParser jpJsonParser) {
     this.jpJsonParser = jpJsonParser;
-  }
-
-  @Autowired
-  private void setSweService(ServerWebExchangeService sweService) {
-    this.sweService = sweService;
   }
 
   public JsonJPObject toJsonJPObject(JPObject object) {
@@ -77,7 +67,7 @@ public class JsonJPObjectService {
     return JsonJPObject.newBuilder()
         .metaStorage(metaStorage)
         .jpId(object.getJpId())
-        .jpData(getJPData(object.getJpClassCode(), object.getData()))
+        .jpData(getJPData(object))
         .jpLinkedData(object.getLinkedData())
         .access(objectAccess == null ? null : JsonChangeAccess.newBuilder()
             .update(
@@ -91,8 +81,9 @@ public class JsonJPObjectService {
         .build();
   }
 
-  private JPData getJPData(String objectJPClass, JPData objectData) {
-    JPClass cls = metaStorage.getJPClassByCode(objectJPClass);
+  private JPData getJPData(JPObject jpo) {
+    JPClass cls = metaStorage.getJPClassByCode(jpo.getJpClassCode());
+    JPData objectData = jpo.getData();
     if (cls == null) {
       return objectData;
     }
@@ -109,7 +100,7 @@ public class JsonJPObjectService {
       // старое значение
       Object value = objectData.get(jpAttr);
       // сконвертированное новое
-      data.put(jpAttr.getCode(), jsonAttrValueConverterService.toJsonView(jpAttr, jpJsonParser.parse(jpAttr, value)));
+      data.put(jpAttr.getCode(), jsonAttrValueConverterService.toJsonView(jpo, jpAttr, jpJsonParser.parse(jpAttr, value)));
     });
     return JPData.of(data);
   }

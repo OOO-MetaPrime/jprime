@@ -1,12 +1,12 @@
 package mp.jprime.security.services;
 
+import mp.jprime.application.JPApplicationBootListener;
 import mp.jprime.security.JPSecurityDynamicLoader;
 import mp.jprime.security.JPSecurityPackage;
 import mp.jprime.security.loaders.annotations.services.JPSecurityAnnoLoader;
 import mp.jprime.security.events.SecurityChangeEvent;
 import mp.jprime.security.loaders.xml.services.JPSecurityXmlLoader;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,28 +18,34 @@ import java.util.concurrent.atomic.AtomicReference;
  * Описание настроек RBAC
  */
 @Service
-@Lazy(value = false)
-public final class JPSecurityMemoryStorage implements JPSecurityStorage {
+public final class JPSecurityMemoryStorage implements JPSecurityStorage, JPApplicationBootListener {
   private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
     set(new Cache());
   }};
 
-  /**
-   * Считываем настройки доступа
-   */
   private JPSecurityMemoryStorage(@Autowired JPSecurityAnnoLoader annoLoader,
                                   @Autowired JPSecurityXmlLoader xmlLoader) {
     applyRbac(annoLoader.load());
     applyRbac(xmlLoader.load());
   }
 
-  @Autowired(required = false)
-  private void setDynamicLoaders(Collection<JPSecurityDynamicLoader> dynamicLoaders) {
-    if (dynamicLoaders == null) {
-      return;
+  @Service
+  private static final class Links {
+    private static Collection<JPSecurityDynamicLoader> DYNAMIC_LOADERS;
+
+    private Links(@Autowired(required = false) Collection<JPSecurityDynamicLoader> dynamicLoaders) {
+      DYNAMIC_LOADERS = dynamicLoaders == null ? Collections.emptyList() : dynamicLoaders;
     }
+  }
+
+  private Collection<JPSecurityDynamicLoader> getReportDynamicLoaders() {
+    return Links.DYNAMIC_LOADERS;
+  }
+
+  @Override
+  public void applicationBoot() {
     AtomicInteger i = new AtomicInteger(1);
-    dynamicLoaders.forEach(x -> {
+    getReportDynamicLoaders().forEach(x -> {
       int sourceNum = i.getAndIncrement();
       x.subscribe(list -> applyDynamicRbac(sourceNum, list));
     });

@@ -3,7 +3,6 @@ package mp.jprime.api.rest.controllers;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.applyvalues.beans.JPObjectApplyValueParamsBean;
 import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueService;
-import mp.jprime.dataaccess.applyvalues.JPObjectApplyValueServiceAware;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.beans.JsonApplyValueResult;
@@ -25,29 +24,19 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiApplyValueController implements JPObjectApplyValueServiceAware {
-  private JPJsonMapper jpJsonMapper;
-  private JPObjectApplyValueService jpObjectApplyValueService;
-  private JWTService jwtService;
-  private JPMetaFilter jpMetaFilter;
+public class RestApiApplyValueController {
+  private final JPJsonMapper jpJsonMapper;
+  private final JPObjectApplyValueService jpObjectApplyValueService;
+  private final JWTService jwtService;
+  private final JPMetaFilter jpMetaFilter;
 
-  @Autowired
-  private void setJpJsonMapper(JPJsonMapper jpJsonMapper) {
+  public RestApiApplyValueController(@Autowired JPJsonMapper jpJsonMapper,
+                                     @Autowired JPObjectApplyValueService jpObjectApplyValueService,
+                                     @Autowired JWTService jwtService,
+                                     @Autowired JPMetaFilter jpMetaFilter) {
     this.jpJsonMapper = jpJsonMapper;
-  }
-
-  @Override
-  public void setJPObjectApplyValueService(JPObjectApplyValueService jpObjectApplyValueService) {
     this.jpObjectApplyValueService = jpObjectApplyValueService;
-  }
-
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
-  }
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
     this.jpMetaFilter = jpMetaFilter;
   }
 
@@ -60,34 +49,34 @@ public class RestApiApplyValueController implements JPObjectApplyValueServiceAwa
                                                   @RequestBody String query) {
 
     return JPMono.fromCallable(() -> {
-          AuthInfo auth = jwtService.getAuthInfo(swe);
-          JPClass jpClass = jpMetaFilter.get(code, auth);
-          if (jpClass == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-          }
-          JsonApplyValuesQuery jsonQuery;
-          try {
-            jsonQuery = jpJsonMapper.toObject(JsonApplyValuesQuery.class, query);
-          } catch (JPRuntimeException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-          }
-          Object id = jsonQuery.getId();
-          String classCode = jsonQuery.getClassCode();
-          if (!jpClass.getCode().equals(classCode)) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
-          }
-          JPData data = jpObjectApplyValueService.getApplyValues(
-              JPObjectApplyValueParamsBean.newBuilder(id, classCode, JPData.of(jsonQuery.getData()))
-                  .attrs(jsonQuery.getAttrs())
-                  .auth(auth)
-                  .source(Source.USER)
-                  .build()
-          );
-          return JsonApplyValueResult.newBuilder()
-              .id(id)
-              .classCode(classCode)
-              .data(data.toMap())
-              .build();
-        });
+      AuthInfo auth = jwtService.getAuthInfo(swe);
+      JPClass jpClass = jpMetaFilter.get(code, auth);
+      if (jpClass == null) {
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+      }
+      JsonApplyValuesQuery jsonQuery;
+      try {
+        jsonQuery = jpJsonMapper.toObject(JsonApplyValuesQuery.class, query);
+      } catch (JPRuntimeException e) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      }
+      Object id = jsonQuery.getId();
+      String classCode = jsonQuery.getClassCode();
+      if (!jpClass.getCode().equals(classCode)) {
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+      }
+      JPData data = jpObjectApplyValueService.getApplyValues(
+          JPObjectApplyValueParamsBean.newBuilder(id, classCode, JPData.of(jsonQuery.getData()))
+              .attrs(jsonQuery.getAttrs())
+              .auth(auth)
+              .source(Source.USER)
+              .build()
+      );
+      return JsonApplyValueResult.newBuilder()
+          .id(id)
+          .classCode(classCode)
+          .data(data.toMap())
+          .build();
+    });
   }
 }

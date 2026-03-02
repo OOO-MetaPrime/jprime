@@ -3,7 +3,7 @@ package mp.jprime.parsers.base;
 import mp.jprime.formats.DateFormat;
 import mp.jprime.lang.JPDateTimeRange;
 import mp.jprime.lang.JPRange;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import java.time.temporal.ChronoField;
  * String -> JPDateTimeRange
  */
 @Service
-public final class StringToJPDateTimeRange implements TypeParser<String, JPDateTimeRange> {
+public final class StringToJPDateTimeRange extends BaseTypeParser<String, JPDateTimeRange> {
 
   private static final DateTimeFormatter LOCAL_DATE_TIME = new DateTimeFormatterBuilder()
       .appendPattern("yyyy-MM-dd HH:mm:ss")
@@ -25,12 +25,6 @@ public final class StringToJPDateTimeRange implements TypeParser<String, JPDateT
       .optionalEnd()
       .toFormatter();
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
   @Override
   public JPDateTimeRange parse(String value) {
     if (value == null || value.isEmpty()) {
@@ -65,21 +59,11 @@ public final class StringToJPDateTimeRange implements TypeParser<String, JPDateT
     return JPDateTimeRange.create(lower, upper, lowerClose, upperClose);
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<JPDateTimeRange> getOutputType() {
     return JPDateTimeRange.class;

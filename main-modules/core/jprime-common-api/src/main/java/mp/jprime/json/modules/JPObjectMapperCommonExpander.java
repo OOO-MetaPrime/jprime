@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.json.beans.*;
 import mp.jprime.lang.*;
+import mp.jprime.parsers.ValueParser;
 import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -18,7 +19,6 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.regex.Pattern;
 
 /**
  * Подключение базовых обработчиков
@@ -33,11 +33,6 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
 
   public final static BigInteger MAX_SAFE_BIGINTEGER = BigInteger.valueOf(MAX_SAFE_INTEGER);
   public final static BigInteger MIN_SAFE_BIGINTEGER = BigInteger.valueOf(MIN_SAFE_INTEGER);
-
-  /**
-   * Прекомпилированный шаблон замены
-   */
-  private static final Pattern PATTERN = Pattern.compile(" ", Pattern.LITERAL);
 
   @Override
   public void expand(ObjectMapper objectMapper) {
@@ -57,8 +52,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
             if (value == null || value.isEmpty()) {
               return null;
             }
-            value = value.replace(',', '.');
-            return Double.valueOf(value.indexOf(' ') > -1 ? PATTERN.matcher(value).replaceAll("") : value);
+            return ValueParser.parseTo(Double.class, value);
           }
         })
         // String to JsonString
@@ -80,7 +74,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           @Override
           public JPSimpleFraction deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             JsonSimpleFraction fraction = ctxt.readValue(p, JsonSimpleFraction.class);
-            return JPSimpleFraction.of(fraction.getPositive(), fraction.getInteger(), fraction.getNumerator(), fraction.getDenominator());
+            return JPSimpleFraction.of(fraction.isPositive(), fraction.getInteger(), fraction.getNumerator(), fraction.getDenominator());
           }
         })
         // String to IntegerRange
@@ -112,7 +106,7 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
           @Override
           public BigDecimal deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String s = p.getValueAsString();
-            return StringUtils.hasText(s) ? new BigDecimal(s) : null;
+            return StringUtils.hasText(s) ? ValueParser.parseTo(BigDecimal.class, s) : null;
           }
         })
         // String to JPIntegerArray
@@ -160,9 +154,19 @@ public final class JPObjectMapperCommonExpander implements JPObjectMapperExpande
               public void serialize(JPSimpleFraction v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
                 JsonSimpleFraction json = new JsonSimpleFraction();
                 json.setPositive(v.isPositive());
-                json.setInteger(v.getInteger());
-                json.setNumerator(v.getNumerator());
-                json.setDenominator(v.getDenominator());
+
+                int integer = v.getInteger();
+                int numerator = v.getNumerator();
+
+                if (numerator != 0) {
+                  if (integer != 0) {
+                    json.setInteger(integer);
+                  }
+                  json.setNumerator(numerator);
+                  json.setDenominator(v.getDenominator());
+                } else {
+                  json.setInteger(integer);
+                }
                 jGen.writeObject(json);
               }
             })

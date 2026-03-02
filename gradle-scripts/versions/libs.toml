@@ -1,13 +1,13 @@
 [versions]
 # jackson
-jacksonAnnotationsVersion = "2.19.2"
-jacksonDataformatXmlVersion = "2.19.2"
-jacksonDataformatYamlVersion = "2.19.2"
-jacksonDatatypeJsr310Version = "2.19.2"
+jacksonAnnotationsVersion = "2.19.4"
+jacksonDataformatXmlVersion = "2.19.4"
+jacksonDataformatYamlVersion = "2.19.4"
+jacksonDatatypeJsr310Version = "2.19.4"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
-jodconverterLocalVersion = "4.4.10"
+jodconverterLocalVersion = "4.4.11"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
 # sshj
@@ -17,20 +17,23 @@ apacheVelocityVersion = "2.4.1"
 # Opencsv parser
 opencsvParserVersion = "5.12.0"
 # Bucket4j (Java rate-limiting library based on token-bucket algorithm)
-bucket4jVersion = "8.14.0"
+bucket4jVersion = "8.16.0"
+# SaxonHE XPath 2.0/3.0
+saxonHEVersion = "12.9"
 
 [libraries]
-jackson-annotations = { module="com.fasterxml.jackson.core:jackson-annotations", version.ref="jacksonAnnotationsVersion" }
-jackson-dataformat-xml = { module="com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref="jacksonDataformatXmlVersion" }
+jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jacksonAnnotationsVersion" }
+jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jacksonDataformatXmlVersion" }
 jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jacksonDataformatYamlVersion" }
-jackson-datatype-jsr310 = { module="com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref="jacksonDatatypeJsr310Version" }
-javapoet = { module="com.squareup:javapoet", version.ref="javapoetVersion" }
-jodconverter-local = { module="org.jodconverter:jodconverter-local", version.ref="jodconverterLocalVersion" }
-nio-multipart-parser = { module="org.synchronoss.cloud:nio-multipart-parser", version.ref="nioMultipartParserVersion" }
-sshj ={ module="com.hierynomus:sshj", version.ref="sshjVersion" }
-apacheVelocity ={ module="org.apache.velocity:velocity-engine-core", version.ref="apacheVelocityVersion" }
+jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jacksonDatatypeJsr310Version" }
+javapoet = { module = "com.squareup:javapoet", version.ref = "javapoetVersion" }
+jodconverter-local = { module = "org.jodconverter:jodconverter-local", version.ref = "jodconverterLocalVersion" }
+nio-multipart-parser = { module = "org.synchronoss.cloud:nio-multipart-parser", version.ref = "nioMultipartParserVersion" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshjVersion" }
+apacheVelocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "apacheVelocityVersion" }
 opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsvParserVersion" }
-bucket4j ={ module="com.bucket4j:bucket4j_jdk17-core", version.ref="bucket4jVersion"}
+bucket4j = { module = "com.bucket4j:bucket4j_jdk17-core", version.ref = "bucket4jVersion" }
+saxonHE = { module = "net.sf.saxon:Saxon-HE", version.ref = "saxonHEVersion" }
 
 [bundles]
 jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310', 'jackson-dataformat-yaml']

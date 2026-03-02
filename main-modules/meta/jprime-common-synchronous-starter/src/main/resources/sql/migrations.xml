@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<kits xmlns="https://xml-artifacts.metaprime.ru/xsd/jprime/migrations-1.0.0">
+  <kit code="jpGlobalSettings" initial="2f0e81fc-6589-49b2-9634-6bd7e3a4a4bb" storage="globalSettings" >
+    <migrations>
+      <migration guid="2f0e81fc-6589-49b2-9634-6bd7e3a4a4bb" description="Настройки системы">
+        <files>
+          <file file="initial/jp_globalsettings.sql" dbType="postgresql"/>
+        </files>
+      </migration>
+    </migrations>
+  </kit>
+  <kit code="jpCommonGlobalSettings" initial="c67dd39e-d1f7-4fc7-a332-bc27bf2a52f0" storage="globalSettings-common" >
+    <migrations>
+      <migration guid="c67dd39e-d1f7-4fc7-a332-bc27bf2a52f0" description="Общие настройки системы">
+        <files>
+          <file file="initial/jp_globalsettings.sql" dbType="postgresql"/>
+        </files>
+      </migration>
+    </migrations>
+  </kit>
+  <kit code="jpCommonGlobalSettingsValue" initial="9c7f787a-ae19-4976-b791-84f73bab86fc" storage="globalSettings-common" dependOn="jpCommonGlobalSettings">
+    <migrations>
+      <migration guid="9c7f787a-ae19-4976-b791-84f73bab86fc" description="Общесистемные настройки">
+        <files>
+          <file file="initial/common-global-settings.sql" dbType="postgresql"/>
+        </files>
+      </migration>
+    </migrations>
+  </kit>
+</kits>

@@ -1,0 +1,16 @@
+dependencies {
+  api(commons.bundles.jaxb)
+  api(commons.lang3)
+
+  api project(':jprime-common-exceptions')
+
+  testImplementation project(":jprime-test")
+}
+
+bootJar {
+  enabled = false
+}
+
+jar {
+  enabled = true
+}

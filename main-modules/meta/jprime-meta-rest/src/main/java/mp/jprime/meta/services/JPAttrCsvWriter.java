@@ -17,7 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * Сервис выгрузки {@link JPAttr} в CSV
+ * Логика выгрузки {@link JPAttr} в CSV
  */
 public class JPAttrCsvWriter extends JPCsvBaseWriter<JPAttr> {
   private static final String[] HEADERS = {

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="info" name="spring-boot">
+  <Appenders>
+    <Console name="stdout" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{yyyy.MM.dd HH:mm:ss.SSS} %-5p [%-7t] %F:%L %X{subject} %X{messageType} %X{object} - %m%n"/>
+    </Console>
+  </Appenders>
+  <Loggers>
+    <AsyncRoot level="WARN">
+      <AppenderRef ref="stdout"/>
+    </AsyncRoot>
+    <AsyncLogger name="mp.jprime.log.AppLogger" level="WARN" includeLocation="true" additivity="false">
+      <AppenderRef ref="stdout"/>
+    </AsyncLogger>
+    <AsyncLogger name="org.springframework.kafka" level="OFF" />
+<!--    <AsyncLogger name="org.springframework.kafka" level="DEBUG" />-->
+    <AsyncLogger name="com.netflix.discovery.DiscoveryClient" level="OFF" />
+    <AsyncLogger name="com.netflix.discovery.shared.transport.decorator.RetryableEurekaHttpClient" level="OFF" />
+    <AsyncLogger name="com.netflix.discovery.shared.transport.decorator.RedirectingEurekaHttpClient" level="OFF" />
+    <AsyncLogger name="com.netflix.discovery.InstanceInfoReplicator" level="OFF" />
+  </Loggers>
+</Configuration>

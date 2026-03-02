@@ -10,7 +10,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @ContextConfiguration(classes = ParserServiceTest.Config.class)
 class ParserServiceTest {
 
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(
       basePackages = {"mp.jprime.parsers", "mp.jprime.json.services"},

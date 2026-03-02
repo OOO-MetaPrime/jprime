@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.stereotype.Service;
 
@@ -10,16 +10,11 @@ import java.math.BigInteger;
  * BigInteger -> Long
  */
 @Service
-public final class BigIntegerToLongParser implements TypeParser<BigInteger, Long> {
+public final class BigIntegerToLongParser extends BaseTypeParser<BigInteger, Long> {
   public final static BigInteger MAX_LONG = BigInteger.valueOf(Long.MAX_VALUE);
   public final static BigInteger MIN_LONG =  BigInteger.valueOf(Long.MIN_VALUE);
 
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public Long parse(BigInteger value) {
     if (value == null) {
       return null;
@@ -30,20 +25,12 @@ public final class BigIntegerToLongParser implements TypeParser<BigInteger, Long
     return value.longValue();
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigInteger> getInputType() {
     return BigInteger.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Long> getOutputType() {
     return Long.class;
   }

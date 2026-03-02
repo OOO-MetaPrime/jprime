@@ -1,37 +1,24 @@
 package mp.jprime.json.view;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * String -> JsonGisecertECertificate.CardNumberValueHolder
  */
 @Service
-public final class StringToCardNumberHolderParser implements TypeParser<String, TestEntity.CardNumberValueHolder> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToCardNumberHolderParser extends BaseTypeParser<String, TestEntity.CardNumberValueHolder> {
+  @Override
   public TestEntity.CardNumberValueHolder parse(String value) {
     return value == null || value.isEmpty() ? null : TestEntity.CardNumberValueHolder.of(value.trim());
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<TestEntity.CardNumberValueHolder> getOutputType() {
     return TestEntity.CardNumberValueHolder.class;
   }

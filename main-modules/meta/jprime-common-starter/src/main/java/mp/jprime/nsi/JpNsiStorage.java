@@ -112,6 +112,15 @@ public interface JpNsiStorage {
   Collection<JpNsiValue<?>> getValuesByAuth(String nsiCode, SearchQuery search,
                                             boolean nameSearch, boolean propertiesSearch, AuthInfo auth);
 
+  /**
+   * Возвращает значение справочника по id
+   *
+   * @param nsiCode Код НСИ
+   * @param id      Код справочника
+   * @return Значение
+   */
+  JpNsiValue<?> getValueByObject(String nsiCode, Object id);
+
   record SearchQuery(String searchQuery, String[] tokens) {
     private static final String RUS_REGEXP = "\\B[АаЯяУуЮюОоЕеЁёЭэИиЫы]\\b";
 

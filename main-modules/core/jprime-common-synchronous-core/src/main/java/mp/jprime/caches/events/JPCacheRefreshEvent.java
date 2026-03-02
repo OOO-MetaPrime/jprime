@@ -57,4 +57,19 @@ public class JPCacheRefreshEvent {
         )
         .build();
   }
+
+  /**
+   * Событие обновления кэша
+   *
+   * @param cacheCode код кэша, требующего обновление
+   */
+  public static JPSystemEvent newExternalEvent(String cacheCode) {
+    return JPCommonSystemEvent.newBuilder()
+        .eventCode(CODE)
+        .external(true)
+        .data(
+            Collections.singletonMap(CACHE_CODE, cacheCode)
+        )
+        .build();
+  }
 }

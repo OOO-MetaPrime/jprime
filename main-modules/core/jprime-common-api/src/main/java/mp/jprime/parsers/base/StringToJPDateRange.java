@@ -3,7 +3,7 @@ package mp.jprime.parsers.base;
 import mp.jprime.formats.DateFormat;
 import mp.jprime.lang.JPDateRange;
 import mp.jprime.lang.JPRange;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -12,14 +12,7 @@ import java.time.LocalDate;
  * String -> JPDateRange
  */
 @Service
-public final class StringToJPDateRange implements TypeParser<String, JPDateRange> {
-
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToJPDateRange extends BaseTypeParser<String, JPDateRange> {
   @Override
   public JPDateRange parse(String value) {
     if (value == null || value.isEmpty()) {
@@ -60,21 +53,11 @@ public final class StringToJPDateRange implements TypeParser<String, JPDateRange
     return JPDateRange.create(lower, upper);
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<JPDateRange> getOutputType() {
     return JPDateRange.class;

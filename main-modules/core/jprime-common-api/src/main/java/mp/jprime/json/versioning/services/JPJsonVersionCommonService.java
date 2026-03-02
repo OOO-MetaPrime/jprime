@@ -190,6 +190,9 @@ public class JPJsonVersionCommonService implements JPJsonVersionService {
       return null;
     }
     Integer version = value.getVersion();
+    if (version == null) {
+      return null;
+    }
     JPJsonNode jsonData = value.getData();
 
     JPJsonVersionConverter<?> lastVersion = convs.lastEntry().getValue();

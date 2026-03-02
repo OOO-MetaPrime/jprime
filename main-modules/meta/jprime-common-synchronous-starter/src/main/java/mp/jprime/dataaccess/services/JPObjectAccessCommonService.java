@@ -7,7 +7,6 @@ import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.beans.JPObjectAccess;
 import mp.jprime.dataaccess.defvalues.beans.JPObjectDefValueParamsBean;
 import mp.jprime.dataaccess.defvalues.JPObjectDefValueService;
-import mp.jprime.dataaccess.defvalues.JPObjectDefValueServiceAware;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.lang.JPMap;
 import mp.jprime.meta.JPAttr;
@@ -30,33 +29,23 @@ import java.util.stream.Collectors;
  * Реализация проверки доступа к объекту
  */
 @Service
-public final class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService, JPSyncObjectRepositoryServiceAware, JPObjectDefValueServiceAware {
+public final class JPObjectAccessCommonService extends JPObjectAccessBaseService implements JPObjectAccessService {
   // Интерфейс создания/изменения объекта
-  private JPSyncObjectRepositoryService repo;
+  private final JPSyncObjectRepositoryService repo;
   // Хранилище метаинформации
-  private JPMetaStorage metaStorage;
+  private final JPMetaStorage metaStorage;
   // Парсер типов
-  private ParserService parserService;
+  private final ParserService parserService;
   // Логика вычисления значений по умолчанию
-  private JPObjectDefValueService defValueService;
+  private final JPObjectDefValueService defValueService;
 
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
-  }
-
-  @Autowired
-  private void setParserService(ParserService parserService) {
-    this.parserService = parserService;
-  }
-
-  @Override
-  public void setJpSyncObjectRepositoryService(JPSyncObjectRepositoryService repo) {
+  private JPObjectAccessCommonService(@Autowired JPSyncObjectRepositoryService repo,
+                                      @Autowired JPMetaStorage metaStorage,
+                                      @Autowired ParserService parserService,
+                                      @Autowired JPObjectDefValueService defValueService) {
     this.repo = repo;
-  }
-
-  @Override
-  public void setJPObjectDefValueService(JPObjectDefValueService defValueService) {
+    this.metaStorage = metaStorage;
+    this.parserService = parserService;
     this.defValueService = defValueService;
   }
 
@@ -79,16 +68,16 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpAttr == null || jpAttr.getRefJpClass() == null) {
       return Boolean.FALSE;
     }
-    JPMutableData data = defValueService
-        .getDefValues(
-            classCode,
-            JPObjectDefValueParamsBean.newBuilder()
-                .rootId(value)
-                .rootJpClassCode(jpAttr.getRefJpClass())
-                .refAttrCode(refAttrCode)
-                .auth(auth)
-                .build()
-        );
+    JPMutableData data = defValueService.getDefValues(
+        classCode,
+        JPObjectDefValueParamsBean.newBuilder()
+            .rootId(value)
+            .rootJpClassCode(jpAttr.getRefJpClass())
+            .refAttrCode(refAttrCode)
+            .source(Source.SYSTEM)
+            .auth(auth)
+            .build()
+    );
     data.putIfAbsent(refAttrCode, value);
     return isCreateCheck(classCode, data, auth);
   }

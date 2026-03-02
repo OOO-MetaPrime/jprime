@@ -1,7 +1,7 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.lang.JPDateTimeRange;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeParseException;
@@ -10,7 +10,7 @@ import java.time.format.DateTimeParseException;
  * JPDateTimeRange -> String
  */
 @Service
-public final class JPDateTimeRangeToString implements TypeParser<JPDateTimeRange, String> {
+public final class JPDateTimeRangeToString extends BaseTypeParser<JPDateTimeRange, String> {
 
   /**
    * Создание {@code LocalDateTime} диапазона из переданной строки:
@@ -34,21 +34,11 @@ public final class JPDateTimeRangeToString implements TypeParser<JPDateTimeRange
     return value.asString();
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<JPDateTimeRange> getInputType() {
     return JPDateTimeRange.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<String> getOutputType() {
     return String.class;

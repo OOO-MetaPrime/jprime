@@ -1,6 +1,5 @@
 package mp.jprime.utils.oktmo;
 
-import jakarta.annotation.PostConstruct;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.params.JPSelect;
@@ -10,6 +9,7 @@ import mp.jprime.json.services.QueryService;
 import mp.jprime.parsers.ParserService;
 import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.security.AuthInfo;
+import mp.jprime.application.JPApplicationStartListener;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -22,13 +22,14 @@ import java.util.stream.Collectors;
 /**
  * Базовая реализация сервиса поиска по ОКТМО
  */
-public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService, JPObjectRepositoryServiceAware, ParserServiceAware {
+public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
+    JPObjectRepositoryServiceAware, ParserServiceAware, JPApplicationStartListener {
   private JPObjectRepositoryService repo;
   private ParserService parserService;
   private static final Pattern PATTERN = Pattern.compile("\\d+");
 
-  @PostConstruct
-  private void init() {
+  @Override
+  public void applicationStart() {
     if (StringUtils.isAnyBlank(getClassCode(), getOktmoAttr(), getNameAttr(), getTypeAttr())) {
       throw new JPRuntimeException(String.format("OKTMO class code or attributes cannot be null or empty. classCode: %s, oktmo: %s, oktmoName: %s, oktmoType: %s",
           getClassCode(), getOktmoAttr(), getNameAttr(), getTypeAttr()));

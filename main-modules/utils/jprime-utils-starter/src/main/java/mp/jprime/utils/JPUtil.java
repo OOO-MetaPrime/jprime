@@ -17,21 +17,18 @@ public interface JPUtil {
   /**
    * Типовые коды режимов
    */
-  interface Mode {
-    /**
-     * Режим проверки доступности по умолчанию
-     */
-    String CHECK_MODE = "check";
+  interface Mode extends JPUtilSettings.Mode {
 
-    /**
-     * Режим получения дефолтных значений по умолчанию
-     */
-    String IN_PARAMS_DEF_VALUES = "inParamsDefValues";
+  }
 
-    /**
-     * Режим валидации входящих параметров утилиты
-     */
-    String VALIDATE_MODE = "validate";
+  /**
+   * Проверка доступа
+   *
+   * @param auth Доступ
+   * @return Да/Нет
+   */
+  default boolean checkAccess(AuthInfo auth) {
+    return true;
   }
 
   @JPUtilModeLink(
@@ -72,7 +69,6 @@ public interface JPUtil {
     );
   }
 
-
   /**
    * Возвращает название утилиты
    *
@@ -98,7 +94,7 @@ public interface JPUtil {
    *
    * @return Урл утилиты
    */
-  default String getUrl() {
+  default String getCode() {
     JPUtilLink anno = this.getClass().getAnnotation(JPUtilLink.class);
     return anno != null ? anno.code() : null;
   }
@@ -151,5 +147,15 @@ public interface JPUtil {
   default String[] getJpClassTags() {
     JPUtilLink anno = this.getClass().getAnnotation(JPUtilLink.class);
     return anno != null ? anno.jpClassTags() : null;
+  }
+
+  /**
+   * Теги утилиты
+   *
+   * @return Теги утилиты
+   */
+  default String[] getJpUtilTags() {
+    JPUtilLink anno = this.getClass().getAnnotation(JPUtilLink.class);
+    return anno != null ? anno.jpUtilTags() : null;
   }
 }

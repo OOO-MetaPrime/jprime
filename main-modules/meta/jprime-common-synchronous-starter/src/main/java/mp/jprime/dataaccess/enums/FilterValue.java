@@ -156,6 +156,12 @@ public interface FilterValue {
   String AUTH_USERNAME = "{" + AUTH_USERNAME_TEMPLATE + "}";
 
   /**
+   * ФИО пользователя
+   */
+  String AUTH_FIO_TEMPLATE = "AUTH_FIO";
+  String AUTH_FIO = "{" + AUTH_FIO_TEMPLATE + "}";
+
+  /**
    * Организация пользователя
    */
   String AUTH_ORGID_TEMPLATE = "AUTH_ORGID";
@@ -204,6 +210,12 @@ public interface FilterValue {
   String AUTH_ESIA_ORGINN = "{" + AUTH_ESIA_ORGINN_TEMPLATE + "}";
 
   /**
+   * КПП ЕСИА организации пользователя
+   */
+  String AUTH_ESIA_ORGKPP_TEMPLATE = "AUTH_ESIA_ORGKPP";
+  String AUTH_ESIA_ORGKPP = "{" + AUTH_ESIA_ORGKPP_TEMPLATE + "}";
+
+  /**
    * Название ЕСИА организации пользователя
    */
   String AUTH_ESIA_ORGNAME_TEMPLATE = "AUTH_ESIA_ORGNAME";
@@ -220,6 +232,30 @@ public interface FilterValue {
    */
   String AUTH_ESIA_USERID_TEMPLATE = "AUTH_ESIA_USERID";
   String AUTH_ESIA_USERID = "{" + AUTH_ESIA_USERID_TEMPLATE + "}";
+
+  /**
+   * ЕСИА фамилия пользователя
+   */
+  String AUTH_ESIA_USERSURNAME_TEMPLATE = "AUTH_ESIA_USERSURNAME";
+  String AUTH_ESIA_USERSURNAME = "{" + AUTH_ESIA_USERSURNAME_TEMPLATE + "}";
+
+  /**
+   * ЕСИА имя пользователя
+   */
+  String AUTH_ESIA_USERNAME_TEMPLATE = "AUTH_ESIA_USERNAME";
+  String AUTH_ESIA_USERNAME = "{" + AUTH_ESIA_USERNAME_TEMPLATE + "}";
+
+  /**
+   * ЕСИА отчество пользователя
+   */
+  String AUTH_ESIA_USERPATRONYMIC_TEMPLATE = "AUTH_ESIA_USERPATRONYMIC";
+  String AUTH_ESIA_USERPATRONYMIC = "{" + AUTH_ESIA_USERPATRONYMIC_TEMPLATE + "}";
+
+  /**
+   * ЕСИА дата рождения пользователя
+   */
+  String AUTH_ESIA_USERBIRTHDATE_TEMPLATE = "AUTH_ESIA_USERBIRTHDATE";
+  String AUTH_ESIA_USERBIRTHDATE = "{" + AUTH_ESIA_USERBIRTHDATE_TEMPLATE + "}";
 
   /**
    * Предметные группы пользователя

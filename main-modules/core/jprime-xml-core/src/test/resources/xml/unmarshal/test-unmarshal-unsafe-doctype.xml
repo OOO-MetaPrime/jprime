@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE AppSettings [
+    <!ENTITY xxe SYSTEM "file:///etc/hosts" >
+]>
+<root xmlns="https://xml-artifacts.metaprime.ru/xsd/jprime/test-unmarshal-1.0.0">
+  <uuid>35c9dc05-e156-4e89-bbab-ad8b3693d573</uuid>
+  <code>1</code>
+  <name>&xxe;</name>
+</root>

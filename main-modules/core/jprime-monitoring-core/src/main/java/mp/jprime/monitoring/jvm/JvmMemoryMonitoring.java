@@ -1,12 +1,13 @@
 package mp.jprime.monitoring.jvm;
 
+import mp.jprime.application.JPApplicationStartListener;
 import mp.jprime.log.AppLogger;
+import mp.jprime.schedule.JpScheduleCron;
+import mp.jprime.schedule.JpScheduleService;
+import mp.jprime.schedule.JpScheduleTaskCatalog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 
 import java.lang.management.*;
 import java.text.DecimalFormat;
@@ -15,28 +16,41 @@ import java.util.function.ToLongFunction;
 /**
  * Контроль памяти JVM
  */
-@EnableScheduling
-@Lazy(value = false)
 @Configuration
-public class JvmMemoryMonitoring {
+public class JvmMemoryMonitoring implements JPApplicationStartListener  {
   private static final long MB = 1024L * 1024L;
   private static final long GB = 1024L * MB;
 
-  /**
-   * Системный журнал
-   */
+  @Value("${jprime.monitoring.jvm.memory.alarmPercents:90}")
+  private int alarmPercents;
+  @Value("${jprime.monitoring.jvm.memory.checkTimeout:0 */1 * * * *}")
+  private String cron;
+
   private AppLogger appLogger;
+  private JpScheduleService scheduleService;
 
   @Autowired
   private void setAppLogger(AppLogger appLogger) {
     this.appLogger = appLogger;
   }
 
-  @Value("${jprime.monitoring.jvm.memory.alarmPercents:90}")
-  private int alarmPercents;
+  @Autowired
+  private void setScheduleService(JpScheduleService scheduleService) {
+    this.scheduleService = scheduleService;
+  }
 
-  @Scheduled(cron = "${jprime.monitoring.jvm.memory.checkTimeout:0 */1 * * * *}")
-  public void check() {
+  @Override
+  public void applicationStart() {
+    scheduleService.schedule(
+        "Контроль памяти JVM",
+        JpScheduleTaskCatalog.SYSTEM,
+        JpScheduleCron.of(cron),
+        this::check,
+        false
+    );
+  }
+
+  private void check() {
     Values heap = new Values();
     Values nonheap = new Values();
     for (MemoryPoolMXBean memoryPoolBean : ManagementFactory.getPlatformMXBeans(MemoryPoolMXBean.class)) {

@@ -20,37 +20,21 @@ public final class JPSimpleFractionBean implements JPSimpleFraction {
   private final String denominatorAttrCode;
 
   private JPSimpleFractionBean(String integerAttrCode, String numeratorAttrCode, String denominatorAttrCode) {
-    this.integerAttrCode = integerAttrCode;
-    this.numeratorAttrCode = numeratorAttrCode;
-    this.denominatorAttrCode = denominatorAttrCode;
+    this.integerAttrCode = integerAttrCode != null && !integerAttrCode.isEmpty() ? integerAttrCode : null;
+    this.numeratorAttrCode = numeratorAttrCode != null && !numeratorAttrCode.isEmpty() ? numeratorAttrCode : null;
+    this.denominatorAttrCode = denominatorAttrCode != null && !denominatorAttrCode.isEmpty() ? denominatorAttrCode : null;
   }
 
-  /**
-   * Атрибут для хранения - Целая часть дроби
-   *
-   * @return Кодовое имя атрибута
-   */
   @Override
   public String getIntegerAttrCode() {
     return integerAttrCode;
   }
 
-
-  /**
-   * Атрибут для хранения - числитель дроби
-   *
-   * @return Кодовое имя атрибута
-   */
   @Override
   public String getNumeratorAttrCode() {
     return numeratorAttrCode;
   }
 
-  /**
-   * Атрибут для хранения - Знаменатель дроби
-   *
-   * @return Кодовое имя атрибута
-   */
   @Override
   public String getDenominatorAttrCode() {
     return denominatorAttrCode;

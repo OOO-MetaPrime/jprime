@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mp.jprime.lang.JPJsonNode;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -19,6 +20,7 @@ public class JsonCompConf {
   private String saveUtil;
   private String saveMode;
   private String field;
+  private Map<String, Object> saveParams;
 
   public String getRootObjectClassCode() {
     return rootObjectClassCode;
@@ -98,5 +100,13 @@ public class JsonCompConf {
 
   public void setField(String field) {
     this.field = field;
+  }
+
+  public Map<String, Object> getSaveParams() {
+    return saveParams;
+  }
+
+  public void setSaveParams(Map<String, Object> saveParams) {
+    this.saveParams = saveParams;
   }
 }

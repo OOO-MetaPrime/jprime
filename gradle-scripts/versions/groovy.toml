@@ -1,6 +1,6 @@
 # Groovy
 [versions]
-groovyAllVersion = "4.0.28"
+groovyAllVersion = "5.0.4"
 
 [libraries]
 groovy-all = { module="org.apache.groovy:groovy-all", version.ref="groovyAllVersion" }

@@ -33,12 +33,14 @@ import java.util.stream.Collectors;
         "stringFormat",
         "stringMask",
         "mandatory",
+        "mandatoryCond",
         "length",
         "defValue",
         "refJpClass",
         "refJpAttr",
         "filter",
         "orders",
+        "clientSearch",
         "enums",
         "jpProps",
     }
@@ -48,6 +50,7 @@ public final class JsonJPProperty {
   private String qName;
   private String name;
   private boolean mandatory;
+  private JsonExpr mandatoryCond;
   private String type;
   private JsonJPMoney money;
   private String stringFormat;
@@ -58,6 +61,7 @@ public final class JsonJPProperty {
   private String refJpAttr;
   private JsonExpr filter;
   private List<JsonJPOrder> orders = new ArrayList<>();
+  private boolean clientSearch = true;
   private List<JsonJPEnum> enums = new ArrayList<>();
   private Collection<JsonJPProperty> jpProps;
 
@@ -128,6 +132,14 @@ public final class JsonJPProperty {
     this.mandatory = mandatory;
   }
 
+  public JsonExpr getMandatoryCond() {
+    return mandatoryCond;
+  }
+
+  public void setMandatoryCond(JsonExpr mandatoryCond) {
+    this.mandatoryCond = mandatoryCond;
+  }
+
   public String getName() {
     return name;
   }
@@ -176,6 +188,14 @@ public final class JsonJPProperty {
     this.orders = orders;
   }
 
+  public boolean isClientSearch() {
+    return clientSearch;
+  }
+
+  public void setClientSearch(boolean clientSearch) {
+    this.clientSearch = clientSearch;
+  }
+
   public Collection<JsonJPEnum> getEnums() {
     return enums;
   }
@@ -205,12 +225,14 @@ public final class JsonJPProperty {
     private Integer length;
     private Object defValue;
     private boolean mandatory;
+    private JsonExpr mandatoryCond;
     private String name;
     private String qName;
     private String refJpClass;
     private String refJpAttr;
     private JsonExpr filter;
     private List<JsonJPOrder> orders;
+    private boolean clientSearch = true;
     private List<JsonJPEnum> enums;
     private Collection<JsonJPProperty> jpProps;
 
@@ -252,9 +274,13 @@ public final class JsonJPProperty {
       return this;
     }
 
-
     public Builder mandatory(boolean mandatory) {
       this.mandatory = mandatory;
+      return this;
+    }
+
+    public Builder mandatoryCond(JsonExpr mandatoryCond) {
+      this.mandatoryCond = mandatoryCond;
       return this;
     }
 
@@ -288,6 +314,11 @@ public final class JsonJPProperty {
       return this;
     }
 
+    public Builder clientSearch(boolean clientSearch) {
+      this.clientSearch = clientSearch;
+      return this;
+    }
+
     public Builder enums(List<JsonJPEnum> enums) {
       this.enums = enums;
       return this;
@@ -308,12 +339,14 @@ public final class JsonJPProperty {
       result.setLength(length);
       result.setDefValue(defValue);
       result.setMandatory(mandatory);
+      result.setMandatoryCond(mandatoryCond);
       result.setName(name);
       result.setqName(qName);
       result.setRefJpClass(refJpClass);
       result.setRefJpAttr(refJpAttr);
       result.setFilter(filter);
       result.setOrders(orders);
+      result.setClientSearch(clientSearch);
       result.setEnums(enums);
       result.setJpProps(jpProps);
       return result;
@@ -338,6 +371,7 @@ public final class JsonJPProperty {
         .length(json.getLength())
         .defValue(json.getDefValue())
         .mandatory(json.isMandatory())
+        .mandatoryCond(JsonExpr.toFilter(json.getMandatoryCond()))
         .name(json.getName())
         .qName(json.getqName())
         .refJpClass(json.getRefJpClass())
@@ -351,6 +385,7 @@ public final class JsonJPProperty {
             enums.stream()
                 .map(JsonJPEnum::toJPEnum)
                 .collect(Collectors.toList()))
+        .clientSearch(json.isClientSearch())
         .jpProps(properties == null || properties.isEmpty() ? null :
             properties.stream()
                 .map(JsonJPProperty::toJPProperty)
@@ -378,6 +413,7 @@ public final class JsonJPProperty {
         .length(property.getLength())
         .defValue(property.getDefValue())
         .mandatory(property.isMandatory())
+        .mandatoryCond(JsonExpr.toJson(property.getMandatoryCond()))
         .name(property.getName())
         .qName(property.getQName())
         .refJpClass(property.getRefJpClass())
@@ -387,6 +423,7 @@ public final class JsonJPProperty {
             orders.stream()
                 .map(JsonJPOrder::toJson)
                 .collect(Collectors.toList()))
+        .clientSearch(property.isClientSearch())
         .enums(enums == null || enums.isEmpty() ? null :
             enums.stream()
                 .map(JsonJPEnum::toJson)

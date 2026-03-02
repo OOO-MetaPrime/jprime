@@ -39,7 +39,7 @@ public final class JPClassBean implements JPClass {
 
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
-    this.name = name != null && !name.isEmpty() ? name : null;
+    this.name = name != null && !name.isEmpty() ? name : shortName;
     this.shortName = shortName != null && !shortName.isEmpty() ? shortName : this.name;
     this.description = description != null && !description.isEmpty() ? description : this.name;
     this.qName = qName != null && !qName.isEmpty() ? qName : null;
@@ -74,133 +74,66 @@ public final class JPClassBean implements JPClass {
     return Objects.hash(code);
   }
 
-  /**
-   * Идентификатор/гуид класса
-   *
-   * @return Идентификатор/гуид класса
-   */
   @Override
   public String getGuid() {
     return guid;
   }
 
-  /**
-   * Кодовое имя класса
-   *
-   * @return Кодовое имя класса
-   */
   @Override
   public String getCode() {
     return code;
   }
 
-  /**
-   * Название класса
-   *
-   * @return Название класса
-   */
   @Override
   public String getName() {
     return name;
   }
 
-  /**
-   * Короткое название класса
-   *
-   * @return Короткое название класса
-   */
   @Override
   public String getShortName() {
     return shortName;
   }
 
-  /**
-   * Описание класса
-   *
-   * @return Описание класса
-   */
   @Override
   public String getDescription() {
     return description;
   }
 
-  /**
-   * Уникальный qName класса
-   *
-   * @return Уникальный qName класса
-   */
   @Override
   public String getQName() {
     return qName;
   }
 
-  /**
-   * Теги класса
-   *
-   * @return Теги класса
-   */
   @Override
   public Collection<String> getTags() {
     return tags;
   }
 
-  /**
-   * Кодовое имя пакета/группировки метаописания класса
-   *
-   * @return Кодовое имя пакета/группировки метаописания класса
-   */
   @Override
   public String getJpPackage() {
     return jpPackage;
   }
 
-  /**
-   * Признак класса только для внутренного доступа
-   *
-   * @return Признак класса только для внутренного доступа
-   */
   @Override
   public boolean isInner() {
     return inner;
   }
 
-  /**
-   * Признак логирования действий над объектами (удаление/создание/изменение)
-   *
-   * @return Признак логирования действий над объектами (удаление/создание/изменение)
-   */
   @Override
   public boolean useActionLog() {
     return actionLog;
   }
 
-  /**
-   * Список атрибутов
-   *
-   * @return Список атрибутов
-   */
   @Override
   public Collection<JPAttr> getAttrs() {
     return attrs.values();
   }
 
-  /**
-   * Возвращает атрибут по его кодовому имени
-   *
-   * @param code Кодовое имя атрибутоа
-   * @return JPAttr
-   */
   @Override
   public JPAttr getAttr(String code) {
     return attrs.get(code);
   }
 
-  /**
-   * Возвращает атрибуты по типу
-   *
-   * @param jpType Тип атрибута
-   * @return Список JPAttr
-   */
   @Override
   public Collection<JPAttr> getAttrs(JPType jpType) {
     if (jpType == null) {
@@ -218,21 +151,11 @@ public final class JPClassBean implements JPClass {
     return result;
   }
 
-  /**
-   * Возвращает ключевой атрибут класса
-   *
-   * @return Ключевой атрибут
-   */
   @Override
   public JPAttr getPrimaryKeyAttr() {
     return primaryKeyAttr;
   }
 
-  /**
-   * Признак неизменяемой меты
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean isImmutable() {
     return immutable;

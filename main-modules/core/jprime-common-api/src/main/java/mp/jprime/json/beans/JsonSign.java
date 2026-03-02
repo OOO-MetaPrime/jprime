@@ -38,6 +38,10 @@ public class JsonSign {
    */
   private String refJpAttr;
 
+  public JsonSign() {
+
+  }
+
   private JsonSign(String code, String type, String title, Object value, String valueTitle,
                    String refJpClass, String refJpAttr) {
     this.code = code;

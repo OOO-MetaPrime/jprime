@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -11,31 +11,18 @@ import java.util.Date;
  * LocalDate -> Date
  */
 @Service
-public final class LocalDateToDateParser implements TypeParser<LocalDate, Date> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class LocalDateToDateParser extends BaseTypeParser<LocalDate, Date> {
+  @Override
   public Date parse(LocalDate value) {
     return value == null ? null : Date.from(value.atStartOfDay(ZoneId.systemDefault()).toInstant());
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<LocalDate> getInputType() {
     return LocalDate.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<Date> getOutputType() {
     return Date.class;
   }

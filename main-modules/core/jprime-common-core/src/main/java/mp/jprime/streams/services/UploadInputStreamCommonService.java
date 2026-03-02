@@ -27,10 +27,11 @@ public class UploadInputStreamCommonService implements UploadInputStreamService 
    * @return Читаем UploadInputStream
    */
   public Mono<UploadInputStream> read(FilePart filePart) {
-    return JPMono.fromCallable(() -> new UploadInputStream(filePart.filename())
-        .collectInputStream(
-            readAsInputStream(filePart.content())
-        )
+    return JPMono.fromCallable(() ->
+        new UploadInputStream(filePart.filename(), filePart.headers().getContentLength())
+            .collectInputStream(
+                readAsInputStream(filePart.content())
+            )
     );
   }
 

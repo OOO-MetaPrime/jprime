@@ -1,12 +1,10 @@
 package mp.jprime.kafka.consumers;
 
 import mp.jprime.exceptions.JPRuntimeException;
-import mp.jprime.utils.JPApplicationStartListener;
+import mp.jprime.application.JPApplicationStartListener;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.Deserializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.KafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
@@ -24,8 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @param <V> тип значения события
  */
 public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafkaManagedConsumerService, JPApplicationStartListener {
-  private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDynamicConsumerBaseService.class);
-
   private static final int DEFAULT_MAX_POLL_RECORDS = 1;
   private static final int DEFAULT_MAX_POLL_INTERVAL = 300_000;
   private static final String EARLIEST_AUTO_OFFSET_RESET = "earliest";
@@ -127,8 +123,14 @@ public abstract class JPKafkaDynamicConsumerBaseService<K, V> implements JPKafka
     }
   }
 
+  protected void init() {
+
+  }
+
   @Override
   public void applicationStart() {
+    init();
+
     consumers.values().stream()
         .filter(JPKafkaDynamicConsumer::isAutoStart)
         .forEach(JPKafkaDynamicConsumer::start);

@@ -2,13 +2,14 @@ package mp.jprime.security.services;
 
 import mp.jprime.security.loaders.annotations.services.JPSecurityAnnoLoader;
 import mp.jprime.security.loaders.xml.services.JPSecurityXmlLoader;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -23,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = JPSecurityManagerTest.Config.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class JPSecurityManagerTest {
   @Autowired
-  private JPSecurityStorage securityManager;
+  private JPSecurityMemoryStorage securityManager;
 
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(basePackages = {"mp.jprime.security"},
       useDefaultFilters = false,
@@ -41,6 +42,10 @@ class JPSecurityManagerTest {
   public static class Config {
   }
 
+  @BeforeAll
+  void boot() {
+    securityManager.applicationBoot();
+  }
 
   @Test
   void testAdmin() {

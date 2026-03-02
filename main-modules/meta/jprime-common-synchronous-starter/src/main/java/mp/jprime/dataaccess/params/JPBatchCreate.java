@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
  * Запрос множественного создания
  */
 public class  JPBatchCreate extends JPBatchSave {
-  private final Collection<JPMutableData> data;
+  private final Collection<JPMutableData> batches;
   private final boolean onConflictDoNothing;
   private final boolean upsert;
   private final Collection<String> conflictAttr;
   private final Collection<String> conflictSet;
 
-  private JPBatchCreate(Collection<Map<String, Object>> data, boolean onConflictDoNothing, boolean upsert,
+  private JPBatchCreate(Collection<Map<String, Object>> batches, boolean onConflictDoNothing, boolean upsert,
                         Collection<String> conflictAttr, Collection<String> conflictSet, Source source,
                         AuthInfo auth, String jpClass, Map<String, String> props) {
     super(jpClass, source, auth, props);
@@ -35,8 +35,8 @@ public class  JPBatchCreate extends JPBatchSave {
       this.conflictAttr = Collections.emptyList();
       this.conflictSet = Collections.emptyList();
     }
-    this.data = data == null ? Collections.emptyList() :
-        Collections.unmodifiableCollection(data.stream()
+    this.batches = batches == null ? Collections.emptyList() :
+        Collections.unmodifiableCollection(batches.stream()
             .map(JPMutableData::of)
             .collect(Collectors.toList())
         );
@@ -49,7 +49,7 @@ public class  JPBatchCreate extends JPBatchSave {
    */
   @Override
   public Collection<JPMutableData> getData() {
-    return data;
+    return batches;
   }
 
   /**
@@ -95,7 +95,7 @@ public class  JPBatchCreate extends JPBatchSave {
    */
   @Override
   public boolean isEmpty() {
-    return data.isEmpty();
+    return batches.isEmpty();
   }
 
   /**
@@ -105,7 +105,7 @@ public class  JPBatchCreate extends JPBatchSave {
    */
   @Override
   public int size() {
-    return data.size();
+    return batches.size();
   }
 
   /**
@@ -132,7 +132,7 @@ public class  JPBatchCreate extends JPBatchSave {
    * Построитель {@link JPBatchCreate}
    */
   public static final class Builder extends JPBatchSave.Builder<Builder> {
-    private final Collection<Map<String, Object>> allData = new ArrayList<>();
+    private final Collection<Map<String, Object>> batches = new ArrayList<>();
     private Map<String, Object> data = new HashMap<>();
     private boolean onConflictDoNothing = Boolean.FALSE;
     private boolean upsert = Boolean.FALSE;
@@ -150,7 +150,7 @@ public class  JPBatchCreate extends JPBatchSave {
      */
     @Override
     public JPBatchCreate build() {
-      return new JPBatchCreate(allData, onConflictDoNothing, upsert, conflictAttr, conflictSet,
+      return new JPBatchCreate(batches, onConflictDoNothing, upsert, conflictAttr, conflictSet,
           source, auth, jpClass, props);
     }
 
@@ -223,7 +223,7 @@ public class  JPBatchCreate extends JPBatchSave {
 
     public Builder addBatch() {
       if (MapUtils.isNotEmpty(data)) {
-        allData.add(data);
+        batches.add(data);
         data = new HashMap<>();
       }
       return this;
@@ -236,7 +236,7 @@ public class  JPBatchCreate extends JPBatchSave {
      */
     @Override
     public boolean isEmpty() {
-      return allData.isEmpty();
+      return batches.isEmpty();
     }
 
     /**
@@ -246,7 +246,7 @@ public class  JPBatchCreate extends JPBatchSave {
      */
     @Override
     public int size() {
-      return allData.size();
+      return batches.size();
     }
   }
 }

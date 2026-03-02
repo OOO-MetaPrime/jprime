@@ -1,6 +1,6 @@
 package mp.jprime.configurations;
 
-import mp.jprime.utils.JPApplicationStartListener;
+import mp.jprime.application.JPApplicationInitListener;
 import mp.jprime.web.JPWebClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -14,7 +14,7 @@ import org.synchronoss.cloud.nio.multipart.DefaultPartBodyStreamStorageFactory;
 
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.REACTIVE)
 @Configuration
-public class JPWebFluxConfig extends WebFluxConfigurationSupport  implements JPApplicationStartListener {
+public class JPWebFluxConfig extends WebFluxConfigurationSupport implements JPApplicationInitListener {
   private Jackson2JsonEncoder encoder;
   private Jackson2JsonDecoder decoder;
 
@@ -50,7 +50,7 @@ public class JPWebFluxConfig extends WebFluxConfigurationSupport  implements JPA
    * который создает временную папку для загружаемых файлов во избежание состояния "гонки"
    */
   @Override
-  public void applicationStart() {
+  public void applicationInit() {
     DefaultPartBodyStreamStorageFactory factory = new DefaultPartBodyStreamStorageFactory();
   }
 }

@@ -30,6 +30,10 @@ public class AppLogger {
     debug(type, null, null, msg, null);
   }
 
+  public void debug(Event type, String object, String msg) {
+    debug(type, null, object, msg, null);
+  }
+
   public void debug(Event type, String msg, ConnectionInfo connInfo) {
     debug(type, null, null, msg, connInfo);
   }
@@ -85,6 +89,10 @@ public class AppLogger {
 
   public void error(Event type, String msg) {
     error(type, null, null, msg, null);
+  }
+
+  public void error(Event type, String object, String msg) {
+    error(type, null, object, msg, null);
   }
 
   public void error(Event type, String msg, ConnectionInfo connInfo) {

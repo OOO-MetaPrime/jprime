@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.checkers;
 
+import mp.jprime.dataaccess.JPSubQueryService;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.json.services.JPJsonMapper;
@@ -9,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Collections;
@@ -21,9 +22,10 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {JPJsonMapper.class, JPDataCheckServiceTest.Config.class})
+@ContextConfiguration(classes = {
+    JPJsonMapper.class,
+    JPDataCheckServiceTest.Config.class})
 class JPDataCheckServiceTest {
-  @Lazy(value = false)
   @Configuration
   @ComponentScan(
       basePackages = {
@@ -38,11 +40,14 @@ class JPDataCheckServiceTest {
   }
 
   @Autowired
-  private JPDataCheckService jpDataCheckServiceTest;
+  private JPDataCheckService jpDataCheckService;
+
+  @MockitoBean
+  private JPSubQueryService subQueryService;
 
   @Test
   void testEmptyDataWithEmptyFilter() {
-    Object out = jpDataCheckServiceTest.check(Filter.and(Collections.emptyList()), JPMutableData.empty());
+    Object out = jpDataCheckService.check(Filter.and(Collections.emptyList()), JPMutableData.empty());
     assertEquals(Boolean.TRUE, out);
   }
 
@@ -52,7 +57,7 @@ class JPDataCheckServiceTest {
       put("attr1", "Мама");
       put("attr2", "Папа");
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.or(
             Filter.attr("attr1").startWith("М"),
             Filter.attr("attr2").startWith("М")
@@ -68,7 +73,7 @@ class JPDataCheckServiceTest {
       put("attr1", "Мама");
       put("attr2", "Папа");
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").notStartWith("А"),
             Filter.attr("attr2").notStartWith("А")
@@ -84,7 +89,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.or(
             Filter.attr("attr1").eq(1),
             Filter.attr("attr1").eq("2")
@@ -100,7 +105,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.or(
             Filter.attr("attr1").eq(3),
             Filter.attr("attr1").eq(4)
@@ -117,7 +122,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").neq(4),
             Filter.attr("attr2").neq(5)
@@ -133,7 +138,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").in(Collections.singletonList("1")),
             Filter.attr("attr2").in(Collections.singletonList(2))
@@ -149,7 +154,7 @@ class JPDataCheckServiceTest {
       put("attr1", List.of(1, 2));
       put("attr2", List.of(2, 3));
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").in(List.of(0, 2)),
             Filter.attr("attr2").in(List.of(0, 2))
@@ -165,7 +170,7 @@ class JPDataCheckServiceTest {
       put("attr1", List.of(1, 2));
       put("attr2", List.of(2, 3));
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").notIn(List.of(4, 5)),
             Filter.attr("attr2").notIn(List.of(6, 7))
@@ -182,7 +187,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").notIn(Collections.singletonList("10")),
             Filter.attr("attr2").notIn(Collections.singletonList("10"))
@@ -198,7 +203,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.and(
             Filter.attr("attr1").lt(2)
         ),
@@ -213,7 +218,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.attr("attr1").lte(1),
         JPMutableData.of(data)
     );
@@ -226,7 +231,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.attr("attr1").gt(0),
         JPMutableData.of(data)
     );
@@ -239,7 +244,7 @@ class JPDataCheckServiceTest {
       put("attr1", 1);
       put("attr2", 2);
     }};
-    Object out = jpDataCheckServiceTest.check(
+    Object out = jpDataCheckService.check(
         Filter.or(
             Filter.attr("attr1").gte(1),
             Filter.attr("attr2").gte(1)

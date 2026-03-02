@@ -1,7 +1,7 @@
 package mp.jprime.parsers.base;
 
 import mp.jprime.lang.JPMoney;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -10,31 +10,18 @@ import java.math.BigDecimal;
  * JPMoney -> BigDecimal
  */
 @Service
-public final class JPMoneyToBigDecimalParser implements TypeParser<JPMoney, BigDecimal> {
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class JPMoneyToBigDecimalParser extends BaseTypeParser<JPMoney, BigDecimal> {
+  @Override
   public BigDecimal parse(JPMoney value) {
     return value != null ? value.getNumberStripped() : null;
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<JPMoney> getInputType() {
     return JPMoney.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<BigDecimal> getOutputType() {
     return BigDecimal.class;
   }

@@ -1,6 +1,6 @@
 package mp.jprime.parsers.base;
 
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -16,7 +16,7 @@ import static java.time.temporal.ChronoField.*;
  * String -> LocalDateTime
  */
 @Service
-public final class StringToLocalDateTimeParser implements TypeParser<String, LocalDateTime> {
+public final class StringToLocalDateTimeParser extends BaseTypeParser<String, LocalDateTime> {
   private static final DateTimeFormatter LOCAL_DATETIME_FORMAT = new DateTimeFormatterBuilder()
       .parseCaseInsensitive()
       .append(ISO_LOCAL_DATE)
@@ -39,12 +39,7 @@ public final class StringToLocalDateTimeParser implements TypeParser<String, Loc
       .parseDefaulting(SECOND_OF_MINUTE, 0)
       .toFormatter()
       .withZone(TimeZone.getDefault().toZoneId());
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+  @Override
   public LocalDateTime parse(String value) {
     if (value == null || value.trim().isEmpty()) {
       return null;
@@ -53,20 +48,12 @@ public final class StringToLocalDateTimeParser implements TypeParser<String, Loc
     return zdt == null ? null : zdt.withZoneSameInstant(TimeZone.getDefault().toZoneId()).toLocalDateTime();
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
+  @Override
   public Class<LocalDateTime> getOutputType() {
     return LocalDateTime.class;
   }

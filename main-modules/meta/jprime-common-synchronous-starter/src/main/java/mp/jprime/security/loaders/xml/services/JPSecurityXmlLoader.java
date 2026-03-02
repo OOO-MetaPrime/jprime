@@ -51,11 +51,12 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
       if (resources == null || resources.length == 0) {
         return Collections.emptyList();
       }
+      XmlMapper xmlMapper = new XmlMapper();
 
       Collection<JPSecurityPackage> result = new ArrayList<>();
       for (Resource res : resources) {
         try (InputStream is = res.getInputStream()) {
-          XmlJpSecurity xmlJpSecurity = new XmlMapper().readValue(is, XmlJpSecurity.class);
+          XmlJpSecurity xmlJpSecurity = xmlMapper.readValue(is, XmlJpSecurity.class);
           if (xmlJpSecurity == null || xmlJpSecurity.getJpPackages() == null) {
             continue;
           }

@@ -1,5 +1,7 @@
 package mp.jprime.parsers;
 
+import mp.jprime.parsers.exceptions.JPParseException;
+
 /**
  * Парсер типов
  */
@@ -12,6 +14,23 @@ public interface ParserService {
    */
   default String toString(Object value) {
     return parseTo(String.class, value);
+  }
+
+  /**
+   * Приводит значение к указанному типу
+   * При ошибке возвращает типовую ошибку "Неверно указано значение"
+   *
+   * @param to    Выходной тип
+   * @param value Значение
+   * @param field Код роля
+   * @return Значение
+   */
+  default <T> T parseTo(Class<T> to, Object value, String field) {
+    try {
+      return parseTo(to, value);
+    } catch (Exception e) {
+      throw new JPParseException("valueparseerror." + field, "Неверно указано значение " + field);
+    }
   }
 
   /**

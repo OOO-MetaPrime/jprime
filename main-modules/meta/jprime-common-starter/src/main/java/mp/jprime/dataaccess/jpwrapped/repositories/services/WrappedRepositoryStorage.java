@@ -15,9 +15,6 @@ import java.util.stream.Collectors;
  */
 @Service
 public final class WrappedRepositoryStorage implements RepositoryStorage<JPWrappedStorage> {
-  /**
-   * Описание всех хранилищ системы
-   */
   private RepositoryGlobalStorage repositoryStorage;
   private volatile Collection<JPWrappedStorage> storageList;
 
@@ -30,12 +27,6 @@ public final class WrappedRepositoryStorage implements RepositoryStorage<JPWrapp
     this.repositoryStorage = repositoryStorage;
   }
 
-  /**
-   * Возвращает хранилище по его коду
-   *
-   * @param code Код
-   * @return Хранилище
-   */
   @Override
   public JPWrappedStorage getStorage(String code) {
     JPStorage result = code != null ? repositoryStorage.getStorage(code) : null;

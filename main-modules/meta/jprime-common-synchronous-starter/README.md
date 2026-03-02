@@ -867,6 +867,32 @@
   return repo.asyncCreate(jpCreate)  
 ```
 
+Пример с ON CONFLICT DO NOTHING
+Для проверки конфликта используется атрибут класса с признаком идентификатора
+```
+JPCreate jpCreate = JPCreate
+        .create(jpClass.getCode())
+        .auth(auth)
+        .set(attrCode1, value1)
+        .set(attrCode2, value2)
+        .onConflictDoNothing(true)
+        .build()
+```
+
+Пример с ON CONFLICT DO UPDATE SET
+Для проверки конфликта используются атрибуты из списка conflictAttrs
+Для замещения используются атрибуты из списка conflictSet
+```
+JPCreate jpCreate = JPCreate
+        .create(jpClass.getCode())
+        .auth(auth)
+        .set(attrCode1, value1)
+        .set(attrCode2, value2)
+        .set(attrCode3, value3)
+        .upsert(Collections.singleton(attrCode1), Arrays.asList(attrCode2, attrCode3))
+        .build()
+```
+
 ### Обновление данных
 
 Пример:
@@ -1301,11 +1327,12 @@ public class JsonSignsConverter implements JPJsonAttrValueConverter {
   /**
    * Конвертирует данные из формата хранения в формат представления
    *
+   * @param jpo   Объект в отношении которого происходит трансформация
    * @param value Данные в формате хранения
    * @return Данные в формате представления
    */
   @Override
-  public JPJsonNode toJsonView(JPJsonNode value) {
+  public JPJsonNode toJsonView(JPObject jpo, JPJsonNode value) {
     // value = ... логика преобразования
     return value;
   }
@@ -1468,6 +1495,7 @@ public class CommonHandler extends JPClassHandlerBase {
 |--------------------------|-----------------------------------------|
 | AUTH_USERID              | Идентификатор пользователя              |
 | AUTH_USERNAME            | Название пользователя                   |
+| AUTH_FIO                 | ФИО пользователя                        |
 | AUTH_ORGID               | Организация пользователя                |
 | AUTH_SEPDEPID            | Обособленное подразделение пользователя |
 | AUTH_DEPID               | Подразделение пользователя              |
@@ -1479,9 +1507,14 @@ public class CommonHandler extends JPClassHandlerBase {
 | AUTH_ESIA_IS_LEGALENTITY | признак ЮЛ                              |
 | AUTH_ESIA_ORGID          | ЕСИА организация пользователя           |
 | AUTH_ESIA_ORGINN         | ИНН ЕСИА организации пользователя       |
+| AUTH_ESIA_ORGKPP         | КПП ЕСИА организации пользователя       |
 | AUTH_ESIA_ORGNAME        | Название ЕСИА организации пользователя  |
 | AUTH_ESIA_ORGOGRN        | ОГРН ЕСИА организации пользователя      |
 | AUTH_ESIA_USERID         | ЕСИА идентификатор пользователя         |
+| AUTH_ESIA_USERSURNAME    | ЕСИА фамилия пользователя               |
+| AUTH_ESIA_USERNAME       | ЕСИА имя пользователя                   |
+| AUTH_ESIA_USERPATRONYMIC | ЕСИА отчество пользователя              |
+| AUTH_ESIA_USERBIRTHDATE  | ЕСИА дата рождения пользователя         |
 | CUR_DATE                 | Текущий день                            |
 | CUR_DATETIME             | Текущее дата+время                      |
 | CUR_TIME                 | Текущее время                           |
@@ -1533,3 +1566,21 @@ public class CommonHandler extends JPClassHandlerBase {
 | jprime.query.queryTimeout | Время ожидания запроса                              | -            |
 | jprime.api.checkLimit     | Проверка максимального количества (limit) в выборке | true         |
 | jprime.api.maxLimit       | Максимальное количество в выборке через api         | 1000         |
+
+## Глобальные (системные) настройки
+
+Для получения значения системной настройки или ее описания необходимо использовать
+`mp.jprime.globalsettings.JPGlobalSettingsService`
+
+```
+  private JPGlobalSettingsService globalSettingsService;
+
+  @Autowired
+  private void setJPGlobalSettingsServicee(JPGlobalSettingsService globalSettingsService) {
+    this.globalSettingsService = globalSettingsService;
+  }
+
+  public void myMethod() {
+    String propValue = globalSettingsService.getValue("systemPropCode");
+  }
+```

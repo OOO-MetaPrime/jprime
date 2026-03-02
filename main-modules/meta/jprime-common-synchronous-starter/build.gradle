@@ -2,6 +2,8 @@ dependencies {
   api(commons.tika.core)
   api(libs.nio.multipart.parser)
 
+  implementation (commons.bundles.zxing)
+
   api('org.springframework.security:spring-security-core')
 
   api project(':jprime-common-synchronous-core')

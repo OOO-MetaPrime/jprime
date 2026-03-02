@@ -1,29 +1,39 @@
-rootProject.name = 'JPrime'
-
-def moduleDirs = ['main-modules', 'services', 'project-modules', 'ui-modules']
-def projectDirs = [:]
-
-rootDir.eachDirMatch({ moduleDirs.contains(new File(it).name) }) { dir ->
-  dir.eachFileRecurse { f ->
-    if ( f.name == "build.gradle" ) {
-      String moduleName = f.parentFile.name
-      include moduleName
-
-      println "include [${moduleName}] module"
-
-      projectDirs[moduleName] = f.parentFile
+pluginManagement {
+  repositories {
+    maven {
+      url "https://nexus.metaprime.ru/repository/maven-public/"
+      allowInsecureProtocol = true
     }
   }
 }
 
-rootProject.children.each {project ->
-  File dir = projectDirs[project.name]
-  if (dir != null) {
-    project.projectDir = dir
+rootProject.name = 'JPrime'
 
-    println "change projectDir [$project.name] to [${dir.absolutePath - rootDir.absolutePath}]"
-    assert dir.isDirectory()
+def findModuleDirs() {
+  def moduleDirs = [:]
+
+  def pathsToSearch = [
+      'main-modules',
+      'project-modules',
+      'services'
+  ].collect { file(it) }
+
+  pathsToSearch.findAll { it.exists() }.each { dir ->
+    fileTree(dir) {
+      include '**/build.gradle'
+    }.sort { it.name }.each { buildFile  ->
+      def moduleName = buildFile.parentFile.name
+      moduleDirs[moduleName] = buildFile.parentFile
+    }
   }
+  return moduleDirs
+}
+
+def moduleDirs = findModuleDirs()
+
+moduleDirs.each { moduleName, moduleDir ->
+  include moduleName
+  project(":${moduleName}").projectDir = moduleDir
 }
 
 apply from: 'gradle-scripts/versions/version-catalogs.gradle'

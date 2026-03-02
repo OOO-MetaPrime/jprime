@@ -3,19 +3,18 @@ package mp.jprime.dataaccess.handlers.services;
 import mp.jprime.annotations.JPClassesLink;
 import mp.jprime.common.JPClassesLinkFilter;
 import mp.jprime.dataaccess.beans.JPId;
+import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.handlers.JPClassHandler;
 import mp.jprime.dataaccess.handlers.JPClassHandlerStorage;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPDelete;
+import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.JPUpdate;
 import mp.jprime.exceptions.JPRuntimeException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Логика вызова CRUD-хендлеров
@@ -102,10 +101,27 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   }
 
   @Override
+  public List<JPObject> wrap(JPSelect query, List<JPObject> list) {
+    if (list == null || list.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
+    if (handlers != null) {
+      for (JPClassHandler handler : handlers) {
+        list = handler.wrap(query, list);
+      }
+    }
+    return list;
+  }
+
+  @Override
   public void beforeCommitCreate(JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeCommitCreate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeCommitCreate(query);
+      }
     }
   }
 
@@ -113,7 +129,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void beforeCommitUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeCommitUpdate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeCommitUpdate(query);
+      }
     }
   }
 
@@ -121,7 +139,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void beforeCommitDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeCommitDelete(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeCommitDelete(query);
+      }
     }
   }
 
@@ -129,7 +149,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void beforeCreate(JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeCreate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeCreate(query);
+      }
     }
   }
 
@@ -137,7 +159,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void beforeUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeUpdate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeUpdate(query);
+      }
     }
   }
 
@@ -145,7 +169,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void beforeDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.beforeDelete(query));
+      for (JPClassHandler handler : handlers) {
+        handler.beforeDelete(query);
+      }
     }
   }
 
@@ -165,7 +191,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void customDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.customDelete(query));
+      for (JPClassHandler handler : handlers) {
+        handler.customDelete(query);
+      }
     }
   }
 
@@ -173,7 +201,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterCreate(Comparable objectId, JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterCreate(objectId, query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterCreate(objectId, query);
+      }
     }
   }
 
@@ -181,7 +211,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterUpdate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterUpdate(query);
+      }
     }
   }
 
@@ -189,7 +221,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterDelete(query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterDelete(query);
+      }
     }
   }
 
@@ -197,7 +231,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterCommitCreate(Comparable objectId, JPCreate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterCommitCreate(objectId, query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterCommitCreate(objectId, query);
+      }
     }
   }
 
@@ -205,7 +241,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterCommitUpdate(JPUpdate query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterCommitUpdate(query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterCommitUpdate(query);
+      }
     }
   }
 
@@ -213,7 +251,9 @@ public final class JPClassHandlerMemoryStorage implements JPClassHandlerStorage,
   public void afterCommitDelete(JPDelete query) {
     Collection<JPClassHandler> handlers = getHandlers(query.getJpId().getJpClass());
     if (handlers != null) {
-      handlers.forEach(x -> x.afterCommitDelete(query));
+      for (JPClassHandler handler : handlers) {
+        handler.afterCommitDelete(query);
+      }
     }
   }
 }

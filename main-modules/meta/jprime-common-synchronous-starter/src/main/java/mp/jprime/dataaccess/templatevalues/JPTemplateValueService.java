@@ -2,10 +2,19 @@ package mp.jprime.dataaccess.templatevalues;
 
 import mp.jprime.security.AuthInfo;
 
+import java.util.Collection;
+
 /**
  * Сервис получения шаблонных значения
  */
 public interface JPTemplateValueService {
+  /**
+   * Список доступных шаблонов
+   *
+   * @return Коды шаблонов
+   */
+  Collection<String> getPatterns();
+
   /**
    * Форматируем шаблонное значение
    *

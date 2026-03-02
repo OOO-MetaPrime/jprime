@@ -14,7 +14,6 @@ import java.util.Collection;
 public final class JPUtilJPObjectListOutParams extends BaseJPUtilOutParams<Collection<JsonJPObject>> {
   private final Collection<JsonJPObject> jpObjectList;
 
-
   private JPUtilJPObjectListOutParams(String description, String qName, boolean changeData, boolean deleteData, Collection<JsonJPObject> jpObjectList) {
     super(description, qName, changeData, deleteData);
     this.jpObjectList = jpObjectList;

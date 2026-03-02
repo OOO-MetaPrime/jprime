@@ -21,6 +21,7 @@ public @interface JPUtilModeLink {
    * @return Настройки доступа
    */
   String jpPackage() default "";
+
   /**
    * Роли, имеющиеся доступ к этому шагу
    *
@@ -83,6 +84,20 @@ public @interface JPUtilModeLink {
   JPParam[] inParams() default {};
 
   /**
+   * Признак наличия значений по умолчанию
+   *
+   * @return Да/Нет
+   */
+  boolean inParamsDefValues() default false;
+
+  /**
+   * Признак определения динамических параметров
+   *
+   * @return Да/Нет
+   */
+  boolean useDynamicParams() default false;
+
+  /**
    * Дополнительные свойства утилиты
    */
   JPUtilProperties properties() default @JPUtilProperties();
@@ -102,13 +117,6 @@ public @interface JPUtilModeLink {
   JPParam[] outCustomParams() default {};
 
   /**
-   * Признак наличия значений по умолчанию
-   *
-   * @return Признак наличия значений по умолчанию
-   */
-  boolean inParamsDefValues() default false;
-
-  /**
    * Сообщение на форму утилиты
    *
    * @return Сообщение на форму утилиты
@@ -118,7 +126,7 @@ public @interface JPUtilModeLink {
   /**
    * Признак необходимости валидации
    *
-   * @return Признак необходимости валидации
+   * @return Да/Нет
    */
   boolean validate() default false;
 }

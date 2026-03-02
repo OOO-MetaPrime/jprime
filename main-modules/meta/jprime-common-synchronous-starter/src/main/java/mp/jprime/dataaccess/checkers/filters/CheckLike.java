@@ -1,7 +1,7 @@
 package mp.jprime.dataaccess.checkers.filters;
 
-import mp.jprime.dataaccess.params.query.filters.Like;
-import mp.jprime.dataaccess.params.query.filters.annotations.FilterLink;
+import mp.jprime.dataaccess.params.query.filters.attr.Like;
+import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 import org.apache.commons.lang3.StringUtils;
@@ -10,7 +10,7 @@ import org.apache.commons.lang3.StringUtils;
  * Содержит
  */
 @FilterLink(
-    exprClass = Like.class
+    filterClass = Like.class
 )
 public class CheckLike extends CheckBaseFilter<Like> {
   @Override

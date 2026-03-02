@@ -13,7 +13,7 @@ import java.util.Collection;
  * Базовый класс XML-обработчиков
  */
 @Service
-public class JPXmlMapper extends JPObjectXmlMapper {
+public final class JPXmlMapper extends JPObjectXmlMapper {
   private final XmlMapper XML_MAPPER;
 
   private JPXmlMapper(@Autowired Collection<JPObjectMapperXmlExpander> expanders) {

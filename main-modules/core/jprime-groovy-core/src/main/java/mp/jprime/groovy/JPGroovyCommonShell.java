@@ -42,6 +42,7 @@ public final class JPGroovyCommonShell implements JPGroovyShell {
 
   private static final Collection<String> DEFAULT_IMPORTS = Stream.of(
           java.time.LocalDate.class,
+          java.time.LocalDateTime.class,
           java.time.Period.class,
           java.time.Month.class,
           java.time.temporal.ChronoUnit.class,

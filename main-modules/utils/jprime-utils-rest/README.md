@@ -102,6 +102,10 @@ REST-методы работы утилит
 | objectClassCode     | Кодовое имя метаописания класса          |
 | objectIds           | Идентификатор объекта                    |
 
+### Получение динамического списка параметров
+
+Если в шаге утилиты есть настройка `useDynamicParams=true`, то список параметров не определяется настройкой
+
 ### Получение значений по умолчанию
 
 Если в утилите нет метода, помеченного `code = inParamsDefValues`, то по умолчанию код c `mode/inParamsDefValues` отработает с 200 кодом
@@ -123,6 +127,7 @@ REST-методы работы утилит
 ```
 
 ### Валидация параметров утилиты
+
 Каждая утилита имеет режим `mode/validate` если в утилите это режим не реализован, то по умолчанию
 метод выдаст положительный результат валидации
 
@@ -182,6 +187,9 @@ REST-методы работы утилит
         "jpClassTags": [
           "tag1"
         ],
+        "jpUtilTags": [
+          "tag2"
+        ],    
         "type": "object"   
     },
     {
@@ -196,6 +204,9 @@ REST-методы работы утилит
         "jpClassTags": [
           "tag1"
         ],
+        "jpUtilTags": [
+          "tag1"
+        ],      
         "type": "object"   
     },
     ....
@@ -211,6 +222,7 @@ REST-методы работы утилит
 | uni         | Признак общедоступной утилиты                       |
 | jpClasses   | Список классов, для которых доступна утилита        |
 | jpClassTags | Теги классов, обрабатываемые этой утилитой          |
+| jpUtilTags  | Теги утилиты                                        |
 | type        | Тип привязки утилиты (объект, список, произвольная) |
 
 ### Получение списка всех утилит, доступных пользователю
@@ -227,75 +239,84 @@ REST-методы работы утилит
 
 ```json
 [
-    {
-            "utilCode": "perscopy",
-            "modeCode": "copy",
-            "title": "Копирование учетных данных ЛДПГУ",
-            "qName": "",            
-            "confirmMessage": "Вы уверены ?",
-            "uni": false,
-            "jpClasses": [
-                "pers"
-            ],
-            "jpClassTags": [
-              "tag1"
-            ],      
-            "type": "object",
-            "jpAttrs": [
-                {
-                    "jpClass": "pers",
-                    "jpAttr": "payRef"
-                }
-            ],            
-            "inParams": [
-                {
-                    "code": "rn",
-                    "type": "long",
-                    "description": "Регистрационный номер гражданина",
-                    "qName": "perscopy.in.rn.title",
-                    "mandatory": true,
-                    "multiple": false,
-                    "refJpClass": "pers",
-                    "refJpAttr": "reg_num",
-                    "length": null,
-                    "stringFormat": null,
-                    "stringMask": null
-                },
-                {
-                    "code": "specCopy",
-                    "type": "boolean",
-                    "description": "Документы по образованию",
-                    "qName": "perscopy.in.specCopy.title",
-                    "mandatory": false,
-                    "multiple": false,
-                    "refJpClass": "",
-                    "refJpAttr": "",
-                    "length": null,
-                    "stringFormat": null,
-                    "stringMask": null
-                },
-                ...
-            ],
-            "inParamsDefValues": false,
-            "infoMessage": "Важно сообщение для пользователя.",
-            "resultType": "custom",
-            "outCustomParams": [
-                {
-                    "code": "rn",
-                    "type": "long",
-                    "description": "Регистрационный номер гражданина",
-                    "qName": "perscopy.out.rn.title",
-                    "mandatory": true,
-                    "multiple": false,
-                    "refJpClass": "pers",
-                    "refJpAttr": "reg_num",
-                    "length": null,
-                    "stringFormat": null,
-                    "stringMask": null
-                }
-            ]
-        },
-    ....
+  {
+    "utilCode": "perscopy",
+    "modeCode": "copy",
+    "title": "Копирование учетных данных ЛДПГУ",
+    "qName": "",
+    "confirmMessage": "Вы уверены ?",
+    "uni": false,
+    "jpClasses": [
+      "pers"
+    ],
+    "jpClassTags": [
+      "tag1"
+    ],
+    "jpUtilTags": [
+      "tag2"
+    ],
+    "type": "object",
+    "jpAttrs": [
+      {
+        "jpClass": "pers",
+        "jpAttr": "payRef"
+      }
+    ],
+    "inParams": [
+      {
+        "code": "rn",
+        "type": "long",
+        "description": "Регистрационный номер гражданина",
+        "qName": "perscopy.in.rn.title",
+        "mandatory": true,
+        "multiple": false,
+        "refJpClass": "pers",
+        "refJpAttr": "reg_num",
+        "length": null,
+        "stringFormat": null,
+        "stringMask": null,
+        "integerFormat": null,
+        "multiline": false
+      },
+      {
+        "code": "specCopy",
+        "type": "boolean",
+        "description": "Документы по образованию",
+        "qName": "perscopy.in.specCopy.title",
+        "mandatory": false,
+        "multiple": false,
+        "refJpClass": "",
+        "refJpAttr": "",
+        "length": null,
+        "stringFormat": null,
+        "stringMask": null,
+        "integerFormat": null,
+        "multiline": false
+      },
+      ...
+    ],
+    "inParamsDefValues": false,
+    "infoMessage": "Важно сообщение для пользователя.",
+    "resultType": "custom",
+    "outCustomParams": [
+      {
+        "code": "rn",
+        "type": "long",
+        "description": "Регистрационный номер гражданина",
+        "qName": "perscopy.out.rn.title",
+        "mandatory": true,
+        "multiple": false,
+        "refJpClass": "pers",
+        "refJpAttr": "reg_num",
+        "length": null,
+        "stringFormat": null,
+        "stringMask": null,
+        "integerFormat": null,
+        "multiline": false
+      }
+    ]
+  },
+  ....
 ]    
 ```
 
@@ -309,9 +330,11 @@ REST-методы работы утилит
 | uni               | Признак общедоступной утилиты                       |
 | jpClasses         | Список классов, для которых доступна утилита        |
 | jpClassTags       | Теги классов, обрабатываемые этой утилитой          |
+| jpUtilTags        | Теги утилиты                                        |
 | type              | Тип привязки утилиты (объект, список, произвольная) |
 | jpAttrs           | Настройки доступа на атрибутах                      |
 | inParams          | Список входных параметров                           |
+| useDynamicParams  | Признак определения динамических параметров         |
 | inParamsDefValues | Признак наличия значений по умолчанию               |
 | infoMessage       | Сообщение на форму утилиты                          |
 | resultType        | Тип исходящих параметров                            |
@@ -343,6 +366,9 @@ REST-методы работы утилит
             "jpClassTags": [
               "tag1"
             ],
+            "jpUtilTags": [
+              "tag2"
+            ],
             "type": "object",
             "inParams": [
                 {
@@ -356,7 +382,9 @@ REST-методы работы утилит
                     "refJpAttr": "reg_num",
                     "length": null,
                     "stringFormat": null,
-                    "stringMask": null
+                    "stringMask": null,
+                    "integerFormat": null,
+                    "multiline": false
                 },
                 {
                     "code": "specCopy",
@@ -369,7 +397,9 @@ REST-методы работы утилит
                     "refJpAttr": "",
                     "length": null,
                     "stringFormat": null,
-                    "stringMask": null
+                    "stringMask": null,
+                    "integerFormat": null,
+                    "multiline": false
                 },
                 ...
             ],
@@ -388,7 +418,9 @@ REST-методы работы утилит
                     "refJpAttr": "reg_num",
                     "length": null,
                     "stringFormat": null,
-                    "stringMask": null
+                    "stringMask": null,
+                    "integerFormat": null,
+                    "multiline": false
                 }
             ]
         },
@@ -406,9 +438,11 @@ REST-методы работы утилит
 | jpClasses         | Список классов, для которых доступна утилита        |
 | uni               | Признак общедоступной утилиты                       |
 | jpClassTags       | Теги классов, обрабатываемые этой утилитой          |
+| jpUtilTags        | Теги утилиты                                        |
 | type              | Тип привязки утилиты (объект, список, произвольная) |
 | jpAttrs           | Настройки доступа на атрибутах                      |
 | inParams          | Список входных параметров                           |
+| useDynamicParams  | Признак определения динамических параметров         |
 | inParamsDefValues | Признак наличия значений по умолчанию               |
 | infoMessage       | Сообщение на форму утилиты                          |
 | resultType        | Тип исходящих параметров                            |
@@ -494,3 +528,101 @@ REST-методы работы утилит
 | result.denied      | Признак запрета запуска утилиты               |
 | result.resultType  | Тип ответа, всегда check                      |
 | result.confirm     | Сообщение пользователю перед запуском утилиты |
+
+
+## Форматы типовых ответов утилит
+
+| Параметр      | Описание                  |
+|---------------|---------------------------|
+| resultType    | Тип результата            |
+| description   | Описание результата       |
+| changeData    | Признак обновления формы  |
+| changeData    | Признак удаления объекта  |
+| qName         | qName описания результата |
+
+### jpCreate (результат - создание объекта)
+
+```json
+{
+  "resultType": "jpCreate",
+  "result": {
+    "classCode": "testClass",
+    "data": {
+      "attr1": "v1",
+      "attr2": "v2"
+    }
+  },  
+  "description": null,
+  "changeData": false,
+  "deleteData": false,
+  "qName": null
+}
+```
+
+### jpUpdate (результат - обновление объекта)
+
+```json
+{
+  "resultType": "jpUpdate",
+  "result": {
+    "id": 1,
+    "classCode": "testClass"
+  },  
+  "description": null,
+  "changeData": false,
+  "deleteData": false,
+  "qName": null
+}
+```
+
+### jpWizard (результат - вызов шагов утилиты)
+
+```json
+{
+  "resultType": "jpWizard",
+  "result": {
+    "prev": {
+      "utilCode": "u1",
+      "modeCode": "m1",
+      "inParams": [],
+      "hiddenParams": ["p2"],
+      "defValues": {"p1": "v1", "p2": "v2"}
+    },
+    "next": {
+      "utilCode": "u2",
+      "modeCode": "m2",
+      "inParams": [],
+      "hiddenParams": ["p2"],
+      "defValues": {"p1": "v1", "p2": "v2"}
+    }
+  },  
+  "description": null,
+  "changeData": false,
+  "deleteData": false,
+  "qName": null
+}
+```
+
+### message (результат отображение строка-описание)
+
+```json
+{
+  "resultType": "message",
+  "description": "текст уведомления",
+  "changeData": false,
+  "deleteData": false,
+  "qName": null
+}
+```
+
+### void (отсутствие результата)
+
+```json
+{
+  "resultType": "void",
+  "description": null,
+  "changeData": false,
+  "deleteData": false,
+  "qName": null
+}
+```

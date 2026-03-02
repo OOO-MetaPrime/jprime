@@ -1,7 +1,11 @@
+
+logging:
+  config: classpath:log4j2-test.xml
+
 jprime:
   test:
     kafka:
-      kafkaServers: 172.16.1.171:9092
+#      kafkaServers: 172.16.1.171:9092
       producers:
         kafkaTopic: mp-test-event-test
       consumers:

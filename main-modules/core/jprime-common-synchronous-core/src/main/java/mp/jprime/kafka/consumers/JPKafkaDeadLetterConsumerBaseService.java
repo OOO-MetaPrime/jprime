@@ -1,21 +1,19 @@
 package mp.jprime.kafka.consumers;
 
-import jakarta.annotation.PostConstruct;
 import mp.jprime.exceptions.JPRuntimeException;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.ListTopicsOptions;
+import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.TopicPartition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.KafkaOperations;
-import org.springframework.kafka.listener.CommonErrorHandler;
-import org.springframework.kafka.listener.ConsumerRecordRecoverer;
-import org.springframework.kafka.listener.DeadLetterPublishingRecoverer;
-import org.springframework.kafka.listener.DefaultErrorHandler;
+import org.springframework.kafka.listener.*;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.backoff.FixedBackOff;
 
@@ -35,9 +33,10 @@ import java.util.regex.Pattern;
 public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafkaDynamicConsumerBaseService<K, V> {
   private static final Logger LOG = LoggerFactory.getLogger(JPKafkaDeadLetterConsumerBaseService.class);
   private static final String TOPIC_NUMBER_DELIMITER = "-";
+  private static final long DEFAULT_POLL_INTERVAL = 0L;
   private static final long NO_TIME_INTERVAL = 0L;
-  private static final Collection<Long> DEFAULT_POLL_INTERVALS = Collections.singletonList(NO_TIME_INTERVAL);
-  protected static final FixedBackOff NO_RETRY_BACK_OFF = new FixedBackOff(0, 1);
+  private static final Collection<Long> DEFAULT_CASCADE_INTERVALS = Collections.singletonList(NO_TIME_INTERVAL);
+  protected static final FixedBackOff NO_RETRY_BACK_OFF = new FixedBackOff(0, 0);
 
   @Value("${jprime.kafka.dead-letter-consumers.poll-interval:60000}")
   private long defaultInterval;
@@ -45,29 +44,30 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
   @Value("${jprime.kafka.dead-letter-consumers.infinite:false}")
   private boolean infiniteDefaultListeners;
 
-  @PostConstruct
-  private void init() {
-    Collection<Long> pollIntervals = getPollIntervals();
-    if (CollectionUtils.isEmpty(pollIntervals)) {
-      LOG.warn("Not specified poll settings for listener's cascade of topic \"{}\"", getTopic());
-      pollIntervals = DEFAULT_POLL_INTERVALS;
+  @Override
+  protected void init() {
+    Collection<Long> cascadeIntervals = getCascadeIntervals();
+    if (CollectionUtils.isEmpty(cascadeIntervals)) {
+      LOG.warn("Not specified on error settings for listener's cascade of topic \"{}\"", getTopic());
+      cascadeIntervals = DEFAULT_CASCADE_INTERVALS;
     }
     int i = 0;
-    for (Long pollInterval : pollIntervals) {
+    for (Long cascadeInterval : cascadeIntervals) {
       boolean first = i == 0;
-      boolean last = i == pollIntervals.size() - 1;
+      boolean last = i == cascadeIntervals.size() - 1;
       //Если слушатель - единственный в каскаде, то он восстанавливает события в свой же топик
       String previousRecoveryTopic = first && last ? getTopic() : getTopic(i - 1);
       //Если это последний слушатель каскада, то он восстанавливает события в recoveryTopic предыдущего слушателя
       CommonErrorHandler errorHandler = last ?
-          getErrorHandler(previousRecoveryTopic) : getErrorHandler(getTopic(i));
-      ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, pollInterval);
+          getErrorHandler(previousRecoveryTopic, cascadeInterval) : getErrorHandler(getTopic(i), cascadeInterval);
+      ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, getPollInterval());
       //Если это первый слушатель, то он слушает основной топик,
       //Иначе слушает recoveryTopic предыдущего слушателя
       String topic = first ? getTopic() : previousRecoveryTopic;
       register(factory, topic);
       i++;
     }
+
     initDefaultListeners();
   }
 
@@ -80,8 +80,8 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
               "Topic \"{}\" has no listeners, default will be created with settings: interval={}, infinite={}",
               topic, defaultInterval, infiniteDefaultListeners
           );
-          CommonErrorHandler errorHandler = infiniteDefaultListeners ? getErrorHandler(topic) : getErrorHandler(getTopic());
-          ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, defaultInterval);
+          CommonErrorHandler errorHandler = infiniteDefaultListeners ? getErrorHandler(topic, defaultInterval) : getErrorHandler(getTopic(), defaultInterval);
+          ConcurrentKafkaListenerContainerFactory<K, V> factory = getKafkaListenerContainerFactory(errorHandler, getPollInterval());
           register(factory, topic);
         });
   }
@@ -109,11 +109,12 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
    * Получает обработчик ошибок, восстанавливающий обработанные с ошибкой события в переданный топик
    *
    * @param recoveryTopic топик для необработанных событий
+   * @param cascadeDelay  задержка при ошибке
    * @return {@link CommonErrorHandler обработчик ошибок}
    */
-  private CommonErrorHandler getErrorHandler(String recoveryTopic) {
-    ConsumerRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
-    return new DefaultErrorHandler(recoverer, NO_RETRY_BACK_OFF);
+  private CommonErrorHandler getErrorHandler(String recoveryTopic, long cascadeDelay) {
+    ConsumerAwareRecordRecoverer recoverer = getRecoverer(getKafkaTemplate(), recoveryTopic);
+    return new DefaultErrorHandler(DelayedConsumerRecordRecovererWrapper.of(recoverer, cascadeDelay), NO_RETRY_BACK_OFF);
   }
 
   protected abstract ConcurrentKafkaListenerContainerFactory<K, V> getKafkaListenerContainerFactory(CommonErrorHandler errorHandler, long pollInterval);
@@ -147,7 +148,7 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
    * @param template      шаблон продюсера восстановления
    * @param recoveryTopic топик, куда будут публиковаться восстановленные события
    */
-  protected ConsumerRecordRecoverer getRecoverer(KafkaOperations<K, V> template, String recoveryTopic) {
+  protected ConsumerAwareRecordRecoverer getRecoverer(KafkaOperations<K, V> template, String recoveryTopic) {
     return new DeadLetterPublishingRecoverer(
         template,
         (consumerRecord, e) -> {
@@ -163,9 +164,16 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
   protected abstract KafkaOperations<K, V> getKafkaTemplate();
 
   /**
-   * Интервалы опроса топиков каскада (мс)
+   * Интервалы задержки при ошибках в топиках каскада (мс)
    */
-  protected abstract Collection<Long> getPollIntervals();
+  protected abstract Collection<Long> getCascadeIntervals();
+
+  /**
+   * Задержка между опросами топиков (мс)
+   */
+  protected long getPollInterval() {
+    return DEFAULT_POLL_INTERVAL;
+  }
 
   /**
    * Формирует имя очередного топика восстановления
@@ -174,4 +182,31 @@ public abstract class JPKafkaDeadLetterConsumerBaseService<K, V> extends JPKafka
     return getTopic() + TOPIC_NUMBER_DELIMITER + number;
   }
 
+  /**
+   * Реализация восстановления ошибочного сообщения с задержкой пред восстановлением
+   */
+  private static final class DelayedConsumerRecordRecovererWrapper implements ConsumerAwareRecordRecoverer {
+
+    private final ConsumerAwareRecordRecoverer delegate;
+    private final long delayMs;
+
+    private DelayedConsumerRecordRecovererWrapper(ConsumerAwareRecordRecoverer delegate, long delayMs) {
+      this.delegate = delegate;
+      this.delayMs = delayMs;
+    }
+
+    public static ConsumerAwareRecordRecoverer of(ConsumerAwareRecordRecoverer delegate, long delayMs) {
+      return new DelayedConsumerRecordRecovererWrapper(delegate, delayMs);
+    }
+
+    @Override
+    public void accept(ConsumerRecord<?, ?> record, Consumer<?, ?> consumer, Exception exception) {
+      try {
+        Thread.sleep(delayMs);
+        delegate.accept(record, consumer, exception);
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+    }
+  }
 }

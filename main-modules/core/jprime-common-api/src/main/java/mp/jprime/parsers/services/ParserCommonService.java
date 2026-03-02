@@ -21,15 +21,13 @@ public final class ParserCommonService implements ParserService {
    */
   private final Map<Class, Map<Class, TypeParser>> parsers = new HashMap<>();
 
-  /**
-   * Кеширование парсеров
-   */
-  @Autowired(required = false)
-  private void setParsers(Collection<TypeParser> parsers) {
+  private ParserCommonService(@Autowired(required = false) Collection<TypeParser> parsers) {
     if (parsers == null) {
       return;
     }
     for (TypeParser parser : parsers) {
+      parser.setParserService(this);
+
       this.parsers.computeIfAbsent(parser.getInputType(), x -> new HashMap<>()).put(parser.getOutputType(), parser);
     }
   }
@@ -72,7 +70,7 @@ public final class ParserCommonService implements ParserService {
       return (T) parser.parseObject(value);
     } catch (Exception e) {
       throw new JPParseException("parser.service", String.format(
-          "Error parsing from parser=[%s] for value=[%s]. ", parser, value) + e.getMessage());
+          "Error parsing from parser=[%s] for value=[%s]. ", parser.getClass().getSimpleName(), value) + e.getMessage());
     }
   }
 

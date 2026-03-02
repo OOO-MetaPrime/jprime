@@ -1,5 +1,7 @@
 package mp.jprime.formats;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.util.TimeZone;
@@ -63,4 +65,24 @@ public final class DateFormat {
   public static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ISO_LOCAL_TIME;
 
   public static final DateTimeFormatter DD_D_MM_D_YYYY_FORMAT = DateTimeFormatter.ofPattern(DateFormat.DDdMMdYYYY);
+
+  /**
+   * Возвращает строку в читаемом формате dd.MM.yyyy
+   *
+   * @param date Дата
+   * @return Дата в формате "dd.MM.yyyy
+   */
+  public static String toViewFormat(LocalDate date) {
+    return date != null ? DD_D_MM_D_YYYY_FORMAT.format(date) : "";
+  }
+
+  /**
+   * Возвращает строку в читаемом формате dd.MM.yyyy
+   *
+   * @param date Дата
+   * @return Дата в формате "dd.MM.yyyy
+   */
+  public static String toViewFormat(LocalDateTime date) {
+    return date != null ? DD_D_MM_D_YYYY_FORMAT.format(date) : "";
+  }
 }

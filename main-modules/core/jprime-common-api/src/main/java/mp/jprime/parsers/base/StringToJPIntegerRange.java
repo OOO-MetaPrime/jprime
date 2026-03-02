@@ -2,21 +2,14 @@ package mp.jprime.parsers.base;
 
 import mp.jprime.lang.JPIntegerRange;
 import mp.jprime.lang.JPRange;
-import mp.jprime.parsers.TypeParser;
+import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.stereotype.Service;
 
 /**
  * String -> JPIntegerRange
  */
 @Service
-public final class StringToJPIntegerRange implements TypeParser<String, JPIntegerRange> {
-
-  /**
-   * Форматирование значения
-   *
-   * @param value Данные во входном формате
-   * @return Данные в выходном формате
-   */
+public final class StringToJPIntegerRange extends BaseTypeParser<String, JPIntegerRange> {
   @Override
   public JPIntegerRange parse(String value) {
     if (value == null || value.isEmpty()) {
@@ -57,21 +50,11 @@ public final class StringToJPIntegerRange implements TypeParser<String, JPIntege
     return JPIntegerRange.create(lower, upper);
   }
 
-  /**
-   * Входной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<String> getInputType() {
     return String.class;
   }
 
-  /**
-   * Выходной формат
-   *
-   * @return Входной формат
-   */
   @Override
   public Class<JPIntegerRange> getOutputType() {
     return JPIntegerRange.class;

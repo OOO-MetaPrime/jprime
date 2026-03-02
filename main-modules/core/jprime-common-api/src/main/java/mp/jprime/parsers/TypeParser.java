@@ -5,6 +5,13 @@ package mp.jprime.parsers;
  */
 public interface TypeParser<F, T extends Comparable> {
   /**
+   * Прописывает ParserService
+   *
+   * @param parserService ParserService
+   */
+  void setParserService(ParserService parserService);
+
+  /**
    * Форматирование значения
    *
    * @param value Данные во входном формате

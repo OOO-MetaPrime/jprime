@@ -1,5 +1,6 @@
 package mp.jprime.meta.services;
 
+import mp.jprime.application.JPApplicationMetaBootListener;
 import mp.jprime.exceptions.JPClassNotFoundException;
 import mp.jprime.log.AppLogger;
 import mp.jprime.meta.JPClass;
@@ -9,7 +10,6 @@ import mp.jprime.meta.events.JPMetaLoadFinishEvent;
 import mp.jprime.meta.log.Event;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,41 +22,42 @@ import java.util.concurrent.atomic.AtomicReference;
  * Хранилище метаинформации
  */
 @Service
-@Lazy(value = false)
-public final class JPMetaMemoryStorage implements JPMetaStorage {
-  /**
-   * Системный журнал
-   */
-  private final AppLogger appLogger;
-
+public final class JPMetaMemoryStorage implements JPMetaStorage, JPApplicationMetaBootListener {
   private final AtomicReference<Cache> cacheRef = new AtomicReference<>() {{
     set(new Cache());
   }};
 
-  /**
-   * Публикация событий
-   */
-  private ApplicationEventPublisher eventPublisher;
+  private final Collection<JPMetaLoader> loaders;
+  private final AppLogger appLogger;
+  private final ApplicationEventPublisher eventPublisher;
 
-  /**
-   * Размещает метаописание в хранилище
-   */
   private JPMetaMemoryStorage(@Autowired AppLogger appLogger,
                               @Autowired ApplicationEventPublisher eventPublisher,
                               @Autowired Collection<JPMetaLoader> loaders) {
     this.appLogger = appLogger;
     this.eventPublisher = eventPublisher;
-
-    loaders.forEach(x-> applyJPClasses(x.load()));
+    this.loaders = loaders;
   }
 
-  @Autowired(required = false)
-  private void setDynamicLoaders(Collection<JPMetaDynamicMultiLoader> dynamicLoaders) {
-    if (dynamicLoaders == null) {
-      return;
+  @Service
+  private static final class Links {
+    private static Collection<JPMetaDynamicMultiLoader> DYNAMIC_LOADERS;
+
+    private Links(@Autowired(required = false) Collection<JPMetaDynamicMultiLoader> dynamicLoaders) {
+      DYNAMIC_LOADERS = dynamicLoaders == null ? Collections.emptyList() : dynamicLoaders;
     }
+  }
+
+  private Collection<JPMetaDynamicMultiLoader> getReportDynamicLoaders() {
+    return Links.DYNAMIC_LOADERS;
+  }
+
+  @Override
+  public void applicationBoot() {
+    loaders.forEach(x -> applyJPClasses(x.load()));
+
     AtomicInteger i = new AtomicInteger(1);
-    dynamicLoaders.forEach(x -> x.load().forEach(loader -> {
+    getReportDynamicLoaders().forEach(x -> x.load().forEach(loader -> {
       int sourceNum = i.getAndIncrement();
       loader.subscribe(list -> applyDynamicJPClasses(sourceNum, list));
     }));

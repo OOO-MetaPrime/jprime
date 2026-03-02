@@ -18,49 +18,43 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public final class JPSyncObjectRepositoryCommonService implements JPSyncObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPSyncObjectRepositoryCommonService.class);
 
-  private final Map<Class, JPSyncObjectRepository> repoMap = new ConcurrentHashMap<>();
+  private static final Map<Class, JPSyncObjectRepository> REPO_MAP = new ConcurrentHashMap<>();
 
-  private JPMetaStorageService storageService;
+  private final JPMetaStorageService storageService;
 
-  /**
-   * Считываем аннотации
-   */
-  @Autowired(required = false)
-  private void setRepos(Collection<JPSyncObjectRepository> repos) {
-    if (repos == null) {
-      return;
-    }
-    for (JPSyncObjectRepository repo : repos) {
-      try {
-        ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
-        if (anno == null) {
-          continue;
-        }
-        for (Class javaClass : anno.classes()) {
-          if (javaClass == null) {
-            continue;
-          }
-          repoMap.put(javaClass, repo);
-        }
-      } catch (Exception e) {
-        throw JPRuntimeException.wrapException(e);
-      }
-    }
+  private JPSyncObjectRepositoryCommonService(@Autowired JPMetaStorageService storageService) {
+    this.storageService = storageService;
   }
 
-  @Autowired
-  private void setStorageService(JPMetaStorageService storageService) {
-    this.storageService = storageService;
+  @Service
+  private static final class Links {
+    private Links(@Autowired(required = false) Collection<JPSyncObjectRepository> repos) {
+      if (repos != null) {
+        for (JPSyncObjectRepository repo : repos) {
+          try {
+            ClassesLink anno = repo.getClass().getAnnotation(ClassesLink.class);
+            if (anno == null) {
+              continue;
+            }
+            for (Class javaClass : anno.classes()) {
+              if (javaClass == null) {
+                continue;
+              }
+              REPO_MAP.put(javaClass, repo);
+            }
+          } catch (Exception e) {
+            throw JPRuntimeException.wrapException(e);
+          }
+        }
+      }
+    }
   }
 
   private JPSyncObjectRepository getRepository(String classCode) {
@@ -72,7 +66,7 @@ public final class JPSyncObjectRepositoryCommonService implements JPSyncObjectRe
       Class storageClass = storage.getClass();
       JPSyncObjectRepository rep = null;
       while (rep == null && storageClass != null) {
-        rep = repoMap.get(storageClass);
+        rep = REPO_MAP.get(storageClass);
         storageClass = storageClass.getSuperclass();
       }
       if (rep != null) {

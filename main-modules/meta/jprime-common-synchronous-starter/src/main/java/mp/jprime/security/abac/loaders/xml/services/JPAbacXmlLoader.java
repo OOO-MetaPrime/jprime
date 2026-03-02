@@ -69,11 +69,12 @@ public class JPAbacXmlLoader implements JPAbacLoader {
       if (resources == null || resources.length == 0) {
         return Collections.emptyList();
       }
+      XmlMapper xmlMapper = new XmlMapper();
 
       Collection<PolicySet> result = new ArrayList<>();
       for (Resource res : resources) {
         try (InputStream is = res.getInputStream()) {
-          XmlJpAbac xmlJpAbac = new XmlMapper().readValue(is, XmlJpAbac.class);
+          XmlJpAbac xmlJpAbac = xmlMapper.readValue(is, XmlJpAbac.class);
           if (xmlJpAbac == null || xmlJpAbac.getJpPolicySets() == null) {
             continue;
           }

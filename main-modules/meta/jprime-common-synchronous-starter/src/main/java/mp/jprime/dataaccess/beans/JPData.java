@@ -39,82 +39,41 @@ public final class JPData implements JPAttrData {
     this.data = data == null ? Collections.emptyMap() : Collections.unmodifiableMap(data.toMap());
   }
 
-
-  /**
-   * Возвращает признак наличия данных
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean containsAttr(String attr) {
     return data.containsKey(attr);
   }
 
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
   @Override
   public <T> T get(String attr) {
     return (T) data.get(attr);
   }
 
-  /**
-   * Признак отсутствия данных
-   *
-   * @return Да/Нет
-   */
   @Override
   public boolean isEmpty() {
     return data.isEmpty();
   }
 
-  /**
-   * Размер данных
-   *
-   * @return Размер данных
-   */
   @Override
   public int size() {
     return data.size();
   }
 
-  /**
-   * Возвращает данные
-   *
-   * @return Данные
-   */
   @Override
   public Map<String, Object> toMap() {
     return new HashMap<>(data);
   }
 
-  /**
-   * Возвращает множество ключей
-   *
-   * @return Множество ключей
-   */
   @Override
   public Set<String> keySet() {
     return data.keySet();
   }
 
-  /**
-   * Возвращает коллекцию значений
-   *
-   * @return Коллекция значений
-   */
   @Override
   public Collection<Object> values() {
     return data.values();
   }
 
-  /**
-   * Реализация итератора
-   *
-   * @param action BiConsumer
-   */
   @Override
   public void forEach(BiConsumer<? super String, ? super Object> action) {
     data.forEach(action);
@@ -136,7 +95,7 @@ public final class JPData implements JPAttrData {
    * @return JPData
    */
   public static JPData of(Map<String, Object> data) {
-    return new JPData(data);
+    return data != null && !data.isEmpty() ? new JPData(data) : empty();
   }
 
   /**
@@ -146,7 +105,7 @@ public final class JPData implements JPAttrData {
    * @return JPData
    */
   public static JPData of(JPMap data) {
-    return new JPData(data);
+    return data != null && !data.isEmpty() ? new JPData(data) : empty();
   }
 
   /**

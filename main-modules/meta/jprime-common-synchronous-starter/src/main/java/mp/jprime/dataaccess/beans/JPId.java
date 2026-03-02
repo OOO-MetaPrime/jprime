@@ -45,8 +45,8 @@ public class JPId {
    *
    * @return Идентификатор объекта
    */
-  public Comparable getId() {
-    return (Comparable) id;
+  public Comparable<?> getId() {
+    return (Comparable<?>) id;
   }
 
   @Override
