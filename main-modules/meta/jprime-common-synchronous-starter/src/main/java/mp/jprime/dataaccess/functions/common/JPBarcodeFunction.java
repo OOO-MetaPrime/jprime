@@ -22,7 +22,7 @@ import java.util.*;
  * Функция генерации штрихкода
  */
 @Service
-public class JPBarcodeFunction extends JPDataBaseFunction<byte[]> {
+public final class JPBarcodeFunction extends JPDataBaseFunction<byte[]> {
   /**
    * Кодовое имя функции
    */
@@ -48,34 +48,32 @@ public class JPBarcodeFunction extends JPDataBaseFunction<byte[]> {
   );
 
   /**
-   * Параметр: текст штрихкода
+   * Аргументы
    */
-  private static final String PARAM_TEXT = "text";
-
-  /**
-   * Параметр: высота штрихкода
-   */
-  private static final String PARAM_HEIGHT = "height";
-
-  /**
-   * Параметр: ширина штрихкода
-   */
-  private static final String PARAM_WIDTH = "width";
-
-  /**
-   * Параметр: отступ штрихкода
-   */
-  private static final String MARGIN = "margin";
+  private interface Arg {
+    // текст штрихкода
+    String PARAM_TEXT = "text";
+    // высота штрихкода
+    String PARAM_HEIGHT = "height";
+    // ширина штрихкода
+    String PARAM_WIDTH = "width";
+    // отступ штрихкода
+    String MARGIN = "margin";
+  }
 
   /**
    * Кодовые имена аргументов функции
    */
-  private static final List<String> ARG_CODES = List.of(PARAM_TEXT, PARAM_HEIGHT, PARAM_WIDTH, MARGIN);
+  private static final List<String> ARG_CODES = List.of(
+      Arg.PARAM_TEXT,
+      Arg.PARAM_HEIGHT,
+      Arg.PARAM_WIDTH,
+      Arg.MARGIN
+  );
 
-  private ParserService parserService;
+  private final ParserService parserService;
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  private JPBarcodeFunction(@Autowired ParserService parserService) {
     this.parserService = parserService;
   }
 

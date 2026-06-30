@@ -33,12 +33,6 @@ import static org.assertj.core.api.Assertions.*;
 @ActiveProfiles("csvparsertest")
 public class JPCsvParserCommonServiceTest {
 
-  @Autowired
-  private JPCsvParserCommonService jpCsvParserService;
-
-  @MockitoBean
-  private ParserService mockParserService;
-
   @Value("classpath:csvparser/withHeadersWithQuoteWithNoMandatoryValues.csv")
   private Resource withHeadersWithQuoteWithNoMandatoryValues;
 
@@ -59,6 +53,12 @@ public class JPCsvParserCommonServiceTest {
 
   @Value("classpath:csvparser/withHeadersWithQuoteWithEmptyMandatoryValues.csv")
   private Resource withHeadersWithQuoteWithEmptyMandatoryValues;
+
+  @Autowired
+  private JPCsvParserCommonService jpCsvParserService;
+
+  @MockitoBean
+  private ParserService mockParserService;
 
   private final static String COLUMN_CODE = "CODE";
 
@@ -180,8 +180,6 @@ public class JPCsvParserCommonServiceTest {
     Mockito.when(mockParserService.parseTo(String.class, "620-001")).thenReturn("620-001");
     Mockito.when(mockParserService.parseTo(String.class, "ТЕРРИТОРИАЛЬНЫЙ ПУНКТ В Р.П.ЕРМИШЬ МЕЖРАЙОННОГО ОТДЕЛЕНИЯ УФМС РОССИИ ПО РЯЗАНСКОЙ ОБЛАСТИ В Г.САСОВО"))
         .thenReturn("ТЕРРИТОРИАЛЬНЫЙ ПУНКТ В Р.П.ЕРМИШЬ МЕЖРАЙОННОГО ОТДЕЛЕНИЯ УФМС РОССИИ ПО РЯЗАНСКОЙ ОБЛАСТИ В Г.САСОВО");
-
-    jpCsvParserService.setParserService(mockParserService);
   }
 
   /**

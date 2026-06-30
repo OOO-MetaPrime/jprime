@@ -1,13 +1,12 @@
 package mp.jprime.meta.services;
 
 import mp.jprime.imex.csvwriter.services.JPCsvBaseWriter;
-import mp.jprime.io.JPPipedInputStream;
+import mp.jprime.io.JpPipedInputStream;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.json.converters.JPClassJsonConverter;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,24 +17,17 @@ import java.io.InputStream;
  * Базовый сервис создания {@link JPAttrCsvWriter}
  */
 @Service
-public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterService, ParserServiceAware {
-  private JPClassJsonConverter converter;
-  private JPJsonMapper mapper;
-  private ParserService parser;
+public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterService {
+  private final JPClassJsonConverter converter;
+  private final JPJsonMapper mapper;
+  private final ParserService parser;
 
-  @Override
-  public void setParserService(ParserService parserService) {
-    this.parser = parserService;
-  }
-
-  @Autowired
-  private void setConverter(JPClassJsonConverter converter) {
+  private JPAttrCsvWriterCommonService(@Autowired JPClassJsonConverter converter,
+                                       @Autowired JPJsonMapper mapper,
+                                       @Autowired ParserService parser) {
     this.converter = converter;
-  }
-
-  @Autowired
-  private void setMapper(JPJsonMapper mapper) {
     this.mapper = mapper;
+    this.parser = parser;
   }
 
   @Override
@@ -52,7 +44,7 @@ public final class JPAttrCsvWriterCommonService implements JPAttrCsvWriterServic
     if (jpClass == null) {
       return InputStream.nullInputStream();
     }
-    return JPPipedInputStream.toInputStream(os -> {
+    return JpPipedInputStream.toInputStream(os -> {
       try (JPAttrCsvWriter writer = JPAttrCsvWriter.of(
           os,
           settings,

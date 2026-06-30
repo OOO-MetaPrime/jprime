@@ -5,6 +5,7 @@ import org.springframework.beans.factory.Aware;
 /**
  * Заполнение ParserService
  */
+@Deprecated
 public interface ParserServiceAware extends Aware {
   /**
    * Устанавливает  ParserService

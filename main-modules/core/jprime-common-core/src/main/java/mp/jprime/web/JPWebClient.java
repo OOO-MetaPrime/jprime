@@ -12,8 +12,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.http.codec.ClientCodecConfigurer;
-import org.springframework.http.codec.json.Jackson2JsonDecoder;
-import org.springframework.http.codec.json.Jackson2JsonEncoder;
+import org.springframework.http.codec.json.JacksonJsonDecoder;
+import org.springframework.http.codec.json.JacksonJsonEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -65,8 +65,8 @@ public class JPWebClient {
             .codecs(configurer -> {
                   ClientCodecConfigurer.ClientDefaultCodecs codes = configurer.defaultCodecs();
                   codes.maxInMemorySize(MAX_IN_MEMORY_SIZE);
-                  codes.jackson2JsonEncoder(new Jackson2JsonEncoder(jpJsonMapper.getObjectMapper(), MediaType.APPLICATION_JSON));
-                  codes.jackson2JsonDecoder(new Jackson2JsonDecoder(jpJsonMapper.getObjectMapper(), MediaType.APPLICATION_JSON));
+                  codes.jacksonJsonEncoder(new JacksonJsonEncoder(jpJsonMapper.getObjectMapper(), MediaType.APPLICATION_JSON));
+                  codes.jacksonJsonDecoder(new JacksonJsonDecoder(jpJsonMapper.getObjectMapper(), MediaType.APPLICATION_JSON));
                 }
             )
             .build()

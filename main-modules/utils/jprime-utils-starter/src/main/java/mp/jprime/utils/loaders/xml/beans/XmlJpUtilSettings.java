@@ -1,8 +1,8 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "jpUtilSettings")
+@JsonRootName(value = "jpUtilSettings")
 public class XmlJpUtilSettings {
   private XmlJpUtils jpUtils;
 

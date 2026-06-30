@@ -146,6 +146,14 @@ public final class JPMutableData implements JPAttrData, JPMutableMap {
   }
 
   @Override
+  public void putIfAbsent(JPMap data) {
+    if (data == null) {
+      return;
+    }
+    data.forEach(this::putIfAbsent);
+  }
+
+  @Override
   public Set<Map.Entry<String, Object>> entrySet() {
     return dataMap.entrySet();
   }
@@ -201,17 +209,5 @@ public final class JPMutableData implements JPAttrData, JPMutableMap {
    */
   public Object putIfAbsent(JPAttr attr, Object value) {
     return dataMap.putIfAbsent(attr.getCode(), value);
-  }
-
-  /**
-   * Сохраняет данные
-   *
-   * @param data Данные
-   */
-  public void putIfAbsent(JPMap data) {
-    if (data == null) {
-      return;
-    }
-    data.forEach(this::putIfAbsent);
   }
 }

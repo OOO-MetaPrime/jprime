@@ -87,6 +87,7 @@ public final class JPMetaConvertor {
                     .build()
         )
         .signAttrCode(attr.signAttrCode())
+        .actionLog(attr.actionLog())
         .build();
   }
 }

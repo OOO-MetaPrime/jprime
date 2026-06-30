@@ -1,8 +1,9 @@
 package org.apache.logging.log4j.core.layout;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import mp.jprime.log.AppLogger;
 import mp.jprime.system.AppProperty;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Layout;
@@ -12,10 +13,21 @@ import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
+import org.apache.logging.log4j.core.impl.Log4jLogEvent;
+import org.apache.logging.log4j.core.jackson.JsonConstants;
 import org.apache.logging.log4j.core.util.StringBuilderWriter;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.util.ReadOnlyStringMap;
 import org.apache.logging.log4j.util.Strings;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.util.DefaultPrettyPrinter;
+import tools.jackson.core.util.MinimalPrettyPrinter;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -25,6 +37,9 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static mp.jprime.formats.DateFormat.ISO8601;
 
@@ -34,6 +49,11 @@ public class ServiceJsonLayout extends AbstractStringLayout {
   private static final String DEFAULT_HEADER = "[";
   private static final String DEFAULT_EOL = "\r\n";
   private static final String COMPACT_EOL = Strings.EMPTY;
+
+  protected String eol;
+  protected JsonMapper objectWriter;
+  protected boolean compact;
+
 
   @PluginBuilderFactory
   public static <B extends Builder<B>> B newBuilder() {
@@ -102,15 +122,35 @@ public class ServiceJsonLayout extends AbstractStringLayout {
     super(config, charset,
         PatternLayout.newSerializerBuilder().setConfiguration(config).setPattern(headerPattern).setDefaultPattern(DEFAULT_HEADER).build(),
         PatternLayout.newSerializerBuilder().setConfiguration(config).setPattern(footerPattern).setDefaultPattern(DEFAULT_FOOTER).build());
-    this.objectWriter = new JacksonFactory.JSON(false, true, stacktraceAsString, false)
-        .newWriter(false, false, compact);
+
+
+    Set<String> except = new HashSet<>(3);
+    except.add(JsonConstants.ELT_TIME_MILLIS);
+    except.add(JsonConstants.ELT_NANO_TIME);
+
+    SimpleFilterProvider filters = new SimpleFilterProvider();
+    filters.addFilter(Log4jLogEvent.class.getName(), SimpleBeanPropertyFilter.serializeAllExcept(except));
+
+    SimpleModule module = new SimpleModule();
+    if (stacktraceAsString) {
+      module.addSerializer(Throwable.class, new ValueSerializer<>() {
+        @Override
+        public void serialize(Throwable value, JsonGenerator gen, SerializationContext serializers) {
+          // Превращаем стектрейс в одну строку
+          gen.writeString(ExceptionUtils.getStackTrace(value));
+        }
+      });
+    }
+
+    JsonMapper.Builder jsonBuilder = JsonMapper.builder();
+    jsonBuilder.changeDefaultPropertyInclusion(incl -> incl.withValueInclusion(JsonInclude.Include.NON_EMPTY));
+    jsonBuilder.defaultPrettyPrinter(compact ? new MinimalPrettyPrinter() : new DefaultPrettyPrinter());
+    jsonBuilder.addModule(module);
+
+    this.objectWriter = jsonBuilder.build();
     this.compact = compact;
     this.eol = compact && !eventEol ? COMPACT_EOL : DEFAULT_EOL;
   }
-
-  protected String eol;
-  protected ObjectWriter objectWriter;
-  protected boolean compact;
 
   protected ServiceJsonLayout(Charset charset) {
     super(charset);
@@ -145,8 +185,9 @@ public class ServiceJsonLayout extends AbstractStringLayout {
       return event.getContextStack();
     }
 
-    public ReadOnlyStringMap getContextData() {
-      return event.getContextData();
+    public Map<String, String> getContextData() {
+      ReadOnlyStringMap contextData = event.getContextData();
+      return contextData != null ? contextData.toMap() : null;
     }
 
     public StackTraceElement[] getThrownStackTrace() {
@@ -160,16 +201,18 @@ public class ServiceJsonLayout extends AbstractStringLayout {
       return thrown != null ? thrown.toString() : null;
     }
 
-    public Level getLevel() {
-      return event.getLevel();
+    public String getLevel() {
+      Level level = event.getLevel();
+      return level != null ? level.getStandardLevel().name() : null;
     }
 
     public String getLoggerName() {
       return event.getLoggerName();
     }
 
-    public Message getMessage() {
-      return event.getMessage();
+    public String getMessage() {
+      Message message = event.getMessage();
+      return message != null ? message.getFormattedMessage() : null;
     }
 
     public long getTimeMillis() {

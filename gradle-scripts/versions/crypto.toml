@@ -1,8 +1,8 @@
 [versions]
 xmlsecVersion = "3.0.6"
-bcmailJdk18OnVersion = "1.81"
-bcpkixJdk18OnVersion = "1.81"
-bcprovJdk18OnVersion = "1.81"
+bcmailJdk18OnVersion = "1.81.1"
+bcpkixJdk18OnVersion = "1.81.1"
+bcprovJdk18OnVersion = "1.81.1"
 cxfCoreVersion = "4.1.2"
 cxfRtTransportsHttpVersion = "4.1.2"
 cxfRtFrontendJaxwsVersion = "4.1.2"

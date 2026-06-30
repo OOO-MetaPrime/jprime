@@ -7,8 +7,7 @@ import java.math.BigInteger;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Тип атрибута
@@ -140,6 +139,11 @@ public enum JPType {
   VIRTUALREFERENCE("virtualReference", "Виртуальное значение", null);
 
   private static final Map<String, JPType> BY_CODE = new HashMap<>();
+  private static final Collection<JPType> ARRAY_TYPES = List.of(
+      JPType.INT_ARRAY,
+      JPType.LONG_ARRAY,
+      JPType.STRING_ARRAY
+  );
 
   static {
     for (JPType type : JPType.values()) {
@@ -164,6 +168,16 @@ public enum JPType {
     this.code = code;
     this.title = title;
     this.javaClass = javaClass;
+  }
+
+  /**
+   * Возвращает признак массива
+   *
+   * @param type Тип
+   * @return Да/Нет
+   */
+  public static boolean isArray(JPType type) {
+    return type != null && ARRAY_TYPES.contains(type);
   }
 
   /**

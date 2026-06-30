@@ -1,10 +1,10 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "operation")
+@JsonRootName(value = "operation")
 public class XmlJpOperation {
   @JacksonXmlProperty(isAttribute = true)
   private String type;

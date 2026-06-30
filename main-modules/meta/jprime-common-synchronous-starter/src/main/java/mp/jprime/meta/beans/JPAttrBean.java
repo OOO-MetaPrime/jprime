@@ -38,6 +38,7 @@ public final class JPAttrBean implements JPAttr {
   private final JPGeometry geometry;
   private final JPVirtualPath virtualReference;
   private final String signAttrCode;
+  private final boolean actionLog;
 
   private JPAttrBean(String jpClassCode, String guid, String code, JPType type,
                      JPStringFormat stringFormat, String stringMask, Integer length,
@@ -46,7 +47,9 @@ public final class JPAttrBean implements JPAttr {
                      String qName, String jpPackage,
                      String refJpClass, String refJpAttr,
                      JPFile refJpFile, JPSimpleFraction simpleFraction, JPMoney money,
-                     JPGeometry geometry, JPVirtualPath virtualReference, String signAttrCode) {
+                     JPGeometry geometry, JPVirtualPath virtualReference, String signAttrCode,
+                     boolean actionLog
+  ) {
     this.jpClassCode = jpClassCode != null && !jpClassCode.isEmpty() ? jpClassCode : null;
     this.guid = guid != null && !guid.isEmpty() ? guid : null;
     this.code = code != null && !code.isEmpty() ? code : null;
@@ -70,6 +73,7 @@ public final class JPAttrBean implements JPAttr {
     this.identifier = identifier;
     this.mandatory = mandatory;
     this.signAttrCode = StringUtils.isBlank(signAttrCode) ? null : signAttrCode;
+    this.actionLog = actionLog;
   }
 
   @Override
@@ -196,6 +200,11 @@ public final class JPAttrBean implements JPAttr {
     return signAttrCode;
   }
 
+  @Override
+  public boolean isActionLog() {
+    return actionLog;
+  }
+
   /**
    * Построитель JPAttr
    *
@@ -225,6 +234,7 @@ public final class JPAttrBean implements JPAttr {
         ", virtualReference='" + virtualReference + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         ", signAttrCode='" + signAttrCode +
+        ", actionLog='" + actionLog +
         '}';
   }
 
@@ -254,6 +264,7 @@ public final class JPAttrBean implements JPAttr {
     private JPGeometry geometry;
     private JPVirtualPath virtualReference;
     private String signAttrCode;
+    private boolean actionLog;
 
     private Builder() {
     }
@@ -267,7 +278,9 @@ public final class JPAttrBean implements JPAttr {
       return new JPAttrBean(jpClassCode, guid, code, type,
           stringFormat, stringMask, length, identifier, mandatory,
           name, shortName, description, qName, jpPackage,
-          refJpClass, refJpAttr, refJpFile, simpleFraction, money, geometry, virtualReference, signAttrCode);
+          refJpClass, refJpAttr, refJpFile, simpleFraction, money,
+          geometry, virtualReference, signAttrCode, actionLog
+      );
     }
 
     /**
@@ -520,6 +533,17 @@ public final class JPAttrBean implements JPAttr {
      */
     public Builder signAttrCode(String signAttrCode) {
       this.signAttrCode = signAttrCode;
+      return this;
+    }
+
+    /**
+     * Признак логирования значения атрибута при действии над объектами (удаление/создание/изменение)
+     *
+     * @param actionLog признак логирования значения атрибута
+     * @return Builder
+     */
+    public Builder actionLog(boolean actionLog) {
+      this.actionLog = actionLog;
       return this;
     }
   }

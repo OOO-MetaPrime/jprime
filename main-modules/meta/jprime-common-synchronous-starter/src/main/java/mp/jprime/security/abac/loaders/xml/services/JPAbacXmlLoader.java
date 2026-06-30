@@ -1,6 +1,6 @@
 package mp.jprime.security.abac.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.dataaccess.JPAction;
 import mp.jprime.dataaccess.conds.*;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -87,7 +87,7 @@ public class JPAbacXmlLoader implements JPAbacLoader {
             XmlJpPolicies jpPolicies = policySet.getJpPolicies();
 
             PolicySet set = PolicySetBean.newBuilder(policySet.getCode(), policySet.getName())
-                .qName(policySet.getqName())
+                .qName(policySet.getQName())
                 .target(
                     jpClasses == null || jpClasses.getJpClass() == null ? null : PolicyTargetBean.from(Arrays.asList(jpClasses.getJpClass()))
                 )
@@ -111,7 +111,7 @@ public class JPAbacXmlLoader implements JPAbacLoader {
       XmlJpActions actions = jpPolicy.getActions();
       policies.add(
           PolicyBean.newBuilder(jpPolicy.getName())
-              .qName(jpPolicy.getqName())
+              .qName(jpPolicy.getQName())
               .actions(
                   actions == null || actions.getJpAction() == null ? null :
                       Arrays.stream(actions.getJpAction())
@@ -140,7 +140,7 @@ public class JPAbacXmlLoader implements JPAbacLoader {
       }
       subjectRules.add(
           SubjectRuleBean.newBuilder(jpSubjectRule.getName(), jpAccessType)
-              .qName(jpSubjectRule.getqName())
+              .qName(jpSubjectRule.getQName())
               .username(toCollectionCond(jpSubjectRule.getUsername()))
               .role(toCollectionCond(jpSubjectRule.getRole()))
               .orgId(toCollectionCond(jpSubjectRule.getOrgId()))
@@ -165,7 +165,7 @@ public class JPAbacXmlLoader implements JPAbacLoader {
           ResourceRuleBean.newBuilder(
                   jpResourceRule.getName(), jpAccessType, jpResourceRule.getAttr(), toCollectionCond(jpResourceRule.getCond())
               )
-              .qName(jpResourceRule.getqName())
+              .qName(jpResourceRule.getQName())
               .build()
       );
     }
@@ -185,7 +185,7 @@ public class JPAbacXmlLoader implements JPAbacLoader {
       XmlJpTime time = jpEnvironmentRule.getTime();
       environmentRules.add(
           EnvironmentRuleBean.newBuilder(jpEnvironmentRule.getName(), jpAccessType)
-              .qName(jpEnvironmentRule.getqName())
+              .qName(jpEnvironmentRule.getQName())
               .daysOfWeek(
                   time == null || time.getDaysOfWeek() == null ? null :
                       Stream.of(time.getDaysOfWeek().split(","))

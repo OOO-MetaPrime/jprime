@@ -10,16 +10,24 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Набор функций обработки строк
  */
 public abstract class JPStringUtils {
-  private static final String CODE_REGEXP = "^[a-zA-Z0-9\\.\\-\\_]+$";
-  private static final Pattern PATTERN_CODE_REGEXP = Pattern.compile(CODE_REGEXP);
+  private static final Pattern ATTR_VALUE_PATTERN = Pattern.compile("\\{ATTR_VALUE\\.([^}]+)\\}");
+  private static final Pattern PARAMS_PATTERN = Pattern.compile("\\{PARAMS\\.([^}]+)\\}");
+  private static final Pattern CODE_REGEXP_PATTERN = Pattern.compile("^[a-zA-Z0-9\\.\\-\\_]+$");
   private static final Pattern DIGIT_PATTERN = Pattern.compile("^\\d+$");
+  private static final Pattern NOT_DIGIT_PATTERN = Pattern.compile("\\D");
+
   private static final int MIN_LENGTH_CARD_NUMBER_COMMON = 8;
   private static final int MAX_LENGTH_CARD_NUMBER_COMMON = 19;
+
+  private static final Collection<String> FIO_IGNORE_LIST = Set.of(
+      "-", "не указано", "нет", "отсутствует"
+  );
 
   private static final Map<Character, String> TRANSLIT_MAP;
 
@@ -108,7 +116,7 @@ public abstract class JPStringUtils {
    * @return Да/нет
    */
   public static boolean isCurrentCode(String code) {
-    return code != null && PATTERN_CODE_REGEXP.matcher(code).matches();
+    return code != null && CODE_REGEXP_PATTERN.matcher(code).matches();
   }
 
   /**
@@ -216,45 +224,49 @@ public abstract class JPStringUtils {
   }
 
   /**
-   * Заменяет в строке с фильтром значения параметров вида {PARAMS.param1}
+   * Заменяет в строке с фильтром значения параметров вида {ATTR_VALUE.attr1}
    *
    * @param sFilter   Строка фильтра
-   * @param params    Список параметров для замены
    * @param valueFunc Функция для параметров
    * @return Строка с добавленными значениями
    */
-  public static String replaceParamValues(String sFilter, Collection<String> params, Function<String, Object> valueFunc) {
-    if (params == null || params.isEmpty()) {
+  public static String replaceAttrValues(String sFilter, Function<String, Object> valueFunc) {
+    if (sFilter == null || sFilter.isEmpty()) {
       return sFilter;
     }
-    for (String param : params) {
-      String template = "{PARAMS." + param + "}";
-      if (sFilter.contains(template)) {
-        String sValue = ValueParser.parseTo(String.class, valueFunc.apply(param));
-        sFilter = StringUtils.replace(sFilter, template, sValue != null ? sValue : "");
-      }
+
+    Matcher matcher = ATTR_VALUE_PATTERN.matcher(sFilter);
+    Collection<String> codes = new HashSet<>();
+    while (matcher.find()) {
+      codes.add(matcher.group(1));
+    }
+    for (String code : codes) {
+      String sValue = ValueParser.parseTo(String.class, valueFunc.apply(code));
+      sFilter = sFilter.replace("{ATTR_VALUE." + code + "}", sValue != null ? sValue : "");
     }
     return sFilter;
   }
 
   /**
-   * Заменяет в строке с фильтром значения параметров вида {ATTR_VALUE.attr1}
+   * Заменяет в строке с фильтром значения параметров вида {PARAMS.param1}
    *
    * @param sFilter   Строка фильтра
-   * @param attrs     Список атрибутов для замены
    * @param valueFunc Функция для параметров
    * @return Строка с добавленными значениями
    */
-  public static String replaceAttrValues(String sFilter, Collection<String> attrs, Function<String, Object> valueFunc) {
-    if (attrs == null || attrs.isEmpty()) {
+  public static String replaceParamValues(String sFilter, Function<String, Object> valueFunc) {
+    if (sFilter == null || sFilter.isEmpty()) {
       return sFilter;
     }
-    for (String attr : attrs) {
-      String template = "{ATTR_VALUE." + attr + "}";
-      if (sFilter.contains(template)) {
-        String sValue = ValueParser.parseTo(String.class, valueFunc.apply(attr));
-        sFilter = StringUtils.replace(sFilter, template, sValue != null ? sValue : "");
-      }
+
+    Matcher matcher = PARAMS_PATTERN.matcher(sFilter);
+    Collection<String> codes = new HashSet<>();
+    while (matcher.find()) {
+      codes.add(matcher.group(1));
+    }
+    for (String code : codes) {
+      String sValue = ValueParser.parseTo(String.class, valueFunc.apply(code));
+      sFilter = sFilter.replace("{PARAMS." + code + "}", sValue != null ? sValue : "");
     }
     return sFilter;
   }
@@ -344,5 +356,38 @@ public abstract class JPStringUtils {
       return null;
     }
     return value.replace("'", "''");
+  }
+
+  /**
+   * Очистить фамилию, имя или отчество
+   *
+   * @param value строка
+   * @return Данные фамилии/имени/отчества
+   */
+  public static String parseFio(String value) {
+    if (value == null) {
+      return null;
+    }
+    value = value.trim();
+    if (value.isEmpty() || FIO_IGNORE_LIST.contains(value)) {
+      return null;
+    }
+    return Arrays.stream(value.split("\\s+"))
+        .map(String::trim)
+        .map(x -> Character.toUpperCase(x.charAt(0)) + x.substring(1).toLowerCase())
+        .collect(Collectors.joining(" "));
+  }
+
+  /**
+   * Оставляет в строке только числа
+   *
+   * @param value строка
+   * @return только числа
+   */
+  public static String removeNonDigit(String value) {
+    if (value == null) {
+      return null;
+    }
+    return NOT_DIGIT_PATTERN.matcher(value).replaceAll("");
   }
 }

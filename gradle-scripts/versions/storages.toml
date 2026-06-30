@@ -1,12 +1,12 @@
 # Базы данных
 [versions]
-postgresqlVersion = "42.7.9"
+postgresqlVersion = "42.7.11"
 r2dbcPoolVersion = { strictly = "1.0.2.RELEASE" }
 r2dbcProxyVersion = { strictly = "1.1.6.RELEASE" }
 r2dbcSpiVersion = { strictly = "1.0.0.RELEASE" }
 r2dbcPostgresqlVersion = { strictly = "1.0.9.RELEASE" }
-mssqlJdbcVersion = "12.10.2.jre11"
-clickhouseJdbcVersion = "0.9.0"
+mssqlJdbcVersion = "13.4.0.jre11"
+clickhouseJdbcVersion = "0.9.8" # Тащит некоторые старые либы
 jtdsVersion = "1.3.1"
 querydslSqlVersion = "5.1.0"
 minioVersion = "8.6.0"

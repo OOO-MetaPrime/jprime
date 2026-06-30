@@ -1,7 +1,6 @@
 package mp.jprime.repositories.services;
 
 import mp.jprime.dataaccess.JPObjectAccessService;
-import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPSave;
@@ -53,7 +52,7 @@ import java.util.stream.Collectors;
  * Базовая реализация JPFileUploader
  */
 @Service
-public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServiceAware {
+public final class JPFileCommonUploader implements JPFileUploader {
   private static final Logger LOG = LoggerFactory.getLogger(JPFileCommonUploader.class);
 
   @Value("${jprime.file.precheck.enabled:false}")
@@ -69,34 +68,21 @@ public class JPFileCommonUploader implements JPFileUploader, JPObjectAccessServi
         .collect(Collectors.toSet()) : Collections.emptySet();
   }
 
-  private JPGlobalSettingsService globalSettingsService;
-  private JPMetaStorage metaStorage;
-  private JPObjectAccessService objectAccessService;
-  private JPSecurityStorage securityManager;
-  private RepositoryGlobalStorage repositoryStorage;
+  private final JPGlobalSettingsService globalSettingsService;
+  private final JPMetaStorage metaStorage;
+  private final JPObjectAccessService objectAccessService;
+  private final JPSecurityStorage securityManager;
+  private final RepositoryGlobalStorage repositoryStorage;
 
-  @Autowired
-  private void setGlobalSettingsService(JPGlobalSettingsService globalSettingsService) {
+  private JPFileCommonUploader(@Autowired JPGlobalSettingsService globalSettingsService,
+                               @Autowired JPMetaStorage metaStorage,
+                               @Autowired JPObjectAccessService objectAccessService,
+                               @Autowired JPSecurityStorage securityManager,
+                               @Autowired RepositoryGlobalStorage repositoryStorage) {
     this.globalSettingsService = globalSettingsService;
-  }
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
-  }
-
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
-  }
-
-  @Autowired
-  private void setSecurityManager(JPSecurityStorage securityManager) {
     this.securityManager = securityManager;
-  }
-
-  @Autowired
-  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 

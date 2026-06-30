@@ -1,22 +1,20 @@
 package mp.jprime.parsers.base;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.parsers.BaseTypeParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
 
 /**
  * JPJsonNode -> String
  */
 @Service
 public final class StringToJPJsonNodeParser extends BaseTypeParser<String, JPJsonNode> {
-  private static final Logger LOG = LoggerFactory.getLogger(StringToJPJsonNodeParser.class);
   private JPJsonMapper jsonMapper;
 
   @Autowired
@@ -26,12 +24,11 @@ public final class StringToJPJsonNodeParser extends BaseTypeParser<String, JPJso
 
   @Override
   public JPJsonNode parse(String value) {
-    JsonNode jsonNode = null;
+    JsonNode jsonNode;
     try {
-      jsonNode = !StringUtils.hasText(value) ? null :
-          jsonMapper.getObjectMapper().readTree(value);
-    } catch (JsonProcessingException e) {
-      LOG.error(e.getMessage(), e);
+      jsonNode = !StringUtils.hasText(value) ? null : jsonMapper.getObjectMapper().readTree(value);
+    } catch (JacksonException e) {
+      throw new JPParseException("jpJsonNode.parse", "Неверный формат");
     }
     return JPJsonNode.from(jsonNode);
   }

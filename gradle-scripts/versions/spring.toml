@@ -1,9 +1,9 @@
 [versions]
 # Spring
-springBootVersion = "3.5.10"
-springCloudVersion = "2025.0.1"
+springBootVersion = "4.1.0"
+springCloudVersion = "2025.1.2"
 dependencyManagement = "1.1.7"
-springBootAdminStarterServer = "3.5.7"
+springBootAdminStarterServer = "4.1.0"
 springKerberosVersion = "2.2.0"
 
 [libraries]

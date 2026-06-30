@@ -4,20 +4,20 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpGeometry {
-  private int SRID;
+  private int srid;
 
-  public int getSRID() {
-    return SRID;
+  public int getSrid() {
+    return srid;
   }
 
-  public void setSRID(int SRID) {
-    this.SRID = SRID;
+  public void setSrid(int srid) {
+    this.srid = srid;
   }
 
   @Override
   public String toString() {
     return "XmlJpGeometry{" +
-        "SRID='" + SRID + '\'' +
+        "srid='" + srid + '\'' +
         '}';
   }
 }

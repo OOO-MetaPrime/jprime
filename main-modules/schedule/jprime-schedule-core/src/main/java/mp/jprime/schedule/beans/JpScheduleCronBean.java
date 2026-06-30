@@ -219,7 +219,7 @@ public class JpScheduleCronBean implements JpScheduleCron {
           Symbol.STAR.equals(dayOfMonth) &&
           Symbol.STAR.equals(month) &&
           Symbol.STAR.equals(dayOfWeek)) {
-        return "каждую секунду минуты";
+        return "Каждую секунду минуты";
       }
 
       LinkedList<String> tokens = new LinkedList<>();
@@ -241,7 +241,8 @@ public class JpScheduleCronBean implements JpScheduleCron {
 
       tokens.addFirst(getDateDescription(prevEveryCheck, dayOfMonth, month, dayOfWeek));
 
-      return String.join(" ", tokens).trim();
+      String description = String.join(" ", tokens).trim();
+      return Character.toUpperCase(description.charAt(0)) + description.substring(1);
     } catch (Exception e) {
       return DEFAULT_DESCRIPTION;
     }
@@ -367,6 +368,7 @@ public class JpScheduleCronBean implements JpScheduleCron {
 
   }
 
+  @SuppressWarnings("unused")
   private TokenDesc appendTimeDesc(boolean prevEveryCheck, boolean emptyPrevToken,
                                    String value, String everyOneText, String oneText,
                                    String twoText, String manyText,

@@ -10,9 +10,7 @@ import mp.jprime.parsers.ParserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Парсер значений атрибутов
@@ -30,6 +28,15 @@ public final class AttrTypeParserCommonService implements AttrTypeParserService 
         this.parsers.put(parser.getJPType(), parser);
       }
     }
+  }
+
+  @Override
+  public Collection<String> getRelatedAttrs(JPAttr jpAttr) {
+    if (jpAttr == null) {
+      return Collections.emptyList();
+    }
+    AttrTypeParser parser = parsers.get(jpAttr.getValueType());
+    return parser != null ? parser.getRelatedAttrs(jpAttr) : Collections.emptyList();
   }
 
   @Override

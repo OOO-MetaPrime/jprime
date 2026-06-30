@@ -1,6 +1,6 @@
 package mp.jprime.security.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.security.JPSecurityLoader;
 import mp.jprime.security.JPSecurityPackage;
@@ -67,9 +67,9 @@ public class JPSecurityXmlLoader implements JPSecurityLoader {
           for (XmlJpPackage pkg : packages.getJpPackages()) {
             JPSecurityPackageBean.Builder builder = JPSecurityPackageBean.newBuilder()
                 .code(pkg.getCode())
-                .name(pkg.getqName())
+                .name(pkg.getQName())
                 .description(pkg.getDescription())
-                .qName(pkg.getqName());
+                .qName(pkg.getQName());
 
             XmlJpPermitAccess permitAccess = pkg.getJpPermitAccess();
             XmlJpProhibitionAccess prohibitionAccess = pkg.getJpProhibitionAccess();

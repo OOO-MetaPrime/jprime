@@ -17,11 +17,6 @@ public class StartsWith extends CustomValueFilter<Object> {
     super(customValue, value);
   }
 
-  /**
-   * Операция
-   *
-   * @return Операция
-   */
   @Override
   public FilterOperation getOper() {
     return FilterOperation.STARTS_WITH;

@@ -1,10 +1,10 @@
 package mp.jprime.schedule.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.UUID;
 
-@JacksonXmlRootElement(localName = "jpTask")
+@JsonRootName(value = "jpTask")
 public class XmlJpTask {
   private UUID code;
   private boolean disable;

@@ -35,6 +35,8 @@ public class JsonCond {
   private String fuzzyOrderLike;
   private Collection<String> in;
   private Collection<String> notIn;
+  private Collection<String> startsWithIn;
+  private Collection<String> notStartsWithIn;
   private JsonSubquery inQuery;
   private JsonSubquery notInQuery;
   private JsonExpr exists;
@@ -182,6 +184,14 @@ public class JsonCond {
 
   public Collection<String> getNotIn() {
     return notIn;
+  }
+
+  public Collection<String> getStartsWithIn() {
+    return startsWithIn;
+  }
+
+  public Collection<String> getNotStartsWithIn() {
+    return notStartsWithIn;
   }
 
   public JsonSubquery getInQuery() {
@@ -416,6 +426,16 @@ public class JsonCond {
 
   public JsonCond notIn(Collection<String> notIn) {
     this.notIn = notIn;
+    return this;
+  }
+
+  public JsonCond startsWithIn(Collection<String> startsWithIn) {
+    this.startsWithIn = startsWithIn;
+    return this;
+  }
+
+  public JsonCond notStartsWithIn(Collection<String> notStartsWithIn) {
+    this.notStartsWithIn = notStartsWithIn;
     return this;
   }
 

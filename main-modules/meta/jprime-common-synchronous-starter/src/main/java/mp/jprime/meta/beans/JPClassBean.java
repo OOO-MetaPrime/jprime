@@ -28,6 +28,7 @@ public final class JPClassBean implements JPClass {
   private final boolean inner;
   private final boolean actionLog;
   private final Map<String, JPAttr> attrs;
+  private final Collection<String> nonActionLogAttrs;
   private final Map<JPType, Collection<JPAttr>> typedAttrs = new ConcurrentHashMap<>();
   private final JPAttr primaryKeyAttr;
   private final Boolean immutable;
@@ -43,7 +44,7 @@ public final class JPClassBean implements JPClass {
     this.shortName = shortName != null && !shortName.isEmpty() ? shortName : this.name;
     this.description = description != null && !description.isEmpty() ? description : this.name;
     this.qName = qName != null && !qName.isEmpty() ? qName : null;
-    this.tags = tags != null && !tags.isEmpty() ? Collections.unmodifiableCollection(new ArrayList<>(tags)) : Collections.emptyList();
+    this.tags = tags != null && !tags.isEmpty() ? Set.copyOf(tags) : Collections.emptySet();
     this.jpPackage = jpPackage != null && !jpPackage.isEmpty() ? jpPackage : null;
     this.inner = inner;
     this.actionLog = actionLog;
@@ -51,11 +52,23 @@ public final class JPClassBean implements JPClass {
     // Ключевой атрибут
     JPAttr primaryKeyAttr = null;
     Map<String, JPAttr> attrMap = new LinkedHashMap<>();
+    Collection<String> nonActionLogAttrsCollection = null;
     for (JPAttr attr : attrs) {
       attrMap.put(attr.getCode(), attr);
       if (attr.isIdentifier()) {
         primaryKeyAttr = attr;
       }
+      if (!attr.isActionLog()) {
+        if (nonActionLogAttrsCollection == null) {
+          nonActionLogAttrsCollection = new HashSet<>();
+        }
+        nonActionLogAttrsCollection.add(attr.getCode());
+      }
+    }
+    if (nonActionLogAttrsCollection != null) {
+      this.nonActionLogAttrs = Collections.unmodifiableCollection(nonActionLogAttrsCollection);
+    } else {
+      this.nonActionLogAttrs = Collections.emptySet();
     }
     this.attrs = Collections.unmodifiableMap(attrMap);
     this.primaryKeyAttr = primaryKeyAttr;
@@ -120,8 +133,13 @@ public final class JPClassBean implements JPClass {
   }
 
   @Override
-  public boolean useActionLog() {
+  public boolean isActionLog() {
     return actionLog;
+  }
+
+  @Override
+  public boolean isActionLogAttr(String attrCode) {
+    return !nonActionLogAttrs.contains(attrCode);
   }
 
   @Override

@@ -59,7 +59,7 @@ public class JsonAbacPolicySet {
    *
    * @return qName правила
    */
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 

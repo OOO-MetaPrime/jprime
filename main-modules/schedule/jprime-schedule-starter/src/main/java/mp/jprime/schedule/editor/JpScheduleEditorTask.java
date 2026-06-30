@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.lang.JPMap;
 import mp.jprime.schedule.JpScheduleTask;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -24,9 +25,30 @@ public interface JpScheduleEditorTask extends JpScheduleTask {
    */
   JpScheduleEditorCron getCron();
 
+  /**
+   * Пользователь, изменивший объект
+   *
+   * @return Пользователь, изменивший объект
+   */
+  String getUserEditorId();
+
+  /**
+   * Дата редактирования
+   *
+   * @return Дата редактирования
+   */
+  LocalDateTime getChangeDate();
+
   static JpScheduleEditorTask of(UUID code, boolean disable, String name, String description,
                                  String catalogCode, String executorCode, JPMap paramValues,
                                  JpScheduleEditorCron cron) {
+    return of(code, disable, name, description, catalogCode, executorCode, paramValues, cron, null, null);
+  }
+
+  static JpScheduleEditorTask of(UUID code, boolean disable, String name, String description,
+                                 String catalogCode, String executorCode, JPMap paramValues,
+                                 JpScheduleEditorCron cron,
+                                 String userEditorId, LocalDateTime changeDate) {
     return new JpScheduleEditorTask() {
       @Override
       public UUID getCode() {
@@ -66,6 +88,16 @@ public interface JpScheduleEditorTask extends JpScheduleTask {
       @Override
       public JpScheduleEditorCron getCron() {
         return cron;
+      }
+
+      @Override
+      public String getUserEditorId() {
+        return userEditorId;
+      }
+
+      @Override
+      public LocalDateTime getChangeDate() {
+        return changeDate;
       }
     };
   }

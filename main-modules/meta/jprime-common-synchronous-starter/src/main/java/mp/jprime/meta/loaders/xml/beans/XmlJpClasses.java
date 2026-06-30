@@ -1,13 +1,13 @@
 package mp.jprime.meta.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.Arrays;
 
-@JacksonXmlRootElement(localName = "jpClasses")
+@JsonRootName(value = "jpClasses")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpClasses {
   @JacksonXmlProperty(localName = "jpClass")

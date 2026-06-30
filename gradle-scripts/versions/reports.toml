@@ -2,16 +2,16 @@
 
 # Проблема с jmixVersion. Тащит старые либы, видимо, надо скоро избавляться
 [versions]
-boxVersion = "2.0.30"  # При повышении версии конфликт с версиями из jmixVersion
-fopVersion = "2.10" # Проблема: 2.11 тащит новые openhtmltopdf-pdfbox и идет конфликт с jmixVersion
-jasperreportsVersion = "7.0.3"
-jasperreportsFontsVersion = "7.0.3"
+boxVersion = "3.0.7"
+fopVersion = "2.11"
+jasperreportsVersion = "7.0.7"
 jasperreportsFontsLiberationVersion = "2.1.2"
-jmixVersion = "2.4.5" # Jmix yarg генератор отчетов. Проблема: тащит старые openhtmltopdf-pdfbox + org.apache.pdfbox.*
-openpdfVersion = "2.0.3"
+jmixVersion = "2.8.2" # Jmix yarg генератор отчетов
 jsonSimpleVersion = "1.1.1"
 olap4JVersion = "1.2.0"
-poiVersion = "5.4.1" # Работа с XLS. Повышать надо вместе с jmixVersion
+openHtmlToPdfVersion = "1.1.37" # Переопределяет com.openhtmltopdf (pdfBox 2.*) для работы с pdfBox 3.*
+openpdfVersion = "2.0.3"
+poiVersion = "5.5.1" # Работа с XLS. Повышать надо вместе с jmixVersion
 
 [libraries]
 fontbox = { module="org.apache.pdfbox:fontbox", version.ref = "boxVersion" }
@@ -19,16 +19,17 @@ pdfbox = { module="org.apache.pdfbox:pdfbox", version.ref = "boxVersion" }
 xmpbox = { module="org.apache.pdfbox:xmpbox", version.ref = "boxVersion" }
 fop = { module="org.apache.xmlgraphics:fop", version.ref = "fopVersion" }
 jasperreports = { module="net.sf.jasperreports:jasperreports", version.ref="jasperreportsVersion" }
-jasperreports-fonts = { module="net.sf.jasperreports:jasperreports-fonts", version.ref="jasperreportsFontsVersion" }
+jasperreports-fonts = { module="net.sf.jasperreports:jasperreports-fonts", version.ref="jasperreportsVersion" }
+jasperreports-functions = { module="net.sf.jasperreports:jasperreports-functions", version.ref="jasperreportsVersion" }
 jasperreports-fonts-liberation = { module="com.mpobjects.jasperreports.font:jasperreports-fonts-liberation", version.ref="jasperreportsFontsLiberationVersion" }
-openpdf = { module="com.github.librepdf:openpdf", version.ref = "openpdfVersion" }
 json-simple = { module="com.googlecode.json-simple:json-simple", version.ref="jsonSimpleVersion" }
 jmix = { module="io.jmix.reports:jmix-reports", version.ref="jmixVersion" }
 olap4j = { module="org.olap4j:olap4j", version.ref="olap4JVersion" }
+openhtmltopdf = { module="io.github.openhtmltopdf:openhtmltopdf-pdfbox", version.ref = "openHtmlToPdfVersion" }
+openpdf = { module="com.github.librepdf:openpdf", version.ref = "openpdfVersion" }
 poi = { module="org.apache.poi:poi", version.ref="poiVersion" }
 poi-ooxml = { module="org.apache.poi:poi-ooxml", version.ref="poiVersion" }
 
-
 [bundles]
-jasperreports = ['jasperreports', 'jasperreports-fonts', 'jasperreports-fonts-liberation']
+jasperreports = ['jasperreports', 'jasperreports-fonts', 'jasperreports-functions', 'jasperreports-fonts-liberation']
 pdfbox = ['fontbox', 'pdfbox', 'xmpbox']

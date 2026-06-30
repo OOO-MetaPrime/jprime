@@ -8,7 +8,7 @@ import mp.jprime.meta.JPClass;
 import mp.jprime.parsers.ValueParser;
 import mp.jprime.parsers.stringformat.JpStringFormatParser;
 import mp.jprime.parsers.stringformat.JpStringFormatUtils;
-import mp.jprime.parsers.stringformat.exceptions.JPStringFormatParseException;
+import mp.jprime.parsers.stringformat.exceptions.JpStringFormatParseException;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPSecurityStorage;
 
@@ -122,7 +122,7 @@ public interface JPAttrValidator {
     }
 
     if (errorFields != null && !errorFields.isEmpty()) {
-      throw new JPStringFormatParseException(errorFields, errorTitles);
+      throw new JpStringFormatParseException(errorFields, errorTitles);
     }
   }
 

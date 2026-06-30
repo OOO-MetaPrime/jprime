@@ -6,28 +6,33 @@ import org.springframework.transaction.TransactionException;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.util.Assert;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * {@link TransactionStatus} implementation to orchestrate {@link TransactionStatus} instances for multiple
  * {@link PlatformTransactionManager} instances.
  */
-class MultiTransactionStatus implements TransactionStatus {
+class JpMultiTransactionStatus implements TransactionStatus {
   private final PlatformTransactionManager mainTransactionManager;
-  private final Map<PlatformTransactionManager, TransactionStatus> transactionStatuses = new ConcurrentHashMap<>();
+  private final Map<PlatformTransactionManager, TransactionStatus> transactionStatuses = new LinkedHashMap<>();
 
   private boolean primaryTransaction;
 
   /**
-   * Creates a new {@link MultiTransactionStatus} for the given {@link PlatformTransactionManager}.
+   * Creates a new {@link JpMultiTransactionStatus} for the given {@link PlatformTransactionManager}.
    *
    * @param mainTransactionManager must not be {@literal null}.
    */
-  MultiTransactionStatus(PlatformTransactionManager mainTransactionManager) {
+  JpMultiTransactionStatus(PlatformTransactionManager mainTransactionManager) {
     Assert.notNull(mainTransactionManager, "TransactionManager must not be null!");
     this.mainTransactionManager = mainTransactionManager;
+  }
+
+  Collection<PlatformTransactionManager> getTransactionManagerList() {
+    return transactionStatuses.keySet();
   }
 
   Map<PlatformTransactionManager, TransactionStatus> getTransactionStatuses() {

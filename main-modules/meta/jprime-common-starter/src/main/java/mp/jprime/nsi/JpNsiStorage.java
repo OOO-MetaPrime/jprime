@@ -109,8 +109,11 @@ public interface JpNsiStorage {
    * @param auth             AuthInfo
    * @return Значение
    */
-  Collection<JpNsiValue<?>> getValuesByAuth(String nsiCode, SearchQuery search,
-                                            boolean nameSearch, boolean propertiesSearch, AuthInfo auth);
+  Collection<JpNsiValue<?>> getValuesByAuth(String nsiCode,
+                                            SearchQuery search,
+                                            boolean nameSearch,
+                                            boolean propertiesSearch,
+                                            AuthInfo auth);
 
   /**
    * Возвращает значение справочника по id
@@ -121,12 +124,24 @@ public interface JpNsiStorage {
    */
   JpNsiValue<?> getValueByObject(String nsiCode, Object id);
 
-  record SearchQuery(String searchQuery, String[] tokens) {
+  /**
+   * Проверка на содержимое значения
+   *
+   * @param type   Тип свойства
+   * @param search Поисковые токены
+   * @return Да/Нет
+   */
+  boolean contains(JpNsiPropertyType type, Object value, String[] search);
+
+  record SearchQuery(String searchQuery, String[] tokens, boolean shortQueryCheck) {
     private static final String RUS_REGEXP = "\\B[АаЯяУуЮюОоЕеЁёЭэИиЫы]\\b";
 
-
     public static SearchQuery of(String searchQuery) {
-      return new SearchQuery(searchQuery, normalize(searchQuery));
+      return of(searchQuery, true);
+    }
+
+    public static SearchQuery of(String searchQuery, boolean shortQueryCheck) {
+      return new SearchQuery(searchQuery, normalize(searchQuery), shortQueryCheck);
     }
 
     /**

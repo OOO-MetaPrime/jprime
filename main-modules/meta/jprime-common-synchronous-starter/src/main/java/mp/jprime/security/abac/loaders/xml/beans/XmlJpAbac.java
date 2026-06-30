@@ -1,10 +1,10 @@
 package mp.jprime.security.abac.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
-@JacksonXmlRootElement(localName = "jpAbac")
+@JsonRootName(value = "jpAbac")
 public class XmlJpAbac {
   @JacksonXmlProperty(localName = "jpPolicySets")
   @JacksonXmlElementWrapper(useWrapping = false)

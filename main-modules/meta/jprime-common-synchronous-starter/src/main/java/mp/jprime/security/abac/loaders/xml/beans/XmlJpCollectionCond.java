@@ -1,6 +1,6 @@
 package mp.jprime.security.abac.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class XmlJpCollectionCond {
   @JacksonXmlProperty(localName = "in")

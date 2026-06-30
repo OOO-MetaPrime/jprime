@@ -1,16 +1,15 @@
 package mp.jprime.utils.oktmo;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.QueryService;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.application.JPApplicationStartListener;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,11 +21,22 @@ import java.util.stream.Collectors;
 /**
  * Базовая реализация сервиса поиска по ОКТМО
  */
-public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
-    JPObjectRepositoryServiceAware, ParserServiceAware, JPApplicationStartListener {
+public abstract class JpOktmoUtilsBaseService implements JpOktmoUtilsService, JPApplicationStartListener {
+  private static final Pattern PATTERN = Pattern.compile("\\d+");
+
   private JPObjectRepositoryService repo;
   private ParserService parserService;
-  private static final Pattern PATTERN = Pattern.compile("\\d+");
+
+  @Autowired
+  private void setJpObjectRepositoryService(JPObjectRepositoryService repositoryService) {
+    this.repo = repositoryService;
+  }
+
+  @Autowired
+  private void setParserService(ParserService parserService) {
+    this.parserService = parserService;
+  }
+
 
   @Override
   public void applicationStart() {
@@ -36,22 +46,6 @@ public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
     }
   }
 
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repositoryService) {
-    this.repo = repositoryService;
-  }
-
-  @Override
-  public void setParserService(ParserService parserService) {
-    this.parserService = parserService;
-  }
-
-  /**
-   * Возвращает описание по переданным кодам ОКТМО
-   *
-   * @param oktmoList Коды ОКТМО
-   * @return Список ОКТМО
-   */
   @Override
   public Collection<Oktmo> get(Collection<String> oktmoList) {
     if (oktmoList == null || oktmoList.isEmpty()) {
@@ -77,14 +71,6 @@ public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
         .toList();
   }
 
-  /**
-   * Поиск ОКТМО по параметрам
-   *
-   * @param query  Поисковая строка
-   * @param limit  Количество объектов в выборке
-   * @param params Настройки поиска ОКТМО
-   * @return Список ОКТМО
-   */
   @Override
   public Collection<Oktmo> search(String query, Integer limit, SearchParams params) {
     if (StringUtils.isBlank(query) || params == null) {
@@ -116,15 +102,19 @@ public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
 
     // Фильтр по явно указанным ОКТМО
     Collection<String> oktmoPrefix = mp.jprime.utils.Oktmo.getPrefix(params.getOktmoSearch());
-    Collection<Filter> prefixFilters = oktmoPrefix == null || oktmoPrefix.isEmpty() ? null : oktmoPrefix.stream()
-        .map(x -> Filter.attr(oktmo).startWith(x))
-        .collect(Collectors.toList());
+    Collection<Filter> prefixFilters = oktmoPrefix == null || oktmoPrefix.isEmpty()
+        ? null
+        : oktmoPrefix.stream()
+          .map(x -> Filter.attr(oktmo).startsWith(x))
+          .collect(Collectors.toList());
 
     // Фильтр ОКТМО по пользователю
     Collection<String> authOktmoPrefix = params.isAuthSearch() && auth != null ? auth.getOktmoPrefixList() : null;
-    Collection<Filter> authPrefixFilters = authOktmoPrefix == null || authOktmoPrefix.isEmpty() ? null : authOktmoPrefix.stream()
-        .map(x -> Filter.attr(oktmo).startWith(x))
-        .collect(Collectors.toList());
+    Collection<Filter> authPrefixFilters = authOktmoPrefix == null || authOktmoPrefix.isEmpty()
+        ? null
+        : authOktmoPrefix.stream()
+          .map(x -> Filter.attr(oktmo).startsWith(x))
+          .collect(Collectors.toList());
 
     Matcher matcher = PATTERN.matcher(query);
     boolean isFind = matcher.find();
@@ -140,10 +130,11 @@ public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
                         Filter.attr(getTypeAttr()).in(searchOktmoType),
                         prefixFilters == null ? null : Filter.or(prefixFilters),
                         authPrefixFilters == null ? null : Filter.or(authPrefixFilters),
-                        oktmoQuery == null ? null : Filter.attr(oktmo).startWith(oktmoQuery),
+                        oktmoQuery == null ? null : Filter.attr(oktmo).startsWith(oktmoQuery),
                         nameQuery.isEmpty() ? null : Filter.attr(oktmoName).like(nameQuery)
                     )
                 )
+                .orderByAsc(oktmo)
                 .limit(limit != null ? limit : QueryService.MAX_LIMIT)
                 .build()
         ).stream()
@@ -152,6 +143,16 @@ public abstract class JPOktmoUtilsBaseService implements JPOktmoUtilsService,
             parserService.toString(x.getAttrValue(oktmoName))
         ))
         .toList();
+  }
+
+  @Override
+  public Collection<Group> getGroup(Collection<String> groupList, boolean prefixMode) {
+    return Collections.emptyList();
+  }
+
+  @Override
+  public Collection<Group> groupSearch(String query, Integer limit, boolean prefixMode, GroupSearchParams params) {
+    return Collections.emptyList();
   }
 
   /**

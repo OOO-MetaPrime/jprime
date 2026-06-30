@@ -7,6 +7,7 @@ import mp.jprime.utils.annotations.JPUtilResultType;
 import org.apache.commons.collections4.CollectionUtils;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Тип, возвращаемый методом validate()
@@ -19,6 +20,12 @@ public class JPUtilValidateOutParams extends BaseJPUtilOutParams<JsonValidateRes
   public static JPUtilValidateOutParams valid() {
     return JPUtilValidateOutParams.newBuilder()
         .result(JsonValidateResult.valid())
+        .build();
+  }
+
+  public static JPUtilValidateOutParams nonValid(String errorsMsg) {
+    return JPUtilValidateOutParams.newBuilder()
+        .result(JsonValidateResult.nonValid(List.of(JsonErrorDetail.of("", errorsMsg))))
         .build();
   }
 

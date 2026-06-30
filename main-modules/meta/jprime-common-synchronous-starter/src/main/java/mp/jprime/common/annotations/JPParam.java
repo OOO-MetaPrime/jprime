@@ -32,6 +32,13 @@ public @interface JPParam {
   String description();
 
   /**
+   * Подсказка для параметра
+   *
+   * @return Подсказка для параметра
+   */
+  String placeholder() default "";
+
+  /**
    * Признак обязательности
    *
    * @return Да/Нет

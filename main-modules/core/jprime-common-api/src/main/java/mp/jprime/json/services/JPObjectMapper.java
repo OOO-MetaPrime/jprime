@@ -1,11 +1,11 @@
 package mp.jprime.json.services;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import mp.jprime.formats.DateFormat;
 import mp.jprime.json.modules.JPObjectMapperExpander;
+import tools.jackson.core.json.JsonReadFeature;
+import tools.jackson.databind.DeserializationFeature;
+import tools.jackson.databind.cfg.DateTimeFeature;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -14,17 +14,17 @@ import java.util.TimeZone;
 
 public abstract class JPObjectMapper extends JPBaseObjectMapper {
 
-  protected void setSettings(Collection<JPObjectMapperExpander> expanders, ObjectMapper mapper) {
+  protected void setSettings(Collection<JPObjectMapperExpander> expanders, JsonMapper.Builder builder) {
     // Добавляем модули
-    expanders.forEach(x -> x.expand(mapper));
-    mapper
-        .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+    expanders.forEach(x -> x.expand(builder));
+    builder
+        .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
         .enable(DeserializationFeature.USE_BIG_DECIMAL_FOR_FLOATS)
         // Игнорируем переносы строк и прочие служебные символы
-        .configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true)
+        .enable(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS)
         .addMixIn(InputStream.class, MixInForIgnoreType.class)
-        .setTimeZone(TimeZone.getDefault())
+        .defaultTimeZone(TimeZone.getDefault())
         // ISO8601
-        .setDateFormat(new SimpleDateFormat(DateFormat.ISO8601));
+        .defaultDateFormat(new SimpleDateFormat(DateFormat.ISO8601));
   }
 }

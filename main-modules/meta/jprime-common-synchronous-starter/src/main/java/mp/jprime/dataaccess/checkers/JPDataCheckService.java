@@ -1,5 +1,6 @@
 package mp.jprime.dataaccess.checkers;
 
+import mp.jprime.common.JPOrder;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
@@ -7,6 +8,8 @@ import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.function.BiFunction;
 
 /**
  * Сервис проверки данных указанному условию
@@ -22,6 +25,15 @@ public interface JPDataCheckService {
   Long getTotalCount(JPSelect select, Collection<JPObject> objects);
 
   /**
+   * Сортирует переданный список объектов по условию orders
+   *
+   * @param orders  Настройки сортировки
+   * @param objects Полный список объектов
+   * @return Результирующий список
+   */
+  Collection<JPObject> sort(Collection<JPOrder> orders, Collection<JPObject> objects);
+
+  /**
    * Фильтрует переданный список объектов по условию JPSelect
    *
    * @param select  JPSelect
@@ -29,6 +41,19 @@ public interface JPDataCheckService {
    * @return Результирующий список
    */
   Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects);
+
+  /**
+   * Сортируем переданный список по указанным значениям
+   *
+   * @param orders    Настройки сортировки
+   * @param list      Список данных
+   * @param valueFunc Логика получения значения
+   * @param <T>
+   * @return Отсортированный список
+   */
+  <T> List<T> sort(Collection<JPOrder> orders,
+                   Collection<T> list,
+                   BiFunction<T, String, Comparable> valueFunc);
 
   /**
    * Проверяем условие по переданным данным

@@ -1,11 +1,11 @@
 package mp.jprime.json.versioning.converters;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import mp.jprime.json.versioning.beans.JsonV3Bean;
 import mp.jprime.json.versioning.services.JPJsonVersionBaseConverter;
 import mp.jprime.lang.JPJsonNode;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ObjectNode;
 
 import java.util.Collection;
 import java.util.Collections;

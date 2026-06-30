@@ -1,9 +1,9 @@
 package mp.jprime.utils.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "param")
+@JsonRootName(value = "param")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpDefValuesParam {
   private String code;

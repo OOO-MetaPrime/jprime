@@ -1,7 +1,7 @@
 pluginManagement {
   repositories {
     maven {
-      url "https://nexus.metaprime.ru/repository/maven-public/"
+      url = "https://nexus.metaprime.ru/repository/maven-public/"
       allowInsecureProtocol = true
     }
   }

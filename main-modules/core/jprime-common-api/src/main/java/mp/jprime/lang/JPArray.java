@@ -14,7 +14,7 @@ import java.util.function.Consumer;
  *
  * @param <T> Класс значений
  */
-public abstract class JPArray<T extends Comparable> implements Serializable, Comparable<JPArray<T>> {
+public abstract class JPArray<T extends Comparable<T>> implements Serializable, Comparable<JPArray<T>> {
   private final List<T> values;
 
   protected JPArray(List<T> values) {
@@ -55,6 +55,15 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
   }
 
   /**
+   * Размер массив
+   *
+   * @return Размер массива
+   */
+  public int size() {
+    return values.size();
+  }
+
+  /**
    * Признак пустого массива
    *
    * @return Да/Нет
@@ -69,8 +78,28 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
    * @param value Значение
    * @return Да/Нет
    */
-  public boolean contains(T value) {
+  public final boolean contains(T value) {
     return values.contains(value);
+  }
+
+  /**
+   * Признак пересечения с указанным списком
+   *
+   * @param value Значение
+   * @return Да/Нет
+   */
+  public final boolean overlapArray(JPArray<T> value) {
+    return value != null && CollectionUtils.containsAny(values, value.toList());
+  }
+
+  /**
+   * Признак совпадения с указанным списком
+   *
+   * @param value Значение
+   * @return Да/Нет
+   */
+  public final boolean equalsArray(JPArray<T> value) {
+    return value != null && CollectionUtils.isEqualCollection(values, value.toList());
   }
 
   @Override
@@ -78,7 +107,7 @@ public abstract class JPArray<T extends Comparable> implements Serializable, Com
     if (o == null) {
       return -1;
     }
-    return CollectionUtils.isEqualCollection(values, o.toList()) ? 0 : -1;
+    return equalsArray(o) ? 0 : -1;
   }
 
   @Override

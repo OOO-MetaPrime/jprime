@@ -58,7 +58,7 @@ public interface JPUtilModeSettings {
    *
    * @return Признак логирования действия
    */
-  boolean useActionLog();
+  boolean isActionLog();
 
   /**
    * Тип доступности шага

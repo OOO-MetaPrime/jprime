@@ -19,7 +19,7 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
   private final Class<?> paramInClass;
   private final String jpPackage;
   private final String[] authRoles;
-  private final boolean useActionLog;
+  private final boolean actionLog;
   private final JPAppendType type;
   private final Collection<JPClassAttr> jpAttrs;
   private final String confirm;
@@ -35,7 +35,7 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
   private JPUtilModeSettingsBean(String code, String title, String qName,
                                  Class<?> paramInClass,
                                  String jpPackage, String[] authRoles,
-                                 boolean useActionLog, JPAppendType type, Collection<JPClassAttr> jpAttrs,
+                                 boolean actionLog, JPAppendType type, Collection<JPClassAttr> jpAttrs,
                                  String confirm, String infoMessage,
                                  Collection<JPParam> inParams,
                                  boolean useDynamicParams,
@@ -49,7 +49,7 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
     this.paramInClass = paramInClass;
     this.jpPackage = jpPackage;
     this.authRoles = authRoles;
-    this.useActionLog = useActionLog;
+    this.actionLog = actionLog;
     this.type = type;
     this.jpAttrs = jpAttrs != null ? Collections.unmodifiableCollection(jpAttrs) : Collections.emptyList();
     this.confirm = confirm;
@@ -66,7 +66,7 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
   public static JPUtilModeSettings of(String code, String title, String qName,
                                       Class<?> paramInClass,
                                       String jpPackage, String[] authRoles,
-                                      boolean useActionLog, JPAppendType type, Collection<JPClassAttr> jpAttrs,
+                                      boolean actionLog, JPAppendType type, Collection<JPClassAttr> jpAttrs,
                                       String confirm, String infoMessage,
                                       Collection<JPParam> inParams,
                                       boolean useDynamicParams,
@@ -75,7 +75,7 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
                                       Collection<JPParam> outCustomParams,
                                       boolean useValidate) {
     return new JPUtilModeSettingsBean(code, title, qName, paramInClass,
-        jpPackage, authRoles, useActionLog, type, jpAttrs, confirm, infoMessage,
+        jpPackage, authRoles, actionLog, type, jpAttrs, confirm, infoMessage,
         inParams, useDynamicParams, useInParamsDefValues, properties, resultType, outCustomParams, useValidate);
   }
 
@@ -111,8 +111,8 @@ public final class JPUtilModeSettingsBean implements JPUtilModeSettings {
   }
 
   @Override
-  public boolean useActionLog() {
-    return useActionLog;
+  public boolean isActionLog() {
+    return actionLog;
   }
 
   @Override

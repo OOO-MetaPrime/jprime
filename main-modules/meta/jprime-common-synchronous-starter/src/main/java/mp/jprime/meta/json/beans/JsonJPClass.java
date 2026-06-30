@@ -52,6 +52,10 @@ public final class JsonJPClass {
    * Маппинг класса
    */
   private Collection<JsonJPClassMap> maps;
+  /**
+   * Признак логирования действий над объектами (удаление/создание/изменение)
+   */
+  private Boolean actionLog;
 
   public JsonJPClass() {
 
@@ -59,7 +63,8 @@ public final class JsonJPClass {
 
   private JsonJPClass(String code, String guid, String qName, Collection<String> tags,
                       String name, String shortName, String description, String jpPackage,
-                      boolean immutable, Collection<JsonJPAttr> attrs, Collection<JsonJPClassMap> maps) {
+                      boolean immutable, Collection<JsonJPAttr> attrs, Collection<JsonJPClassMap> maps,
+                      Boolean actionLog) {
     this.code = code;
     this.guid = guid;
     this.qName = qName;
@@ -71,6 +76,7 @@ public final class JsonJPClass {
     this.immutable = immutable;
     this.attrs = attrs;
     this.maps = maps;
+    this.actionLog = actionLog;
   }
 
   /**
@@ -96,7 +102,7 @@ public final class JsonJPClass {
    *
    * @return Полный код класса
    */
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
@@ -175,6 +181,15 @@ public final class JsonJPClass {
   }
 
   /**
+   * Признак логирования действий над объектами (удаление/создание/изменение)
+   *
+   * @return Признак логирования действий над объектами (удаление/создание/изменение)
+   */
+  public Boolean isActionLog() {
+    return actionLog;
+  }
+
+  /**
    * Построитель JsonJPClass
    *
    * @return Builder
@@ -196,6 +211,7 @@ public final class JsonJPClass {
     private String description;
     private String jpPackage;
     private boolean immutable;
+    private Boolean actionLog;
     private Collection<JsonJPAttr> attrs;
     private Collection<JsonJPClassMap> maps;
 
@@ -267,6 +283,11 @@ public final class JsonJPClass {
       return this;
     }
 
+    public Builder actionLog(Boolean actionLog) {
+      this.actionLog = actionLog;
+      return this;
+    }
+
     public Builder attrs(Collection<JsonJPAttr> attrs) {
       this.attrs = attrs;
       return this;
@@ -279,7 +300,7 @@ public final class JsonJPClass {
 
     public JsonJPClass build() {
       return new JsonJPClass(code, guid, qName, tags, name, shortName, description, jpPackage,
-          immutable, attrs, maps);
+          immutable, attrs, maps, actionLog);
     }
   }
 }

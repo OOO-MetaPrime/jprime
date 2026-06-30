@@ -1,8 +1,8 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "jpUtil")
+@JsonRootName(value = "jpUtil")
 public class XmlJpUtil {
   private boolean disable;
   private String code;
@@ -50,11 +50,11 @@ public class XmlJpUtil {
     this.title = title;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 

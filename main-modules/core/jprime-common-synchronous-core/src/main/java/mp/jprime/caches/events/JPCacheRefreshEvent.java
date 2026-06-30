@@ -12,9 +12,13 @@ import java.util.Map;
  */
 public class JPCacheRefreshEvent {
   /**
-   * Код события обновления кэша
+   * Код события для обновления кэша
    */
-  public static final String CODE = "jpCacheRefreshEvent";
+  public static final String REFRESH_CODE = "jpCacheRefreshEvent";
+  /**
+   * Код события после обновления кэша
+   */
+  public static final String CHANGE_CODE = "jpCacheChangeEvent";
   /**
    * Код кэша в параметрах JPSystemEvent
    */
@@ -44,13 +48,13 @@ public class JPCacheRefreshEvent {
   }
 
   /**
-   * Событие обновления кэша
+   * Событие для обновления кэша
    *
    * @param cacheCode код кэша, требующего обновление
    */
   public static JPSystemEvent newEvent(String cacheCode) {
     return JPCommonSystemEvent.newBuilder()
-        .eventCode(CODE)
+        .eventCode(REFRESH_CODE)
         .external(false)
         .data(
             Collections.singletonMap(CACHE_CODE, cacheCode)
@@ -59,13 +63,13 @@ public class JPCacheRefreshEvent {
   }
 
   /**
-   * Событие обновления кэша
+   * Событие после обновления кэша
    *
    * @param cacheCode код кэша, требующего обновление
    */
-  public static JPSystemEvent newExternalEvent(String cacheCode) {
+  public static JPSystemEvent newChangeEvent(String cacheCode) {
     return JPCommonSystemEvent.newBuilder()
-        .eventCode(CODE)
+        .eventCode(CHANGE_CODE)
         .external(true)
         .data(
             Collections.singletonMap(CACHE_CODE, cacheCode)

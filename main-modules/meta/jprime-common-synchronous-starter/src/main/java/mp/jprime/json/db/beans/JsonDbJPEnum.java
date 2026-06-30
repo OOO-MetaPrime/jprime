@@ -32,11 +32,11 @@ public class JsonDbJPEnum {
     this.description = description;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 
@@ -55,7 +55,7 @@ public class JsonDbJPEnum {
     return JPEnum.of(
         json.getValue(),
         json.getDescription(),
-        json.getqName(),
+        json.getQName(),
         JsonExpr.toFilter(json.getViewCond())
     );
   }
@@ -67,7 +67,7 @@ public class JsonDbJPEnum {
     JsonDbJPEnum result = new JsonDbJPEnum();
     result.setValue(bean.getValue());
     result.setDescription(bean.getDescription());
-    result.setqName(bean.getQName());
+    result.setQName(bean.getQName());
     result.setViewCond(JsonExpr.toJson(bean.getViewCond()));
     return result;
   }

@@ -1,6 +1,5 @@
 package mp.jprime.utils.services;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPClassAttr;
 import mp.jprime.exceptions.JPAppRuntimeException;
@@ -23,6 +22,7 @@ import mp.jprime.utils.log.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -494,7 +494,7 @@ public final class JPUtilCommonService implements JPUtilService {
       this.jpAttrs = mode.getJpAttrs();
       this.title = mode.getTitle();
       this.qName = mode.getQName();
-      this.actionLog = mode.useActionLog();
+      this.actionLog = mode.isActionLog();
       this.inParams = mode.getInParams();
       this.useDynamicParams = mode.useDynamicParams();
       this.inParamsDefValues = mode.useInParamsDefValues();

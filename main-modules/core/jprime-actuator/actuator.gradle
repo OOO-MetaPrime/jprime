@@ -1,5 +1,8 @@
 import java.time.LocalDateTime
 import java.time.ZoneId
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import javax.inject.Inject
 
 ext {
   SUBMODULES_SECTION_NAME = 'submodules'
@@ -11,24 +14,38 @@ static String getDate(String format) {
   LocalDateTime.now(ZoneId.of("Europe/Moscow")).format(format).toString()
 }
 
-tasks.register('getSubmodulesHash', Exec) {
-  commandLine 'git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD'
-  standardOutput = new ByteArrayOutputStream()
-  dependsOn getRootHash
-  doLast {
-    String hash = standardOutput.toString().trim()
-    project.ext.submoduleHash = hash
+abstract class GitSubmodulesHashSource implements ValueSource<String, ValueSourceParameters.None> {
+  @Inject
+  abstract ExecOperations getExecOperations()
+
+  @Override
+  String obtain() {
+    def output = new ByteArrayOutputStream()
+    execOperations.exec {spec ->
+      spec.commandLine('git', 'submodule', 'foreach', 'git', 'rev-parse', '--short', 'HEAD')
+      spec.standardOutput = output
+    }
+    return output.toString().trim()
   }
 }
 
-tasks.register('getRootHash', Exec) {
-  commandLine 'git', 'rev-parse', '--short', 'HEAD'
-  standardOutput = new ByteArrayOutputStream()
-  doLast {
-    String hash = standardOutput.toString().trim()
-    project.ext.rootHash = hash
+abstract class GitRootHashSource implements ValueSource<String, ValueSourceParameters.None> {
+  @Inject
+  abstract ExecOperations getExecOperations()
+
+  @Override
+  String obtain() {
+    def output = new ByteArrayOutputStream()
+    execOperations.exec {spec ->
+      spec.commandLine('git', 'rev-parse', '--short', 'HEAD')
+      spec.standardOutput = output
+    }
+    return output.toString().trim()
   }
 }
+
+def submodulesHashProvider = providers.of(GitSubmodulesHashSource) {}
+def rootHashProvider = providers.of(GitRootHashSource) {}
 
 static String getSubmoduleName(String line) {
   String submodule = null
@@ -45,28 +62,27 @@ static String getSubmoduleName(String line) {
   submodule
 }
 
-ext.common = [
-    getManifestAttrs    : { ->
-      [
-          (PROJECT_VERSION_TITLE): project.ext.rootHash,
-          (BUILD_DATE_TITLE)     : getDate('yyyy.MM.dd HH:mm:ss')
-      ]
-    },
-    getSubmodulesVersion: { ->
-      Map<String, String> attrs = [:]
-      String subs = project.ext.submoduleHash
-      String[] lines = subs.split("\n")
-      String submodule = null
-      for (String line : lines) {
-        if (line.startsWith("Entering")) {
-          submodule = getSubmoduleName(line)
-        } else if (submodule) {
-          attrs += [(submodule): line]
-          submodule = null
-        } else {
-          throw new RuntimeException("Submodule status parsing error: unexpected result from command line")
-        }
-      }
-      attrs
+ext.getManifestAttrs = {
+  return [
+      (PROJECT_VERSION_TITLE): rootHashProvider.get(),
+      (BUILD_DATE_TITLE)     : getDate('yyyy.MM.dd HH:mm:ss')
+  ]
+}
+
+ext.getSubmodulesVersion = {
+  Map<String, String> attrs = [:]
+  String subs = submodulesHashProvider.get()
+  String[] lines = subs.split("\n")
+  String submodule = null
+  for (String line : lines) {
+    if (line.startsWith("Entering")) {
+      submodule = getSubmoduleName(line)
+    } else if (submodule) {
+      attrs += [(submodule): line]
+      submodule = null
+    } else {
+      throw new RuntimeException("Submodule status parsing error: unexpected result from command line")
     }
-]
+  }
+  return attrs
+}

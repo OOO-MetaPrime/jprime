@@ -1,6 +1,5 @@
 package mp.jprime.repositories;
 
-import mp.jprime.exceptions.JPQueryServiceException;
 import org.springframework.transaction.TransactionManager;
 
 /**
@@ -22,12 +21,10 @@ public interface JPStorage {
   String getTitle();
 
   /**
-   * TransactionManager
-   *
-   * @return TransactionManager
+   * Признак поддержки транзакции
    */
-  default TransactionManager getTransactionManager() {
-    return null;
+  default boolean isTransactionSupport() {
+    return false;
   }
 
   /**
@@ -35,11 +32,7 @@ public interface JPStorage {
    *
    * @return TransactionManager
    */
-  default TransactionManager getTransactionManagerOrThrow() {
-    TransactionManager transactionManager = getTransactionManager();
-    if (transactionManager == null) {
-      throw JPQueryServiceException.fromTransactionManager(getCode());
-    }
-    return transactionManager;
+  default TransactionManager getTransactionManager() {
+    return null;
   }
 }

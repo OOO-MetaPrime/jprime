@@ -1,10 +1,9 @@
 package mp.jprime.utils.loaders.xml.operations;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
-import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.templatevalues.JPTemplateValueService;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.security.AuthInfo;
@@ -21,18 +20,13 @@ import java.util.Map;
  * Проверка параметров
  */
 @Service
-public final class JPUtilXmlJpParamValidatorOperation extends JPUtilXmlBaseOperation
-    implements JPDataCheckServiceAware {
-  private JPDataCheckService checkService;
-  private JPTemplateValueService templateValueService;
+public final class JPUtilXmlJpParamValidatorOperation extends JPUtilXmlBaseOperation {
+  private final JPDataCheckService checkService;
+  private final JPTemplateValueService templateValueService;
 
-  @Override
-  public void setJpDataCheckService(JPDataCheckService dataCheckService) {
-    this.checkService = dataCheckService;
-  }
-
-  @Autowired
-  private void setTemplateValueService(JPTemplateValueService templateValueService) {
+  private JPUtilXmlJpParamValidatorOperation(@Autowired JPDataCheckService checkService,
+                                             @Autowired JPTemplateValueService templateValueService) {
+    this.checkService = checkService;
     this.templateValueService = templateValueService;
   }
 
@@ -67,7 +61,7 @@ public final class JPUtilXmlJpParamValidatorOperation extends JPUtilXmlBaseOpera
       for (String pattern : templateValueService.getPatterns()) {
         if (sFilter.contains(pattern)) {
           Object value = templateValueService.getValue(pattern, auth);
-          sFilter = StringUtils.replace(sFilter, pattern, value != null ? getParserService().toString(value) : "");
+          sFilter = sFilter.replace(pattern, value != null ? getParserService().toString(value) : "");
         }
       }
       if (!checkService.check(toFilter(sFilter), JPData.empty(), auth)) {

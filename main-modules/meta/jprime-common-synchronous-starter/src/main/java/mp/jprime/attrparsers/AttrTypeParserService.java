@@ -4,10 +4,20 @@ import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.meta.JPAttr;
 
+import java.util.Collection;
+
 /**
  * Сервис парсеров типов атрибутов
  */
 public interface AttrTypeParserService {
+  /**
+   * Возвращает связанные атрибуты
+   *
+   * @param jpAttr Атрибут
+   * @return Кодовые имена связанных атрибутов
+   */
+  Collection<String> getRelatedAttrs(JPAttr jpAttr);
+
   /**
    * Форматирование значения
    *

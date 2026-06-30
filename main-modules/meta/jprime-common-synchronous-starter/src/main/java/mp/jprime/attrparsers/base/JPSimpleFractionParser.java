@@ -8,28 +8,26 @@ import mp.jprime.lang.JPSimpleFraction;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 
 /**
  * реализация парсера {@link JPType#SIMPLEFRACTION}
  */
 @Service
-public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFraction>, ParserServiceAware {
-  private ParserService parserService;
-  private JPJsonMapper jsonMapper;
+public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFraction> {
+  private final ParserService parserService;
+  private final JPJsonMapper jsonMapper;
 
-  @Override
-  public void setParserService(ParserService parserService) {
+  private JPSimpleFractionParser(@Autowired ParserService parserService,
+                                 @Autowired JPJsonMapper jsonMapper) {
     this.parserService = parserService;
-  }
-
-  @Autowired
-  private void setJsonMapper(JPJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
   }
 
@@ -41,6 +39,25 @@ public final class JPSimpleFractionParser implements AttrTypeParser<JPSimpleFrac
   @Override
   public Class<JPSimpleFraction> getOutputType() {
     return JPSimpleFraction.class;
+  }
+
+  @Override
+  public Collection<String> getRelatedAttrs(JPAttr jpAttr) {
+    mp.jprime.meta.JPSimpleFraction fraction = jpAttr.getSimpleFraction();
+    if (fraction == null) {
+      return Collections.emptyList();
+    }
+    String intAttr = fraction.getIntegerAttrCode();
+    String denomAttr = fraction.getDenominatorAttrCode();
+
+    Collection<String> result = new ArrayList<>();
+    if (intAttr != null) {
+      result.add(intAttr);
+    }
+    if (denomAttr != null) {
+      result.add(denomAttr);
+    }
+    return result;
   }
 
   @Override

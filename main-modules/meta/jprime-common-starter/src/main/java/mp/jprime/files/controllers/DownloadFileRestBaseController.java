@@ -3,7 +3,6 @@ package mp.jprime.files.controllers;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.files.DownloadFile;
 import mp.jprime.dataaccess.JPReactiveObjectRepositoryService;
-import mp.jprime.dataaccess.JPReactiveObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -60,7 +59,7 @@ import java.util.zip.ZipOutputStream;
 /**
  * Базовый класс для скачивания файлов
  */
-public abstract class DownloadFileRestBaseController implements DownloadFile, JPReactiveObjectRepositoryServiceAware {
+public abstract class DownloadFileRestBaseController implements DownloadFile {
   protected static final Logger LOG = LoggerFactory.getLogger(DownloadFileRestBaseController.class);
 
   private final static DateTimeFormatter TS_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd.HH-mm");
@@ -69,70 +68,25 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
    */
   private static final String JSON_BODY_FIELD = "body";
 
-  /**
-   * Заполнение запросов на основе JSON
-   */
   private QueryService queryService;
-  /**
-   * Интерфейс создания / обновления объекта
-   */
   private JPReactiveObjectRepositoryService repo;
-  /**
-   * Загрузка файлов объекта
-   */
   private JPFileUploader jpFileUploader;
-  /**
-   * Работа с UploadInputStream
-   */
   private UploadInputStreamService uploadInputStreamService;
-  /**
-   * Описание всех хранилищ системы
-   */
   private RepositoryGlobalStorage repositoryStorage;
-  /**
-   * Парсер типов
-   */
-  protected ParserService parserService;
-  /**
-   * Выгрузка файлов объекта
-   */
-  protected JPFileLoader jpFileLoader;
-  /**
-   * Обработчик JWT
-   */
-  protected JWTService jwtService;
-  /**
-   * Формирование JsonJPObject
-   */
-  protected JsonJPObjectService jsonJPObjectService;
-  /**
-   * Фильтр меты
-   */
-  protected JPMetaFilter jpMetaFilter;
-
-  @Autowired
-  private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
-    this.uploadInputStreamService = uploadInputStreamService;
-  }
+  private ParserService parserService;
+  private JPFileLoader jpFileLoader;
+  private JWTService jwtService;
+  private JsonJPObjectService jsonJPObjectService;
+  private JPMetaFilter jpMetaFilter;
 
   @Autowired
   private void setQueryService(QueryService queryService) {
     this.queryService = queryService;
   }
 
-  @Override
-  public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
+  @Autowired
+  private void setRepo(JPReactiveObjectRepositoryService repo) {
     this.repo = repo;
-  }
-
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
-  }
-
-  @Autowired
-  private void setJpFileLoader(JPFileLoader jpFileLoader) {
-    this.jpFileLoader = jpFileLoader;
   }
 
   @Autowired
@@ -141,13 +95,8 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   }
 
   @Autowired
-  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
-    this.jsonJPObjectService = jsonJPObjectService;
-  }
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
-    this.jpMetaFilter = jpMetaFilter;
+  private void setUploadInputStreamService(UploadInputStreamService uploadInputStreamService) {
+    this.uploadInputStreamService = uploadInputStreamService;
   }
 
   @Autowired
@@ -160,13 +109,69 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
     this.parserService = parserService;
   }
 
+  @Autowired
+  private void setJpFileLoader(JPFileLoader jpFileLoader) {
+    this.jpFileLoader = jpFileLoader;
+  }
+
+  @Autowired
+  private void setJwtService(JWTService jwtService) {
+    this.jwtService = jwtService;
+  }
+
+  @Autowired
+  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
+    this.jsonJPObjectService = jsonJPObjectService;
+  }
+
+  @Autowired
+  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
+    this.jpMetaFilter = jpMetaFilter;
+  }
+
+  protected QueryService getQueryService() {
+    return queryService;
+  }
+
+  protected JPReactiveObjectRepositoryService getRepo() {
+    return repo;
+  }
+
+  protected JPFileUploader getFileUploader() {
+    return jpFileUploader;
+  }
+
+  protected UploadInputStreamService getUploadInputStreamService() {
+    return uploadInputStreamService;
+  }
+
   protected RepositoryGlobalStorage getRepositoryStorage() {
     return repositoryStorage;
   }
 
+  protected ParserService getParserService() {
+    return parserService;
+  }
+
+  protected JPFileLoader getFileLoader() {
+    return jpFileLoader;
+  }
+
+  protected JWTService getJWTService() {
+    return jwtService;
+  }
+
+  protected JsonJPObjectService getJsonJPObjectService() {
+    return jsonJPObjectService;
+  }
+
+  protected JPMetaFilter getMetaFilter() {
+    return jpMetaFilter;
+  }
+
 
   protected Mono<Void> writeTo(ServerWebExchange swe, JPFileInfo<?> info, String userAgent) {
-    JPFileStorage storage = (JPFileStorage) repositoryStorage.getStorage(info.getStorageCode());
+    JPFileStorage storage = (JPFileStorage) getRepositoryStorage().getStorage(info.getStorageCode());
     if (storage == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -203,7 +208,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           try (ZipOutputStream zipOut = new ZipOutputStream(fos)) {
             Map<String, Integer> fileCounter = new HashMap<>();
             for (JPIdFileInfo info : list) {
-              JPFileStorage storage = (JPFileStorage) repositoryStorage.getStorage(info.getStorageCode());
+              JPFileStorage storage = (JPFileStorage) getRepositoryStorage().getStorage(info.getStorageCode());
               if (storage == null) {
                 continue;
               }
@@ -213,7 +218,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
                 if (is == null) {
                   continue;
                 }
-                String title = parserService.parseTo(String.class, info.getJPId().getId()) + "_" + info.getFileTitle();
+                String title = getParserService().parseTo(String.class, info.getJPId().getId()) + "_" + info.getFileTitle();
                 Integer i = fileCounter.get(title);
                 if (i == null) {
                   i = 0;
@@ -249,7 +254,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
         (jpClass, query, auth) -> {
           JPCreate.Builder jpCreateBuilder;
           try {
-            jpCreateBuilder = queryService.getCreate(query, Source.USER, auth);
+            jpCreateBuilder = getQueryService().getCreate(query, Source.USER, auth);
           } catch (JPRuntimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
           }
@@ -258,8 +263,8 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           }
           return jpCreateBuilder;
         },
-        (tuple) -> jpFileUploader.upload(tuple.getT1(), tuple.getT2()),
-        builder -> repo.asyncCreateAndGet(builder.build()));
+        (tuple) -> getFileUploader().upload(tuple.getT1(), tuple.getT2()),
+        builder -> getRepo().asyncCreateAndGet(builder.build()));
   }
 
   public Mono<JsonJPObject> updateObject(ServerWebExchange swe, String code) {
@@ -267,7 +272,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
         (jpClass, query, auth) -> {
           JPUpdate.Builder jpUpdateBuilder;
           try {
-            jpUpdateBuilder = queryService.getUpdate(query, Source.USER, auth);
+            jpUpdateBuilder = getQueryService().getUpdate(query, Source.USER, auth);
           } catch (JPRuntimeException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
           }
@@ -279,8 +284,8 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
           }
           return jpUpdateBuilder;
         },
-        (tuple) -> jpFileUploader.upload(tuple.getT1(), tuple.getT2()),
-        builder -> repo.asyncUpdateAndGet(builder.build()));
+        (tuple) -> getFileUploader().upload(tuple.getT1(), tuple.getT2()),
+        builder -> getRepo().asyncUpdateAndGet(builder.build()));
   }
 
   @FunctionalInterface
@@ -303,7 +308,7 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
     return getStreamValue(file)
         .map(value -> {
           try (UploadInputStream is = value) {
-            jpFileUploader.upload(builder, attr, is.getName(), is.getInputStream());
+            getFileUploader().upload(builder, attr, is.getName(), is.getInputStream());
           }
           executor.accept(builder);
           return true;
@@ -314,10 +319,10 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
   private <T> Mono<JsonJPObject> save(ServerWebExchange swe, String code,
                                       Builder<T> builderFunc, AppendUpload<T> uploadFunc,
                                       Executor<T> executorFunc) {
-    AuthInfo auth = jwtService.getAuthInfo(swe);
+    AuthInfo auth = getJWTService().getAuthInfo(swe);
 
     return JPMono.fromCallable(
-            () -> jpMetaFilter.get(code, auth)
+            () -> getMetaFilter().get(code, auth)
         )
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
@@ -364,13 +369,13 @@ public abstract class DownloadFileRestBaseController implements DownloadFile, JP
             .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
             .onErrorResume(JPClassNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
             .onErrorResume(JPObjectNotFoundException.class, e -> Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage())))
-            .map(object -> jsonJPObjectService.toJsonJPObject(object, swe))
+            .map(object -> getJsonJPObjectService().toJsonJPObject(object, swe))
         );
   }
 
   private Mono<UploadInputStream> getStreamValue(FilePart part) {
     return JPMono.fromCallable(() -> part)
-        .flatMap(uploadInputStreamService::read);
+        .flatMap(getUploadInputStreamService()::read);
   }
 
   private void delete(Path file) {

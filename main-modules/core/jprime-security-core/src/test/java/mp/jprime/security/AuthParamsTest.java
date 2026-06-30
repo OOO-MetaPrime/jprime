@@ -15,6 +15,6 @@ public class AuthParamsTest {
             List.of("00000000", "10000000","11000000","12110000", "13111111")
         )
         .build();
-    assertThat(inst.getOktmoPrefixList()).containsAll(List.of("", "10","11","12110", "13111111"));
+    assertThat(inst.getOktmoPrefixList()).containsAll(List.of("", "10","11","1211", "13111111"));
   }
 }

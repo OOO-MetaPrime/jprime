@@ -1,8 +1,8 @@
 package mp.jprime.schedule.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "jpTaskSettings")
+@JsonRootName(value = "jpTaskSettings")
 public class XmlJpTaskSettings {
   private XmlJpTasks jpTasks;
 

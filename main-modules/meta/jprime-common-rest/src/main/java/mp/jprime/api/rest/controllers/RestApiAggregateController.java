@@ -2,7 +2,6 @@ package mp.jprime.api.rest.controllers;
 
 import mp.jprime.configurations.JPQuerySettings;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.params.*;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -23,41 +22,19 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("api/v1")
-public class RestApiAggregateController extends JPQuerySettings implements JPObjectRepositoryServiceAware {
-  /**
-   * Заполнение запросов на основе JSON
-   */
-  private QueryService queryService;
-  /**
-   * Интерфейс создания / обновления объекта
-   */
-  private JPObjectRepositoryService repo;
-  /**
-   * Обработчик JWT
-   */
-  private JWTService jwtService;
-  /**
-   * Фильтр меты
-   */
-  private JPMetaFilter jpMetaFilter;
+public class RestApiAggregateController extends JPQuerySettings {
+  private final QueryService queryService;
+  private final JPObjectRepositoryService repo;
+  private final JWTService jwtService;
+  private final JPMetaFilter jpMetaFilter;
 
-  @Autowired
-  private void setQueryService(QueryService queryService) {
+  public RestApiAggregateController(@Autowired QueryService queryService,
+                                    @Autowired JPObjectRepositoryService repo,
+                                    @Autowired JWTService jwtService,
+                                    @Autowired JPMetaFilter jpMetaFilter) {
     this.queryService = queryService;
-  }
-
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
     this.repo = repo;
-  }
-
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
     this.jwtService = jwtService;
-  }
-
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
     this.jpMetaFilter = jpMetaFilter;
   }
 

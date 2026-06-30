@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Service
 @Primary
-public final class RepositoryGlobalCommonStorage implements RepositoryGlobalStorage {
+public final class JpRepositoryGlobalCommonStorage implements RepositoryGlobalStorage {
   private final Map<String, JPStorage> storages = new ConcurrentHashMap<>();
 
   @Override
@@ -32,7 +32,7 @@ public final class RepositoryGlobalCommonStorage implements RepositoryGlobalStor
   /**
    * Размещает метаописание в хранилище
    */
-  private RepositoryGlobalCommonStorage(@Autowired(required = false) Collection<RepositoryLoader<? extends JPStorage>> loaders) {
+  private JpRepositoryGlobalCommonStorage(@Autowired(required = false) Collection<RepositoryLoader<? extends JPStorage>> loaders) {
     if (loaders == null) {
       return;
     }

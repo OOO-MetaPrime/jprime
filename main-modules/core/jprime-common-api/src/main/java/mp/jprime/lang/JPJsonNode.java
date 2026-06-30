@@ -1,6 +1,6 @@
 package mp.jprime.lang;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Обёртка {@link JsonNode}
@@ -70,11 +70,10 @@ public class JPJsonNode implements Comparable<JPJsonNode> {
         return false;
       }
       // Проверяем, что все поля из n1 есть в n2 и совпадают
-      var iter = n1.fieldNames();
-      while (iter.hasNext()) {
-        String fieldName = iter.next();
-        JsonNode value1 = n1.get(fieldName);
-        JsonNode value2 = n2.get(fieldName);
+      var propertyNames = n1.propertyNames();
+      for (String propertyName : propertyNames) {
+        JsonNode value1 = n1.get(propertyName);
+        JsonNode value2 = n2.get(propertyName);
         if (!isEquals(value1, value2)) {
           return false;
         }
@@ -92,7 +91,7 @@ public class JPJsonNode implements Comparable<JPJsonNode> {
       }
       return true;
     } else {
-      if (n1.asText().equals(n2.asText())) {
+      if (n1.asString().equals(n2.asString())) {
         return true;
       }
       return n1.equals(n2);

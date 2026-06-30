@@ -2,6 +2,8 @@ dependencies {
   api(commons.bundles.jaxb)
   api(commons.lang3)
 
+  api(loggers.bundles.log4j)
+
   api project(':jprime-common-exceptions')
 
   testImplementation project(":jprime-test")

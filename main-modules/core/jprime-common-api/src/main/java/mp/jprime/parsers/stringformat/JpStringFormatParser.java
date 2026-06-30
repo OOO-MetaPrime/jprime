@@ -47,7 +47,7 @@ public interface JpStringFormatParser {
    * Выделяет номер банковского счета
    *
    * @param value Запрос
-   * @return номер банковской счета по строке
+   * @return номер банковского счета по строке
    */
   Result parseBankAccountNumber(String value);
 
@@ -84,7 +84,7 @@ public interface JpStringFormatParser {
   Result parseInn10(String value);
 
   /**
-   * Выделяет ИНН физического или юридического  лица
+   * Выделяет ИНН физического или юридического лица
    *
    * @param value Запрос
    * @return ИНН по строке
@@ -132,6 +132,14 @@ public interface JpStringFormatParser {
   Result parseOktmo11(String value);
 
   /**
+   * Выделяет ОКТМО (8/11 символов)
+   *
+   * @param value Запрос
+   * @return ОКТМО (8/11 символов)
+   */
+  Result parseAnyOktmo(String value);
+
+  /**
    * Выделяет телефон
    *
    * @param value Запрос
@@ -164,10 +172,44 @@ public interface JpStringFormatParser {
   Result parseFio(String value);
 
   /**
-   * Выделяет номер записи акта гр.состояния
+   * Выделяет серию свидетельства ЗАГС
    *
    * @param value Запрос
-   * @return Номер записи акта гр.состояния
+   * @return Серия свидетельства ЗАГС
+   */
+  Result parseZagsSeries(String value);
+
+  /**
+   * Выделяет номер свидетельства ЗАГС
+   *
+   * @param value Запрос
+   * @return Номер свидетельства ЗАГС
+   */
+  Result parseZagsNumber(String value);
+
+  /**
+   * Выделяет номер АГС
+   *
+   * @param value Запрос
+   * @return Номер АГС
    */
   Result parseZagsAgs(String value);
+
+  /**
+   * Выделяет код подразделения ЗАГС
+   *
+   * @param value Запрос
+   * @return Код подразделения ЗАГС
+   */
+  Result parseZagsDepartmentCode(String value);
+
+  /**
+   * Выделяет короткий номер АГС с удалением ведущих нулей
+   * - для полного номера извлекает подстроку
+   * - для короткого номера использует всю строку
+   *
+   * @param value Запрос
+   * @return Короткий номер АГС
+   */
+  Result parseAgsShortNumber(String value);
 }

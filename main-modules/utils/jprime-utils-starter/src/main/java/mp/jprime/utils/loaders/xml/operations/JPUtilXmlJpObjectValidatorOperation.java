@@ -1,15 +1,15 @@
 package mp.jprime.utils.loaders.xml.operations;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
-import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.loaders.xml.JPUtilXmlOperation;
 import mp.jprime.utils.loaders.xml.beans.XmlJpOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -19,13 +19,11 @@ import java.util.Map;
  * Проверка данных на основе jpObject
  */
 @Service
-public final class JPUtilXmlJpObjectValidatorOperation extends JPUtilXmlBaseOperation
-    implements JPDataCheckServiceAware {
-  private JPDataCheckService checkService;
+public final class JPUtilXmlJpObjectValidatorOperation extends JPUtilXmlBaseOperation {
+  private final JPDataCheckService checkService;
 
-  @Override
-  public void setJpDataCheckService(JPDataCheckService dataCheckService) {
-    this.checkService = dataCheckService;
+  private JPUtilXmlJpObjectValidatorOperation(@Autowired JPDataCheckService checkService) {
+    this.checkService = checkService;
   }
 
   @Override

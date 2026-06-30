@@ -19,11 +19,6 @@ public class NotIN extends CustomValueFilter<Collection<? extends Comparable>> {
     super(customValue, value);
   }
 
-  /**
-   * Операция
-   *
-   * @return Операция
-   */
   @Override
   public FilterOperation getOper() {
     return FilterOperation.NOT_IN;

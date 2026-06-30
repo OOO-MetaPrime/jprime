@@ -1,12 +1,12 @@
 package mp.jprime.metamaps.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.Arrays;
 
-@JacksonXmlRootElement(localName = "jpClassMaps")
+@JsonRootName(value = "jpClassMaps")
 public class XmlJpClassMaps {
   @JacksonXmlProperty(localName = "jpClassMap")
   @JacksonXmlElementWrapper(useWrapping = false)

@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.JPAction;
 import mp.jprime.dataaccess.conds.CollectionCond;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
+import mp.jprime.reactor.core.publisher.JPFlux;
 import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.JPSecurityPackage;
@@ -101,7 +102,7 @@ public class RestAccessController {
   public Mono<JsonJPObjectAccessList> getObjectAccess(ServerWebExchange swe,
                                                       @RequestBody JsonJPObjectAccessBatchQuery batchQuery) {
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    return Flux.fromIterable(batchQuery.getIds())
+    return JPFlux.fromCallable(batchQuery::getIds)
         .flatMap(query -> {
           JPClass jpClass = jpMetaFilter.get(query.getObjectClassCode(), auth);
           if (jpClass == null) {
@@ -153,11 +154,7 @@ public class RestAccessController {
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonJPClassAccess> getClassAccessList(ServerWebExchange swe) {
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    Collection<JPClass> classes = jpMetaFilter.getList(auth);
-    if (classes == null || classes.isEmpty()) {
-      return Flux.empty();
-    }
-    return Flux.fromIterable(classes)
+    return JPFlux.fromCallable(() -> jpMetaFilter.getList(auth))
         .map(x -> accessConverter.toJPClassAccess(x, auth));
   }
 
@@ -166,12 +163,8 @@ public class RestAccessController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Flux<JsonSecurityPackage> getJPPackages(ServerWebExchange swe) {
-    Collection<JPSecurityPackage> packages = securityManager.getPackages();
-    if (packages == null) {
-      return Flux.empty();
-    }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    return Flux.fromIterable(packages)
+    return JPFlux.fromCallable(() -> securityManager.getPackages())
         .map(x -> toSecurityPackage(x, auth));
   }
 
@@ -181,12 +174,8 @@ public class RestAccessController {
   @PreAuthorize("hasAuthority(@JPRoleConst.getAuthAccess())")
   public Mono<JsonSecurityPackage> getJPPackages(ServerWebExchange swe,
                                                  @PathVariable("code") String code) {
-    Collection<JPSecurityPackage> packages = securityManager.getPackages();
-    if (packages == null) {
-      return Mono.empty();
-    }
     AuthInfo auth = jwtService.getAuthInfo(swe);
-    return Flux.fromIterable(packages)
+    return JPFlux.fromCallable(() -> securityManager.getPackages())
         .filter(x -> x.getCode().equals(code))
         .map(x -> toSecurityPackage(x, auth))
         .singleOrEmpty();
@@ -197,11 +186,7 @@ public class RestAccessController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Flux<JsonAbacPolicySet> getJPPolicySets() {
-    Collection<PolicySet> sets = abacStorage.getSettings();
-    if (sets == null) {
-      return Flux.empty();
-    }
-    return Flux.fromIterable(sets)
+    return JPFlux.fromCallable(() -> abacStorage.getSettings())
         .map(this::toJsonPolicySet);
   }
 
@@ -210,11 +195,7 @@ public class RestAccessController {
       produces = MediaType.APPLICATION_JSON_VALUE)
   @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Mono<JsonAbacPolicySet> getJPPolicySets(@PathVariable("code") String code) {
-    Collection<PolicySet> sets = abacStorage.getSettings();
-    if (sets == null) {
-      return Mono.empty();
-    }
-    return Flux.fromIterable(sets)
+    return JPFlux.fromCallable(() -> abacStorage.getSettings())
         .filter(x -> x.getCode().equals(code))
         .map(this::toJsonPolicySet)
         .singleOrEmpty();
@@ -225,14 +206,9 @@ public class RestAccessController {
   @ResponseStatus(HttpStatus.OK)
   @PreAuthorize("hasAuthority(@JPAuthRoleConst.getAuthAdmin())")
   public Flux<JsonAbacPolicySet> getJPPolicySets(@RequestBody JsonAbacQuery query) {
-    Collection<PolicySet> sets = abacStorage.getSettings();
-    if (sets == null) {
-      return Flux.empty();
-    }
-    JPAbacQuery jpQuery = query.toAbacQuery();
-    return Flux.fromIterable(sets)
+    return JPFlux.fromCallable(() -> abacStorage.getSettings())
         .map(this::toJsonPolicySet)
-        .filter(x -> x.filter(jpQuery));
+        .filter(x -> x.filter(query.toAbacQuery()));
   }
 
   private Mono<Collection<JsonJPObjectAccess>> getAccessList(JPClass jpClass, Collection<String> objectIds, AuthInfo auth) {

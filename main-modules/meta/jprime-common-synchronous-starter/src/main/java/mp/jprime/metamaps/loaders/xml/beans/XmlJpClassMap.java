@@ -1,6 +1,6 @@
 package mp.jprime.metamaps.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class XmlJpClassMap {
   private String code;

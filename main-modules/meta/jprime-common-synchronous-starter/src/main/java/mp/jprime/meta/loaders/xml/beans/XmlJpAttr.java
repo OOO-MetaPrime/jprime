@@ -26,6 +26,7 @@ public class XmlJpAttr {
   private XmlJpMoney money;
   private XmlJpGeometry geometry;
   private String signAttrCode;
+  private Boolean actionLog;
 
   public String getGuid() {
     return guid;
@@ -59,11 +60,11 @@ public class XmlJpAttr {
     this.description = description;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 
@@ -203,6 +204,14 @@ public class XmlJpAttr {
     this.signAttrCode = signAttrCode;
   }
 
+  public Boolean isActionLog() {
+    return actionLog;
+  }
+
+  public void setActionLog(Boolean actionLog) {
+    this.actionLog = actionLog;
+  }
+
   @Override
   public String toString() {
     return "XmlJpAttr{" +
@@ -226,6 +235,7 @@ public class XmlJpAttr {
         ", virtualType='" + virtualType + '\'' +
         (length != null ? ", length='" + length + '\'' : "") +
         ", signAttrCode=" + signAttrCode +
+        ", actionLog='" + (actionLog != null && actionLog)+ '\'' +
         '}';
   }
 }

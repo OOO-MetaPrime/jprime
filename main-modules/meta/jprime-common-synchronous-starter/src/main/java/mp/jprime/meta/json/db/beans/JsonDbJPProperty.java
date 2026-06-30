@@ -125,11 +125,11 @@ public class JsonDbJPProperty {
     this.name = name;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 
@@ -372,7 +372,7 @@ public class JsonDbJPProperty {
       result.setMandatory(mandatory);
       result.setMandatoryCond(mandatoryCond);
       result.setName(name);
-      result.setqName(qName);
+      result.setQName(qName);
       result.setRefJpClass(refJpClass);
       result.setRefJpAttr(refJpAttr);
       result.setFilter(filter);
@@ -405,7 +405,7 @@ public class JsonDbJPProperty {
         .mandatory(json.isMandatory())
         .mandatoryCond(JsonExpr.toFilter(json.getMandatoryCond()))
         .name(json.getName())
-        .qName(json.getqName())
+        .qName(json.getQName())
         .refJpClass(json.getRefJpClass())
         .refJpAttr(json.getRefJpAttr())
         .filter(JsonExpr.toFilter(json.getFilter()))

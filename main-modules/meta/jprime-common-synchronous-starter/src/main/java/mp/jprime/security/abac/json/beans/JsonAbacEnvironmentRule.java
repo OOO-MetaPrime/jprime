@@ -57,7 +57,7 @@ public class JsonAbacEnvironmentRule {
    *
    * @return qName правила
    */
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 

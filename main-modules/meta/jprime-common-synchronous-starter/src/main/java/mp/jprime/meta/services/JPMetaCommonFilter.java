@@ -1,7 +1,6 @@
 package mp.jprime.meta.services;
 
 import mp.jprime.dataaccess.JPObjectAccessService;
-import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPMetaFilter;
 import mp.jprime.metamaps.JPClassMap;
@@ -20,7 +19,7 @@ import java.util.*;
  * `jprime.meta.api.filter.jpStorageCodes` - список кодовых имен хранилищ через [,], классы которых публикуем
  */
 @Service
-public final class JPMetaCommonFilter implements JPMetaFilter, JPObjectAccessServiceAware {
+public final class JPMetaCommonFilter implements JPMetaFilter {
   private Collection<String> jpClassCodes;
   private Collection<String> anonymousJpClassCodes;
   private Collection<String> jpStorageCodes;
@@ -46,22 +45,15 @@ public final class JPMetaCommonFilter implements JPMetaFilter, JPObjectAccessSer
     this.jpStorageCodes = jpStorageCodes != null ? Set.of(jpStorageCodes) : null;
   }
 
-  private JPMetaStorage jpMetaStorage;
-  private JPMapsStorage jpMapsStorage;
-  private JPObjectAccessService objectAccessService;
+  private final JPMetaStorage jpMetaStorage;
+  private final JPMapsStorage jpMapsStorage;
+  private final JPObjectAccessService objectAccessService;
 
-  @Autowired
-  private void setJpMetaStorage(JPMetaStorage jpMetaStorage) {
+  private JPMetaCommonFilter(@Autowired JPMetaStorage jpMetaStorage,
+                             @Autowired JPMapsStorage jpMapsStorage,
+                             @Autowired JPObjectAccessService objectAccessService) {
     this.jpMetaStorage = jpMetaStorage;
-  }
-
-  @Autowired(required = false)
-  private void setJpMapsStorage(JPMapsStorage jpMapsStorage) {
     this.jpMapsStorage = jpMapsStorage;
-  }
-
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
   }
 

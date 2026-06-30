@@ -249,14 +249,14 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkRead(id.getJpClass(), auth);
+    JPResourceAccess access = getAccessService().checkRead(id.getJpClass(), auth);
     if (!access.isAccess()) {
       return false;
     }
     // доступ к объекту
     if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       JPObject object = getObject(id, jpClass, access, auth);
-      if (object == null || !securityManager.checkRead(object.getJpPackage(), auth.getRoles())) {
+      if (object == null || !getSecurityStorage().checkRead(object.getJpPackage(), auth.getRoles())) {
         return false;
       }
     }
@@ -271,14 +271,14 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkDelete(id.getJpClass(), auth);
+    JPResourceAccess access = getAccessService().checkDelete(id.getJpClass(), auth);
     if (!access.isAccess()) {
       return false;
     }
     // доступ к объекту
     if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       JPObject object = getObject(id, jpClass, access, auth);
-      if (object == null || !securityManager.checkDelete(object.getJpPackage(), auth.getRoles())) {
+      if (object == null || !getSecurityStorage().checkDelete(object.getJpPackage(), auth.getRoles())) {
         return false;
       }
     }
@@ -293,7 +293,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkUpdate(id.getJpClass(), auth);
+    JPResourceAccess access = getAccessService().checkUpdate(id.getJpClass(), auth);
     if (!access.isAccess()) {
       return false;
     }
@@ -305,7 +305,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     // доступ к объекту
     if (checkExists || jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || accessFilter != null) {
       JPObject object = getObject(id, jpClass, access, auth);
-      if (object == null || !securityManager.checkUpdate(object.getJpPackage(), auth.getRoles())) {
+      if (object == null || !getSecurityStorage().checkUpdate(object.getJpPackage(), auth.getRoles())) {
         return false;
       }
     }
@@ -400,7 +400,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (auth == null || jpClass == null) {
       return Collections.emptyList();
     }
-    JPResourceAccess access = accessService.checkUpdate(jpClass.getCode(), auth);
+    JPResourceAccess access = getAccessService().checkUpdate(jpClass.getCode(), auth);
     if (!access.isAccess()) {
       return Collections.emptyList();
     }
@@ -409,7 +409,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || accessFilter != null) {
       return getObjects(jpClass, keys, access, auth)
           .stream()
-          .filter(object -> securityManager.checkUpdate(object.getJpPackage(), auth.getRoles()))
+          .filter(object -> getSecurityStorage().checkUpdate(object.getJpPackage(), auth.getRoles()))
           .map(object -> object.getJpId().getId())
           .collect(Collectors.toList());
     }
@@ -420,7 +420,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (auth == null || jpClass == null) {
       return Collections.emptyList();
     }
-    JPResourceAccess access = accessService.checkDelete(jpClass.getCode(), auth);
+    JPResourceAccess access = getAccessService().checkDelete(jpClass.getCode(), auth);
     if (!access.isAccess()) {
       return Collections.emptyList();
     }
@@ -428,7 +428,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       return getObjects(jpClass, keys, access, auth)
           .stream()
-          .filter(object -> securityManager.checkDelete(object.getJpPackage(), auth.getRoles()))
+          .filter(object -> getSecurityStorage().checkDelete(object.getJpPackage(), auth.getRoles()))
           .map(object -> object.getJpId().getId())
           .collect(Collectors.toList());
     }
@@ -439,7 +439,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (auth == null || jpClass == null) {
       return Collections.emptyList();
     }
-    JPResourceAccess access = accessService.checkRead(jpClass.getCode(), auth);
+    JPResourceAccess access = getAccessService().checkRead(jpClass.getCode(), auth);
     if (!access.isAccess()) {
       return Collections.emptyList();
     }
@@ -447,7 +447,7 @@ public final class JPObjectAccessCommonService extends JPObjectAccessBaseService
     if (jpClass.hasAttr(JPMeta.Attr.JPPACKAGE) || access.getFilter() != null) {
       return getObjects(jpClass, keys, access, auth)
           .stream()
-          .filter(object -> securityManager.checkRead(object.getJpPackage(), auth.getRoles()))
+          .filter(object -> getSecurityStorage().checkRead(object.getJpPackage(), auth.getRoles()))
           .map(object -> object.getJpId().getId())
           .collect(Collectors.toList());
     }

@@ -90,6 +90,10 @@ public class JsonJPAttr {
    * Настройка пространственного типа
    */
   private JsonJPGeometry geometry;
+  /**
+   * Признак логирования значения атрибута при действии над объектами (удаление/создание/изменение)
+   */
+  private Boolean actionLog;
 
   public JsonJPAttr() {
 
@@ -100,7 +104,7 @@ public class JsonJPAttr {
                      String stringFormat, String stringMask, Integer length,
                      String refJpClass, String refJpAttr, String signAttr,
                      JsonJPFile refJpFile, JsonJPSimpleFraction simpleFraction,
-                     JsonJPMoney money, JsonJPGeometry geometry) {
+                     JsonJPMoney money, JsonJPGeometry geometry, Boolean actionLog) {
     this.guid = guid;
     this.code = code;
     this.qName = qName;
@@ -122,6 +126,7 @@ public class JsonJPAttr {
     this.simpleFraction = simpleFraction;
     this.money = money;
     this.geometry = geometry;
+    this.actionLog = actionLog == null || actionLog;
   }
 
   /**
@@ -147,7 +152,7 @@ public class JsonJPAttr {
    *
    * @return Полный код атрибута
    */
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
@@ -314,6 +319,15 @@ public class JsonJPAttr {
   }
 
   /**
+   * Признак логирования значения атрибута при действии над объектами (удаление/создание/изменение)
+   *
+   * @return Признак логирования значения атрибута
+   */
+  public boolean actionLog() {
+    return actionLog;
+  }
+
+  /**
    * Построитель JsonJPAttr
    *
    * @return Builder
@@ -347,6 +361,7 @@ public class JsonJPAttr {
     private JsonJPSimpleFraction simpleFraction;
     private JsonJPMoney money;
     private JsonJPGeometry geometry;
+    private Boolean actionLog;
 
     private Builder() {
 
@@ -470,10 +485,15 @@ public class JsonJPAttr {
       return this;
     }
 
+    public Builder actionLog(Boolean actionLog) {
+      this.actionLog = actionLog;
+      return this;
+    }
+
     public JsonJPAttr build() {
       return new JsonJPAttr(guid, code, qName, name, shortName, description, jpPackage, identifier, mandatory,
           type, updatable, stringFormat, stringMask, length,
-          refJpClass, refJpAttr, signAttr, refJpFile, simpleFraction, money, geometry);
+          refJpClass, refJpAttr, signAttr, refJpFile, simpleFraction, money, geometry, actionLog);
     }
   }
 }

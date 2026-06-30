@@ -1,7 +1,7 @@
 sourceSets {
   validationFixtures {
     java {
-      srcDir "${rootProject.projectDir}/jprime/main-modules/test/jprime-test/src/testFixtures/java"
+      srcDir "${rootProject.projectDir}/jprime/main-modules/test/jprime-jdbc-test/src/testFixtures/java"
     }
     compileClasspath += sourceSets.test.compileClasspath
     runtimeClasspath += sourceSets.test.runtimeClasspath
@@ -9,7 +9,7 @@ sourceSets {
 }
 
 dependencies {
-  testImplementation project(':jprime-test')
+  testImplementation project(':jprime-jdbc-test')
   testImplementation project(':jprime-dataaccess-jdbc')
 }
 

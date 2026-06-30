@@ -1,5 +1,7 @@
 dependencies {
   api project(":jprime-common-starter")
+
+  api(libs.javadbf)
   api(libs.opencsv)
   api(reports.poi)
   api(reports.poi.ooxml)

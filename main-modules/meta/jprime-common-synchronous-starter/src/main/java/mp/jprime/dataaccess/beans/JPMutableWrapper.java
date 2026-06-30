@@ -132,6 +132,13 @@ public final class JPMutableWrapper implements JPMutableMap {
     data.forEach(this::putIfAbsent);
   }
 
+  @Override
+  public void putIfAbsent(JPMap data) {
+    if (data == null) {
+      return;
+    }
+    data.forEach(this::putIfAbsent);
+  }
 
   @Override
   public Set<Map.Entry<String, Object>> entrySet() {

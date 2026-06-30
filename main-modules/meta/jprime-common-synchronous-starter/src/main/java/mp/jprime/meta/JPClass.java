@@ -77,9 +77,27 @@ public interface JPClass {
    *
    * @return Признак логирования действий над объектами (удаление/создание/изменение)
    */
-  default boolean useActionLog() {
+  default boolean isActionLog() {
     return true;
   }
+
+  /**
+   * Проверяет, что атрибут логируется при действиях над объектами (удаление/создание/изменение)
+   *
+   * @param attr атрибут
+   * @return атрибут логируется
+   */
+  default boolean isActionLogAttr(JPAttr attr) {
+    return isActionLogAttr(attr.getCode());
+  }
+
+  /**
+   * Проверяет, что атрибут логируется при действиях над объектами (удаление/создание/изменение)
+   *
+   * @param attrCode код атрибута
+   * @return атрибут логируется
+   */
+  boolean isActionLogAttr(String attrCode);
 
   /**
    * Список атрибутов

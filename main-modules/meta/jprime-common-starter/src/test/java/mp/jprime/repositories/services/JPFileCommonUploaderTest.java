@@ -1,6 +1,7 @@
 package mp.jprime.repositories.services;
 
 import mp.jprime.dataaccess.JPObjectAccessService;
+import mp.jprime.dataaccess.JPObjectRepositoryService;
 import mp.jprime.dataaccess.params.JPCreate;
 import mp.jprime.globalsettings.JPGlobalSettingsService;
 import mp.jprime.meta.JPAttr;
@@ -15,7 +16,6 @@ import mp.jprime.repositories.RepositoryGlobalStorage;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -46,6 +46,8 @@ class JPFileCommonUploaderTest {
   @Autowired
   private JPFileCommonUploader uploader;
 
+  @MockitoBean
+  private JPObjectRepositoryService repo;
   @MockitoBean
   private JPGlobalSettingsService globalSettingsService;
   @MockitoBean

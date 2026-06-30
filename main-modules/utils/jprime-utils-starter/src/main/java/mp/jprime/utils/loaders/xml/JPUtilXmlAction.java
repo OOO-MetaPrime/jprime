@@ -175,14 +175,14 @@ public final class JPUtilXmlAction extends JPUtiBaseAction {
         execute(mode.executors(), params, swe, auth);
       }
 
-      return (JPUtilOutParams<T>) getOutParams(mode.result(), mode.params(), params);
+      return (JPUtilOutParams<T>) getOutParams(mode.result(), params);
     });
   }
 
-  private JPUtilOutParams getOutParams(XmlJpModeResult result, Collection<String> params, Map<String, Object> values) {
+  private JPUtilOutParams getOutParams(XmlJpModeResult result, Map<String, Object> values) {
     String resultType = result != null ? result.getType() : null;
     boolean changeData = result != null && result.isChangeData();
-    String description = resultType != null ? JPStringUtils.replaceParamValues(result.getDescription(), params, values::get) : null;
+    String description = resultType != null ? JPStringUtils.replaceParamValues(result.getDescription(), values::get) : null;
 
     if (resultType == null || JPUtilVoidOutParams.CODE.equals(resultType)) {
       return JPUtilVoidOutParams.newBuilder()

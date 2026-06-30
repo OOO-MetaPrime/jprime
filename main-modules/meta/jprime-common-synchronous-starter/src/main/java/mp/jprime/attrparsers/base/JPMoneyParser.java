@@ -8,7 +8,6 @@ import mp.jprime.lang.JPMoney;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,17 +18,13 @@ import java.math.BigDecimal;
  * реализация парсера {@link JPType#MONEY}
  */
 @Service
-public final class JPMoneyParser implements AttrTypeParser<JPMoney>, ParserServiceAware {
-  private ParserService parserService;
-  private JPJsonMapper jsonMapper;
+public final class JPMoneyParser implements AttrTypeParser<JPMoney> {
+  private final ParserService parserService;
+  private final JPJsonMapper jsonMapper;
 
-  @Override
-  public void setParserService(ParserService parserService) {
+  private JPMoneyParser(@Autowired ParserService parserService,
+                        @Autowired JPJsonMapper jsonMapper) {
     this.parserService = parserService;
-  }
-
-  @Autowired
-  private void setJsonMapper(JPJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
   }
 

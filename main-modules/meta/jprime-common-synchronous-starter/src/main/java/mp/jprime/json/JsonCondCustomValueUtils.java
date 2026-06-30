@@ -39,6 +39,10 @@ public final class JsonCondCustomValueUtils extends JsonCondBaseUtils {
       return builder.in(c.getIn());
     } else if (c.getNotIn() != null) {
       return builder.notIn(c.getNotIn());
+    } else if (c.getStartsWithIn() != null) {
+      return builder.startsWithIn(c.getStartsWithIn());
+    } else if (c.getNotStartsWithIn() != null) {
+      return builder.notStartsWithIn(c.getNotStartsWithIn());
     } else if (c.getInQuery() != null) {
       return builder.inQuery(toSubquery(c.getInQuery()));
     } else if (c.getNotInQuery() != null) {
@@ -204,9 +208,9 @@ public final class JsonCondCustomValueUtils extends JsonCondBaseUtils {
       } else if (v.getOper() == FilterOperation.FUZZY_ORDER_LIKE) {
         return builder.fuzzyOrderLike(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.STARTS_WITH) {
-        return builder.startWith(stringValue(v.getValue()));
+        return builder.startsWith(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.NOT_STARTS_WITH) {
-        return builder.notStartWith(stringValue(v.getValue()));
+        return builder.notStartsWith(stringValue(v.getValue()));
       } else if (v.getOper() == FilterOperation.CONTAINS_RANGE) {
         ContainsRange inst = (ContainsRange) v;
         return builder.containsRange(inst.getValue());

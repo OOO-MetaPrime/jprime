@@ -64,6 +64,8 @@ public final class DateFormat {
 
   public static final DateTimeFormatter LOCAL_TIME_FORMAT = DateTimeFormatter.ISO_LOCAL_TIME;
 
+  public static final DateTimeFormatter YYYY_MM_DD_FORMAT = DateTimeFormatter.ofPattern(DateFormat.YYYYY_MM_DD);
+
   public static final DateTimeFormatter DD_D_MM_D_YYYY_FORMAT = DateTimeFormatter.ofPattern(DateFormat.DDdMMdYYYY);
 
   /**

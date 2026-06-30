@@ -1,7 +1,7 @@
 package mp.jprime.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import mp.jprime.common.JPEnum;
 import mp.jprime.common.JPParam;
 import mp.jprime.common.beans.JPCommonParam;
@@ -19,6 +19,7 @@ public class XmlParam {
   private Boolean external;
   private String code;
   private String description;
+  private String placeholder;
   private String value;
   private String type;
   private Integer length;
@@ -56,6 +57,14 @@ public class XmlParam {
 
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public String getPlaceholder() {
+    return placeholder;
+  }
+
+  public void setPlaceholder(String placeholder) {
+    this.placeholder = placeholder;
   }
 
   public String getValue() {
@@ -98,11 +107,11 @@ public class XmlParam {
     this.integerFormat = integerFormat;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 
@@ -167,6 +176,7 @@ public class XmlParam {
     return "XmlParam{" +
         "code='" + code + '\'' +
         ", description='" + description + '\'' +
+        ", placeholder='" + placeholder + '\'' +
         ", external=" + external +
         ", value=" + value +
         ", type='" + type + '\'' +
@@ -205,7 +215,7 @@ public class XmlParam {
     if (xmlParamEnumArr != null) {
       enums = new ArrayList<>();
       for (XmlParamEnum xmlParamEnum : xmlParamEnumArr) {
-        enums.add(JPEnum.of(xmlParamEnum.getValue(), xmlParamEnum.getDescription(), xmlParamEnum.getqName()));
+        enums.add(JPEnum.of(xmlParamEnum.getValue(), xmlParamEnum.getDescription(), xmlParamEnum.getQName()));
       }
     }
     String defValue = xmlParam.getValue();
@@ -213,11 +223,12 @@ public class XmlParam {
         .external(xmlParam.getExternal() == null || xmlParam.getExternal())
         .code(xmlParam.getCode())
         .description(xmlParam.getDescription())
+        .placeholder(xmlParam.getPlaceholder())
         .type(jpType)
         .length(xmlParam.getLength())
         .stringFormat(JPStringFormat.getType(xmlParam.getStringFormat()))
         .integerFormat(JPIntegerFormat.getType(xmlParam.getIntegerFormat()))
-        .qName(xmlParam.getqName())
+        .qName(xmlParam.getQName())
         .multiple(multiple)
         .mandatory(mandatory)
         .value(defValue == null || defValue.isEmpty() ? null :

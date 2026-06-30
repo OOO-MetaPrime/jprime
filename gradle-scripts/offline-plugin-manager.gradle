@@ -1,12 +1,12 @@
 repositories {
   /*IAC_REMOVE_START*/
   maven {
-    url "https://nexus.metaprime.ru/repository/maven-public/"
+    url = "https://nexus.metaprime.ru/repository/maven-public/"
     allowInsecureProtocol = true
   }
   /*IAC_REMOVE_END*/
   maven {
-    url '../projects-modules/dependencies/'
+    url = '../projects-modules/dependencies/'
   }
   gradlePluginPortal()
 }

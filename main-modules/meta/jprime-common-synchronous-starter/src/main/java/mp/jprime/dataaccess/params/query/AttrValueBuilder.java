@@ -319,7 +319,7 @@ public final class AttrValueBuilder {
    * @param value Значение
    * @return Условие
    */
-  public StartsWith startWith(Object value) {
+  public StartsWith startsWith(String value) {
     return new StartsWith(attrCode, value);
   }
 
@@ -329,7 +329,7 @@ public final class AttrValueBuilder {
    * @param value Значение
    * @return Условие
    */
-  public NotStartsWith notStartWith(Object value) {
+  public NotStartsWith notStartsWith(String value) {
     return new NotStartsWith(attrCode, value);
   }
 
@@ -414,6 +414,27 @@ public final class AttrValueBuilder {
   }
 
   /**
+   * Значение с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public StartsWithIN startsWithIn(Collection<String> value) {
+    return new StartsWithIN(attrCode, value);
+  }
+
+
+  /**
+   * Значение начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public StartsWithIN startsWithIn(String... value) {
+    return new StartsWithIN(attrCode, Arrays.asList(value));
+  }
+
+  /**
    * В указанном подзапросе
    *
    * @param value Значение
@@ -441,6 +462,28 @@ public final class AttrValueBuilder {
    */
   public NotIN notIn(Comparable... value) {
     return new NotIN(attrCode, Arrays.asList(value));
+  }
+
+
+  /**
+   * Значение не начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public NotStartsWithIN notStartsWithIn(Collection<String> value) {
+    return new NotStartsWithIN(attrCode, value);
+  }
+
+
+  /**
+   * Значение не начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public NotStartsWithIN notStartsWithIn(String... value) {
+    return new NotStartsWithIN(attrCode, Arrays.asList(value));
   }
 
   /**

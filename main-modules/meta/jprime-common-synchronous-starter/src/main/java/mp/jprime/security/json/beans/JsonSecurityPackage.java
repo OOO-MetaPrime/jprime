@@ -48,7 +48,7 @@ public final class JsonSecurityPackage {
     return description;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 

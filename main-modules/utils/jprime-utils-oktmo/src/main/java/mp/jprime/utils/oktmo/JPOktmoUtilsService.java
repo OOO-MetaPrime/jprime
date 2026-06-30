@@ -7,7 +7,7 @@ import java.util.Collection;
 /**
  * Сервис поиска по ОКТМО
  */
-public interface JPOktmoUtilsService {
+public interface JpOktmoUtilsService {
   /**
    * Возвращает описание по переданным кодам ОКТМО
    *
@@ -27,6 +27,26 @@ public interface JPOktmoUtilsService {
   Collection<Oktmo> search(String query, Integer limit, SearchParams params);
 
   /**
+   * Возвращает описание по переданным кодам групп ОКТМО
+   *
+   * @param groupList  Коды групп ОКТМО
+   * @param prefixMode Признак возврата значимых префиксов ОКТМО
+   * @return Список групп ОКТМО
+   */
+  Collection<Group> getGroup(Collection<String> groupList, boolean prefixMode);
+
+  /**
+   * Поиск групп ОКТМО по параметрам
+   *
+   * @param query      Поисковая строка
+   * @param limit      Количество объектов в выборке
+   * @param prefixMode Признак возврата значимых префиксов ОКТМО
+   * @param params     Настройки поиска групп ОКТМО
+   * @return Список ОКТМО
+   */
+  Collection<Group> groupSearch(String query, Integer limit, boolean prefixMode, GroupSearchParams params);
+
+  /**
    * Настройки поиска ОКТМО
    */
   interface SearchParams {
@@ -38,14 +58,14 @@ public interface JPOktmoUtilsService {
     boolean isSubjectSearch();
 
     /**
-     * Поиск по образованиям
+     * Поиск по муниципальному уровню
      *
      * @return Да/Нет
      */
     boolean isFormationSearch();
 
     /**
-     * Поиск по округам
+     * Поиск по поселенческому уровню
      *
      * @return Да/Нет
      */
@@ -76,8 +96,8 @@ public interface JPOktmoUtilsService {
      * Создание SearchParams
      *
      * @param subjectSearch   Поиск по субъектам
-     * @param formationSearch Поиск по образованиям
-     * @param districtSearch  Поиск по округам
+     * @param formationSearch Поиск по муниципальному уровню
+     * @param districtSearch  Поиск по поселенческому уровню
      * @param oktmoSearch     Поиск с учетом указанных ОКТМО
      * @param authSearch      Поиск с учетом ОКТМО пользователя
      * @param auth            Данные пользователя
@@ -92,6 +112,50 @@ public interface JPOktmoUtilsService {
     record SearchParamsRecord(boolean isSubjectSearch, boolean isFormationSearch, boolean isDistrictSearch,
                               Collection<String> getOktmoSearch, boolean isAuthSearch,
                               AuthInfo getAuth) implements SearchParams {
+
+    }
+  }
+
+  /**
+   * Настройки поиска группы ОКТМО
+   */
+  interface GroupSearchParams {
+    /**
+     * Поиск с учетом указанных ОКТМО
+     *
+     * @return Список ОКТМО
+     */
+    Collection<String> getOktmoSearch();
+
+    /**
+     * Поиск с учетом ОКТМО пользователя
+     *
+     * @return Да/Нет
+     */
+    boolean isAuthSearch();
+
+    /**
+     * Данные пользователя
+     *
+     * @return AuthInfo
+     */
+    AuthInfo getAuth();
+
+    /**
+     * Создание GroupSearchParams
+     *
+     * @param oktmoSearch Поиск с учетом указанных ОКТМО
+     * @param authSearch  Поиск с учетом ОКТМО пользователя
+     * @param auth        Данные пользователя
+     * @return SearchParams
+     */
+    static GroupSearchParams of(Collection<String> oktmoSearch, boolean authSearch, AuthInfo auth) {
+      return new GroupSearchParamsRecord(oktmoSearch, authSearch, auth);
+    }
+
+
+    record GroupSearchParamsRecord(Collection<String> getOktmoSearch, boolean isAuthSearch,
+                                   AuthInfo getAuth) implements GroupSearchParams {
 
     }
   }
@@ -126,6 +190,48 @@ public interface JPOktmoUtilsService {
     }
 
     record OktmoRecord(String getCode, String getName) implements Oktmo {
+
+    }
+  }
+
+  /**
+   * Группа ОКТМО
+   */
+  interface Group {
+    /**
+     * Код группы ОКТМО
+     *
+     * @return Код группы ОКТМО
+     */
+    String getCode();
+
+    /**
+     * Название группы ОКТМО
+     *
+     * @return Название группы ОКТМО
+     */
+    String getName();
+
+    /**
+     * Список ОКТМО, входящих в группу
+     *
+     * @return Список ОКТМО
+     */
+    Collection<String> getOktmo();
+
+    /**
+     * Создание группы ОКТМО
+     *
+     * @param code  Код группы ОКТМО
+     * @param name  Название группы ОКТМО
+     * @param oktmo Список ОКТМО, входящих в группу
+     * @return группа ОКТМО
+     */
+    static Group of(String code, String name, Collection<String> oktmo) {
+      return new GroupRecord(code, name, oktmo);
+    }
+
+    record GroupRecord(String getCode, String getName, Collection<String> getOktmo) implements Group {
 
     }
   }

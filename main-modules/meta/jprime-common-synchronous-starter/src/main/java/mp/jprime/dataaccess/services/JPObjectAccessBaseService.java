@@ -2,7 +2,6 @@ package mp.jprime.dataaccess.services;
 
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
-import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.lang.JPMap;
@@ -12,50 +11,56 @@ import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.services.JPResourceAccess;
 import mp.jprime.security.services.JPResourceAccessService;
-import mp.jprime.security.services.JPResourceAccessServiceAware;
 import mp.jprime.security.services.JPSecurityStorage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 
 /**
  * Базовая логика проверки доступа к объекту
  */
-public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAware, JPResourceAccessServiceAware {
-  // Проверка доступа
-  protected JPResourceAccessService accessService;
-  // Хранилище настроек RBAC
-  protected JPSecurityStorage securityManager;
-  // Хранилище метаинформации
-  protected JPMetaStorage metaStorage;
-  // Сервис проверки данных указанному условию
-  private JPDataCheckService dataCheckService;
+public abstract class JPObjectAccessBaseService {
 
-  @Override
-  public void setJpDataCheckService(JPDataCheckService dataCheckService) {
-    this.dataCheckService = dataCheckService;
+  @Service
+  private static final class Links {
+    private static JPResourceAccessService RESOURCE_ACCESS_SERVICE;
+    private static JPSecurityStorage SECURITY_STORAGE;
+    private static JPMetaStorage META_STORAGE;
+    private static JPDataCheckService DATA_CHECK_SERVICE;
+
+    private Links(@Autowired JPResourceAccessService accessService,
+                  @Autowired JPSecurityStorage securityStorage,
+                  @Autowired JPMetaStorage metaStorage,
+                  @Autowired JPDataCheckService dataCheckService) {
+      RESOURCE_ACCESS_SERVICE = accessService;
+      SECURITY_STORAGE = securityStorage;
+      META_STORAGE = metaStorage;
+      DATA_CHECK_SERVICE = dataCheckService;
+    }
   }
 
-  @Override
-  public void setJpResourceAccessService(JPResourceAccessService accessService) {
-    this.accessService = accessService;
+  protected JPResourceAccessService getAccessService() {
+    return Links.RESOURCE_ACCESS_SERVICE;
   }
 
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
-    this.metaStorage = metaStorage;
+  protected JPSecurityStorage getSecurityStorage() {
+    return Links.SECURITY_STORAGE;
   }
 
-  @Autowired
-  private void setSecurityManager(JPSecurityStorage securityManager) {
-    this.securityManager = securityManager;
+  protected JPMetaStorage getMetaStorage() {
+    return Links.META_STORAGE;
+  }
+
+  protected JPDataCheckService getDataCheckService() {
+    return Links.DATA_CHECK_SERVICE;
   }
 
   protected boolean isCreateCheck(String classCode, JPMap createData, AuthInfo auth) {
     if (classCode == null || auth == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkCreate(classCode, auth);
+    JPResourceAccess access = getAccessService().checkCreate(classCode, auth);
     if (!access.isAccess()) {
       return false;
     }
@@ -71,7 +76,7 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
     if (classCode == null || auth == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkRead(classCode, auth);
+    JPResourceAccess access = getAccessService().checkRead(classCode, auth);
     return access.isAccess();
   }
 
@@ -79,7 +84,7 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
     if (classCode == null || auth == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkUpdate(classCode, auth);
+    JPResourceAccess access = getAccessService().checkUpdate(classCode, auth);
     return access.isAccess();
   }
 
@@ -87,7 +92,7 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
     if (classCode == null || auth == null) {
       return false;
     }
-    JPResourceAccess access = accessService.checkDelete(classCode, auth);
+    JPResourceAccess access = getAccessService().checkDelete(classCode, auth);
     return access.isAccess();
   }
 
@@ -128,6 +133,6 @@ public abstract class JPObjectAccessBaseService implements JPDataCheckServiceAwa
   }
 
   protected boolean checkData(Filter filter, JPMap data, AuthInfo auth, boolean notContainsDefaultValue) {
-    return dataCheckService.check(filter, data, auth, notContainsDefaultValue);
+    return getDataCheckService().check(filter, data, auth, notContainsDefaultValue);
   }
 }

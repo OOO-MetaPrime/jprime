@@ -1,6 +1,6 @@
 package mp.test.testcontainers;
 
-import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.delegate.DatabaseDelegate;
 import org.testcontainers.ext.ScriptUtils;
 import org.testcontainers.jdbc.JdbcDatabaseDelegate;

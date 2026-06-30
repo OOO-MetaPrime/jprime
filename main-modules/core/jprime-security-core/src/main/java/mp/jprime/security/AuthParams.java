@@ -4,7 +4,7 @@ import mp.jprime.utils.Oktmo;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.function.Supplier;
 
 public interface AuthParams extends ConnectionInfo {
   /**
@@ -83,11 +83,7 @@ public interface AuthParams extends ConnectionInfo {
    * @return Префиксы ОКТМО пользователя
    */
   default Collection<String> getOktmoTreeList() {
-    Collection<String> oktmo = getOktmoList();
-    Collection<String> result = new HashSet<>();
-    result.addAll(Oktmo.getPrefix(oktmo));
-    result.addAll(Oktmo.getHierarchy(oktmo));
-    return result;
+    return Oktmo.getOktmoTreeList(getOktmoList());
   }
 
   /**
@@ -124,6 +120,17 @@ public interface AuthParams extends ConnectionInfo {
    * @return сотрудника пользователя
    */
   String getEmplId();
+
+  /**
+   * Возвращает значение или рассчитывает при отсутствии
+   *
+   * @param key  Ключ
+   * @param func Логика расчета значения
+   * @return Значение
+   */
+  default Object getProperty(String key, Supplier<Object> func) {
+    return func != null ? func.get() : null;
+  }
 
   /**
    * Данные ЕСИА

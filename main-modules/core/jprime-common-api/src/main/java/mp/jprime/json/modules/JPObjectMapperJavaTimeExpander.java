@@ -1,15 +1,18 @@
 package mp.jprime.json.modules;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.parsers.ValueParser;
 import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.KeyDeserializer;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -57,7 +60,7 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
   }
 
   @Override
-  public void expand(ObjectMapper objectMapper) {
+  public void expand(MapperBuilder<?, ?> builder) {
     SimpleModule module = new SimpleModule()
         // String to LocalTime
         .addKeyDeserializer(LocalTime.class, new KeyDeserializer() {
@@ -68,8 +71,8 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
         })
         .addDeserializer(LocalTime.class, new StdDeserializer<>(LocalTime.class) {
           @Override
-          public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return toLocalTime(p.getText());
+          public LocalTime deserialize(JsonParser p, DeserializationContext ctxt) {
+            return toLocalTime(p.getString());
           }
         })
         // String to LocalDateTime
@@ -81,8 +84,8 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
         })
         .addDeserializer(LocalDateTime.class, new StdDeserializer<>(LocalDateTime.class) {
           @Override
-          public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return toLocalDateTime(p.getText());
+          public LocalDateTime deserialize(JsonParser p, DeserializationContext ctxt) {
+            return toLocalDateTime(p.getString());
           }
         })
         // String to LocalDate
@@ -94,38 +97,38 @@ public final class JPObjectMapperJavaTimeExpander implements JPObjectMapperExpan
         })
         .addDeserializer(LocalDate.class, new StdDeserializer<>(LocalDate.class) {
           @Override
-          public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return toLocalDate(p.getText());
+          public LocalDate deserialize(JsonParser p, DeserializationContext ctxt) {
+            return toLocalDate(p.getString());
           }
         })
         // LocalTime to String
         .addSerializer(LocalTime.class,
-            new JsonSerializer<>() {
+            new ValueSerializer<>() {
               @Override
-              public void serialize(LocalTime v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+              public void serialize(LocalTime v, JsonGenerator jGen, SerializationContext sProv) {
                 jGen.writeString(ValueParser.parseTo(String.class, v));
               }
             }
         )
         // LocalDateTime to String
         .addSerializer(LocalDateTime.class,
-            new JsonSerializer<>() {
+            new ValueSerializer<>() {
               @Override
-              public void serialize(LocalDateTime v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+              public void serialize(LocalDateTime v, JsonGenerator jGen, SerializationContext sProv) {
                 jGen.writeString(ValueParser.parseTo(String.class, v));
               }
             }
         )
         // LocalDate to String
         .addSerializer(LocalDate.class,
-            new JsonSerializer<>() {
+            new ValueSerializer<>() {
               @Override
-              public void serialize(LocalDate v, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
+              public void serialize(LocalDate v, JsonGenerator jGen, SerializationContext sProv) {
                 jGen.writeString(ValueParser.parseTo(String.class, v));
               }
             }
         );
 
-    objectMapper.registerModule(module);
+    builder.addModule(module);
   }
 }

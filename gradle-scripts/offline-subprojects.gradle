@@ -1,7 +1,7 @@
 subprojects {
   repositories {
     maven {
-      url "${rootProject.rootDir}/../projects-modules/dependencies/"
+      url = "${rootProject.rootDir}/../projects-modules/dependencies/"
       metadataSources {
         mavenPom()
         artifact()

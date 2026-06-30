@@ -12,8 +12,8 @@ import java.util.function.Consumer;
 /**
  * JPPipedInputStream
  */
-public final class JPPipedInputStream {
-  private static final Logger LOG = LoggerFactory.getLogger(JPPipedInputStream.class);
+public final class JpPipedInputStream {
+  private static final Logger LOG = LoggerFactory.getLogger(JpPipedInputStream.class);
 
   public static InputStream toInputStream(Consumer<OutputStream> func) {
     try {

@@ -7,11 +7,24 @@ import mp.jprime.meta.beans.JPType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Парсер типов атрибутов
  */
 public interface AttrTypeParser<T> {
   Logger LOG = LoggerFactory.getLogger(AttrTypeParser.class);
+
+  /**
+   * Возвращает связанные атрибуты
+   *
+   * @param jpAttr Атрибут
+   * @return Кодовые имена связанных атрибутов
+   */
+  default Collection<String> getRelatedAttrs(JPAttr jpAttr) {
+    return Collections.emptyList();
+  }
 
   /**
    * Форматирование значения на основе данных в JPAttrData

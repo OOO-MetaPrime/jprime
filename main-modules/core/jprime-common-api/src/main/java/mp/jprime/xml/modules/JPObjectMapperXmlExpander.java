@@ -1,15 +1,15 @@
 package mp.jprime.xml.modules;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.databind.cfg.MapperBuilder;
 
 /**
  * Добавление настроек в ObjectMapper
  */
 public interface JPObjectMapperXmlExpander {
   /**
-   * Добавление настроек в ObjectMapper
+   * Добавление настроек в MapperBuilder
    *
-   * @param objectMapper ObjectMapper
+   * @param builder MapperBuilder
    */
-  void expand(ObjectMapper objectMapper);
+  void expand(MapperBuilder<?, ?> builder);
 }

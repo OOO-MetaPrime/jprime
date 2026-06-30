@@ -1,17 +1,17 @@
 package mp.jprime.json.services;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPMap;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.ser.FilterProvider;
+import tools.jackson.databind.ser.std.SimpleBeanPropertyFilter;
+import tools.jackson.databind.ser.std.SimpleFilterProvider;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -36,7 +36,7 @@ public abstract class JPBaseObjectMapper {
     }
     try {
       return getObjectMapper().writeValueAsString(object);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw JPRuntimeException.wrapException(e);
     }
   }
@@ -52,7 +52,7 @@ public abstract class JPBaseObjectMapper {
     if (node == null || node.isMissingNode()) {
       return null;
     }
-    return node.asText();
+    return node.asString();
   }
 
   @JsonFilter("exceptFilter")
@@ -70,11 +70,12 @@ public abstract class JPBaseObjectMapper {
     try {
       FilterProvider filterProvider = new SimpleFilterProvider()
           .addFilter("exceptFilter", SimpleBeanPropertyFilter.serializeAllExcept(new HashSet<>(ignoreProps)));
-      ObjectWriter writer = getObjectMapper().copy()
+      ObjectWriter writer = getObjectMapper().rebuild()
           .addMixIn(Object.class, ExceptFilterMixIn.class)
+          .build()
           .writer(filterProvider);
       return writer.writeValueAsString(object);
-    } catch (JsonProcessingException e) {
+    } catch (JacksonException e) {
       throw JPRuntimeException.wrapException(e);
     }
   }

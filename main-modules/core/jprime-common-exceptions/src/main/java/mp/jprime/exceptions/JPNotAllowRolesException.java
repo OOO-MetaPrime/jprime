@@ -1,5 +1,6 @@
 package mp.jprime.exceptions;
 
+import mp.jprime.exceptions.enums.JPRoleError;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
@@ -10,6 +11,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
 public class JPNotAllowRolesException extends JPAppRuntimeException {
   public JPNotAllowRolesException() {
-    super("invalid_allowRoles", "invalid_allowRoles");
+    super(JPRoleError.INVALID_ALLOW_ROLES.getCode(), JPRoleError.INVALID_ALLOW_ROLES.getName());
   }
 }

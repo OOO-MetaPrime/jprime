@@ -1,37 +1,72 @@
-ext {
-  dockerImageDir = "${rootProject.projectDir}/../projects-modules/docker-images/"
-}
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import org.gradle.api.tasks.Input
+import org.gradle.process.ExecOperations
+import javax.inject.Inject
 
-ext.common = [
-    buildDocker           : { String name, String context, String... params ->
-      exec {
-        Collection<String> command = new ArrayList<>(Arrays.asList('docker', 'build', '-t', name))
-        if (params != null && params.length > 0) {
-          command.addAll(params)
-        }
-        command.add(context)
-        commandLine command
+abstract class DockerLoadSource implements ValueSource<String, DockerLoadSource.Parameters> {
+  interface Parameters extends ValueSourceParameters {
+    @Input
+    DirectoryProperty getDockerImageDir()
+  }
+
+  @Inject
+  abstract ExecOperations getExecOperations()
+
+  @Override
+  String obtain() {
+    def dockerImageDir = parameters.dockerImageDir.get().asFile.absolutePath
+    def output = new ByteArrayOutputStream()
+
+    def images = [
+        '/alpine-jdk17.tar',
+        '/alpine-jdk17-libreoffice.tar',
+        '/alpine-jdk17-libreoffice-chrome.tar',
+        '/ubuntu-jdk17.tar'
+    ]
+
+    images.each { image ->
+      getExecOperations().exec { spec ->
+        spec.commandLine('docker', 'load', '-i', dockerImageDir + image)
+        spec.standardOutput = output
+        spec.ignoreExitValue = false
       }
-    },
-    buildDockerWithJarFile: { name, jarFile ->
-      common.buildDocker(name, '.', '--build-arg', 'JAR_FILE=' + jarFile)
     }
-]
 
-void loadDocker(String tag, String tar) {
-  exec {
-    commandLine 'docker', 'load', '-i', dockerImageDir + tar
+    return output.toString().trim()
   }
 }
 
-task dockerLoad() {
+// Вычисляем путь заранее (объект типа DirectoryProperty)
+def dockerImagesDir = project.rootProject.layout.projectDirectory.dir("../projects-modules/docker-images")
+
+def dockerLoadProvider = project.providers.of(DockerLoadSource) { spec ->
+  spec.parameters { params ->
+    {
+      params.dockerImageDir.set(dockerImagesDir);
+    }
+  }
+}
+
+def execOps = project.getServices().get(ExecOperations.class)
+
+ext {
+  buildDocker = { String name, String context, String... params ->
+    execOps.exec {
+      Collection<String> command = new ArrayList<>(Arrays.asList('docker', 'build', '-t', name))
+      if (params != null && params.length > 0) {
+        command.addAll(params)
+      }
+      command.add(context)
+      commandLine command
+    }
+  }
+}
+
+tasks.register('buildLocalDockers') {
+  group = "build offline"
   doFirst {
-    loadDocker('alpine-jdk17:latest', 'alpine-jdk17.tar')
-    loadDocker('alpine-jdk17/libreoffice:latest', 'alpine-jdk17-libreoffice.tar')
-    loadDocker('alpine-jdk17/libreoffice-chrome:latest', 'alpine-jdk17-libreoffice-chrome.tar')
-    loadDocker('ubuntu-jdk17:latest', 'ubuntu-jdk17.tar')
+    def result = dockerLoadProvider.get()
+    println result
   }
-}
-
-task buildLocalDockers(group: 'build offline', dependsOn: 'dockerLoad') {
 }

@@ -1,7 +1,7 @@
 package mp.jprime.meta.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpClass {
@@ -51,11 +51,11 @@ public class XmlJpClass {
     this.description = description;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 
@@ -83,7 +83,7 @@ public class XmlJpClass {
     this.inner = inner;
   }
 
-  public Boolean getActionLog() {
+  public Boolean isActionLog() {
     return actionLog;
   }
 

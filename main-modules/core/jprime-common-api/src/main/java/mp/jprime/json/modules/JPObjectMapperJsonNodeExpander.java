@@ -1,17 +1,16 @@
 package mp.jprime.json.modules;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.lang.JPJsonNode;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
-import java.io.IOException;
 
 /**
  * Подключение базовых обработчиков
@@ -20,24 +19,24 @@ import java.io.IOException;
 public final class JPObjectMapperJsonNodeExpander implements JPObjectMapperExpander {
 
   @Override
-  public void expand(ObjectMapper objectMapper) {
+  public void expand(MapperBuilder<?, ?> builder) {
     SimpleModule module = new SimpleModule()
         // JsonNode to JPJsonNode
         .addDeserializer(JPJsonNode.class, new StdDeserializer<>(JPJsonNode.class) {
           @Override
-          public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
-            return JPJsonNode.from(p.getCodec().readTree(p));
+          public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) {
+            return JPJsonNode.from(p.readValueAsTree());
           }
         })
         // JPJsonNode to JsonNode
         .addSerializer(JPJsonNode.class,
-            new JsonSerializer<>() {
+            new ValueSerializer<>() {
               @Override
-              public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
-                jGen.writeObject(jpJsonNode.toJsonNode());
+              public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializationContext sProv) {
+                jGen.writePOJO(jpJsonNode.toJsonNode());
               }
             }
         );
-    objectMapper.registerModule(module);
+    builder.addModule(module);
   }
 }

@@ -4,8 +4,9 @@ import mp.jprime.exceptions.CompositeException;
 import mp.jprime.exceptions.JPAppRuntimeException;
 import mp.jprime.exceptions.JPWrongVersionException;
 import mp.jprime.parsers.exceptions.JPParseException;
+import org.jspecify.annotations.NonNull;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
-import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.boot.webflux.error.DefaultErrorAttributes;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 public class GlobalErrorAttributes extends DefaultErrorAttributes {
   @Override
-  public Map<String, Object> getErrorAttributes(ServerRequest request, ErrorAttributeOptions options) {
+  public @NonNull Map<String, Object> getErrorAttributes(@NonNull ServerRequest request, @NonNull ErrorAttributeOptions options) {
     Map<String, Object> map = super.getErrorAttributes(request, options);
     Throwable error = getError(request);
     if (error instanceof CompositeException<?> e) {

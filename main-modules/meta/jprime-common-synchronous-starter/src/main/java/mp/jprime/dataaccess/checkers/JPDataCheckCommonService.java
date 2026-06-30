@@ -17,15 +17,12 @@ import mp.jprime.security.AuthInfo;
 import mp.jprime.security.exceptions.JPSelectRightException;
 import mp.jprime.security.services.JPResourceAccess;
 import mp.jprime.security.services.JPResourceAccessService;
-import mp.jprime.security.services.JPResourceAccessServiceAware;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -33,14 +30,13 @@ import java.util.stream.Stream;
  * Сервис проверки данных указанному условию
  */
 @Service
-public final class JPDataCheckCommonService implements JPDataCheckService, JPResourceAccessServiceAware {
+public final class JPDataCheckCommonService implements JPDataCheckService {
   private final Map<Class, CheckFilter> checkFilters = new HashMap<>();
 
   // Проверка доступа
-  private JPResourceAccessService resourceAccessService;
+  private final JPResourceAccessService resourceAccessService;
 
-  @Override
-  public void setJpResourceAccessService(JPResourceAccessService accessService) {
+  private JPDataCheckCommonService(@Autowired JPResourceAccessService accessService) {
     this.resourceAccessService = accessService;
   }
 
@@ -62,7 +58,6 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
     }
   }
 
-
   @Override
   public Long getTotalCount(JPSelect select, Collection<JPObject> objects) {
     if (objects == null || objects.isEmpty()) {
@@ -73,30 +68,35 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
   }
 
   @Override
+  public Collection<JPObject> sort(Collection<JPOrder> orders, Collection<JPObject> objects) {
+    if (objects == null || objects.isEmpty()) {
+      return Collections.emptyList();
+    }
+    return sort(orders, objects, JPObject::getAttrValue);
+  }
+
+  @Override
+  public <T> List<T> sort(Collection<JPOrder> orders,
+                          Collection<T> list,
+                          BiFunction<T, String, Comparable> valueFunc) {
+    if (list == null || list.isEmpty()) {
+      return Collections.emptyList();
+    }
+
+    Stream<T> stream = list.stream();
+    return sort(orders, stream, valueFunc)
+        .collect(Collectors.toList());
+  }
+
+  @Override
   public Collection<JPObject> getList(JPSelect select, Collection<JPObject> objects) {
     if (objects == null || objects.isEmpty()) {
       return Collections.emptyList();
     }
     Stream<JPObject> stream = getListStream(select, objects);
 
-    Collection<JPOrder> orders = select.getOrderBy();
-    if (orders != null && !orders.isEmpty()) {
-      stream = stream
-          .sorted((o1, o2) -> {
-            for (JPOrder order : orders) {
-              Comparable v1 = o1.getAttrValue(order.getAttr());
-              Comparable v2 = o2.getAttrValue(order.getAttr());
-              if (v1 instanceof String s1 && v2 instanceof String s2) {
-                return (order.getOrder() == JPOrderDirection.ASC ? 1 : -1) * s1.compareToIgnoreCase(s2);
-              }
-              int compare = ObjectUtils.compare(v1, v2);
-              if (compare != 0) {
-                return order.getOrder() == JPOrderDirection.ASC ? compare : -1 * compare;
-              }
-            }
-            return 0;
-          });
-    }
+    stream = sort(select.getOrderBy(), stream, JPObject::getAttrValue);
+
     if (select.getOffset() != null) {
       stream = stream.skip(select.getOffset());
     }
@@ -104,6 +104,29 @@ public final class JPDataCheckCommonService implements JPDataCheckService, JPRes
       stream = stream.limit(select.getLimit());
     }
     return stream.collect(Collectors.toList());
+  }
+
+  private <T> Stream<T> sort(Collection<JPOrder> orders,
+                             Stream<T> stream,
+                             BiFunction<T, String, Comparable> valueFunc) {
+    if (orders != null && !orders.isEmpty()) {
+      return stream.sorted((o1, o2) -> {
+        for (JPOrder order : orders) {
+          String attr = order.getAttr();
+          Comparable v1 = valueFunc.apply(o1, attr);
+          Comparable v2 = valueFunc.apply(o2, attr);
+          if (v1 instanceof String s1 && v2 instanceof String s2) {
+            return (order.getOrder() == JPOrderDirection.ASC ? 1 : -1) * s1.compareToIgnoreCase(s2);
+          }
+          int compare = ObjectUtils.compare(v1, v2);
+          if (compare != 0) {
+            return order.getOrder() == JPOrderDirection.ASC ? compare : -1 * compare;
+          }
+        }
+        return 0;
+      });
+    }
+    return stream;
   }
 
   @Override

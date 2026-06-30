@@ -1,11 +1,5 @@
 package mp.jprime.xml.modules;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import org.slf4j.Logger;
@@ -13,8 +7,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.*;
+import tools.jackson.databind.cfg.MapperBuilder;
+import tools.jackson.databind.deser.std.StdDeserializer;
+import tools.jackson.databind.module.SimpleModule;
 
-import java.io.IOException;
 
 /**
  * Подключение базовых обработчиков
@@ -30,18 +30,18 @@ public final class JPObjectMapperXmlJsonNodeExpander implements JPObjectMapperXm
   }
 
   @Override
-  public void expand(ObjectMapper objectMapper) {
+  public void expand(MapperBuilder<?, ?> builder) {
     SimpleModule module = new SimpleModule()
         // String to JPJsonNode
         .addDeserializer(JPJsonNode.class, new StdDeserializer<>(JPJsonNode.class) {
           @Override
-          public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+          public JPJsonNode deserialize(JsonParser p, DeserializationContext ctxt)  {
             JsonNode jsonNode = null;
             String value = p.getValueAsString();
             try {
               jsonNode = !StringUtils.hasText(value) ? null :
                   jsonMapper.getObjectMapper().readTree(value);
-            } catch (JsonProcessingException e) {
+            } catch (JacksonException e) {
               LOG.error(e.getMessage(), e);
             }
             return JPJsonNode.from(jsonNode);
@@ -49,13 +49,13 @@ public final class JPObjectMapperXmlJsonNodeExpander implements JPObjectMapperXm
         })
         // JPJsonNode to String
         .addSerializer(JPJsonNode.class,
-            new JsonSerializer<>() {
+            new ValueSerializer<>() {
               @Override
-              public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializerProvider sProv) throws IOException {
-                jGen.writeObject(jpJsonNode.toJsonNode().toString());
+              public void serialize(JPJsonNode jpJsonNode, JsonGenerator jGen, SerializationContext sProv) {
+                jGen.writePOJO(jpJsonNode.toJsonNode().toString());
               }
             }
         );
-    objectMapper.registerModule(module);
+    builder.addModule(module);
   }
 }

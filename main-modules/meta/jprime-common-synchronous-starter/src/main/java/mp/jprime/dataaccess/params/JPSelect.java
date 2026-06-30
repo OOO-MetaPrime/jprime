@@ -280,6 +280,15 @@ public class JPSelect extends JPBaseOperation {
     }
 
     /**
+     * Настройки сортировки
+     *
+     * @return Настройки сортировки
+     */
+    public List<JPOrder> orderBy() {
+      return orderBy;
+    }
+
+    /**
      * Определение точного кол-ва объектов в выборке
      *
      * @param totalCount Определение точного кол-ва объектов

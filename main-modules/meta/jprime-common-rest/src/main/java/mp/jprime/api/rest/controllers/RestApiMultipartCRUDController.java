@@ -9,6 +9,7 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.JPFile;
 import mp.jprime.meta.beans.JPType;
+import mp.jprime.reactor.core.publisher.JPFlux;
 import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
@@ -49,8 +49,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                   @PathVariable("bearer") String bearer,
                                   @PathVariable("width") int width,
                                   @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return JPMono.fromCallable(() -> jpMetaFilter.get(classCode, auth))
+    AuthInfo auth = getJWTService().getAuthInfo(bearer, swe);
+    return JPMono.fromCallable(() -> getMetaFilter().get(classCode, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -58,7 +58,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           }
           return jpClass;
         })
-        .flatMap(attr -> jpFileLoader.asyncGetInfo(JPId.get(classCode, objectId), attrCode, auth))
+        .flatMap(attr -> getFileLoader().asyncGetInfo(JPId.get(classCode, objectId), attrCode, auth))
         .flatMap(info -> writeTo(swe, thumbnailService.toThumbnail(info, width), userAgent));
   }
 
@@ -73,8 +73,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                  @RequestParam(value = "stamp", required = false) boolean stamp,
                                  @RequestParam(value = "sign", required = false) boolean sign,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return JPMono.fromCallable(() -> jpMetaFilter.get(classCode, auth))
+    AuthInfo auth = getJWTService().getAuthInfo(bearer, swe);
+    return JPMono.fromCallable(() -> getMetaFilter().get(classCode, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -82,10 +82,10 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           }
           return jpClass;
         })
-        .flatMapMany(jpClass -> Flux.fromIterable(getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
+        .flatMapMany(jpClass -> JPFlux.fromCallable(() -> getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
         .parallel()
         .runOn(Schedulers.parallel())
-        .flatMap(attr -> jpFileLoader.asyncGetInfo(JPId.get(classCode, objectId), attr, auth))
+        .flatMap(attr -> getFileLoader().asyncGetInfo(JPId.get(classCode, objectId), attr, auth))
         .sequential()
         .collectList()
         .flatMap(infoList -> infoList.size() == 1 ? writeTo(swe, infoList.iterator().next(), userAgent) : writeZipTo(swe, infoList, userAgent));
@@ -101,8 +101,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                  @PathVariable("linkValue") String linkValue,
                                  @PathVariable("bearer") String bearer,
                                  @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return JPMono.fromCallable(() -> jpMetaFilter.get(code, auth))
+    AuthInfo auth = getJWTService().getAuthInfo(bearer, swe);
+    return JPMono.fromCallable(() -> getMetaFilter().get(code, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -111,7 +111,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           return jpClass;
         })
         .flatMap(
-            jpClass -> jpFileLoader.asyncGetInfo(JPId.get(jpClass.getCode(), objectId), Filter.attr(linkCode).eq(linkValue), attrCode, auth)
+            jpClass -> getFileLoader().asyncGetInfo(JPId.get(jpClass.getCode(), objectId), Filter.attr(linkCode).eq(linkValue), attrCode, auth)
         )
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .flatMap(
@@ -131,8 +131,8 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                      @RequestParam(value = "stamp", required = false) boolean stamp,
                                      @RequestParam(value = "sign", required = false) boolean sign,
                                      @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    AuthInfo auth = jwtService.getAuthInfo(bearer, swe);
-    return JPMono.fromCallable(() -> jpMetaFilter.get(code, auth))
+    AuthInfo auth = getJWTService().getAuthInfo(bearer, swe);
+    return JPMono.fromCallable(() -> getMetaFilter().get(code, auth))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null) {
@@ -140,11 +140,11 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           }
           return jpClass;
         })
-        .flatMapMany(jpClass -> Flux.fromIterable(getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
+        .flatMapMany(jpClass -> JPFlux.fromCallable(() -> getRequestedFileAttrs(jpClass, attrCode, base, stamp, sign)))
         .parallel()
         .runOn(Schedulers.parallel())
         .flatMap(
-            attr -> jpFileLoader.asyncGetInfos(code, Filter.attr(linkCode).eq(linkValue), attr, auth)
+            attr -> getFileLoader().asyncGetInfos(code, Filter.attr(linkCode).eq(linkValue), attr, auth)
         )
         .sequential()
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
@@ -183,7 +183,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                           @PathVariable("objectId") String objectId,
                                           @PathVariable("attrCode") String attrCode,
                                           @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return JPMono.fromCallable(() -> jpMetaFilter.getAnonymous(code))
+    return JPMono.fromCallable(() -> getMetaFilter().getAnonymous(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || objectId == null || jpClass == null) {
@@ -192,7 +192,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           return jpClass;
         })
         .flatMap(
-            jpClass -> jpFileLoader.asyncGetInfo(JPId.get(jpClass.getCode(), objectId), attrCode, null)
+            jpClass -> getFileLoader().asyncGetInfo(JPId.get(jpClass.getCode(), objectId), attrCode, null)
         )
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .flatMap(
@@ -208,7 +208,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
                                            @PathVariable("linkCode") String linkCode,
                                            @PathVariable("linkValue") String linkValue,
                                            @RequestHeader(value = HttpHeaders.USER_AGENT, required = false) String userAgent) {
-    return JPMono.fromCallable(() -> jpMetaFilter.getAnonymous(code))
+    return JPMono.fromCallable(() -> getMetaFilter().getAnonymous(code))
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .map(jpClass -> {
           if (attrCode == null || jpClass == null) {
@@ -217,7 +217,7 @@ public class RestApiMultipartCRUDController extends DownloadFileRestBaseControll
           return jpClass;
         })
         .flatMapMany(
-            jpClass -> jpFileLoader.asyncGetInfos(jpClass.getCode(), Filter.attr(linkCode).eq(linkValue), attrCode, null)
+            jpClass -> getFileLoader().asyncGetInfos(jpClass.getCode(), Filter.attr(linkCode).eq(linkValue), attrCode, null)
         )
         .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND)))
         .collectList()

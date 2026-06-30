@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Ошибка форматирования данных
  */
-public class JPStringFormatParseException extends JPAppRuntimeException {
+public class JpStringFormatParseException extends JPAppRuntimeException {
   private final Map<String, String> values;
 
   /**
@@ -16,7 +16,7 @@ public class JPStringFormatParseException extends JPAppRuntimeException {
    *
    * @param values Поля с ошибками
    */
-  public JPStringFormatParseException(Map<String, String> values, Map<String, String> titles) {
+  public JpStringFormatParseException(Map<String, String> values, Map<String, String> titles) {
     super("stringFormat.error", "Неверно указано значение: " + String.join(",", titles.values()));
     this.values = Collections.unmodifiableMap(values);
   }
@@ -26,8 +26,8 @@ public class JPStringFormatParseException extends JPAppRuntimeException {
    *
    * @param values Поля с ошибками
    */
-  public JPStringFormatParseException(Map<String, String> values) {
-    super("stringFormat.error", "Неверно указано значение: " + String.join(",", values.keySet()));
+  public JpStringFormatParseException(Map<String, String> values) {
+    super("stringFormat.error", "Неверно указано значение");
     this.values = Collections.unmodifiableMap(values);
   }
 

@@ -1,39 +1,54 @@
 [versions]
+# Apache velocity
+apacheVelocityVersion = "2.4.1"
+# Bucket4j (Java rate-limiting library based on token-bucket algorithm)
+bucket4jVersion = "8.18.0"
+# fasterxml-uuid
+fasterxmlUuidVersion = "5.2.0"
+# guava
+guavaVersion = "33.6.0-jre"
 # jackson
-jacksonAnnotationsVersion = "2.19.4"
-jacksonDataformatXmlVersion = "2.19.4"
-jacksonDataformatYamlVersion = "2.19.4"
-jacksonDatatypeJsr310Version = "2.19.4"
+jacksonAnnotationsVersion = "2.22"
+jacksonDataformatXmlVersion = "3.1.4"
+jacksonDataformatYamlVersion = "3.1.4"
+# javadbf
+javadbfVersion = "1.14.1"
 # java-generator
 javapoetVersion = "1.13.0"
 # file-converter
 jodconverterLocalVersion = "4.4.11"
+# livekit - API сля сервера LiveKit видео-конференций
+livekitVersion = "0.13.0"
+# moneta
+monetaCoreVersion = "1.4.5"
 # http-parser
 nioMultipartParserVersion = "1.1.0"
-# sshj
-sshjVersion = "0.40.0"
-# Apache velocity
-apacheVelocityVersion = "2.4.1"
 # Opencsv parser
 opencsvParserVersion = "5.12.0"
-# Bucket4j (Java rate-limiting library based on token-bucket algorithm)
-bucket4jVersion = "8.16.0"
 # SaxonHE XPath 2.0/3.0
 saxonHEVersion = "12.9"
+# sshj
+sshjVersion = "0.40.0"
 
 [libraries]
+apacheVelocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "apacheVelocityVersion" }
+bucket4j = { module = "com.bucket4j:bucket4j_jdk17-core", version.ref = "bucket4jVersion" }
+fasterxml-uuid = { module="com.fasterxml.uuid:java-uuid-generator", version.ref="fasterxmlUuidVersion" }
+guava = { module="com.google.guava:guava", version.ref="guavaVersion" }
+
 jackson-annotations = { module = "com.fasterxml.jackson.core:jackson-annotations", version.ref = "jacksonAnnotationsVersion" }
-jackson-dataformat-xml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-xml", version.ref = "jacksonDataformatXmlVersion" }
-jackson-dataformat-yaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jacksonDataformatYamlVersion" }
-jackson-datatype-jsr310 = { module = "com.fasterxml.jackson.datatype:jackson-datatype-jsr310", version.ref = "jacksonDatatypeJsr310Version" }
+jackson-dataformat-xml = { module = "tools.jackson.dataformat:jackson-dataformat-xml", version.ref = "jacksonDataformatXmlVersion" }
+jackson-dataformat-yaml = { module = "tools.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jacksonDataformatYamlVersion" }
+
+javadbf = { module = "com.github.albfernandez:javadbf", version.ref = "javadbfVersion" }
 javapoet = { module = "com.squareup:javapoet", version.ref = "javapoetVersion" }
 jodconverter-local = { module = "org.jodconverter:jodconverter-local", version.ref = "jodconverterLocalVersion" }
+livekit = { module = "io.livekit:livekit-server", version.ref = "livekitVersion" }
+moneta-core = { module="org.javamoney.moneta:moneta-core", version.ref="monetaCoreVersion" }
 nio-multipart-parser = { module = "org.synchronoss.cloud:nio-multipart-parser", version.ref = "nioMultipartParserVersion" }
-sshj = { module = "com.hierynomus:sshj", version.ref = "sshjVersion" }
-apacheVelocity = { module = "org.apache.velocity:velocity-engine-core", version.ref = "apacheVelocityVersion" }
 opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsvParserVersion" }
-bucket4j = { module = "com.bucket4j:bucket4j_jdk17-core", version.ref = "bucket4jVersion" }
 saxonHE = { module = "net.sf.saxon:Saxon-HE", version.ref = "saxonHEVersion" }
+sshj = { module = "com.hierynomus:sshj", version.ref = "sshjVersion" }
 
 [bundles]
-jackson-v1 = ['jackson-dataformat-xml', 'jackson-datatype-jsr310', 'jackson-dataformat-yaml']
+jackson-v1 = ['jackson-dataformat-xml', 'jackson-dataformat-yaml']

@@ -15,11 +15,11 @@ public class XmlJpResourceRule {
     this.name = name;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 

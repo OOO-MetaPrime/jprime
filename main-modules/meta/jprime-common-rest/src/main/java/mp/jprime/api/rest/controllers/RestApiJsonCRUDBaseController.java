@@ -21,6 +21,7 @@ import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -30,69 +31,61 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings implements JPObjectAccessServiceAware, JPReactiveObjectRepositoryServiceAware {
-  /**
-   * Интерфейс создания / обновления объекта
-   */
-  protected JPReactiveObjectRepositoryService repo;
-  /**
-   * Заполнение запросов на основе JSON
-   */
-  protected QueryService queryService;
-  /**
-   * Интерфейс проверки доступа к объекту
-   */
-  protected JPObjectAccessService objectAccessService;
-  /**
-   * Обработчик JWT
-   */
-  protected JWTService jwtService;
-  /**
-   * Фильтр меты
-   */
-  protected JPMetaFilter jpMetaFilter;
-  /**
-   * Формирование JsonJPObject
-   */
-  protected JsonJPObjectService jsonJPObjectService;
-  /**
-   * Работа с отправкой Истории запросов
-   */
-  private RequestHistoryPublisher historyPublisher;
+public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings {
 
-  @Override
-  public void setJpReactiveObjectRepositoryService(JPReactiveObjectRepositoryService repo) {
-    this.repo = repo;
+  @Service
+  private static final class Links {
+    private static JPReactiveObjectRepositoryService REPO;
+    private static QueryService QUERY_SERVICE;
+    private static JPObjectAccessService OBJECT_ACCESS_SERVICE;
+    private static JWTService JWT_SERVICE;
+    private static JPMetaFilter META_FILTER;
+    private static JsonJPObjectService JSON_JP_OBJECT_SERVICE;
+    private static RequestHistoryPublisher REQUEST_HISTORY_PUBLISHER;
+
+    private Links(@Autowired JPReactiveObjectRepositoryService repo,
+                  @Autowired QueryService queryService,
+                  @Autowired JPObjectAccessService objectAccessService,
+                  @Autowired JWTService jwtService,
+                  @Autowired JPMetaFilter jpMetaFilter,
+                  @Autowired JsonJPObjectService jsonJPObjectService,
+                  @Autowired(required = false) RequestHistoryPublisher historyPublisher) {
+      REPO = repo;
+      QUERY_SERVICE = queryService;
+      OBJECT_ACCESS_SERVICE = objectAccessService;
+      JWT_SERVICE = jwtService;
+      META_FILTER = jpMetaFilter;
+      JSON_JP_OBJECT_SERVICE = jsonJPObjectService;
+      REQUEST_HISTORY_PUBLISHER = historyPublisher;
+    }
   }
 
-  @Autowired
-  private void setQueryService(QueryService queryService) {
-    this.queryService = queryService;
+  protected JPReactiveObjectRepositoryService getRepo() {
+    return Links.REPO;
   }
 
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
-    this.objectAccessService = objectAccessService;
+  protected QueryService getQueryService() {
+    return Links.QUERY_SERVICE;
   }
 
-  @Autowired
-  private void setJwtService(JWTService jwtService) {
-    this.jwtService = jwtService;
+  protected JPObjectAccessService getObjectAccessService() {
+    return Links.OBJECT_ACCESS_SERVICE;
   }
 
-  @Autowired
-  private void setJpMetaFilter(JPMetaFilter jpMetaFilter) {
-    this.jpMetaFilter = jpMetaFilter;
+  protected JWTService getJWTService() {
+    return Links.JWT_SERVICE;
   }
 
-  @Autowired
-  private void setJsonJPObjectService(JsonJPObjectService jsonJPObjectService) {
-    this.jsonJPObjectService = jsonJPObjectService;
+  protected JPMetaFilter getMetaFilter() {
+    return Links.META_FILTER;
   }
 
-  @Autowired(required = false)
-  private void setHistoryPublisher(RequestHistoryPublisher historyPublisher) {
-    this.historyPublisher = historyPublisher;
+  protected JsonJPObjectService getJsonJPObjectService() {
+    return Links.JSON_JP_OBJECT_SERVICE;
+  }
+
+  private RequestHistoryPublisher getRequestHistoryPublisher() {
+    return Links.REQUEST_HISTORY_PUBLISHER;
   }
 
   protected Mono<JsonJPObjectList> getJsonJPObjectList(ServerWebExchange swe, String code, String query) {
@@ -101,8 +94,8 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
   }
 
   protected ParsedQuery parseQuery(ServerWebExchange swe, String code, String query) {
-    AuthInfo auth = jwtService.getAuthInfo(swe);
-    JPClass jpClass = jpMetaFilter.get(code, auth);
+    AuthInfo auth = getJWTService().getAuthInfo(swe);
+    JPClass jpClass = getMetaFilter().get(code, auth);
     if (jpClass == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -110,9 +103,9 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
     JPSelect.Builder builder;
     boolean access;
     try {
-      JsonSelect jsonSelect = queryService.getQuery(query);
+      JsonSelect jsonSelect = getQueryService().getQuery(query);
       access = jsonSelect != null && jsonSelect.isAccess();
-      builder = queryService.getSelect(jpClass.getCode(), jsonSelect, auth)
+      builder = getQueryService().getSelect(jpClass.getCode(), jsonSelect, auth)
           .timeout(getQueryTimeout())
           .source(Source.USER)
           .useDefaultOrder(true);
@@ -139,9 +132,9 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
                                                  ServerWebExchange swe, AuthInfo auth) {
     return JPMono.zip(
             // Общее количество
-            select.isTotalCount() ? repo.getAsyncTotalCount(select) : Mono.just(0L),
+            select.isTotalCount() ? getRepo().getAsyncTotalCount(select) : Mono.just(0L),
             // Выборка
-            repo.getAsyncList(select)
+            getRepo().getAsyncList(select)
                 .collectList()
                 .map(list -> toJsonJPObjectList(jpClass, list, access, swe, auth)),
             // Создаем результат
@@ -165,7 +158,7 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
       return Collections.emptyList();
     }
     Map<Comparable, JPObjectAccess> mapAccess = access ?
-        objectAccessService.objectsChangeAccess(
+        getObjectAccessService().objectsChangeAccess(
                 jpClass,
                 list.stream()
                     .map(o -> o.getJpId().getId())
@@ -177,7 +170,7 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
         : Collections.emptyMap();
 
     return list.stream()
-        .map(x -> jsonJPObjectService.toJsonJPObject(x, !access ? null : mapAccess.get(x.getJpId().getId()), swe))
+        .map(x -> getJsonJPObjectService().toJsonJPObject(x, !access ? null : mapAccess.get(x.getJpId().getId()), swe))
         .collect(Collectors.toList());
   }
 
@@ -194,10 +187,11 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
     if (object == null) {
       return null;
     }
-    return jsonJPObjectService.toJsonJPObject(object, swe);
+    return getJsonJPObjectService().toJsonJPObject(object, swe);
   }
 
   protected void sendObject(String classCode, Object objectId, JsonJPObject result, AuthInfo auth, ServerWebExchange swe) {
+    RequestHistoryPublisher historyPublisher = getRequestHistoryPublisher();
     if (historyPublisher == null) {
       return;
     }
@@ -206,11 +200,12 @@ public abstract class RestApiJsonCRUDBaseController extends JPQuerySettings impl
   }
 
   protected void sendSearch(String classCode, Filter where, Collection<JsonJPObject> result, AuthInfo auth, ServerWebExchange swe) {
+    RequestHistoryPublisher historyPublisher = getRequestHistoryPublisher();
     if (historyPublisher == null) {
       return;
     }
     historyPublisher.sendSearch(auth, swe, classCode,
-        () -> queryService.toExp(where),
+        () -> getQueryService().toExp(where),
         () -> result == null ? null : result.stream()
             .map(x -> historyPublisher.toRequestHistoryObject(x.getClassCode(), x.getId(), x))
             .collect(Collectors.toList())

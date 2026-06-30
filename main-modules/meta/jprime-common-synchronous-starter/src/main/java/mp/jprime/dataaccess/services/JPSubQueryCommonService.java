@@ -2,12 +2,12 @@ package mp.jprime.dataaccess.services;
 
 import mp.jprime.dataaccess.JPSubQueryService;
 import mp.jprime.dataaccess.JPSyncObjectRepositoryService;
-import mp.jprime.dataaccess.JPSyncObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.dataaccess.params.JPSubQuery;
 import mp.jprime.lang.JPArray;
 import mp.jprime.security.AuthInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -15,14 +15,13 @@ import java.util.Collections;
 import java.util.HashSet;
 
 @Service
-public final class JPSubQueryCommonService implements JPSubQueryService, JPSyncObjectRepositoryServiceAware {
+public final class JPSubQueryCommonService implements JPSubQueryService {
   // Ограничиваем 300 объектами
   private final static int LIMIT = 300;
 
-  private JPSyncObjectRepositoryService repo;
+  private final JPSyncObjectRepositoryService repo;
 
-  @Override
-  public void setJpSyncObjectRepositoryService(JPSyncObjectRepositoryService repo) {
+  private JPSubQueryCommonService(@Autowired JPSyncObjectRepositoryService repo) {
     this.repo = repo;
   }
 

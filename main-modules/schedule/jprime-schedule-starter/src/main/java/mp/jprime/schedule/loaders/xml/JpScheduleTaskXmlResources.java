@@ -1,12 +1,9 @@
 package mp.jprime.schedule.loaders.xml;
 
-import org.springframework.core.io.Resource;
-
-import java.util.Collection;
+import mp.jprime.io.JpLoaderResources;
 
 /**
  * Загрузка описания задач
  */
-public interface JpScheduleTaskXmlResources {
-  Collection<Resource> getResources();
+public interface JpScheduleTaskXmlResources extends JpLoaderResources {
 }

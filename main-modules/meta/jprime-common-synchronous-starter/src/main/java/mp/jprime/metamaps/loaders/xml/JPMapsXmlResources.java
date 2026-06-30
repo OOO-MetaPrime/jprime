@@ -1,12 +1,9 @@
 package mp.jprime.metamaps.loaders.xml;
 
-import org.springframework.core.io.Resource;
-
-import java.util.Collection;
+import mp.jprime.io.JpLoaderResources;
 
 /**
  * Загрузка описание привязки меты к хранилищам из xml
  */
-public interface JPMapsXmlResources {
-  Collection<Resource> getResources();
+public interface JPMapsXmlResources extends JpLoaderResources {
 }

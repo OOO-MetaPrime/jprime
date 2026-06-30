@@ -1,6 +1,6 @@
 package mp.jprime.security.abac.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 public class XmlJpPolicySet {
   private String code;
@@ -27,11 +27,11 @@ public class XmlJpPolicySet {
     this.name = name;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 

@@ -1,14 +1,16 @@
 dependencies {
   annotationProcessor(loggers.log4j.core)
 
-  api(loggers.disruptor)
-  api(loggers.kafka.log4j.appender)
-
   api(commons.apache.httpclient)
   api(commons.lang3)
   api(commons.collections4)
-  api(commons.moneta.core)
+
+  api(libs.moneta.core)
   api(libs.bundles.jackson.v1)
+
+  api(loggers.disruptor)
+  api(loggers.kafka.log4j.appender)
+  api(loggers.bundles.log4j)
 
   api project(':jprime-security-core')
   api project(':jprime-xml-core')

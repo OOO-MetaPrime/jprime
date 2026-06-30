@@ -49,7 +49,7 @@ public class JsonUtilModeLabel {
     return title;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 

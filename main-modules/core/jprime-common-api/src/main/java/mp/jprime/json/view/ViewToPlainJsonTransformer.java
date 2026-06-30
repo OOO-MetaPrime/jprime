@@ -1,20 +1,19 @@
 package mp.jprime.json.view;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
 import mp.jprime.parsers.ValueParser;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.node.ArrayNode;
+import tools.jackson.databind.node.ObjectNode;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
  * Трансформирует JSON формата универсального представления в обычный JSON
- *
+ * <p>
  * если type равен group значит в items объекты с полями другого объекта
  * если type равен collection значит это массив в items коллекция других объектов
  * если у объекта внутри type равен string, boolean, integer, long, double, date, dateTime, time то это просто объекты коллекции
@@ -23,6 +22,7 @@ public abstract class ViewToPlainJsonTransformer {
 
   /**
    * Трансформирует JSON формата универсального представления в обычный JSON
+   *
    * @param viewJson JSON формата универсального представления
    * @return обычный JSON
    */
@@ -31,13 +31,14 @@ public abstract class ViewToPlainJsonTransformer {
       ArrayNode inputArray = (ArrayNode) JPJsonMapper.getMapper().readTree(viewJson.toString());
       ObjectNode result = transformJson(inputArray);
       return JPJsonString.from(JPJsonMapper.getMapper().writeValueAsString(result));
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw JPRuntimeException.wrapException("Error reading view JSON", e);
     }
   }
 
   /**
    * Трансформирует JSON формата универсального представления в обычный JSON
+   *
    * @param viewJson JSON формата универсального представления
    * @return обычный JSON
    */
@@ -46,7 +47,7 @@ public abstract class ViewToPlainJsonTransformer {
       ArrayNode inputArray = (ArrayNode) JPJsonMapper.getMapper().readTree(viewJson.toString());
       ObjectNode result = transformJson(inputArray);
       return JPJsonNode.from(result);
-    } catch (IOException e) {
+    } catch (Exception e) {
       throw JPRuntimeException.wrapException("Error reading view JSON", e);
     }
   }
@@ -55,8 +56,8 @@ public abstract class ViewToPlainJsonTransformer {
     ObjectNode transformed = JPJsonMapper.getMapper().createObjectNode();
 
     for (JsonNode item : inputArray) {
-      String code = Objects.toString(item.get("code").asText(), null);
-      String type = Objects.toString(item.get("type").asText(), null);
+      String code = Objects.toString(item.get("code").asString(), null);
+      String type = Objects.toString(item.get("type").asString(), null);
 
       if ("group".equals(type)) {
         ArrayNode groupItems = (ArrayNode) item.get("items");
@@ -78,11 +79,11 @@ public abstract class ViewToPlainJsonTransformer {
       return null;
     }
     return switch (type) {
-      case "string", "date", "dateTime", "time" -> value.asText();
-      case "boolean" -> "Да".equals(value.asText());
-      case "integer" -> ValueParser.parseTo(Integer.class, value.asText());
-      case "long" -> ValueParser.parseTo(Long.class, value.asText());
-      case "double" -> ValueParser.parseTo(Double.class, value.asText());
+      case "string", "date", "dateTime", "time" -> value.asString();
+      case "boolean" -> "Да".equals(value.asString());
+      case "integer" -> ValueParser.parseTo(Integer.class, value.asString());
+      case "long" -> ValueParser.parseTo(Long.class, value.asString());
+      case "double" -> ValueParser.parseTo(Double.class, value.asString());
       default -> value;
     };
   }
@@ -94,7 +95,7 @@ public abstract class ViewToPlainJsonTransformer {
     }
 
     JsonNode firstItem = collectionItems.get(0);
-    String type = firstItem.get("type").asText();
+    String type = firstItem.get("type").asString();
 
     if ("group".equals(type)) {
       for (JsonNode groupItem : collectionItems) {

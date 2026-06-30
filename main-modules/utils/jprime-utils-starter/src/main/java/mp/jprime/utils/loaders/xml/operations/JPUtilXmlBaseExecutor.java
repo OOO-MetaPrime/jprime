@@ -11,10 +11,10 @@ import java.util.Map;
  */
 public abstract class JPUtilXmlBaseExecutor implements JPUtilXmlOperation.Executor {
   protected String replaceParamValues(String s, Map<String, Object> paramValues) {
-    return JPStringUtils.replaceParamValues(s, paramValues.keySet(), paramValues::get);
+    return JPStringUtils.replaceParamValues(s, paramValues::get);
   }
 
   protected String replaceAttrValues(String s, JPObject object) {
-    return JPStringUtils.replaceAttrValues(s, object.getData().keySet(), object::getAttrValue);
+    return JPStringUtils.replaceAttrValues(s, object::getAttrValue);
   }
 }

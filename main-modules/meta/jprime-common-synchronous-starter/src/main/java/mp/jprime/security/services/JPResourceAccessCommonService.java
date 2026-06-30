@@ -28,30 +28,23 @@ import java.util.stream.Collectors;
  * Реализация JPResourceAccessService
  */
 @Service
-public class JPResourceAccessCommonService implements JPResourceAccessService {
+public final class JPResourceAccessCommonService implements JPResourceAccessService {
   private enum RESULT {
     YES, NO, SKIP
   }
 
   // Хранилище метаинформации
-  private JPMetaStorage metaStorage;
+  private final JPMetaStorage metaStorage;
   // Хранилище настроек безопасности
-  private JPSecurityStorage securityStorage;
+  private final JPSecurityStorage securityStorage;
   // Хранилище настроек ABAC
-  private JPAbacStorage abacStorage;
+  private final JPAbacStorage abacStorage;
 
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
+  private JPResourceAccessCommonService(@Autowired JPMetaStorage metaStorage,
+                                        @Autowired JPSecurityStorage securityStorage,
+                                        @Autowired JPAbacStorage abacStorage) {
     this.metaStorage = metaStorage;
-  }
-
-  @Autowired
-  private void setSecurityStorage(JPSecurityStorage securityStorage) {
     this.securityStorage = securityStorage;
-  }
-
-  @Autowired
-  private void setAbacStorage(JPAbacStorage abacStorage) {
     this.abacStorage = abacStorage;
   }
 
@@ -325,11 +318,11 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
       if (oktmoPrefixList != null && !oktmoPrefixList.isEmpty()) {
         if (oktmoPrefixList.contains("")) {
           // Оптимизация для поиска
-          return null;
+          return Filter.value(1).eq(1);
         }
         return Filter.or(
             oktmoPrefixList.stream()
-                .map(x -> Filter.attr(attrCode).startWith(x))
+                .map(x -> Filter.attr(attrCode).startsWith(x))
                 .collect(Collectors.toList())
         );
       } else {
@@ -366,7 +359,7 @@ public class JPResourceAccessCommonService implements JPResourceAccessService {
         }
         return Filter.and(
             oktmoPrefixList.stream()
-                .map(x -> Filter.attr(attrCode).notStartWith(x))
+                .map(x -> Filter.attr(attrCode).notStartsWith(x))
                 .collect(Collectors.toList())
         );
       } else {

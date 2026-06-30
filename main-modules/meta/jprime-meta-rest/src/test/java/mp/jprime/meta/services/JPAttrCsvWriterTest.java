@@ -5,7 +5,6 @@ import mp.jprime.meta.JPAttrCsvWriterService;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.beans.*;
 import mp.jprime.meta.json.converters.JPClassJsonConverter;
-import mp.jprime.parsers.ParserServiceAwareConfiguration;
 import mp.jprime.parsers.base.BooleanToStringParser;
 import mp.jprime.parsers.base.IntegerToStringParser;
 import mp.jprime.parsers.services.ParserCommonService;
@@ -25,8 +24,7 @@ import java.util.ArrayList;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 @SpringBootTest(classes = {JPAttrCsvWriterCommonService.class, JPClassJsonConverter.class, JPJsonMapper.class,
-    ParserCommonService.class, ParserServiceAwareConfiguration.class,
-    IntegerToStringParser.class, BooleanToStringParser.class})
+    ParserCommonService.class, IntegerToStringParser.class, BooleanToStringParser.class})
 @ActiveProfiles("JPAttrCsvWriterTest")
 public class JPAttrCsvWriterTest {
   private static final JPClass TEST_VALUE = JPClassBean.newBuilder().attrs(new ArrayList<>() {{

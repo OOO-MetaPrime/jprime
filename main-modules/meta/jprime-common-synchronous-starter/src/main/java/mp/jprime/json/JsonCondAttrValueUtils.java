@@ -42,6 +42,10 @@ public final class JsonCondAttrValueUtils extends JsonCondBaseUtils {
       return builder.in(c.getIn());
     } else if (c.getNotIn() != null) {
       return builder.notIn(c.getNotIn());
+    } else if (c.getStartsWithIn() != null) {
+      return builder.startsWithIn(c.getStartsWithIn());
+    } else if (c.getNotStartsWithIn() != null) {
+      return builder.notStartsWithIn(c.getNotStartsWithIn());
     } else if (c.getInQuery() != null) {
       return builder.inQuery(toSubquery(c.getInQuery()));
     } else if (c.getNotInQuery() != null) {
@@ -57,9 +61,9 @@ public final class JsonCondAttrValueUtils extends JsonCondBaseUtils {
     } else if (c.getFuzzyOrderLike() != null) {
       return builder.fuzzyOrderLike(c.getFuzzyOrderLike());
     } else if (c.getStartsWith() != null) {
-      return builder.startWith(c.getStartsWith());
+      return builder.startsWith(c.getStartsWith());
     } else if (c.getNotStartsWith() != null) {
-      return builder.notStartWith(c.getNotStartsWith());
+      return builder.notStartsWith(c.getNotStartsWith());
     } else if (between != null) {
       return builder.between(Pair.from(between.getFrom(), between.getTo()));
     } else if (contains != null) {
@@ -193,6 +197,12 @@ public final class JsonCondAttrValueUtils extends JsonCondBaseUtils {
       } else if (v.getOper() == FilterOperation.NOT_IN) {
         NotIN inst = (NotIN) v;
         cond = attrCond.notIn(toStrings(inst.getValue()));
+      } else if (v.getOper() == FilterOperation.STARTS_WITH_IN) {
+        StartsWithIN inst = (StartsWithIN) v;
+        cond = attrCond.startsWithIn(toStrings(inst.getValue()));
+      } else if (v.getOper() == FilterOperation.NOT_STARTS_WITH_IN) {
+        NotStartsWithIN inst = (NotStartsWithIN) v;
+        cond = attrCond.notStartsWithIn(toStrings(inst.getValue()));
       } else if (v.getOper() == FilterOperation.IN_QUERY) {
         INQuery inst = (INQuery) v;
         cond = attrCond.inQuery(toJsonSubquery(inst.getValue()));

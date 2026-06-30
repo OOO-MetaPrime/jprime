@@ -1,5 +1,7 @@
 package mp.jprime.utils;
 
+import mp.jprime.dataaccess.JPObjectRepositoryService;
+import mp.jprime.dataaccess.checkers.JPDataCheckService;
 import mp.jprime.dataaccess.templatevalues.JPTemplateValueService;
 import mp.jprime.dataaccess.transaction.ChainedTransactionManager;
 import mp.jprime.json.services.JsonJPObjectService;
@@ -51,14 +53,19 @@ public class JPUtilTest {
 
   @Autowired
   private JPUtilService jpUtilService;
+
   @MockitoBean
-  private JPSecurityStorage jpSecurityStorage;
+  private JPObjectRepositoryService mockRepo;
   @MockitoBean
-  private JPMetaStorage jpMetaStorage;
+  private JPDataCheckService mockDataCheckService;
   @MockitoBean
-  private ChainedTransactionManager transactionManager;
+  private JPSecurityStorage mockSecurityStorage;
   @MockitoBean
-  private JPTemplateValueService templateValueService;
+  private JPMetaStorage mockMetaStorage;
+  @MockitoBean
+  private ChainedTransactionManager mockTransactionManager;
+  @MockitoBean
+  private JPTemplateValueService mockTemplateValueService;
 
   @Test
   public void testTestUtilExists() {

@@ -2,6 +2,7 @@ package mp.jprime.utils.rest.controllers;
 
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.parsers.exceptions.JPParseException;
+import mp.jprime.reactor.core.publisher.JPFlux;
 import mp.jprime.reactor.core.publisher.JPMono;
 import mp.jprime.security.AuthInfo;
 import mp.jprime.security.jwt.JWTService;
@@ -110,31 +111,35 @@ public abstract class RestUtilsBaseController {
               if (StringUtils.isBlank(objectClassCode) || ids == null || ids.isEmpty()) {
                 continue;
               }
-              ids.forEach(id ->
-                  utils.forEach(utilCode ->
-                      p.add(
-                          Mono.zip(
-                              Mono.just(objectClassCode),
-                              Mono.just(id),
-                              Mono.just(utilCode),
-                              jpUtilService.check(
-                                  utilCode,
-                                  JPUtil.Mode.CHECK_MODE,
-                                  JPUtilCheckInParams.newBuilder()
-                                      .rootObjectClassCode(rootObjectClassCode)
-                                      .rootObjectId(rootObjectId)
-                                      .objectClassCode(objectClassCode)
-                                      .objectId(id)
-                                      .build(),
-                                  swe,
-                                  auth
-                              )
-                          )
-                      )
-                  )
+              ids.forEach(id -> {
+                    if (id == null) {
+                      return;
+                    }
+                    utils.forEach(utilCode ->
+                        p.add(
+                            Mono.zip(
+                                Mono.just(objectClassCode),
+                                Mono.just(id),
+                                Mono.just(utilCode),
+                                jpUtilService.check(
+                                    utilCode,
+                                    JPUtil.Mode.CHECK_MODE,
+                                    JPUtilCheckInParams.newBuilder()
+                                        .rootObjectClassCode(rootObjectClassCode)
+                                        .rootObjectId(rootObjectId)
+                                        .objectClassCode(objectClassCode)
+                                        .objectId(id)
+                                        .build(),
+                                    swe,
+                                    auth
+                                )
+                            )
+                        )
+                    );
+                  }
               );
             }
-            return Flux.merge(p);
+            return JPFlux.merge(p);
           } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new JPParseException("utils.params.badFormat", "Неверный формат данных");

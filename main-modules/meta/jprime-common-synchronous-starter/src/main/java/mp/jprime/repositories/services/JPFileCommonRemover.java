@@ -6,15 +6,15 @@ import mp.jprime.repositories.JPStorage;
 import mp.jprime.repositories.RepositoryGlobalStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 /**
  * Сервис физического удаления файла из хранилища
  */
 @Service
-public class JPFileCommonRemover implements JPFileRemover {
-  private RepositoryGlobalStorage repositoryStorage;
+public final class JPFileCommonRemover implements JPFileRemover {
+  private final RepositoryGlobalStorage repositoryStorage;
 
-  @Autowired
-  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
+  private JPFileCommonRemover(@Autowired RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 

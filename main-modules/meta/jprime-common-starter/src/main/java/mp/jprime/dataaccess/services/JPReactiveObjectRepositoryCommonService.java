@@ -30,46 +30,45 @@ import java.util.function.Consumer;
 public final class JPReactiveObjectRepositoryCommonService implements JPReactiveObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPReactiveObjectRepositoryCommonService.class);
 
-  private final Map<Class<?>, JPReactiveObjectRepository> repoMap = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, JPReactiveObjectRepository> REPO_MAP = new ConcurrentHashMap<>();
 
   private JPMetaStorageService storageService;
 
-  @Autowired(required = false)
-  private void setAsyncRepos(Collection<JPReactiveObjectRepository> asyncRepos) {
-    if (asyncRepos != null) {
-      for (JPReactiveObjectRepository repo : asyncRepos) {
-        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, repo));
+  @Service
+  private static final class Links {
+    private Links(@Autowired(required = false) Collection<JPReactiveObjectRepository> asyncRepos,
+                  @Autowired(required = false) Collection<JPSyncObjectRepository> syncRepos) {
+      if (asyncRepos != null) {
+        for (JPReactiveObjectRepository repo : asyncRepos) {
+          fill(repo.getClass(), javaClass -> REPO_MAP.put(javaClass, repo));
+        }
+      }
+      if (syncRepos != null) {
+        for (JPSyncObjectRepository repo : syncRepos) {
+          if (repo instanceof JPReactiveObjectRepository) {
+            continue;
+          }
+          JPReactiveObjectRepository wrapRepo = JPReactiveObjectSyncWrapRepository.of(repo);
+          fill(repo.getClass(), javaClass -> REPO_MAP.put(javaClass, wrapRepo));
+        }
       }
     }
-  }
 
-  @Autowired(required = false)
-  private void setSyncRepos(Collection<JPSyncObjectRepository> syncRepos) {
-    if (syncRepos != null) {
-      for (JPSyncObjectRepository repo : syncRepos) {
-        if (repo instanceof JPReactiveObjectRepository) {
-          continue;
+    private void fill(Class<?> repoClass, Consumer<Class<?>> func) {
+      try {
+        ClassesLink anno = repoClass.getAnnotation(ClassesLink.class);
+        if (anno == null) {
+          return;
         }
-        JPReactiveObjectRepository wrapRepo = JPReactiveObjectSyncWrapRepository.of(repo);
-        fill(repo.getClass(), javaClass -> repoMap.put(javaClass, wrapRepo));
-      }
-    }
-  }
-
-  private void fill(Class<?> repoClass, Consumer<Class<?>> func) {
-    try {
-      ClassesLink anno = repoClass.getAnnotation(ClassesLink.class);
-      if (anno == null) {
-        return;
-      }
-      for (Class<?> javaClass : anno.classes()) {
-        if (javaClass == null) {
-          continue;
+        for (Class<?> javaClass : anno.classes()) {
+          if (javaClass == null) {
+            continue;
+          }
+          func.accept(javaClass);
         }
-        func.accept(javaClass);
+      } catch (Exception e) {
+        throw JPRuntimeException.wrapException(e);
       }
-    } catch (Exception e) {
-      throw JPRuntimeException.wrapException(e);
     }
   }
 
@@ -87,7 +86,7 @@ public final class JPReactiveObjectRepositoryCommonService implements JPReactive
       Class<?> storageClass = storage.getClass();
       JPReactiveObjectRepository rep = null;
       while (rep == null && storageClass != null) {
-        rep = repoMap.get(storageClass);
+        rep = REPO_MAP.get(storageClass);
         storageClass = storageClass.getSuperclass();
       }
       if (rep != null) {

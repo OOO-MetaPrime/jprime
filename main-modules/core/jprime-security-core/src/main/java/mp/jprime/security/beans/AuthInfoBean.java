@@ -6,7 +6,6 @@ import mp.jprime.security.AuthBaseParams;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-
 /**
  * Данные авторизации
  */

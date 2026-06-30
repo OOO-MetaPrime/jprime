@@ -84,8 +84,6 @@ public class JPObjectCsvWriterServiceTest {
 
   @PostConstruct
   void beforeAll() {
-    service.setParserService(mockParser);
-    service.setJpObjectRepositoryService(mockRepo);
     Mockito.when(mockParser.parseTo(Mockito.any(), Mockito.any())).thenAnswer(x -> x.getArgument(1));
     Mockito.when(mockParser.toString(Mockito.any())).thenAnswer(x -> x.getArgument(0));
     Mockito.when(mockMetaStorage.getJPClassByCode(Mockito.eq(JPCLASS_CODE))).thenReturn(JPCLASS);

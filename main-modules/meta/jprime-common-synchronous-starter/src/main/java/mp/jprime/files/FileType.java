@@ -10,6 +10,7 @@ import java.util.Map;
  */
 public enum FileType {
   CSV("csv"),
+  DBF("dbf"),
   DOC("doc"),
   DOCX("docx"),
   FO("fo"),

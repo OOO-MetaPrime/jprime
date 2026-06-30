@@ -51,6 +51,10 @@ public class JsonParam {
    */
   private String description;
   /**
+   * Подсказка
+   */
+  private String placeholder;
+  /**
    * QName
    */
   private String qName;
@@ -106,7 +110,8 @@ public class JsonParam {
 
   private JsonParam(String code, String type,
                     String stringFormat, String stringMask, String integerFormat, boolean multiline,
-                    Collection<String> fileTypes, Integer length, String description, String qName,
+                    Collection<String> fileTypes, Integer length, String description, String placeholder,
+                    String qName,
                     boolean mandatory, Object value, boolean multiple, boolean external, String refJpClass,
                     String refJpAttr, String refFilter, JsonJPMoney money,
                     Collection<JsonJPEnum> enums, boolean clientSearch,
@@ -120,6 +125,7 @@ public class JsonParam {
     this.fileTypes = fileTypes == null || fileTypes.isEmpty() ? null : fileTypes;
     this.length = length;
     this.description = description;
+    this.placeholder = placeholder;
     this.qName = qName;
     this.mandatory = mandatory;
     this.value = value;
@@ -162,6 +168,7 @@ public class JsonParam {
         .fileTypes(param.getFileTypes())
         .length(param.getLength())
         .description(param.getDescription())
+        .placeholder(param.getPlaceholder())
         .qName(param.getQName())
         .mandatory(param.isMandatory())
         .multiple(param.isMultiple())
@@ -173,8 +180,8 @@ public class JsonParam {
         .clientSearch(param.isClientSearch())
         .money(type == JPType.MONEY ? JsonJPMoney.toJson(param.getMoney()) : null)
         .enums(enums == null ? null : enums.stream()
-            .map(y -> JsonJPEnum.of(y.getValue(), y.getDescription(), y.getQName()))
-            .collect(Collectors.toList())
+                                      .map(y -> JsonJPEnum.of(y.getValue(), y.getDescription(), y.getQName()))
+                                      .collect(Collectors.toList())
         )
         .readOnly(param.isReadOnly())
         .build();
@@ -216,7 +223,11 @@ public class JsonParam {
     return description;
   }
 
-  public String getqName() {
+  public String getPlaceholder() {
+    return placeholder;
+  }
+
+  public String getQName() {
     return qName;
   }
 
@@ -289,6 +300,7 @@ public class JsonParam {
     private Collection<String> fileTypes;
     private Integer length;
     private String description;
+    private String placeholder;
     private String qName;
     private boolean mandatory;
     private Object value;
@@ -307,7 +319,7 @@ public class JsonParam {
 
     public JsonParam build() {
       return new JsonParam(code, type, stringFormat, stringMask, integerFormat, multiline,
-          fileTypes, length, description, qName, mandatory, value, multiple, external,
+          fileTypes, length, description, placeholder, qName, mandatory, value, multiple, external,
           refJpClass, refJpAttr, refFilter, money,
           enums, clientSearch, readOnly);
     }
@@ -361,6 +373,11 @@ public class JsonParam {
 
     public Builder description(String description) {
       this.description = description;
+      return this;
+    }
+
+    public Builder placeholder(String placeholder) {
+      this.placeholder = placeholder;
       return this;
     }
 

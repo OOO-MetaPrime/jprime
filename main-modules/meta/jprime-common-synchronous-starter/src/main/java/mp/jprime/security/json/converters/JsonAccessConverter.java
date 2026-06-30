@@ -1,7 +1,6 @@
 package mp.jprime.security.json.converters;
 
 import mp.jprime.dataaccess.JPObjectAccessService;
-import mp.jprime.dataaccess.JPObjectAccessServiceAware;
 import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.security.AuthInfo;
@@ -16,17 +15,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
-public class JsonAccessConverter implements JPObjectAccessServiceAware {
-  private JPSecurityStorage securityManager;
-  private JPObjectAccessService objectAccessService;
+public final class JsonAccessConverter  {
+  private final JPSecurityStorage securityManager;
+  private final JPObjectAccessService objectAccessService;
 
-  @Autowired
-  private void setSecurityManager(JPSecurityStorage securityManager) {
+  private JsonAccessConverter( @Autowired JPSecurityStorage securityManager,
+                               @Autowired JPObjectAccessService objectAccessService) {
     this.securityManager = securityManager;
-  }
-
-  @Override
-  public void setJpObjectAccessService(JPObjectAccessService objectAccessService) {
     this.objectAccessService = objectAccessService;
   }
 

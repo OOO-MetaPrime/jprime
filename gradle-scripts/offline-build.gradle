@@ -20,7 +20,7 @@ task cacheToMavenLocal(type: Copy, description: 'Подготовка всех �
     List<String> parts = it.path.split('/')
     it.path = parts[0].replace('.','/') + '/' + parts[1] + '/' + parts[2] + '/' + parts[4]
   }
-  includeEmptyDirs false
+  includeEmptyDirs = false
 }
 
 cacheToMavenLocal.finalizedBy zipMavenLocal

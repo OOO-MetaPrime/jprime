@@ -12,7 +12,6 @@ import mp.jprime.lang.JPIntegerArray;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPStringArray;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,21 +21,16 @@ import java.util.Collection;
  * Утилитарный класс содержащий общую логику для работы сервисов
  */
 @Service
-public class JPGlobalSettingsParserService implements ParserServiceAware {
-
+public final class JPGlobalSettingsParserService {
   private static final String BAD_REQUEST_CODE = "mp.jprime.globalsettings.badRequest";
   private static final String INCORRECT_SETTING_VALUE = "Некорректное значение настройки";
 
-  private ParserService parserService;
-  private JPJsonMapper jsonMapper;
+  private final ParserService parserService;
+  private final JPJsonMapper jsonMapper;
 
-  @Override
-  public void setParserService(ParserService parserService) {
+  private JPGlobalSettingsParserService(@Autowired ParserService parserService,
+                                        @Autowired JPJsonMapper jsonMapper) {
     this.parserService = parserService;
-  }
-
-  @Autowired
-  private void setJsonMapper(JPJsonMapper jsonMapper) {
     this.jsonMapper = jsonMapper;
   }
 

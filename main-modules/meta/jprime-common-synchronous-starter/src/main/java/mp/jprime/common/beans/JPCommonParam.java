@@ -52,6 +52,10 @@ public final class JPCommonParam implements JPParam {
    */
   private final String description;
   /**
+   * Подсказка
+   */
+  private final String placeholder;
+  /**
    * QName
    */
   private final String qName;
@@ -131,7 +135,8 @@ public final class JPCommonParam implements JPParam {
   private JPCommonParam(String code, JPType type,
                         JPStringFormat stringFormat, String stringMask, JPIntegerFormat integerFormat,
                         boolean multiline,
-                        Collection<FileType> fileTypes, Integer length, String description, String qName,
+                        Collection<FileType> fileTypes, Integer length, String description, String placeholder,
+                        String qName,
                         boolean mandatory, boolean multiple, String refJpClass, String refJpAttr, String refFilter,
                         JPMoney money,
                         boolean external, Object value, Collection<JPEnum> enums, boolean clientSearch, boolean actionLog,
@@ -145,6 +150,7 @@ public final class JPCommonParam implements JPParam {
     this.fileTypes = fileTypes != null && !fileTypes.isEmpty() ? Collections.unmodifiableCollection(fileTypes) : Collections.emptyList();
     this.length = length != null && length > 0 ? length : null;
     this.description = description;
+    this.placeholder = placeholder;
     this.qName = qName;
     this.mandatory = mandatory;
     this.multiple = multiple;
@@ -203,6 +209,11 @@ public final class JPCommonParam implements JPParam {
   @Override
   public String getDescription() {
     return description;
+  }
+
+  @Override
+  public String getPlaceholder() {
+    return placeholder;
   }
 
   @Override
@@ -284,6 +295,7 @@ public final class JPCommonParam implements JPParam {
     protected Collection<FileType> fileTypes;
     protected Integer length;
     protected String description;
+    protected String placeholder;
     protected String qName;
     protected boolean mandatory;
     protected boolean multiple;
@@ -351,6 +363,11 @@ public final class JPCommonParam implements JPParam {
       return this;
     }
 
+    public Builder placeholder(String placeholder) {
+      this.placeholder = placeholder;
+      return this;
+    }
+
     public Builder qName(String qName) {
       this.qName = qName;
       return this;
@@ -413,7 +430,7 @@ public final class JPCommonParam implements JPParam {
 
     public JPCommonParam build() {
       return new JPCommonParam(code, type, stringFormat, stringMask, integerFormat, multiline,
-          fileTypes, length, description, qName, mandatory, multiple, refJpClass,
+          fileTypes, length, description, placeholder, qName, mandatory, multiple, refJpClass,
           refJpAttr, refFilter, money, external, value, enums, clientSearch, actionLog, readOnly);
     }
   }

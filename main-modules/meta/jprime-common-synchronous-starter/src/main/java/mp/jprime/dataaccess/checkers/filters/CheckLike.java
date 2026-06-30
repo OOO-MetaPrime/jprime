@@ -4,7 +4,7 @@ import mp.jprime.dataaccess.params.query.filters.attr.Like;
 import mp.jprime.dataaccess.params.query.filters.attr.annotations.FilterLink;
 import mp.jprime.lang.JPMap;
 import mp.jprime.security.AuthInfo;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 /**
  * Содержит
@@ -25,7 +25,7 @@ public class CheckLike extends CheckBaseFilter<Like> {
     if (attrValue != null) {
       String parseAttrValue = parseTo(String.class, attrValue, auth);
       String parseFilterValue = parseTo(String.class, filterValue, auth);
-      return parseAttrValue != null && StringUtils.containsIgnoreCase(parseAttrValue, parseFilterValue);
+      return parseAttrValue != null && Strings.CI.contains(parseAttrValue, parseFilterValue);
     }
     return Boolean.FALSE;
   }

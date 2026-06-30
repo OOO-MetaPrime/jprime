@@ -1,6 +1,5 @@
 package mp.jprime.meta.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.formats.JPStringFormat;
 import mp.jprime.meta.JPAttr;
@@ -12,6 +11,7 @@ import mp.jprime.meta.loaders.xml.beans.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -90,7 +90,7 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                 .length(attr.getLength())
                 .identifier(attr.isIdentifier())
                 .mandatory(attr.isMandatory())
-                .qName(attr.getqName())
+                .qName(attr.getQName())
                 .jpPackage(attr.getJpPackage())
                 .name(name != null ? name : descr)
                 .shortName(attr.getShortName())
@@ -140,10 +140,11 @@ public class JPMetaXmlLoader implements JPMetaLoader {
                 .geometry(
                     type != JPType.GEOMETRY || geometry == null ? null :
                         JPGeometryBean.newBuilder()
-                            .srid(geometry.getSRID())
+                            .srid(geometry.getSrid())
                             .build()
                 )
                 .signAttrCode(attr.getSignAttrCode())
+                .actionLog(attr.isActionLog() == null || attr.isActionLog())
                 .build());
           }
           String name = cls.getName();
@@ -160,10 +161,10 @@ public class JPMetaXmlLoader implements JPMetaLoader {
           JPClass newCls = JPClassBean.newBuilder()
               .guid(cls.getGuid())
               .code(cls.getCode())
-              .qName(cls.getqName())
+              .qName(cls.getQName())
               .jpPackage(cls.getJpPackage())
               .inner(cls.isInner())
-              .actionLog(cls.getActionLog() == null || cls.getActionLog())
+              .actionLog(cls.isActionLog() == null || cls.isActionLog())
               .name(name != null ? name : descr)
               .shortName(shortName)
               .description(descr)

@@ -64,6 +64,13 @@ public interface JPMutableMap extends JPMap {
   void putIfAbsent(Map<String, Object> data);
 
   /**
+   * Сохраняет данные
+   *
+   * @param data Данные
+   */
+  void putIfAbsent(JPMap data);
+
+  /**
    * Возвращает entrySet
    *
    * @return entrySet

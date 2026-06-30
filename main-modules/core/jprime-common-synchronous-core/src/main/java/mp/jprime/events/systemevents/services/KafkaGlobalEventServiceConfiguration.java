@@ -35,11 +35,11 @@ public class KafkaGlobalEventServiceConfiguration {
 
   @Bean(name = "kafkaGlobalEventsTemplate")
   public KafkaTemplate<String, String> getKafkaTemplate() {
-    ProducerFactory<String, String> pf = getKafkaGlobalEventsProducerFactory();
+    ProducerFactory<String, String> pf = getKafkaProducerFactory();
     return pf == null ? null : new KafkaTemplate<>(pf);
   }
 
-  private ProducerFactory<String, String> getKafkaGlobalEventsProducerFactory() {
+  private ProducerFactory<String, String> getKafkaProducerFactory() {
     if (bootstrapAddress == null || bootstrapAddress.isEmpty()) {
       return null;
     }

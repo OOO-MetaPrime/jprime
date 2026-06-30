@@ -17,7 +17,7 @@ import java.util.function.Function;
  * Функция преобразование даты в текстовое описание
  */
 @Service
-public class JPDateToWordsFunction extends JPDataBaseFunction<String> {
+public final class JPDateToWordsFunction extends JPDataBaseFunction<String> {
   /**
    * Кодовое имя функции
    */
@@ -75,10 +75,9 @@ public class JPDateToWordsFunction extends JPDataBaseFunction<String> {
    */
   private static final List<String> ARG_CODES = Collections.singletonList(Arg.DATE);
 
-  private ParserService parserService;
+  private final ParserService parserService;
 
-  @Autowired
-  private void setParserService(ParserService parserService) {
+  private JPDateToWordsFunction(@Autowired ParserService parserService) {
     this.parserService = parserService;
   }
 
@@ -101,10 +100,10 @@ public class JPDateToWordsFunction extends JPDataBaseFunction<String> {
   protected Map<JPDataFunctionParams, JPDataFunctionResult<String>> compute(Collection<JPDataFunctionParams> args, AuthInfo auth) {
     Map<JPDataFunctionParams, JPDataFunctionResult<String>> result = new HashMap<>(args.size());
     args.forEach(x -> {
-      String value = null;
       LocalDate date = parserService.parseTo(LocalDate.class, x.getArgs().get(0));
-
       Function<LocalDate, String> func = date != null ? TEMPLATE_FUNC_LIST.get(x.getTemplate()) : null;
+
+      String value = null;
       if (func != null) {
         value = func.apply(date);
       }

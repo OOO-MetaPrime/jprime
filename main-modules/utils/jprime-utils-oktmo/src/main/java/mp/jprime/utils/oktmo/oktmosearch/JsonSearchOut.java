@@ -2,10 +2,10 @@ package mp.jprime.utils.oktmo.oktmosearch;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import mp.jprime.utils.JPUtilCustomOutParams;
-import mp.jprime.utils.oktmo.JPOktmoUtilsService;
+import mp.jprime.utils.oktmo.JpOktmoUtilsService;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -16,12 +16,12 @@ public final class JsonSearchOut extends JPUtilCustomOutParams {
     super(null, null, false);
   }
 
-  public static JsonSearchOut of(Collection<JPOktmoUtilsService.Oktmo> list) {
+  public static JsonSearchOut of(Collection<JpOktmoUtilsService.Oktmo> list) {
     JsonSearchOut result = new JsonSearchOut();
 
     if (list != null) {
-      Map<String, String> oktmo = new HashMap<>(list.size());
-      for (JPOktmoUtilsService.Oktmo obj : list) {
+      Map<String, String> oktmo = new LinkedHashMap<>(list.size());
+      for (JpOktmoUtilsService.Oktmo obj : list) {
         oktmo.put(obj.getCode(), obj.getName());
       }
       result.setOktmo(oktmo);

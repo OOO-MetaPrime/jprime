@@ -5,22 +5,17 @@ import mp.jprime.dataaccess.enums.FilterOperation;
 /**
  * Начинается С
  */
-public class StartsWith extends AttrValueFilter<Object> {
+public class StartsWith extends AttrValueFilter<String> {
   /**
    * Конструктор
    *
    * @param attrCode Условие по значениям
    * @param value    Условие
    */
-  public StartsWith(String attrCode, Object value) {
+  public StartsWith(String attrCode, String value) {
     super(attrCode, value);
   }
 
-  /**
-   * Операция
-   *
-   * @return Операция
-   */
   @Override
   public FilterOperation getOper() {
     return FilterOperation.STARTS_WITH;

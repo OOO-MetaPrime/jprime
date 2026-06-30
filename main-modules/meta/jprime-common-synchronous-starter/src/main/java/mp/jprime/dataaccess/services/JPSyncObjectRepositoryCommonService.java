@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class JPSyncObjectRepositoryCommonService implements JPSyncObjectRepositoryService {
   private static final Logger LOG = LoggerFactory.getLogger(JPSyncObjectRepositoryCommonService.class);
 
-  private static final Map<Class, JPSyncObjectRepository> REPO_MAP = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, JPSyncObjectRepository> REPO_MAP = new ConcurrentHashMap<>();
 
   private final JPMetaStorageService storageService;
 
@@ -43,7 +43,7 @@ public final class JPSyncObjectRepositoryCommonService implements JPSyncObjectRe
             if (anno == null) {
               continue;
             }
-            for (Class javaClass : anno.classes()) {
+            for (Class<?> javaClass : anno.classes()) {
               if (javaClass == null) {
                 continue;
               }
@@ -63,7 +63,7 @@ public final class JPSyncObjectRepositoryCommonService implements JPSyncObjectRe
       if (!(storage instanceof JPObjectStorage)) {
         throw new JPClassMapNotFoundException(classCode);
       }
-      Class storageClass = storage.getClass();
+      Class<?> storageClass = storage.getClass();
       JPSyncObjectRepository rep = null;
       while (rep == null && storageClass != null) {
         rep = REPO_MAP.get(storageClass);

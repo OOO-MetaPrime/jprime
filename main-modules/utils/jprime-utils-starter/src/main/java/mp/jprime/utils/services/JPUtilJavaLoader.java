@@ -1,6 +1,5 @@
 package mp.jprime.utils.services;
 
-import com.fasterxml.jackson.core.JsonParseException;
 import mp.jprime.common.annotations.JPClassAttr;
 import mp.jprime.common.annotations.JPEnum;
 import mp.jprime.common.annotations.JPParam;
@@ -26,6 +25,7 @@ import mp.jprime.utils.exceptions.JPUtilModeNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.JsonParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -250,6 +250,7 @@ public class JPUtilJavaLoader implements JPUtilLoader {
         .length(param.length())
         .mandatory(param.mandatory())
         .description(param.description())
+        .placeholder(param.placeholder())
         .qName(qName != null && !qName.isBlank() ? qName : null)
         .multiple(param.multiple())
         .refJpClass(param.refJpClass())

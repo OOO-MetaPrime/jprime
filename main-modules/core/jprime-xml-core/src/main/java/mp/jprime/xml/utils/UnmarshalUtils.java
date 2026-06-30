@@ -44,8 +44,8 @@ public final class UnmarshalUtils {
     try {
       Unmarshaller jaxbUnmarshaller = getUnmarshaller(tClass, null, null, classesToBeBound);
       Object o = jaxbUnmarshaller.unmarshal(node);
-      if (o instanceof JAXBElement) {
-        o = ((JAXBElement) o).getValue();
+      if (o instanceof JAXBElement e) {
+        o = e.getValue();
       }
       return (T) o;
     } catch (Exception e) {

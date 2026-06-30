@@ -1,9 +1,9 @@
 package mp.jprime.schedule.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "jpCron")
+@JsonRootName(value = "jpCron")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpCron {
   private String expression;

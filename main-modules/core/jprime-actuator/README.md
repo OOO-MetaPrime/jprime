@@ -19,12 +19,15 @@
 
 ```groovy
   apply from: "${rootProject.project(':jprime-actuator').projectDir}\\actuator.gradle"
-  dependsOn getSubmodulesHash
+
+  def manifestAttrs = getManifestAttrs()
+  def submodulesAttrs = getSubmodulesVersion()
+  def submodulesSectionName = SUBMODULES_SECTION_NAME
+  
   doFirst {
     manifest {
-      attributes += common.getManifestAttrs()
-      // При наличии подмодулей:
-      attributes(common.getSubmodulesVersion(), SUBMODULES_SECTION_NAME)
+      attributes(manifestAttrs, "")
+      attributes(submodulesAttrs, submodulesSectionName)
     }
   }
 ```

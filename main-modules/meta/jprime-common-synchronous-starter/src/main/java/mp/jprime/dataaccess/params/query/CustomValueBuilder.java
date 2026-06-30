@@ -394,6 +394,27 @@ public final class CustomValueBuilder {
   }
 
   /**
+   * Значение с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public StartsWithIN startsWithIn(Collection<String> value) {
+    return new StartsWithIN(customValue, value);
+  }
+
+
+  /**
+   * Значение начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public StartsWithIN startsWithIn(String... value) {
+    return new StartsWithIN(customValue, Arrays.asList(value));
+  }
+
+  /**
    * В указанном подзапросе
    *
    * @param value Значение
@@ -421,6 +442,26 @@ public final class CustomValueBuilder {
    */
   public NotIN notIn(Comparable... value) {
     return new NotIN(customValue, Arrays.asList(value));
+  }
+
+  /**
+   * Значение не начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public NotStartsWithIN notStartsWithIn(Collection<String> value) {
+    return new NotStartsWithIN(customValue, value);
+  }
+
+  /**
+   * Значение не начинается с указанного в списке
+   *
+   * @param value Значение
+   * @return Условие
+   */
+  public NotStartsWithIN notStartsWithIn(String... value) {
+    return new NotStartsWithIN(customValue, Arrays.asList(value));
   }
 
   /**

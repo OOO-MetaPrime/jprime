@@ -31,6 +31,7 @@ public class JPClassJsonConverter {
         .description(jpClass.getDescription())
         .jpPackage(jpClass.getJpPackage())
         .immutable(jpClass.isImmutable())
+        .actionLog(jpClass.isActionLog())
         .attrs(
             jpClass
                 .getAttrs()
@@ -72,6 +73,7 @@ public class JPClassJsonConverter {
         .stringFormat(stringFormat != null ? stringFormat.getCode() : null)
         .stringMask(jpAttr.getStringMask())
         .length(jpAttr.getLength())
+        .actionLog(jpAttr.isActionLog())
         // Настройка ссылки класс+атрибут
         .refJpClass(jpAttr.getRefJpClass())
         .refJpAttr(jpAttr.getRefJpAttr())

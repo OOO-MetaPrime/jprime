@@ -74,6 +74,15 @@ public enum JpNsiPropertyType {
    *
    * @return Код
    */
+  public JPType toJpType() {
+    return type;
+  }
+
+  /**
+   * Возвращает код
+   *
+   * @return Код
+   */
   public String getCode() {
     return type.getCode();
   }
@@ -92,7 +101,7 @@ public enum JpNsiPropertyType {
    *
    * @return Java-класс
    */
-  public Class getJavaClass() {
+  public Class<?> getJavaClass() {
     return type.getJavaClass();
   }
 }

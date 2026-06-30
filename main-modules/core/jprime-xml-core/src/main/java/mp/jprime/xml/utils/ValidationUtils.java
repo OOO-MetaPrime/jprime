@@ -39,12 +39,38 @@ public final class ValidationUtils {
    * @param schema       xsd-схема
    * @param eventHandler обработчик ошибок
    */
+  public static void validate(byte[] xml, Resource schema, ValidationEventHandler eventHandler) {
+    try (InputStream is = new ByteArrayInputStream(xml)) {
+      validate(is, schema, eventHandler);
+    } catch (Exception e) {
+      throw new JPXsdValidationException("Failed to validate XML", e);
+    }
+  }
+
+  /**
+   * Проверяет XML XSD-схемой
+   *
+   * @param xml          xml
+   * @param schema       xsd-схема
+   * @param eventHandler обработчик ошибок
+   */
   public static void validate(byte[] xml, Schema schema, ValidationEventHandler eventHandler) {
     try (InputStream is = new ByteArrayInputStream(xml)) {
       validate(is, schema, eventHandler);
     } catch (Exception e) {
       throw new JPXsdValidationException("Failed to validate XML", e);
     }
+  }
+
+  /**
+   * Проверяет XML XSD-схемой
+   *
+   * @param xmlStream    xml
+   * @param schema       xsd-схема
+   * @param eventHandler обработчик ошибок
+   */
+  public static void validate(InputStream xmlStream, Resource schema, ValidationEventHandler eventHandler) {
+    validate(xmlStream, JPSchemaFactory.getSchema(schema), eventHandler);
   }
 
   /**
@@ -98,6 +124,20 @@ public final class ValidationUtils {
       InputSource inputSource = new InputSource(xmlStream);
       SAXSource saxSource = new SAXSource(xmlReader, inputSource);
       validator.validate(saxSource);
+    } catch (Exception e) {
+      throw new JPXsdValidationException("Failed to validate XML [schema=" + schemaResource + "]", e);
+    }
+  }
+
+  /**
+   * Проверяет XML XSD-схемой
+   *
+   * @param schemaResource XSD-схема
+   * @param xmlBytes      XML
+   */
+  public static void validate(Resource schemaResource, byte[] xmlBytes) {
+    try (InputStream is = new ByteArrayInputStream(xmlBytes)) {
+      validate(schemaResource, is);
     } catch (Exception e) {
       throw new JPXsdValidationException("Failed to validate XML [schema=" + schemaResource + "]", e);
     }

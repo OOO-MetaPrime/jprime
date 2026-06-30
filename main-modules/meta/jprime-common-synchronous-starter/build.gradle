@@ -4,6 +4,7 @@ dependencies {
 
   implementation (commons.bundles.zxing)
 
+  api('org.springframework.boot:spring-boot-starter-restclient')
   api('org.springframework.security:spring-security-core')
 
   api project(':jprime-common-synchronous-core')

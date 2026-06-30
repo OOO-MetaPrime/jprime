@@ -14,8 +14,8 @@ import mp.jprime.imex.rules.JPMapRules;
 import mp.jprime.lang.JPMap;
 import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import org.apache.tika.utils.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -27,11 +27,10 @@ import java.util.*;
  * Базовая реализация сервиса для парсинга файла с использованием библиотеки opencsv
  */
 @Service
-public final class JPCsvParserCommonService implements JPCsvParserService, ParserServiceAware {
-  private ParserService parserService;
+public final class JPCsvParserCommonService implements JPCsvParserService {
+  private final ParserService parserService;
 
-  @Override
-  public void setParserService(ParserService parserService) {
+  private JPCsvParserCommonService(@Autowired ParserService parserService) {
     this.parserService = parserService;
   }
 

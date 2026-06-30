@@ -1,6 +1,6 @@
 package mp.jprime.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.xml.modules.JPObjectMapperXmlExpander;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,16 +14,17 @@ import java.util.Collection;
  */
 @Service
 public final class JPXmlMapper extends JPObjectXmlMapper {
-  private final XmlMapper XML_MAPPER;
+  private final XmlMapper xmlMapper;
 
   private JPXmlMapper(@Autowired Collection<JPObjectMapperXmlExpander> expanders) {
-    XML_MAPPER = new XmlMapper();
-    setSettings(expanders, XML_MAPPER);
+    XmlMapper.Builder builder = XmlMapper.builder();
+    setSettings(expanders, builder);
+    xmlMapper = builder.build();
   }
 
   @Override
   public XmlMapper getObjectMapper() {
-    return XML_MAPPER;
+    return xmlMapper;
   }
 
   public <T> T toObject(Class<T> to, byte[] src) {
@@ -34,7 +35,7 @@ public final class JPXmlMapper extends JPObjectXmlMapper {
       throw new IllegalArgumentException("Unset destination type <to> on call JPXmlMapper");
     }
     try {
-      return XML_MAPPER.readValue(src, to);
+      return xmlMapper.readValue(src, to);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }
@@ -48,7 +49,7 @@ public final class JPXmlMapper extends JPObjectXmlMapper {
       throw new IllegalArgumentException("Unset destination stream on call JPXmlMapper");
     }
     try {
-      XML_MAPPER.writeValue(stream, value);
+      xmlMapper.writeValue(stream, value);
     } catch (Exception e) {
       throw JPRuntimeException.wrapException(e);
     }

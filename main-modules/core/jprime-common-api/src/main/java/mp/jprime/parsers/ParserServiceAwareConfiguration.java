@@ -9,6 +9,7 @@ import java.util.Collection;
  * Сервис для инжекта реализации {@link ParserService}
  */
 @Configuration
+@Deprecated
 public class ParserServiceAwareConfiguration {
   @Autowired(required = false)
   public void setToAwares(ParserService service,  Collection<ParserServiceAware> awares) {

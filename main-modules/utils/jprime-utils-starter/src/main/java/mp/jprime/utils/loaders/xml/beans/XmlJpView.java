@@ -1,9 +1,9 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "view")
+@JsonRootName(value = "view")
 public class XmlJpView {
   private String title;
   @JacksonXmlProperty(localName = "roles")

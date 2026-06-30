@@ -15,6 +15,10 @@ import java.util.function.Supplier;
  * Обертка над reactor.core.publisher.Mono
  */
 public final class JPMono {
+  private JPMono() {
+
+  }
+
   public static <T> Mono<T> create(Consumer<MonoSink<T>> callback) {
     Mono<T> mono = Mono.create(callback);
     return mono

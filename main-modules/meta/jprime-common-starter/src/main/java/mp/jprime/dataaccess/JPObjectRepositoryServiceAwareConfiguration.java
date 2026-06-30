@@ -9,6 +9,7 @@ import java.util.Collection;
  * Сервис для инжекта реализации {@link JPObjectRepositoryService}
  */
 @Configuration
+@Deprecated
 public class JPObjectRepositoryServiceAwareConfiguration {
   @Autowired(required = false)
   public void setAwares(JPObjectRepositoryService service, Collection<JPObjectRepositoryServiceAware> awares) {

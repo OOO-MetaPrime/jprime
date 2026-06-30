@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
+import static mp.jprime.schedule.JpScheduleType.EVERY_N;
+import static mp.jprime.schedule.JpScheduleType.SPECIFIC;
+
 /**
  * Настройки запуска
  * ┌───────────── second (0-59)
@@ -174,19 +177,31 @@ public final class JpScheduleEditorCronBean extends JpScheduleCronBean implement
                                      DayConfig dayConfig,
                                      MonthConfig monthConfig,
                                      DayOfWeekConfig dayOfWeekConfig) {
-    return (toExpression(secondConfig) + " " +
-        toExpression(minuteConfig) + " " +
-        toExpression(hourConfig) + " " +
-        toExpression(dayConfig) + " " +
-        toExpression(monthConfig) + " " +
-        toExpression(dayOfWeekConfig)).trim();
+
+    if (isConfigInvalid(secondConfig) || isConfigInvalid(minuteConfig) || isConfigInvalid(hourConfig) ||
+        isConfigInvalid(dayConfig) || isConfigInvalid(monthConfig) || isConfigInvalid(dayOfWeekConfig)) {
+      return null;
+    }
+    return (toExpression(secondConfig) + " " + toExpression(minuteConfig) + " " +
+        toExpression(hourConfig) + " " + toExpression(dayConfig) + " " +
+        toExpression(monthConfig) + " " + toExpression(dayOfWeekConfig)
+    ).trim();
+  }
+
+  private static boolean isConfigInvalid(Config config) {
+    if (config == null) {
+      return Boolean.TRUE;
+    }
+    if (config.getType() == EVERY_N && config.getEvery() == null) {
+      return Boolean.TRUE;
+    }
+    if (config.getType() == SPECIFIC && (config.getSpecific() == null || config.getSpecific().isEmpty())) {
+      return Boolean.TRUE;
+    }
+    return Boolean.FALSE;
   }
 
   private static String toExpression(Config config) {
-    if (config == null) {
-      return "*";
-    }
-
     return switch (config.getType()) {
       case EVERY -> "*";
       case EVERY_N -> "*/" + config.getEvery();

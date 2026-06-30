@@ -34,9 +34,9 @@ public interface JPParam {
   String OBJECT_JP_FILTER = "objectJpFilter";
 
   /**
-   * Кодовое имя атрибута
+   * Кодовое имя параметра
    *
-   * @return Кодовое имя атрибута
+   * @return Кодовое имя параметра
    */
   String getCode();
 
@@ -97,16 +97,23 @@ public interface JPParam {
   Integer getLength();
 
   /**
-   * Описание атрибута
+   * Описание параметра
    *
-   * @return Описание атрибута
+   * @return Описание параметра
    */
   String getDescription();
 
   /**
-   * Уникальный qName атрибута
+   * Подсказка для параметра
    *
-   * @return Уникальный qName атрибута
+   * @return Подсказка для параметра
+   */
+  String getPlaceholder();
+
+  /**
+   * Уникальный qName параметра
+   *
+   * @return Уникальный qName параметра
    */
   String getQName();
 

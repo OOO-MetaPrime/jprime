@@ -4,6 +4,7 @@ import mp.jprime.dataaccess.JPSubQueryService;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.params.query.Filter;
 import mp.jprime.json.services.JPJsonMapper;
+import mp.jprime.security.services.JPResourceAccessService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,8 @@ class JPDataCheckServiceTest {
   private JPDataCheckService jpDataCheckService;
 
   @MockitoBean
+  private JPResourceAccessService resourceAccessService;
+  @MockitoBean
   private JPSubQueryService subQueryService;
 
   @Test
@@ -59,8 +62,8 @@ class JPDataCheckServiceTest {
     }};
     Object out = jpDataCheckService.check(
         Filter.or(
-            Filter.attr("attr1").startWith("М"),
-            Filter.attr("attr2").startWith("М")
+            Filter.attr("attr1").startsWith("М"),
+            Filter.attr("attr2").startsWith("М")
         ),
         JPMutableData.of(data)
     );
@@ -75,8 +78,8 @@ class JPDataCheckServiceTest {
     }};
     Object out = jpDataCheckService.check(
         Filter.and(
-            Filter.attr("attr1").notStartWith("А"),
-            Filter.attr("attr2").notStartWith("А")
+            Filter.attr("attr1").notStartsWith("А"),
+            Filter.attr("attr2").notStartsWith("А")
         ),
         JPMutableData.of(data)
     );

@@ -196,6 +196,10 @@ public enum FilterOperation {
    */
   NOT_STARTS_WITH("notStartsWith"),
   /**
+   * Значение не начинается с указанного в списке
+   */
+  NOT_STARTS_WITH_IN("notStartsWithIn"),
+  /**
    * Этот диапазон пересекается с диапазоном
    */
   OVERLAPS_RANGE("overlapsRange"),
@@ -211,6 +215,10 @@ public enum FilterOperation {
    * Начинается С
    */
   STARTS_WITH("startsWith"),
+  /**
+   * Значение начинается с указанного в списке
+   */
+  STARTS_WITH_IN("startsWithIn"),
   /**
    * Строгое равно строк
    */

@@ -17,11 +17,6 @@ public class NotStartsWith extends CustomValueFilter<Object> {
     super(customValue, value);
   }
 
-  /**
-   * Операция
-   *
-   * @return Операция
-   */
   @Override
   public FilterOperation getOper() {
     return FilterOperation.NOT_STARTS_WITH;

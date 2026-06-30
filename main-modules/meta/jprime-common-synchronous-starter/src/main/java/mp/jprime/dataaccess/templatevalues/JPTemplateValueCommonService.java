@@ -15,8 +15,7 @@ import java.util.Map;
 public class JPTemplateValueCommonService implements JPTemplateValueService {
   private final Map<String, JPTemplateValue> qValues = new HashMap<>();
 
-  @Autowired(required = false)
-  private void setQValues(Collection<JPTemplateValue> values) {
+  private JPTemplateValueCommonService(@Autowired(required = false) Collection<JPTemplateValue> values) {
     if (values == null) {
       return;
     }
@@ -43,7 +42,11 @@ public class JPTemplateValueCommonService implements JPTemplateValueService {
   @Override
   public Object getValue(JPTemplateValue templateValue, Object value, AuthInfo auth) {
     if (templateValue != null) {
-      return templateValue.getValue(value, auth);
+      if (auth != null) {
+        return auth.getProperty("templateValue." + templateValue.getTemplate(), () -> templateValue.getValue(value, auth));
+      } else {
+        return templateValue.getValue(value, null);
+      }
     } else {
       return value;
     }

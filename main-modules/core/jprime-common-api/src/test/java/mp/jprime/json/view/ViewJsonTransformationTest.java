@@ -4,7 +4,6 @@ import mp.jprime.json.modules.JPObjectMapperJavaTimeExpander;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPJsonNode;
 import mp.jprime.lang.JPJsonString;
-import mp.jprime.parsers.ParserServiceAwareConfiguration;
 import mp.jprime.parsers.ValueParser;
 import mp.jprime.parsers.base.*;
 import mp.jprime.parsers.services.ParserCommonService;
@@ -26,7 +25,6 @@ import java.util.Arrays;
     JPJsonMapper.class,
     JPObjectMapperJavaTimeExpander.class,
     ParserCommonService.class,
-    ParserServiceAwareConfiguration.class,
     ValueParser.class,
     StringToStringParser.class,
     StringToIntegerParser.class,
@@ -35,6 +33,9 @@ import java.util.Arrays;
     LongToLongParser.class,
     LongToIntegerParser.class,
     StringToDoubleParser.class,
+    StringToLocalDateParser.class,
+    StringToLocalDateTimeParser.class,
+    StringToLocalTimeParser.class,
     JPJsonNodeToStringParser.class,
     JPJsonNodeToJPJsonStringParser.class,
     StringToCardNumberHolderParser.class

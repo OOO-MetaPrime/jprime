@@ -7,6 +7,7 @@ import mp.jprime.caches.events.JPCacheRefreshEvent;
 import mp.jprime.concurrent.JPForkJoinPoolService;
 import mp.jprime.events.systemevents.JPSystemApplicationEvent;
 import mp.jprime.application.JPApplicationShutdownManager;
+import mp.jprime.events.systemevents.services.SystemEventPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +21,14 @@ public final class JPCacheManagerService implements JPCacheManager, JPApplicatio
   private static final Logger LOG = LoggerFactory.getLogger(JPCacheManagerService.class);
 
   private final JPApplicationShutdownManager shutdownManager;
+  private final SystemEventPublisher systemEventPublisher;
   private final Map<String, JPCache> caches = new HashMap<>();
 
   private JPCacheManagerService(@Autowired JPApplicationShutdownManager shutdownManager,
+                                @Autowired(required = false) SystemEventPublisher systemEventPublisher,
                                 @Autowired(required = false) Collection<JPCache> caches) {
     this.shutdownManager = shutdownManager;
+    this.systemEventPublisher = systemEventPublisher;
     if (caches != null) {
       caches.forEach(x -> this.caches.put(x.getCode(), x));
     }
@@ -60,7 +64,7 @@ public final class JPCacheManagerService implements JPCacheManager, JPApplicatio
    * Код события обновления кэша
    */
   public String getRefreshEventCode() {
-    return JPCacheRefreshEvent.CODE;
+    return JPCacheRefreshEvent.REFRESH_CODE;
   }
 
   @EventListener(condition = "#event.eventCode.equals(@JPCacheManagerService.getRefreshEventCode())")
@@ -74,6 +78,9 @@ public final class JPCacheManagerService implements JPCacheManager, JPApplicatio
     JPCache cache = caches.get(code);
     if (cache != null) {
       cache.refresh();
+    }
+    if (systemEventPublisher != null) {
+      systemEventPublisher.publishEvent(JPCacheRefreshEvent.newChangeEvent(code));
     }
   }
 }

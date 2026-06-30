@@ -1,11 +1,11 @@
 package mp.jprime.parsers.base;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import mp.jprime.json.services.JPJsonMapper;
 import mp.jprime.lang.JPIntegerArray;
 import mp.jprime.parsers.BaseTypeParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.core.type.TypeReference;
 
 import java.util.Collections;
 import java.util.List;

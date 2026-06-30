@@ -1,6 +1,6 @@
 package mp.jprime.utils.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.application.JPApplicationShutdownManager;
 import mp.jprime.common.JPAppendType;
 import mp.jprime.common.JPParam;
@@ -188,7 +188,7 @@ public final class JPUtilXmlLoader implements JPUtilLoader {
         modeMap.put(jpMode, modeParams.keySet());
         modeList.add(
             JPUtilModeSettingsBean.of(
-                jpMode.getCode(), jpMode.getTitle(), xml.getqName(),
+                jpMode.getCode(), jpMode.getTitle(), xml.getQName(),
                 MapInParams.class,
                 null, null, true,
                 JPAppendType.getType(jpMode.getAppendType()),
@@ -203,7 +203,7 @@ public final class JPUtilXmlLoader implements JPUtilLoader {
     }
 
     return JPUtilSettingsBean.of(
-        code, title, xml.getqName(),
+        code, title, xml.getQName(),
         xml.getJpPackage(), roles != null ? roles.getRoles() : null,
         false, jpClasses != null ? jpClasses.getJpClasses() : null,
         jpClassTags != null ? jpClassTags.getTags() : null,

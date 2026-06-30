@@ -5,6 +5,7 @@ import mp.jprime.security.AuthBaseParams;
 import mp.jprime.security.jwt.JWTInfo;
 
 import java.util.Collection;
+import java.util.function.Supplier;
 
 /**
  * Данные авторизации
@@ -116,5 +117,10 @@ public class AuthInfoJWTWrapperBean extends AuthBaseParams implements AuthInfo {
   @Override
   public Esia getEsia() {
     return jwtInfo.getEsia();
+  }
+
+  @Override
+  public Object getProperty(String key, Supplier<Object> func) {
+    return jwtInfo.getProperty(key, func);
   }
 }

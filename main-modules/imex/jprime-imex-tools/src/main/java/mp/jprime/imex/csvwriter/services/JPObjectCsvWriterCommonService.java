@@ -2,7 +2,6 @@ package mp.jprime.imex.csvwriter.services;
 
 import mp.jprime.concurrent.JPCompletableFuture;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.exceptions.JPRuntimeException;
@@ -11,7 +10,6 @@ import mp.jprime.meta.JPAttr;
 import mp.jprime.meta.JPClass;
 import mp.jprime.meta.services.JPMetaStorage;
 import mp.jprime.parsers.ParserService;
-import mp.jprime.parsers.ParserServiceAware;
 import mp.jprime.streams.JPPipedInputStream;
 import mp.jprime.streams.JPPipedOutputStream;
 import org.apache.commons.collections4.CollectionUtils;
@@ -34,29 +32,22 @@ import java.util.zip.ZipOutputStream;
  * Базовый сервис выгрузки {@link JPObject} в CSV
  */
 @Service
-public final class JPObjectCsvWriterCommonService implements JPObjectCsvWriterService, ParserServiceAware, JPObjectRepositoryServiceAware {
+public final class JPObjectCsvWriterCommonService implements JPObjectCsvWriterService {
   /**
    * Количество объектов в 1 выборке
    */
   private static final int DEFAULT_LIMIT = 10000;
   private static final Logger LOG = LoggerFactory.getLogger(JPObjectCsvWriterCommonService.class);
 
-  private JPObjectRepositoryService repo;
-  private ParserService parser;
-  private JPMetaStorage metaStorage;
+  private final JPObjectRepositoryService repo;
+  private final ParserService parser;
+  private final JPMetaStorage metaStorage;
 
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repositoryService) {
-    this.repo = repositoryService;
-  }
-
-  @Override
-  public void setParserService(ParserService parserService) {
-    this.parser = parserService;
-  }
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
+  private JPObjectCsvWriterCommonService(@Autowired JPObjectRepositoryService repo,
+                                         @Autowired ParserService parser,
+                                         @Autowired JPMetaStorage metaStorage) {
+    this.repo = repo;
+    this.parser = parser;
     this.metaStorage = metaStorage;
   }
 

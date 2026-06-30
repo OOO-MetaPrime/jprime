@@ -63,6 +63,56 @@ paths:
         5XX:
           description: Unexpected error.
 
+  /utils/v1/oktmo-search/mode/getGroup:
+    post:
+      tags:
+      - action
+      description: Получение данных по группе ОКТМО
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/getGroup-request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group-response'
+        400:
+          description: Bad request. See the logs for details
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
+  /utils/v1/oktmo-search/mode/groupSearch:
+    post:
+      tags:
+      - action
+      description: Поиск групп ОКТМО
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/groupSearch-request'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/group-response'
+        400:
+          description: Bad request. See the logs for details
+        401:
+          description: Authorization information is missing or invalid.
+        5XX:
+          description: Unexpected error.
+
 components:
   schemas:
     get-request:
@@ -105,11 +155,11 @@ components:
           example: true
         formationSearch:
           type: boolean
-          description: поиск по образованиям
+          description: поиск по муниципальному уровню
           example: true
         districtSearch:
           type: boolean
-          description: поиск по округам
+          description: поиск по поселенческому уровню
           example: true
         oktmoSearch:
           type: array
@@ -132,6 +182,72 @@ components:
             items:
               type: string
           example: {"25612422": "Смоленское"}
+
+    getGroup-request:
+      type: object
+      description: запуск утилиты
+      properties:
+        group:
+          type: array
+          description: Список групп ОКТМО
+          items:
+            type: string
+            example: ["spbVyborgskiy"]
+        prefixMode:
+          type: boolean
+          description: Возвращаем значимые префиксы ОКТМО, входящие в группу
+          example: true
+
+    groupSearch-request:
+      type: object
+      description: запуск утилиты
+      properties:
+        query:
+          type: string
+          description: поисковая строка
+          example: ["выборгский"]
+        limit:
+          type: integer
+          description: количество объектов в выборке
+          example: 50
+        prefixMode:
+          type: boolean
+          description: Возвращаем значимые префиксы ОКТМО, входящие в группу
+          example: true
+        oktmoSearch:
+          type: array
+          items:
+            type: string
+          description: поиск с учетом указанных ОКТМО
+          example: ["07000000"]
+        authSearch:
+          type: boolean
+          description: поиск с учетом ОКТМО пользователя
+          example: true
+
+    group-response:
+      type: object
+      description: ответ утилиты
+      properties:
+        groups:
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          example: {"spbVyborgskiy": {
+                    "code": "spbVyborgskiy",
+                    "name": "Выборгский район",
+                    "oktmo": [
+                      "40312",
+                      "40313",
+                      "40314",
+                      "40315",
+                      "40316",
+                      "40317",
+                      "40318",
+                      "40319"
+                    ]
+                  }}
 
 # Added by API Auto Mocking Plugin
 servers:

@@ -1,8 +1,8 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
-@JacksonXmlRootElement(localName = "jpResult")
+@JsonRootName(value = "jpResult")
 public class XmlJpModeResult {
   private String type;
   private String description;

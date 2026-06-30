@@ -1,7 +1,6 @@
 package mp.jprime.repositories.services;
 
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.Source;
 import mp.jprime.dataaccess.beans.JPId;
 import mp.jprime.dataaccess.beans.JPObject;
@@ -23,6 +22,7 @@ import mp.jprime.repositories.JPStorage;
 import mp.jprime.repositories.RepositoryGlobalStorage;
 import mp.jprime.repositories.exceptions.JPRepositoryNotFoundException;
 import mp.jprime.security.AuthInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -36,23 +36,16 @@ import java.util.stream.Collectors;
  * Базовая реализация JPFileLoader
  */
 @Service
-public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServiceAware {
-  private JPObjectRepositoryService repo;
-  private JPMetaStorage metaStorage;
-  private RepositoryGlobalStorage repositoryStorage;
+public final class JPFileCommonLoader implements JPFileLoader {
+  private final JPObjectRepositoryService repo;
+  private final JPMetaStorage metaStorage;
+  private final RepositoryGlobalStorage repositoryStorage;
 
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
+  private JPFileCommonLoader(@Autowired JPObjectRepositoryService repo,
+                             @Autowired JPMetaStorage metaStorage,
+                             @Autowired RepositoryGlobalStorage repositoryStorage) {
     this.repo = repo;
-  }
-
-  @Autowired
-  private void setMetaStorage(JPMetaStorage metaStorage) {
     this.metaStorage = metaStorage;
-  }
-
-  @Autowired
-  private void setRepositoryStorage(RepositoryGlobalStorage repositoryStorage) {
     this.repositoryStorage = repositoryStorage;
   }
 
@@ -128,6 +121,7 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
     JPObject obj = repo.getObject(
         JPSelect.from(id.getJpClass())
             .attr(info.jpAttr)
+            .attr(jpFile.getStorageCodeAttrCode())
             .attr(jpFile.getStorageFilePathAttrCode())
             .attr(jpFile.getFileTitleAttrCode())
             .attr(jpFile.getFileExtAttrCode())
@@ -209,16 +203,31 @@ public class JPFileCommonLoader implements JPFileLoader, JPObjectRepositoryServi
     }
     String fileExt = obj.getAttrValue(jpFile.getFileExtAttrCode());
 
+    String storageCode = obj.getAttrValue(jpFile.getStorageCodeAttrCode());
+    JPFileStorage fs = null;
+    if (StringUtils.isBlank(storageCode)) {
+      storageCode = fileStorage.getCode();
+      fs = fileStorage;
+    } else if (storageCode.equals(fileStorage.getCode())) {
+      fs = fileStorage;
+    } else {
+      JPStorage storage = repositoryStorage.getStorage(storageCode);
+      if (storage instanceof JPFileStorage fsStorage) {
+        fs = fsStorage;
+      }
+    }
+
     String storageFilePath = obj.getAttrValue(jpFile.getStorageFilePathAttrCode());
     if (storageFilePath == null) {
       storageFilePath = jpFile.getStorageFilePath();
     }
-    FileInfo fileInfo = storageFilePath != null && fileName != null ? fileStorage.getInfo(storageFilePath, fileName) : null;
+
+    FileInfo fileInfo = storageFilePath != null && fileName != null && fs != null ? fs.getInfo(storageFilePath, fileName) : null;
     if (fileInfo == null) {
       return null;
     }
     return JPIdFileInfoBean.newBuilder(obj.getJpId())
-        .storageCode(fileStorage.getCode())
+        .storageCode(storageCode)
         .storageFilePath(storageFilePath)
         .storageFileName(fileName)
         .fileCode(fileName)

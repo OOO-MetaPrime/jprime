@@ -2,7 +2,6 @@ package mp.jprime.dataaccess.generated;
 
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.checkers.JPDataCheckService;
-import mp.jprime.dataaccess.checkers.JPDataCheckServiceAware;
 import mp.jprime.dataaccess.generated.storages.GeneratedJPClassBaseStorage;
 import mp.jprime.dataaccess.params.JPSelect;
 import mp.jprime.meta.services.JPBeanService;
@@ -15,18 +14,13 @@ import java.util.Map;
 /**
  * Класс для репозитория только на чтение для данных, генерируемых на основе java бинов
  */
-public abstract class GeneratedJavaBeanStorage extends GeneratedJPClassBaseStorage implements JPDataCheckServiceAware {
+public abstract class GeneratedJavaBeanStorage extends GeneratedJPClassBaseStorage {
   // Хранилище метаинформации
   private JPMetaStorage metaStorage;
   // Логика работы с JPBean
   private JPBeanService beanService;
   // Сервис проверки данных указанному условию
   private JPDataCheckService dataCheckService;
-
-  @Override
-  public void setJpDataCheckService(JPDataCheckService dataCheckService) {
-    this.dataCheckService = dataCheckService;
-  }
 
   @Autowired
   private void setMetaStorage(JPMetaStorage metaStorage) {
@@ -36,6 +30,11 @@ public abstract class GeneratedJavaBeanStorage extends GeneratedJPClassBaseStora
   @Autowired
   private void setBeanService(JPBeanService beanService) {
     this.beanService = beanService;
+  }
+
+  @Autowired
+  private void setDataCheckService(JPDataCheckService dataCheckService) {
+    this.dataCheckService = dataCheckService;
   }
 
   /**

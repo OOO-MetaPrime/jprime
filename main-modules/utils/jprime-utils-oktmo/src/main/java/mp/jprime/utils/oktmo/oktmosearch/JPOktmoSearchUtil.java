@@ -7,7 +7,7 @@ import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.JPUtil;
 import mp.jprime.utils.annotations.JPUtilLink;
 import mp.jprime.utils.annotations.JPUtilModeLink;
-import mp.jprime.utils.oktmo.JPOktmoUtilsService;
+import mp.jprime.utils.oktmo.JpOktmoUtilsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
@@ -23,11 +23,10 @@ import static mp.jprime.security.Role.AUTH_ACCESS;
     title = "Утилита поиска ОКТМО",
     authRoles = AUTH_ACCESS
 )
-public class JPOktmoSearchUtil implements JPUtil {
-  private JPOktmoUtilsService oktmoService;
+public final class JpOktmoSearchUtil implements JPUtil {
+  private final JpOktmoUtilsService oktmoService;
 
-  @Autowired
-  private void setOktmoService(JPOktmoUtilsService oktmoService) {
+  private JpOktmoSearchUtil(@Autowired JpOktmoUtilsService oktmoService) {
     this.oktmoService = oktmoService;
   }
 
@@ -38,37 +37,37 @@ public class JPOktmoSearchUtil implements JPUtil {
           @JPParam(
               code = "query",
               type = JPType.STRING,
-              description = "поисковая строка"
+              description = "Поисковая строка"
           ),
           @JPParam(
               code = "limit",
               type = JPType.INT,
-              description = "ограничение по количеству"
+              description = "Ограничение по количеству"
           ),
           @JPParam(
               code = "subjectSearch",
               type = JPType.BOOLEAN,
-              description = "поиск по субъектам"
+              description = "Поиск по субъектам"
           ),
           @JPParam(
               code = "formationSearch",
               type = JPType.BOOLEAN,
-              description = "поиск по образованиям"
+              description = "Поиск по муниципальному уровню"
           ),
           @JPParam(
               code = "districtSearch",
               type = JPType.BOOLEAN,
-              description = "поиск по округам"
+              description = "Поиск по поселенческому уровню"
           ),
           @JPParam(
               code = "oktmoSearch",
               type = JPType.STRING,
-              description = "поиск с учетом указанных ОКТМО"
+              description = "Поиск с учетом указанных ОКТМО"
           ),
           @JPParam(
               code = "authSearch",
               type = JPType.BOOLEAN,
-              description = "поиск с учетом ОКТМО пользователя"
+              description = "Поиск с учетом ОКТМО пользователя"
           )
       },
       actionLog = false,
@@ -76,8 +75,8 @@ public class JPOktmoSearchUtil implements JPUtil {
   )
   public Mono<JsonSearchOut> search(JsonSearchIn in, AuthInfo auth) {
     return JPMono.fromCallable(() -> {
-          Collection<JPOktmoUtilsService.Oktmo> list = oktmoService.search(
-              in.getQuery(), in.getLimit(), JPOktmoUtilsService.SearchParams.of(
+          Collection<JpOktmoUtilsService.Oktmo> list = oktmoService.search(
+              in.getQuery(), in.getLimit(), JpOktmoUtilsService.SearchParams.of(
                   in.isSubjectSearch(), in.isFormationSearch(), in.isDistrictSearch(),
                   in.getOktmoSearch(), in.isAuthSearch(), auth
               ));
@@ -101,8 +100,79 @@ public class JPOktmoSearchUtil implements JPUtil {
   )
   public Mono<JsonGetOut> get(JsonGetIn in, AuthInfo auth) {
     return JPMono.fromCallable(() -> {
-          Collection<JPOktmoUtilsService.Oktmo> list = oktmoService.get(in.getOktmo());
+          Collection<JpOktmoUtilsService.Oktmo> list = oktmoService.get(in.getOktmo());
           return JsonGetOut.of(list);
+        }
+    );
+  }
+
+  @JPUtilModeLink(
+      code = "groupSearch",
+      title = "Поиск групп ОКТМО",
+      inParams = {
+          @JPParam(
+              code = "query",
+              type = JPType.STRING,
+              description = "Поисковая строка"
+          ),
+          @JPParam(
+              code = "limit",
+              type = JPType.INT,
+              description = "Ограничение по количеству"
+          ),
+          @JPParam(
+              code = "prefixMode",
+              type = JPType.BOOLEAN,
+              description = "Возвращаем значимые префиксы ОКТМО, входящие в группу"
+          ),
+          @JPParam(
+              code = "oktmoSearch",
+              type = JPType.STRING,
+              description = "Поиск с учетом указанных ОКТМО"
+          ),
+          @JPParam(
+              code = "authSearch",
+              type = JPType.BOOLEAN,
+              description = "Поиск с учетом ОКТМО пользователя"
+          )
+      },
+      actionLog = false,
+      outClass = JsonGroupOut.class
+  )
+  public Mono<JsonGroupOut> groupSearch(JsonGroupSearchIn in, AuthInfo auth) {
+    return JPMono.fromCallable(() -> {
+          Collection<JpOktmoUtilsService.Group> list = oktmoService.groupSearch(
+              in.getQuery(), in.getLimit(), in.isPrefixMode(),
+              JpOktmoUtilsService.GroupSearchParams.of(
+                  in.getOktmoSearch(), in.isAuthSearch(), auth
+              ));
+          return JsonGroupOut.of(list);
+        }
+    );
+  }
+
+  @JPUtilModeLink(
+      code = "getGroup",
+      title = "Названия групп ОКТМО",
+      inParams = {
+          @JPParam(
+              code = "group",
+              type = JPType.STRING_ARRAY,
+              description = "Список групп ОКТМО"
+          ),
+          @JPParam(
+              code = "prefixMode",
+              type = JPType.BOOLEAN,
+              description = "Возвращаем значимые префиксы ОКТМО, входящие в группу"
+          ),
+      },
+      actionLog = false,
+      outClass = JsonGroupOut.class
+  )
+  public Mono<JsonGroupOut> getGroup(JsonGroupGetIn in, AuthInfo auth) {
+    return JPMono.fromCallable(() -> {
+          Collection<JpOktmoUtilsService.Group> list = oktmoService.getGroup(in.getGroup(), in.isPrefixMode());
+          return JsonGroupOut.of(list);
         }
     );
   }

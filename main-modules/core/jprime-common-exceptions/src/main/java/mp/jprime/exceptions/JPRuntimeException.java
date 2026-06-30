@@ -108,4 +108,8 @@ public class JPRuntimeException extends RuntimeException {
   public static RuntimeException wrapException(String message, Exception e) {
     return wrapException(message, e, JPRuntimeException.class);
   }
+
+  public static JPRuntimeException ofMessage(String message) {
+    return new JPRuntimeException(message);
+  }
 }

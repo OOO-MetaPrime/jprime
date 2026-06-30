@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @ContextConfiguration(classes = {
     JpStringFormatParserTest.Config.class
 })
-public class JpStringFormatParserTest {
+class JpStringFormatParserTest {
   @Autowired
   private JpStringFormatParser stringFormatParser;
 
@@ -83,6 +83,14 @@ public class JpStringFormatParserTest {
   }
 
   @Test
+  void testOgrn() {
+    assertTrue(stringFormatParser.parseOgrn("9113797784036").isCheck());
+    assertFalse(stringFormatParser.parseOgrn("011231231").isCheck());
+    assertFalse(stringFormatParser.parseOgrn("1234567890123").isCheck());
+  }
+
+
+  @Test
   void testOktmo() {
     assertEquals("01123123", stringFormatParser.parseOktmo("01123123").getParseValue());
     assertFalse(stringFormatParser.parseOktmo("011231231").isCheck());
@@ -135,5 +143,88 @@ public class JpStringFormatParserTest {
 
     assertTrue(stringFormatParser.parseFio(null).isCheck());
     assertTrue(stringFormatParser.parseFio("     ").isCheck());
+  }
+
+  @Test
+  void testZagsSeries() {
+    assertEquals("IIIАБ", stringFormatParser.parseZagsSeries("IIIАБ").getParseValue());
+    assertEquals("IVАБ", stringFormatParser.parseZagsSeries("IV-АБ").getParseValue());
+    assertEquals("XVIIIАБ", stringFormatParser.parseZagsSeries("XVIII-АБ").getParseValue());
+    assertEquals("IАБ", stringFormatParser.parseZagsSeries("  I-АБ !@#№$;%^:&?*").getParseValue());
+    assertEquals("IЁЙ", stringFormatParser.parseZagsSeries("  I-ЁЙ  01(){}[]").getParseValue());
+
+    assertTrue(stringFormatParser.parseZagsSeries(null).isCheck());
+
+    assertFalse(stringFormatParser.parseZagsSeries("VI-А").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VI-АБВ").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VI-Аб").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VI-аб").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VIА").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VIАБВ").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VI-1").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("VI-III").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("АБ-III").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("III-?0%").isCheck());
+    assertFalse(stringFormatParser.parseZagsSeries("$1-АБ").isCheck());
+  }
+
+  @Test
+  void testZagsNumber() {
+    assertEquals("123456", stringFormatParser.parseZagsNumber("123456").getParseValue());
+    assertEquals("123456", stringFormatParser.parseZagsNumber(" 123456a").getParseValue());
+
+    assertTrue(stringFormatParser.parseZagsNumber(null).isCheck());
+
+    assertFalse(stringFormatParser.parseZagsNumber("1234567").isCheck());
+    assertFalse(stringFormatParser.parseZagsNumber("12345").isCheck());
+    assertFalse(stringFormatParser.parseZagsNumber("abc").isCheck());
+    assertFalse(stringFormatParser.parseZagsNumber("     ").isCheck());
+  }
+
+  @Test
+  void testZagsAgs() {
+    assertEquals("110229010011100331005", stringFormatParser.parseZagsAgs("110229010011100331005").getParseValue());
+    assertEquals("12345", stringFormatParser.parseZagsAgs("12345").getParseValue());
+    assertEquals("1", stringFormatParser.parseZagsAgs("1").getParseValue());
+    assertEquals("123", stringFormatParser.parseZagsAgs(" a 1 2 3 ").getParseValue());
+
+    assertTrue(stringFormatParser.parseZagsAgs(null).isCheck());
+
+    assertFalse(stringFormatParser.parseZagsAgs("123456789012345678901").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("12345678901234567890K").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("12345678901234567890").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("1234567890123456789012").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("1234567").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("abc").isCheck());
+    assertFalse(stringFormatParser.parseZagsAgs("     ").isCheck());
+  }
+
+  @Test
+  void testZagsDepartmentCode() {
+    assertEquals("R1234567", stringFormatParser.parseZagsDepartmentCode("R1234567").getParseValue());
+    assertEquals("12345678", stringFormatParser.parseZagsDepartmentCode("12345678").getParseValue());
+    assertEquals("R1234567", stringFormatParser.parseZagsDepartmentCode("   R1234567   ").getParseValue());
+
+    assertTrue(stringFormatParser.parseZagsDepartmentCode(null).isCheck());
+
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("R12345678").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("R123456").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("123456789").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("1234567").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("r1234567").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("RR1234567").isCheck());
+    assertFalse(stringFormatParser.parseZagsDepartmentCode("     ").isCheck());
+  }
+
+  @Test
+  void testAgsShortNumber() {
+    assertEquals("45678", stringFormatParser.parseAgsShortNumber("12345678901234567890K").getParseValue());
+    assertEquals("678", stringFormatParser.parseAgsShortNumber("12345678901230067890K").getParseValue());
+    assertEquals("678", stringFormatParser.parseAgsShortNumber("00678").getParseValue());
+
+    assertTrue(stringFormatParser.parseAgsShortNumber("12345678901230000090K").isCheck());
+    assertTrue(stringFormatParser.parseAgsShortNumber(null).isCheck());
+    assertTrue(stringFormatParser.parseAgsShortNumber("").isCheck());
+    assertTrue(stringFormatParser.parseAgsShortNumber("     ").isCheck());
   }
 }

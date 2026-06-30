@@ -1,9 +1,9 @@
 package mp.jprime.utils.loaders.xml.beans;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import mp.jprime.xml.beans.XmlParams;
 
-@JacksonXmlRootElement(localName = "jpMode")
+@JsonRootName(value = "jpMode")
 public class XmlJpMode {
   private String code;
   private String title;
@@ -29,11 +29,11 @@ public class XmlJpMode {
     this.title = title;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 
-  public void setqName(String qName) {
+  public void setQName(String qName) {
     this.qName = qName;
   }
 

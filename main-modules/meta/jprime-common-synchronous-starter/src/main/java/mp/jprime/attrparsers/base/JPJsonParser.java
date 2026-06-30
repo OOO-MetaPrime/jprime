@@ -1,6 +1,5 @@
 package mp.jprime.attrparsers.base;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import mp.jprime.attrparsers.AttrTypeParser;
 import mp.jprime.dataaccess.JPAttrData;
 import mp.jprime.dataaccess.beans.JPMutableData;
@@ -12,6 +11,7 @@ import mp.jprime.meta.beans.JPType;
 import mp.jprime.parsers.exceptions.JPParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tools.jackson.databind.JsonNode;
 
 /**
  * Реализация парсера {@link JPType#JSON}

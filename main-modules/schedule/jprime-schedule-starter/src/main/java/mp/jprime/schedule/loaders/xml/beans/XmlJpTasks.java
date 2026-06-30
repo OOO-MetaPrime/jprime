@@ -1,12 +1,12 @@
 package mp.jprime.schedule.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.Arrays;
 
-@JacksonXmlRootElement(localName = "jpTask")
+@JsonRootName(value = "jpTask")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpTasks {
   @JacksonXmlElementWrapper(useWrapping = false)

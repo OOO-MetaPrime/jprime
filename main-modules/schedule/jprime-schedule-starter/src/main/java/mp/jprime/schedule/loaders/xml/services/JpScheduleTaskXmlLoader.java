@@ -1,6 +1,6 @@
 package mp.jprime.schedule.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import tools.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.dataaccess.beans.JPData;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.parsers.ParserService;

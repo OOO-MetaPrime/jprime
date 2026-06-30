@@ -1,5 +1,7 @@
 package mp.jprime.dataaccess.transaction;
 
+import jakarta.annotation.Nullable;
+import mp.jprime.dataaccess.transaction.beans.JpTransactionInfoBean;
 import mp.jprime.dataaccess.transaction.events.JPTransactionEvent;
 import mp.jprime.dataaccess.transaction.events.JPTransactionEventManager;
 import mp.jprime.repositories.JPStorage;
@@ -8,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.NamedThreadLocal;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.*;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -19,12 +20,9 @@ import java.util.*;
 public class ChainedTransactionManager implements PlatformTransactionManager {
   private final static Logger LOG = LoggerFactory.getLogger(ChainedTransactionManager.class);
 
-  private static final ThreadLocal<TransactionInfo> TRANSACTION_INFO_THREAD_LOCAL = new NamedThreadLocal<>("Current transaction");
+  private final static ThreadLocal<JpTransactionInfo> TRANSACTION_INFO_THREAD_LOCAL = new NamedThreadLocal<>("Current transaction");
 
-  private final LinkedHashMap<String, PlatformTransactionManager> transactionManagerMap = new LinkedHashMap<>();
-  private final Set<PlatformTransactionManager> transactionManagers = new LinkedHashSet<>();
-  private final List<PlatformTransactionManager> reverseTransactionManagers = new ArrayList<>();
-
+  private final Map<String, JPStorage> transactionManagerMap = new LinkedHashMap<>();
   private final JPTransactionEventManager transactionEventManager;
 
   private ChainedTransactionManager(@Autowired JPTransactionEventManager transactionEventManager,
@@ -32,22 +30,19 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     this.transactionEventManager = transactionEventManager;
 
     for (JPStorage storage : repositoryStorage.getStorages()) {
-      TransactionManager tm = storage.getTransactionManager();
-      if (tm instanceof PlatformTransactionManager) {
-        transactionManagers.add((PlatformTransactionManager) tm);
-        transactionManagerMap.put(storage.getCode(), (PlatformTransactionManager) tm);
+      if (!storage.isTransactionSupport()) {
+        continue;
       }
+      transactionManagerMap.put(storage.getCode(), storage);
     }
-    reverseTransactionManagers.addAll(transactionManagers);
-    Collections.reverse(reverseTransactionManagers);
   }
 
-  private TransactionInfo currentTransactionInfo() {
+  private JpTransactionInfo currentTransactionInfo() {
     return TRANSACTION_INFO_THREAD_LOCAL.get();
   }
 
   public void addCommitEvent(JPTransactionEvent event) {
-    TransactionInfo info = currentTransactionInfo();
+    JpTransactionInfo info = currentTransactionInfo();
     if (info == null) {
       return;
     }
@@ -58,7 +53,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
    * При открытии транзакции сразу резервируются соединения во всех зарегистрированных хранилищах
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    */
-  public MultiTransactionStatus getTransactionStatus() throws TransactionException {
+  public JpMultiTransactionStatus getTransactionStatus() throws TransactionException {
     return getTransaction(TransactionDefinition.withDefaults(), (String[]) null);
   }
 
@@ -67,7 +62,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    * @param dbCodes Коды хранилищ для распределенной транзакции
    */
-  public MultiTransactionStatus getTransactionStatus(String... dbCodes) throws TransactionException {
+  public JpMultiTransactionStatus getTransactionStatus(String... dbCodes) throws TransactionException {
     return getTransaction(TransactionDefinition.withDefaults(), dbCodes);
   }
 
@@ -76,7 +71,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    * @param dbCodes Коды хранилищ для распределенной транзакции
    */
-  public MultiTransactionStatus getTransactionStatus(Collection<String> dbCodes) throws TransactionException {
+  public JpMultiTransactionStatus getTransactionStatus(Collection<String> dbCodes) throws TransactionException {
     return getTransaction(TransactionDefinition.withDefaults(), dbCodes);
   }
 
@@ -84,35 +79,39 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
    * При открытии транзакции сразу резервируются соединения во всех зарегистрированных хранилищах
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    */
-  public MultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
+  public JpMultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition) throws TransactionException {
     return getTransaction(definition, (String[]) null);
   }
 
   /*
-   * При открытии транзакциитранзакции сразу резервируются соединения в указанных хранилищах (или всех, если dbCodes = null)
+   * При открытии транзакции сразу резервируются соединения в указанных хранилищах (или всех, если dbCodes = null)
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    * @param dbCodes Коды хранилищ для распределенной транзакции
    */
-  public MultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition, String... dbCodes) throws TransactionException {
+  public JpMultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition, String... dbCodes) throws TransactionException {
     Collection<String> codes = dbCodes != null && dbCodes.length > 0 ? Arrays.asList(dbCodes) : null;
     return getTransaction(definition, codes);
   }
 
   /*
-   * При открытии транзакциитранзакции сразу резервируются соединения в указанных хранилищах (или всех, если dbCodes = null)
+   * При открытии транзакции сразу резервируются соединения в указанных хранилищах (или всех, если dbCodes = null)
    * @see org.springframework.transaction.PlatformTransactionManager#getTransaction(org.springframework.transaction.TransactionDefinition)
    * @param dbCodes Коды хранилищ для распределенной транзакции
    */
-  public MultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition, Collection<String> dbCodes) throws TransactionException {
+  public JpMultiTransactionStatus getTransaction(@Nullable TransactionDefinition definition, Collection<String> dbCodes) throws TransactionException {
     // Определяем список хранилищ для транзакционности
-    Set<PlatformTransactionManager> managers = new LinkedHashSet<>();
-    for (Map.Entry<String, PlatformTransactionManager> entry : transactionManagerMap.entrySet()) {
+    Collection<PlatformTransactionManager> managers = new LinkedHashSet<>();
+    for (Map.Entry<String, JPStorage> entry : transactionManagerMap.entrySet()) {
       if (dbCodes != null && !dbCodes.contains(entry.getKey())) {
         continue;
       }
-      managers.add(entry.getValue());
+      TransactionManager tm = entry.getValue().getTransactionManager();
+      if (tm instanceof PlatformTransactionManager x) {
+        managers.add(x);
+      }
     }
-    MultiTransactionStatus mts = new MultiTransactionStatus(managers.iterator().next());
+
+    JpMultiTransactionStatus mts = new JpMultiTransactionStatus(managers.iterator().next());
     if (definition == null) {
       return mts;
     }
@@ -131,14 +130,14 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     } catch (Exception ex) {
       Map<PlatformTransactionManager, TransactionStatus> transactionStatuses = mts.getTransactionStatuses();
 
-      for (PlatformTransactionManager transactionManager : transactionManagers) {
+      for (PlatformTransactionManager transactionManager : managers) {
         try {
           TransactionStatus status = transactionStatuses.get(transactionManager);
           if (status != null) {
             transactionManager.rollback(status);
           }
         } catch (Exception ex2) {
-          LOG.warn("Rollback exception (" + transactionManager + ") " + ex2.getMessage(), ex2);
+          LOG.warn("Rollback exception ({}) {}", transactionManager, ex2.getMessage(), ex2);
         }
       }
       if (mts.isPrimaryTransaction()) {
@@ -154,13 +153,16 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
    * @see org.springframework.transaction.PlatformTransactionManager#commit(org.springframework.transaction.TransactionStatus)
    */
   public void commit(TransactionStatus status) throws TransactionException {
-    MultiTransactionStatus mts = (MultiTransactionStatus) status;
-
     boolean commit = true;
     Exception commitException = null;
     PlatformTransactionManager commitExceptionTransactionManager = null;
 
-    for (PlatformTransactionManager transactionManager : reverseTransactionManagers) {
+    JpMultiTransactionStatus mts = (JpMultiTransactionStatus) status;
+
+    List<PlatformTransactionManager> managers = new ArrayList<>(mts.getTransactionManagerList());
+    Collections.reverse(managers);
+
+    for (PlatformTransactionManager transactionManager : managers) {
       if (commit) {
         try {
           mts.commit(transactionManager);
@@ -173,7 +175,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
         try {
           mts.rollback(transactionManager);
         } catch (Exception ex) {
-          LOG.warn("Rollback exception (after commit) (" + transactionManager + ") " + ex.getMessage(), ex);
+          LOG.warn("Rollback exception (after commit) ({}) {}", transactionManager, ex.getMessage(), ex);
         }
       }
     }
@@ -183,7 +185,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     }
 
     if (commitException != null) {
-      boolean firstTransactionManagerFailed = commitExceptionTransactionManager == getLastTransactionManager();
+      boolean firstTransactionManagerFailed = commitExceptionTransactionManager == managers.get(0);
       int transactionState = firstTransactionManagerFailed ?
           HeuristicCompletionException.STATE_ROLLED_BACK : HeuristicCompletionException.STATE_MIXED;
       throw new HeuristicCompletionException(transactionState, commitException);
@@ -198,9 +200,12 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     Exception rollbackException = null;
     PlatformTransactionManager rollbackExceptionTransactionManager = null;
 
-    MultiTransactionStatus mts = (MultiTransactionStatus) status;
+    JpMultiTransactionStatus mts = (JpMultiTransactionStatus) status;
 
-    for (PlatformTransactionManager transactionManager : reverseTransactionManagers) {
+    List<PlatformTransactionManager> managers = new ArrayList<>(mts.getTransactionManagerList());
+    Collections.reverse(managers);
+
+    for (PlatformTransactionManager transactionManager : managers) {
       try {
         mts.rollback(transactionManager);
       } catch (Exception ex) {
@@ -208,7 +213,7 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
           rollbackException = ex;
           rollbackExceptionTransactionManager = transactionManager;
         } else {
-          LOG.warn("Rollback exception (" + transactionManager + ") " + ex.getMessage(), ex);
+          LOG.warn("Rollback exception ({}) {}", transactionManager, ex.getMessage(), ex);
         }
       }
     }
@@ -223,16 +228,12 @@ public class ChainedTransactionManager implements PlatformTransactionManager {
     }
   }
 
-  private PlatformTransactionManager getLastTransactionManager() {
-    return reverseTransactionManagers.get(0);
-  }
-
   private void setTransaction() {
-    TRANSACTION_INFO_THREAD_LOCAL.set(JPTransactionInfo.newInstance());
+    TRANSACTION_INFO_THREAD_LOCAL.set(JpTransactionInfoBean.newInstance());
   }
 
   private void commitTransaction() {
-    TransactionInfo info = currentTransactionInfo();
+    JpTransactionInfo info = currentTransactionInfo();
     Collection<JPTransactionEvent> events = info != null ? info.getCommitEvents() : null;
     if (events != null && !events.isEmpty()) {
       transactionEventManager.fireEvents(events);

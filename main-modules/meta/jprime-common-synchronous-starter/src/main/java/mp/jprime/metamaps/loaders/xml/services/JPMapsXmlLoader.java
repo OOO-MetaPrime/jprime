@@ -1,6 +1,5 @@
 package mp.jprime.metamaps.loaders.xml.services;
 
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import mp.jprime.exceptions.JPRuntimeException;
 import mp.jprime.metamaps.JPAttrMap;
 import mp.jprime.metamaps.JPClassMap;
@@ -17,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import tools.jackson.dataformat.xml.XmlMapper;
 
 import java.io.IOException;
 import java.io.InputStream;

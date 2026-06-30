@@ -1,9 +1,8 @@
 package mp.jprime.utils.loaders.xml.operations;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 import mp.jprime.dataaccess.JPObjectRepositoryService;
-import mp.jprime.dataaccess.JPObjectRepositoryServiceAware;
 import mp.jprime.dataaccess.beans.JPMutableData;
 import mp.jprime.dataaccess.beans.JPObject;
 import mp.jprime.dataaccess.params.JPUpdate;
@@ -11,6 +10,7 @@ import mp.jprime.security.AuthInfo;
 import mp.jprime.utils.loaders.xml.JPUtilXmlOperation;
 import mp.jprime.utils.loaders.xml.beans.XmlJpOperation;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 
@@ -21,12 +21,10 @@ import java.util.Map;
  * Обновление данных на основе меты
  */
 @Service
-public final class JPUtilXmlJpUpdateOperation extends JPUtilXmlBaseOperation
-    implements JPObjectRepositoryServiceAware {
-  private JPObjectRepositoryService repo;
+public final class JPUtilXmlJpUpdateOperation extends JPUtilXmlBaseOperation {
+  private final JPObjectRepositoryService repo;
 
-  @Override
-  public void setJpObjectRepositoryService(JPObjectRepositoryService repo) {
+  private JPUtilXmlJpUpdateOperation(@Autowired JPObjectRepositoryService repo) {
     this.repo = repo;
   }
 

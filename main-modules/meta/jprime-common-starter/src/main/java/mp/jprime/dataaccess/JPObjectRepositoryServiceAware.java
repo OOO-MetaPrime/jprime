@@ -5,6 +5,7 @@ import org.springframework.beans.factory.Aware;
 /**
  * Заполнение  JPObjectRepositoryService
  */
+@Deprecated
 public interface JPObjectRepositoryServiceAware extends Aware {
   /**
    * Устанавливает   JPObjectRepositoryService

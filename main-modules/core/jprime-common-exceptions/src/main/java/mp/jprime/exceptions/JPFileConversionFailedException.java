@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 /**
  * Исключение для случая, когда конвертация не удалась
  */
-@ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+@ResponseStatus(HttpStatus.UNPROCESSABLE_CONTENT)
 public class JPFileConversionFailedException extends JPRuntimeException {
 
   /**

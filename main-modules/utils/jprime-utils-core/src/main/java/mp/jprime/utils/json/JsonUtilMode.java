@@ -72,7 +72,7 @@ public class JsonUtilMode {
     return title;
   }
 
-  public String getqName() {
+  public String getQName() {
     return qName;
   }
 

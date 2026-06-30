@@ -2,6 +2,7 @@ package mp.jprime.parsers.stringformat.services;
 
 import mp.jprime.formats.JPStringFormat;
 import mp.jprime.parsers.stringformat.JpStringFormatParser;
+import mp.jprime.utils.JPStringUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -23,12 +24,20 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
   private static final int SNILS_MODULUS_DIVISOR = 101;
   private static final int SNILS_MODULUS_REMAINDER = 100;
 
+  private static final int FULL_AGS_LENGTH = 21;
+
   private final Pattern DIGIT_PATTERN = Pattern.compile("\\d+");
   private final Pattern SNILS_PATTERN = Pattern.compile("(\\d{3})(?:\\s|-)?(\\d{3})(?:\\s|-)?(\\d{3})(?:\\s|-)?(\\d{2})(?:\\s|$|[.,)\\]|\\|])+");
   private final Pattern PHONE_PATTERN = Pattern.compile("(?<phone>(?<country>\\+\\d|8)?[\\s\\-]*\\(?" +
       "\\s*(?<code>\\d{3})\\s*\\)?[\\s\\-]*(?<code1>\\d{3})" +
       "[\\s\\-]*(?<code2>\\d{2})[\\s\\-]*(?<code3>\\d{2}))" +
       "(?:\\s|$|[,\\.)\\]\\|])");
+
+  private static final Pattern ZAGS_SERIES_CLEAN_PATTERN = Pattern.compile("[^IVXА-ЯЁ]");
+  private static final Pattern ZAGS_SERIES_PATTERN = Pattern.compile("^[IVX]+[А-ЯЁ]{2}$");
+  private static final Pattern ZAGS_DEPARTMENT_CODE_PATTERN = Pattern.compile("^(R\\d{7}|\\d{8})$");
+
+  private final Pattern ZERO_REMOVAL_PATTERN = Pattern.compile("^0+");
 
   private static final ResultRecord ERROR = ResultRecord.error();
   private static final ResultRecord EMPTY = ResultRecord.ok(null);
@@ -49,9 +58,13 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     byFormat.put(JPStringFormat.OGRN, this::parseOgrn);
     byFormat.put(JPStringFormat.OKTMO, this::parseOktmo);
     byFormat.put(JPStringFormat.OKTMO_11, this::parseOktmo11);
+    byFormat.put(JPStringFormat.OKTMO_ANY, this::parseAnyOktmo);
     byFormat.put(JPStringFormat.PHONE, this::parsePhone);
     byFormat.put(JPStringFormat.SNILS, this::parseSnils);
     byFormat.put(JPStringFormat.ZAGS_AGS, this::parseZagsAgs);
+    byFormat.put(JPStringFormat.ZAGS_DEPARTAMENT_CODE, this::parseZagsDepartmentCode);
+    byFormat.put(JPStringFormat.ZAGS_NUMBER, this::parseZagsNumber);
+    byFormat.put(JPStringFormat.ZAGS_SERIES, this::parseZagsSeries);
   }
 
   private record ResultRecord(boolean isCheck, String getParseValue) implements JpStringFormatParser.Result {
@@ -64,12 +77,6 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     public static ResultRecord ok(String parseValue) {
       return new ResultRecord(true, parseValue);
     }
-  }
-
-  private String clearDigit(String s) {
-    String value = s.replaceAll("\\D", "");
-    Matcher matcher = DIGIT_PATTERN.matcher(value);
-    return matcher.find() ? value : null;
   }
 
   @Override
@@ -96,7 +103,7 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
       return EMPTY;
     }
     value = clearDigit(value);
-    if (value != null && value.length() >= 20) {
+    if (value != null && value.length() >= 20 && value.length() <= 34) {
       return ResultRecord.ok(value);
     }
     return ERROR;
@@ -194,8 +201,17 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
       return EMPTY;
     }
     value = clearDigit(value);
-    if (value != null && value.length() == 20) {
-      return ResultRecord.ok(value);
+    if (value != null && value.length() == 13) {
+      // Берем первые 12 цифр
+      String first12 = value.substring(0, 12);
+      // Вычисляем остаток от деления на 11
+      long remainder = Long.parseLong(first12) % 11;
+      // Младший разряд остатка
+      char lastDigit = String.valueOf(remainder).charAt(0);
+      // Сравниваем с 13-й цифрой
+      char controlDigit = value.charAt(12);
+
+      return lastDigit == controlDigit ? ResultRecord.ok(value) : ERROR;
     }
     return ERROR;
   }
@@ -219,6 +235,18 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     }
     value = clearDigit(value);
     if (value != null && value.length() == 11) {
+      return ResultRecord.ok(value);
+    }
+    return ERROR;
+  }
+
+  @Override
+  public JpStringFormatParser.Result parseAnyOktmo(String value) {
+    if (value == null) {
+      return EMPTY;
+    }
+    value = clearDigit(value);
+    if (value != null && (value.length() == 8 || value.length() == 11)) {
       return ResultRecord.ok(value);
     }
     return ERROR;
@@ -250,23 +278,26 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     if (value == null) {
       return EMPTY;
     }
-    Matcher matcher = SNILS_PATTERN.matcher(value);
-    if (matcher.find()) {
-      String val1 = matcher.group(1);
-      String val2 = matcher.group(2);
-      String val3 = matcher.group(3);
-      String crc = matcher.group(4);
+    value = clearDigit(value);
+    if (value != null && value.length() == 11) {
+      Matcher matcher = SNILS_PATTERN.matcher(value);
+      if (matcher.find()) {
+        String val1 = matcher.group(1);
+        String val2 = matcher.group(2);
+        String val3 = matcher.group(3);
+        String crc = matcher.group(4);
 
-      String snils = val1 + val2 + val3;
+        String snils = val1 + val2 + val3;
 
-      int c = 0;
+        int c = 0;
 
-      for (int i = 0; i < SNILS_LENGTH; i++) {
-        c += Integer.parseInt(String.valueOf(snils.charAt(i))) * (SNILS_LENGTH - i);
-      }
+        for (int i = 0; i < SNILS_LENGTH; i++) {
+          c += Integer.parseInt(String.valueOf(snils.charAt(i))) * (SNILS_LENGTH - i);
+        }
 
-      if (c % SNILS_MODULUS_DIVISOR % SNILS_MODULUS_REMAINDER == Integer.parseInt(crc)) {
-        return ResultRecord.ok(snils + crc);
+        if (c % SNILS_MODULUS_DIVISOR % SNILS_MODULUS_REMAINDER == Integer.parseInt(crc)) {
+          return ResultRecord.ok(snils + crc);
+        }
       }
     }
     return ERROR;
@@ -307,10 +338,78 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     if (s == null || s.isBlank()) {
       return EMPTY;
     }
+    return ResultRecord.ok(JPStringUtils.parseFio(s));
+  }
 
-    String value = s.trim();
-    value = Character.toUpperCase(value.charAt(0)) + value.substring(1).toLowerCase();
-    return ResultRecord.ok(value);
+  @Override
+  public JpStringFormatParser.Result parseZagsSeries(String value) {
+    if (value == null) {
+      return EMPTY;
+    }
+    value = ZAGS_SERIES_CLEAN_PATTERN.matcher(value).replaceAll("");
+    if (ZAGS_SERIES_PATTERN.matcher(value).matches()) {
+      return ResultRecord.ok(value);
+    }
+    return ERROR;
+  }
+
+  @Override
+  public JpStringFormatParser.Result parseZagsNumber(String value) {
+    if (value == null) {
+      return EMPTY;
+    }
+    value = clearDigit(value);
+    if (value != null && value.length() == 6) {
+      return ResultRecord.ok(value);
+    }
+    return ERROR;
+  }
+
+  @Override
+  public JpStringFormatParser.Result parseZagsAgs(String value) {
+    if (value == null) {
+      return EMPTY;
+    }
+    value = clearDigit(value);
+    if (value != null) {
+      int length = value.length();
+      if (length == FULL_AGS_LENGTH && isFullAgs(value) || length >= 1 && length <= 5) {
+        return ResultRecord.ok(value);
+      }
+    }
+    return ERROR;
+  }
+
+  @Override
+  public JpStringFormatParser.Result parseZagsDepartmentCode(String value) {
+    if (value == null) {
+      return EMPTY;
+    }
+    value = value.trim();
+    if (ZAGS_DEPARTMENT_CODE_PATTERN.matcher(value).matches()) {
+      return ResultRecord.ok(value);
+    }
+    return ERROR;
+  }
+
+  @Override
+  public JpStringFormatParser.Result parseAgsShortNumber(String value) {
+    if (value == null || value.isBlank()) {
+      return EMPTY;
+    }
+    if (value.length() == FULL_AGS_LENGTH) {
+      String result = ZERO_REMOVAL_PATTERN.matcher(value.substring(13, 18)).replaceFirst("");
+      return result.isEmpty() ? EMPTY : ResultRecord.ok(result);
+    } else {
+      String result = ZERO_REMOVAL_PATTERN.matcher(value).replaceFirst("");
+      return result.isEmpty() ? EMPTY : ResultRecord.ok(result);
+    }
+  }
+
+  private String clearDigit(String s) {
+    String value = s.replaceAll("\\D", "");
+    Matcher matcher = DIGIT_PATTERN.matcher(value);
+    return matcher.find() ? value : null;
   }
 
   private boolean isInn12(String inn) {
@@ -346,15 +445,34 @@ public final class JpStringFormatCommonParser implements JpStringFormatParser {
     return false;
   }
 
-  @Override
-  public JpStringFormatParser.Result parseZagsAgs(String value) {
-    if (value == null) {
-      return EMPTY;
+  private boolean isFullAgs(String fullAgs) {
+    if (fullAgs.length() != FULL_AGS_LENGTH) {
+      return false;
     }
-    value = clearDigit(value);
-    if (value != null) {
-      return ResultRecord.ok(value);
+
+    int sum = 0;
+    int[] ratios = {1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2};
+
+    for (int i = 0; i < 20; i++) {
+      char ch = fullAgs.charAt(i);
+      if (!Character.isDigit(ch)) {
+        return false;
+      }
+
+      int value = Character.getNumericValue(ch);
+      int result = value * ratios[i];
+      if (result > 9) {
+        result -= 9;
+      }
+      sum += result;
     }
-    return ERROR;
+
+    char controlCh = fullAgs.charAt(20);
+    if (!Character.isDigit(controlCh)) {
+      return false;
+    }
+    sum += Character.getNumericValue(controlCh);
+
+    return sum % 10 == 0;
   }
 }

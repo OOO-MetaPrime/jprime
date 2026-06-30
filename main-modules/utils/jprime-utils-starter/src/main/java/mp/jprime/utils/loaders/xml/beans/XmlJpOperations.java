@@ -1,13 +1,13 @@
 package mp.jprime.utils.loaders.xml.beans;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper;
+import tools.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 import java.util.Arrays;
 
-@JacksonXmlRootElement(localName = "operations")
+@JsonRootName(value = "operations")
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class XmlJpOperations {
   private boolean useTransaction;
